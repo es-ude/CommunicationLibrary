@@ -1,5 +1,5 @@
 #include <unity.h>
-#include "../lib/source/Mutex.h"
+#include "lib/Mutex.h"
 #include <stddef.h>
 
 void
@@ -37,7 +37,7 @@ test_locking_an_already_locked_mutex_returns_false(void)
   Mutex_init(&m);
   int key;
   Mutex_lockWithKey(&m, &key);
-  TEST_ASSERT_FALSE(Mutex_lockWithKey(&m, key));
+  TEST_ASSERT_FALSE(Mutex_lockWithKey(&m, &key));
 }
 
 void
