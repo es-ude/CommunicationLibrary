@@ -1,10 +1,11 @@
-cc_test(
-        name = "Mutex-test",
-        srcs = ["Mutex_Test.c"],
-        copts = ["-Iexternal_deps/Unity/src"],
-        deps = [
-                "//external_deps/Unity/src:unity",
-                "//lib:CommunicationModule",
-                ],
-        size = "small"
-        )
+# All tests for the CommunicationModule
+
+load("//test:unity_helpers.bzl", "generate_a_unity_test_for_every_file")
+
+generate_a_unity_test_for_every_file(
+    glob(["*_Test.c"])
+)
+
+test_suite(
+  name = "ALL"
+  )

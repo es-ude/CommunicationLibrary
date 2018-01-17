@@ -1,4 +1,4 @@
-#include <unity.h>
+#include "unity.h"
 #include "lib/Mutex.h"
 #include <stddef.h>
 
@@ -92,18 +92,4 @@ test_mutex_is_locked_after_calling_unlock_with_wrong_key(void)
   Mutex_lockWithKey(&m, &correct_key);
   Mutex_unlockWithKey(&m, &wrong_key);
   TEST_ASSERT_TRUE(Mutex_isLocked(&m));
-}
-
-int main()
-{
-  UNITY_BEGIN();
-  RUN_TEST(test_creating_a_mutex);
-  RUN_TEST(test_isLocked_returns_false_for_unlocked_mutex);
-  RUN_TEST(test_locking_unlocked_mutex_returns_true);
-  RUN_TEST(test_locking_an_already_locked_mutex_returns_false);
-  RUN_TEST(test_isLocked_returns_true_on_locked_mutex);
-  RUN_TEST(test_unlocking_a_mutex_with_wrong_key_returns_false);
-  RUN_TEST(test_unlocking_mutex_with_right_key_returns_true);
-  RUN_TEST(test_mutex_is_unlocked_after_calling_unlock_with_correct_key);
-  return UNITY_END();
 }
