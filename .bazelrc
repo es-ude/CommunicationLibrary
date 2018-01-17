@@ -1,0 +1,5 @@
+# .bazelrc
+build:attiny1634 --crosstool_top=//toolchain:attiny1634
+build:attiny1634 --cpu=attiny1634
+build:attiny1634 --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
+test --test_output=errors
