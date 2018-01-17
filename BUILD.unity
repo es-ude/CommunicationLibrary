@@ -1,0 +1,19 @@
+filegroup (
+    name = "generate_test_runner",
+    srcs = ["auto/generate_test_runner.rb"],
+    visibility = ["//visibility:public"],
+    )
+
+filegroup (
+    name = "unity-helpers",
+    srcs = glob(["auto/*.rb"]),
+    visibility = ["//visibility:public"],
+)
+
+cc_library (
+        name = "unity",
+        srcs = ["src/unity.c",  "src/unity_internals.h"],
+        hdrs = ["src/unity.h"],
+        copts = ["-Iexternal/unity/src/"],
+        visibility = ["//visibility:public"],
+        )
