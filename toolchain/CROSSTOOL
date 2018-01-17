@@ -1,0 +1,75 @@
+major_version: "1"
+minor_version: "0"
+default_target_cpu: "avr"
+
+default_toolchain {
+    cpu: "avr"
+    toolchain_identifier: "avr-gnu-toolchain-linux_x86_64"
+    }
+
+toolchain {
+    toolchain_identifier: "avr-gnu-toolchain-linux_x86_64"
+    host_system_name: "x86_64-pc-linux-gnu"
+    target_system_name: "avr"
+    target_cpu: "avr"
+    target_libc: "avr"
+    compiler: "gcc"
+
+    abi_version: "avr"
+    abi_libc_version: "avr"
+
+    tool_path {
+        name: "gcc"
+        path: "/usr/bin/avr-gcc"
+    }
+
+    tool_path {
+        name: "compat-ld"
+        path: "/usr/bin/avr-ld"
+    }
+
+    tool_path {
+        name: "cpp"
+        path: "/usr/bin/avr-cpp"
+    }
+
+    tool_path {
+        name: "ar"
+        path: "/usr/bin/avr-ar"
+    }
+
+    tool_path {
+        name: "gcov"
+        path: "/usr/bin/avr-gcov"
+    }
+
+    tool_path {
+        name: "ld"
+        path: "/usr/bin/avr-ld"
+    }
+
+    tool_path {
+        name: "nm"
+        path: "/usr/bin/avr-nm"
+    }
+
+    tool_path {
+        name: "objcopy"
+        path: "/usr/bin/avr-objcopy"
+    }
+
+    tool_path {
+        name: "objdump"
+        path: "/usr/bin/avr-objdump"
+    }
+
+    tool_path {
+        name: "strip"
+        path: "/usr/bin/avr-strip"
+    }
+
+    compiler_flag: "-Wall"
+    compiler_flag: "-std=gnu99"
+
+    cxx_builtin_include_directory: "/usr/lib/gcc/avr/7.2.0/include"
+ }

@@ -1,5 +1,7 @@
 # .bazelrc
-build:attiny1634 --crosstool_top=//toolchain:attiny1634
-build:attiny1634 --cpu=attiny1634
-build:attiny1634 --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
+build:328p --crosstool_top=//toolchain:toolchain
+build:328p --cpu=avr
+build:328p --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
+build:328p --define MCU=atmega328p
+build:328p --copt -DF_CPU=16000000
 test --test_output=errors
