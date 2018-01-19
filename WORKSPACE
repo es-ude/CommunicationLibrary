@@ -40,7 +40,7 @@ This project has the following structure:
 /
 |- WORKSPACE
 |- BUILD.unity
-|- .bazelrc
+|- .bazelr
 |- lib/
     |- BUILD
 |- test/
