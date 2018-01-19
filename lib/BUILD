@@ -23,5 +23,5 @@ cc_library(
               ":avr-config": ["-mmcu=$(MCU)"],
               "//conditions:default": [],
         }),
-        visibility = ["//test:__pkg__"],
+        visibility = ["//test:__pkg__", "//test/Mocks:__pkg__"],
         )
