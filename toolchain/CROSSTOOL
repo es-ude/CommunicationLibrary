@@ -1,14 +1,34 @@
+/* This file uses the proto buffer format defined by google.
+   For now it contains a minimal setup for compiling with
+   avr-gcc on a linux platform. You might have to adjust
+   the toolpath values to point to the executables provided by
+   your system. The same is true for the include path.
+   These wiki articles should be helpful in case you want to
+   setup a toolchain that uses tools from a remote repo:
+   https://github.com/bazelbuild/bazel/wiki/Building-with-a-custom-toolchain
+   https://github.com/bazelbuild/bazel/wiki/Yet-Another-CROSSTOOL-Writing-Tutorial
+
+   for general but scarce info on the CROSSTOOL file see:
+   https://github.com/bazelbuild/bazel/wiki/About-the-CROSSTOOL
+
+*/
 major_version: "1"
 minor_version: "0"
 default_target_cpu: "avr"
 
+/*
+  If i got it correctly this setting is used to make the avr-gnu-toolchain-linux_x86_64 the
+  default toolchain when using avr as cpu. Documentation about this is scarce.
+*/
 default_toolchain {
     cpu: "avr"
     toolchain_identifier: "avr-gnu-toolchain-linux_x86_64"
     }
 
 toolchain {
-    toolchain_identifier: "avr-gnu-toolchain-linux_x86_64"
+// all these first options here are arbitrary but required fields
+// as far as i can see they serve to identify the respectively refer to the toolchain.
+    toolchain_identifier: "avr-gnu-toolchain-linux_x86_64" // arbitrary name, has to match the name in default_toolchain
     host_system_name: "x86_64-pc-linux-gnu"
     target_system_name: "avr"
     target_cpu: "avr"
@@ -18,6 +38,15 @@ toolchain {
     abi_version: "avr"
     abi_libc_version: "avr"
 
+/*
+  From here on the important stuff happens.
+  We tell bazel where to find all the tools that it needs
+  for the build process. Instead of using the binaries
+  provided by the OS here one could refer to executables
+  residing inside other bazel projects. This way the toolchain
+  could be decoupled from the Operating system.
+  An example for this is given in the links at the top.
+*/
     tool_path {
         name: "gcc"
         path: "/usr/bin/avr-gcc"

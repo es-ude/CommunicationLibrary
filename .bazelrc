@@ -1,7 +1,18 @@
 # .bazelrc
+# This files main purpose is to form groups of options
+# that can then be used on command line.
+# Documentation for this can be found at
+# https://docs.bazel.build/versions/master/user-manual.html
+#
+# this line makes bazel output the test log in case of errors
+test --test_output=errors
+
+# executing the command:
+# bazel build lib:CommunicationModule --config=328p
+# would lead to appending all of the options below on command line
 build:328p --crosstool_top=//toolchain:toolchain
 build:328p --cpu=avr
 build:328p --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
 build:328p --define MCU=atmega328p
 build:328p --copt -DF_CPU=16000000
-test --test_output=errors
+build:328p --copt -DBAUD=9600
