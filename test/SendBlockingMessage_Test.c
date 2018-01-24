@@ -2,7 +2,7 @@
 #include "test/Mocks/RuntimeLibraryMock.h"
 #include "unity.h"
 
-void test_sendBlockingMessageUseCase(void) {
+void test_CommunicationModuleAllocationIsCorrect(void) {
   uint8_t memory_for_communication_module[sizeof(CommunicationModule)];
   MockAllocateConfig config = {
     .size_allocated = 0,
@@ -15,6 +15,15 @@ void test_sendBlockingMessageUseCase(void) {
 
   TEST_ASSERT_EQUAL_UINT16(config.size_allocated, sizeof(CommunicationModule));
   TEST_ASSERT_EQUAL_PTR(memory_for_communication_module, communication_module);
+}
+
+void test_sendNonBlockingMessageCanBeCalled(void) {
+  uint8_t memory_for_communication_module[sizeof(CommunicationModule)];
+  MockAllocateConfig config = {
+    .returned_address = memory_for_communication_module
+  };
+  configureMockAllocate(&config);
+  CommunicationModule *communication_module = CommunicationModule_create(mockAllocate);
   Message message;
   message.payload = (uint8_t*) "hello there";
   message.address[0] = 0;
