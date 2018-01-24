@@ -1,16 +1,20 @@
 #include "RuntimeLibraryMock.h"
 #include <stddef.h>
 
-size_t *input_value;
+size_t *mock_allocate_input_value;
 
-void *returned_address;
+void *returned_pointer;
 
 void * mockAllocate(size_t bytes_allocated) {
-  *input_value = bytes_allocated;
-  return returned_address;
+  *mock_allocate_input_value = 1;
+  return (void*)1;
 }
 
-void configureMockAllocate(MockAllocateConfig* config){
-  input_value = &config->size_allocated;
-  returned_address = config->returned_address;
+void setMockAllocateInputValue(size_t *memory) {
+  mock_allocate_input_value = memory;
 }
+
+void setMockAllocateReturnValue(void *pointer) {
+}
+
+void configureMockAllocate(MockAllocateConfig* config){}
