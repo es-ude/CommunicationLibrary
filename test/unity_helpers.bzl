@@ -63,8 +63,6 @@ def unity_test(file_name, deps=None, copts=None, size="small", visibility=None):
         copts = []
     deps += ["@unity//:unity"]
     copts += ["-Iexternal/unity/src"]
-    deps = list(depset(deps))
-    copts = list(depset(copts))
     native.cc_test(
         name = base_name(file_name),
         srcs = [file_name, runner_file_name(file_name)],
