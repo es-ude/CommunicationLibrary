@@ -11,10 +11,6 @@ typedef struct MockAllocateConfig {
 
 void * mockAllocate(size_t bytes_allocated);
 
-void setMockAllocateInputValue(size_t *memory);
-
-void setMockAllocateReturnValue(void *returned_pointer);
-
 void configureMockAllocate(MockAllocateConfig*);
 
 
