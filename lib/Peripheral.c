@@ -13,10 +13,10 @@ uint8_t Peripheral_readByte(Peripheral *self) {
     return self->readByte(self);
 }
 
-inline extern void Peripheral_setInterruptHandeler(Peripheral *self, InterruptHandler handler) {
+void Peripheral_setInterruptHandeler(Peripheral *self, InterruptHandler handler) {
     self->setInterruptHandler(self, handler);
 }
 
-inline extern void Peripheral_handleInterrupt(Peripheral *self) {
+void Peripheral_handleInterrupt(Peripheral *self) {
     self->handleInterrupt(self);
 }
