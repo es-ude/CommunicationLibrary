@@ -5,7 +5,8 @@ typedef struct PeripheralSPIImpl {
   volatile uint8_t *ddr;
 } PeripheralSPIImpl;
 
-Peripheral * createPeripheralSPI(SPIConfig *config) {
-  PeripheralSPIImpl *impl = malloc(sizeof(PeripheralSPIImpl));
-  impl->ddr = config->ddr;
+Peripheral * createPeripheralSPI(SPIConfig *config, Allocator allocate) {
+  PeripheralSPIImpl *implementation = allocate(sizeof(PeripheralSPIImpl));
+  implementation->ddr = config->ddr;
+  return (Peripheral*) implementation;
 }

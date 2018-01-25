@@ -8,11 +8,15 @@ typedef struct Peripheral Peripheral;
 typedef void (*InterruptHandler) (void);
 
 struct Peripheral {
-  void (*writeByte) (uint8_t byte);
-  uint8_t (*readByte) (void);
-  void (*setInterruptHandler) (InterruptHandler);
-  void (*handleInterrupt) (void);
+    void (*writeByte) (Peripheral *self, uint8_t byte);
+    uint8_t (*readByte) (Peripheral *self);
+    void (*setInterruptHandler) (Peripheral *self, InterruptHandler);
+    void (*handleInterrupt) (Peripheral *self);
 };
+
+
+
+
 
 
 #endif /* PERIPHERALINTERFACE_H */
