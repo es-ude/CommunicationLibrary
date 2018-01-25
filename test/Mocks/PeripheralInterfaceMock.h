@@ -1,7 +1,7 @@
 #ifndef PERIPHERALMOCK_H
 #define PERIPHERALMOCK_H
 
-#include "lib/Peripheral.h"
+#include "lib/include/Peripheral.h"
 
 
 typedef struct PeripheralInterfaceMock {

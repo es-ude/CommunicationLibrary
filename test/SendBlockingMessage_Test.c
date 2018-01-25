@@ -1,4 +1,4 @@
-#include "lib/CommunicationModule.h"
+#include "lib/include/CommunicationModule.h"
 #include "test/Mocks/RuntimeLibraryMock.h"
 #include "unity.h"
 

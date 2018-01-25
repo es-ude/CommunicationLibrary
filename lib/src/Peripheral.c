@@ -2,7 +2,7 @@
 // Created by luk on 1/25/18.
 //
 
-#include "lib/Peripheral.h"
+#include "lib/include/Peripheral.h"
 
 
 void Peripheral_writeByte(Peripheral *self, uint8_t byte) {

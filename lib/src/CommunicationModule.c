@@ -1,4 +1,4 @@
-#include "lib/CommunicationModule.h"
+#include "lib/include/CommunicationModule.h"
 
 
 static void sendNonBlocking(Message*);

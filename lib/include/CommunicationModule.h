@@ -1,8 +1,8 @@
 #ifndef COMMUNICATIONMODULE_H
 #define COMMUNICATIONMODULE_H
 
-#include "lib/RuntimeLibraryInterface.h"
-#include "lib/Message.h"
+#include "lib/include/RuntimeLibraryInterface.h"
+#include "lib/include/Message.h"
 
 typedef struct CommunicationModule CommunicationModule;
 

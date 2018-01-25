@@ -1,4 +1,4 @@
-#include "lib/PeripheralSPIImpl.h"
+#include "lib/include/PeripheralSPIImpl.h"
 
 typedef struct PeripheralSPIImpl {
   Peripheral interface;
