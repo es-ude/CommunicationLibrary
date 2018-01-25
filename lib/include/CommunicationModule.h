@@ -6,7 +6,7 @@
 
 typedef struct CommunicationModule CommunicationModule;
 
-CommunicationModule * CommunicationModule_create(AllocationFunction allocate);
+CommunicationModule * CommunicationModule_create(Allocator allocate);
 
 struct CommunicationModule {
   void (*sendNonBlocking) (Message*);
