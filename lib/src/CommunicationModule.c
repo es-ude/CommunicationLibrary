@@ -3,7 +3,7 @@
 
 static void sendNonBlocking(Message*);
 
-CommunicationModule * CommunicationModule_create(AllocationFunction allocate){
+CommunicationModule * CommunicationModule_create(Allocator allocate){
   CommunicationModule *module = allocate(sizeof(CommunicationModule));
   module->sendNonBlocking = sendNonBlocking;
   return module;
