@@ -2,7 +2,7 @@
 #define PERIPHERALSPIIMPL_H
 
 #include "Peripheral.h"
-#include "lib/RuntimeLibraryInterface.h"
+#include "lib/include/RuntimeLibraryInterface.h"
 
 typedef struct SPIConfig {
   volatile uint8_t *ddr;

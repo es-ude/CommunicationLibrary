@@ -1,11 +1,20 @@
-
 # makes the configuration setting "avr-config" available as soon as the cpu value avr is used for a build
 config_setting(
     name = "avr-config",
     values = {
         "cpu": "avr",
     },
-    )
+)
+
+filegroup(
+    name = "CommunicationModuleSrc",
+    srcs = glob(["src/*.c"]),
+)
+
+filegroup(
+    name = "CommunicationModuleIncl",
+    srcs = glob(["include/*.h"]),
+)
 
 """
 The select function allows to make the right hand option of a attribute
@@ -15,13 +24,17 @@ This adds the command line flag -mmcu=$(MCU) as soon as the user calls Bazel lik
     bazel <command> --cpu=avr --define MCU=<mcu-name>
 and $(MCU) is replaced by <mcu-name>
 """
+
 cc_library(
-        name = "CommunicationModule",
-        srcs = glob(["*.c"]),
-        hdrs = glob(["*.h"]),
-        copts = select({
-              ":avr-config": ["-mmcu=$(MCU)"],
-              "//conditions:default": [],
-        }),
-        visibility = ["//test:__pkg__", "//test/Mocks:__pkg__"],
-        )
+    name = "CommunicationModule",
+    srcs = [":CommunicationModuleSrc"],
+    hdrs = [":CommunicationModuleIncl"],
+    copts = select({
+        ":avr-config": ["-mmcu=$(MCU)"],
+        "//conditions:default": [],
+    }),
+    visibility = [
+        "//test:__pkg__",
+        "//test/Mocks:__pkg__",
+    ],
+)

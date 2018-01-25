@@ -5,7 +5,7 @@
 #ifndef COMMUNICATIONMODULE_PERIPHERALAPI_H
 #define COMMUNICATIONMODULE_PERIPHERALAPI_H
 
-#include "lib/Peripheral.h"
+#include "lib/include/Peripheral.h"
 
 /**
  * https://gcc.gnu.org/onlinedocs/gcc/Inline.html

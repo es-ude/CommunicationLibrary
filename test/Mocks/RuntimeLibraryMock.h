@@ -2,7 +2,7 @@
 #define RUNTIMELIBRARYMOCK_H
 
 
-#include "lib/RuntimeLibraryInterface.h"
+#include "lib/include/RuntimeLibraryInterface.h"
 
 typedef struct MockAllocateConfig {
   size_t size_allocated;
