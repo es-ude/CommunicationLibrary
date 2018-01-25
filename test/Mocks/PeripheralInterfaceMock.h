@@ -3,11 +3,17 @@
 
 #include "lib/Peripheral.h"
 
-Peripheral * createPeripheralInterfaceMock(void);
 
 typedef struct PeripheralInterfaceMock {
-  Peripheral interface;
+    Peripheral interface;
+    volatile uint8_t *ddr;
+    volatile uint8_t *port;
+
 } PeripheralInterfaceMock;
+
+void initPeripheralInterfaceMock(Peripheral *peripheral);
+
+
 
 
 #endif /* PERIPHERALMOCK_H */

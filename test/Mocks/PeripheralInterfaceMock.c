@@ -1,24 +1,32 @@
 #include "PeripheralInterfaceMock.h"
 
-static uint8_t readByte(void);
-static void writeByte(uint8_t);
-static void setInterruptHandler(InterruptHandler);
-static void handleInterrupt(void);
+static uint8_t readByte(Peripheral*);
+static void writeByte(Peripheral*, uint8_t);
+static void setInterruptHandler(Peripheral*, InterruptHandler);
+static void handleInterrupt(Peripheral*);
 
 
 
 void initPeripheralInterfaceMock(Peripheral *interface) {
+    interface->readByte = readByte;
+    interface->writeByte = writeByte;
+    interface->setInterruptHandler = setInterruptHandler;
+    interface->handleInterrupt = handleInterrupt;
+}
+
+
+void writeByte(Peripheral *self, uint8_t byte) {
 
 }
 
-void writeByte(uint8_t byte) {
-
-}
-
-void setInterruptHandler(InterruptHandler handler) {
+void setInterruptHandler(Peripheral *self, InterruptHandler handler) {
   
 }
 
-void handleInterrupt(void) {
+void handleInterrupt(Peripheral *self) {
   
+}
+
+uint8_t readByte(Peripheral *self) {
+    return 0;
 }
