@@ -1,47 +1,42 @@
 
 # Table of Contents
 
-1.  [Communication Module](#org55606bb)
-    1.  [Software Layers of the Communication Module](#orgd4c4682)
-    2.  [UserAPI](#orgeec3702)
-    3.  [PeripheralInterfaces](#orgdb9bb52)
-        1.  [Example of an SPI Interface](#org408041e)
+1.  [Communication Module](#orge040061)
+    1.  [Software Layers of the Communication Module](#org71282c4)
+    2.  [UserAPI](#org66484ae)
+        1.  [Example of an SPI Interface](#orgf479570)
 
 
 
-<a id="org55606bb"></a>
+<a id="orge040061"></a>
 
 # Communication Module
 
 
-<a id="orgd4c4682"></a>
+<a id="org71282c4"></a>
 
 ## Software Layers of the Communication Module
 
 I propose the following Layers:
 
 -   **UserAPI** (send, receive, initialize necessary data structures)
--   **NetworkHardware** (MRF vs XBee vs BluetoothAdapter)
+-   **NetworkHardware** (MRF vs XBee)
 -   **Peripheral** (Usart vs SPI)
 
 For now we expose the interfaces using abstract datatypes.
 This allows us to build a "configuration tree" any way
 we need depending on the used hardware, which also enables us to use
 multiple hardware setups in parallel.
-
 The Tree could be created like so:
 
-    Peripheral *peripheral = initPeripheralInterfaceSPI(&p_interface);
-    
+    Peripheral *peripheral = Peripheral_createSPI();
     NetworkHardware *hardware = NetworkHardware_createMRF(peripheral);
+    CommunicationModule *comm = CommunicationModule_create(hardware);
     
-    UserAPI comm;
-    initUserAPI(&comm, hardware);
-    
-    runYourUserCode(&comm);
+    runYourUserCode(comm);
 
 
-<a id="orgeec3702"></a>
+<a id="org66484ae"></a>
 
 ## UserAPI
 
@@ -65,7 +60,7 @@ Isn't everything else (e.g. setting a pan id) initialization and would
 go into the init functions as well?
 
 
-<a id="orgdb9bb52"></a>
+<a id="orgf479570"></a>
 
 ### Example of an SPI Interface
 
@@ -86,6 +81,6 @@ Then for initialization of SPI do something like
     spi_conf.ddr = DDRD;
     spi_conf.chip_select_ddr = DDRB;
     spi_conf.chip_select_port = PORTB;
-    Peripheral spi_interface;
-    Peripheral_createSPI(&spi_interface, &spi_conf);
+    PeripheralInterface spi_interface;
+    initPeripheralInterfaceSPI(&spi_interface, &spi_conf);
 
