@@ -24,7 +24,7 @@ inline extern uint8_t Peripheral_readByte(Peripheral *self) {
     return self->readByte(self);
 }
 
-inline extern void Peripheral_setInterruptHandeler(Peripheral *self, InterruptHandler handler) {
+inline extern void Peripheral_setInterruptHandler(Peripheral *self, InterruptHandler handler) {
     self->setInterruptHandler(self, handler);
 }
 
