@@ -1,7 +1,3 @@
-//
-// Created by luk on 1/25/18.
-//
-
 #include "lib/include/Peripheral.h"
 
 
@@ -13,7 +9,7 @@ uint8_t Peripheral_readByte(Peripheral *self) {
     return self->readByte(self);
 }
 
-void Peripheral_setInterruptHandeler(Peripheral *self, InterruptHandler handler) {
+void Peripheral_setInterruptHandler(Peripheral *self, InterruptHandler handler) {
     self->setInterruptHandler(self, handler);
 }
 
