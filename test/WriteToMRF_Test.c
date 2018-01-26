@@ -4,6 +4,6 @@
 void test_HardwareModuleInterfaceSetup(void) {
     PeripheralInterfaceMock peripheral;
     initPeripheralInterfaceMock((Peripheral*) &peripheral);
-    NetworkHardware *hardware = NetworkModule_createMRF((Peripheral*) &peripheral);
+    NetworkHardware *hardware = NetworkHardware_createMRF((Peripheral*) &peripheral);
 
 }
