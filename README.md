@@ -21,38 +21,24 @@
 I propose the following Layers:
 
 -   **UserAPI** (send, receive, initialize necessary data structures)
--   **Protocol** (802.15.4 vs ZigBee vs Bluetooth)
--   **HWModuleInterface** (MRF vs XBee)
--   **PeripheralInterface** (Usart vs SPI)
+-   **NetworkHardware** (MRF vs XBee vs BluetoothAdapter)
+-   **Peripheral** (Usart vs SPI)
 
-The goal here is to create as much data as possible on the stack by defining a
-tree of needed data structures that is build up once at the start
-of the program. This allows us to build that "configuration tree" any way
-we need depending on the used hardware. This should enable us to use
+For now we expose the interfaces using abstract datatypes.
+This allows us to build a "configuration tree" any way
+we need depending on the used hardware, which also enables us to use
 multiple hardware setups in parallel.
 
 The Tree could be created like so:
 
-    PeripheralInterface p_interface;
-    initPeripheralInterfaceSPI(&p_interface);
+    Peripheral *peripheral = initPeripheralInterfaceSPI(&p_interface);
     
-    HWModuleInterface hw_interface;
-    initHwModuleInterfaceMRF(&hw_interface, &p_interface);
-    
-    Protocol protocol;
-    initProtocol802154(&protocol, &hw_interface);
+    NetworkHardware *hardware = NetworkHardware_createMRF(peripheral);
     
     UserAPI comm;
-    initUserAPI(&comm, &protocol);
+    initUserAPI(&comm, hardware);
     
     runYourUserCode(&comm);
-
-By using pointers the user stays in complete control of memory.
-Second option is to allocate everything on the heap and creat all
-modules as abstract data types. Though this option seems better because it
-prevents data members from direct access, we might run into problems in case
-heap space is artificially limited by runtime (is this actually a thing?).
-Besides that we'd be screwed on systems without dynamic allocation.
 
 
 <a id="orgeec3702"></a>
@@ -81,75 +67,6 @@ go into the init functions as well?
 
 <a id="orgdb9bb52"></a>
 
-## PeripheralInterfaces
-
-To enable sharing of PeripheralInterfaces across different parts of an application
-access to them has to be organized. Maybe do it like so:
-
-    typedef enum {
-        BUSY = 1,
-        INITIALIZED = (1 << 1),
-    } PeriphalInterfaceState;
-    
-    typedef struct PeripheralInterface {
-        PeripheralInterfaceState state;
-        union {
-            PeripheralSPI spi;
-            PeripheralUART uart;
-    } PeripheralInterface;
-    
-    bool
-    isBusy_PeripheralInterface(PeripheralInterface *interface)
-    {
-        // of course this has to be atomic because of calls from ISRs
-        return BUSY && interface->state;
-    }
-    
-    void
-    claim_PeripheralInterface(PeripheralInterface *interface)
-    {
-        // atomic as well
-        interface->state |= BUSY;
-    }
-
-One could of course also implement a Mutex mechanism for the Peripheral e.g. like so
-
-    typedef struct Mutex {
-        void *key;
-    } Mutex;
-    
-    void
-    lockMutexWithKey(Mutex *mutex, void *key)
-    {
-        // atomically
-        mutex->key = key;
-    }
-    
-    bool
-    mutexLocked(Mutex *mutex)
-    {
-        //atomically
-        return mutex->key != NULL;
-    }
-    
-    bool
-    unlockMutexWithKey(Mutex *mutex, void *key)
-    {
-        //atomically
-        if(mutex->key == key)
-        {
-            mutex->key = NULL;
-            return true;
-        }
-        else return false;
-    }
-
-This way it would be more difficult to accidentally use a busy interface and I don't
-think it's expensive enough not to use it.
-
-
-<a id="org408041e"></a>
-
 ### Example of an SPI Interface
 
 For setup of the SPI Interface let's do something like this
@@ -169,6 +86,6 @@ Then for initialization of SPI do something like
     spi_conf.ddr = DDRD;
     spi_conf.chip_select_ddr = DDRB;
     spi_conf.chip_select_port = PORTB;
-    PeripheralInterface spi_interface;
-    initPeripheralInterfaceSPI(&spi_interface, &spi_conf);
+    Peripheral spi_interface;
+    Peripheral_createSPI(&spi_interface, &spi_conf);
 
