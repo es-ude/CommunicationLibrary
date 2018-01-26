@@ -39,9 +39,8 @@ def generate_test_runner(file_name, visibility=None):
         name = runner_base_name(file_name),
         srcs = [file_name],
         outs = [runner_file_name(file_name)],
-        cmd = "ruby $(location @unity//:generate_test_runner) $(SRCS) $(OUTS)",
-        tools = ["@unity//:generate_test_runner",
-                 "@unity//:unity-helpers",
+        cmd = "$(location //test:TestRunnerGenerator) $(SRCS) $(OUTS)",
+        tools = ["//test:TestRunnerGenerator",
         ],
         visibility = visibility,
     )
