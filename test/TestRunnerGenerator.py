@@ -15,7 +15,7 @@ def functionName(args):
     return re.sub(r"\s*void (test_\w+).*", r"\g<1>", args)
 
 def isIncludeStatement(arg):
-    return re.match(r"#include\s*\".*\.h\"", arg)
+    return re.match(r"#include\s*\".*\.h\"", arg) or re.match(r'#include\s*<.*\.h>', arg)
 
 def parseFile(inputfile, includes, testFunctions):
     linenumber = 0
