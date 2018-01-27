@@ -10,5 +10,4 @@ CommunicationModule * CommunicationModule_create(Allocator allocate){
 }
 
 void sendNonBlocking(Message *message) {
-  
 }
