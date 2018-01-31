@@ -1,4 +1,4 @@
-#include "test/Mocks/PeripheralInterfaceMock.h"
+#include "test/Mocks/MockPeripheralImpl.h"
 #include "lib/include/NetworkHardwareMRFImpl.h"
 
 void test_HardwareModuleInterfaceSetup(void) {

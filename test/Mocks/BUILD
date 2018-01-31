@@ -5,12 +5,12 @@ filegroup(
 
 filegroup(
     name = "MockModulesHeaders",
-    srcs = glob(["*Mock.h"])
+    srcs = glob(["Mock*.h"])
 )
 
 filegroup(
     name = "MockModulesFiles",
-    srcs = glob(["*Mock.h", "*Mock.c"])
+    srcs = glob(["Mock*.h", "Mock*.c"])
 )
 
 cc_inc_library(

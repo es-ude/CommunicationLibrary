@@ -1,14 +1,15 @@
 #include "lib/include/CommunicationModule.h"
-#include "test/Mocks/RuntimeLibraryMock.h"
+#include "test/Mocks/MockRuntimeLibraryImpl.h"
 #include "unity.h"
 
-void test_CommunicationModuleAllocationIsCorrect(void) {
-  uint8_t memory_for_communication_module[sizeof(CommunicationModule)];
-  MockAllocateConfig config = {
-    .size_allocated = 0,
-    .returned_address = memory_for_communication_module,
-  };
+uint8_t memory_for_communication_module[sizeof(CommunicationModule)];
+MockAllocateConfig config;
+void setUp(void) {
+  config.size_allocated = 0;
+  config.returned_address = memory_for_communication_module;
+}
 
+void test_CommunicationModuleAllocationIsCorrect(void) {
   configureMockAllocate(&config);
 
   CommunicationModule *communication_module = CommunicationModule_create(mockAllocate);
@@ -18,10 +19,7 @@ void test_CommunicationModuleAllocationIsCorrect(void) {
 }
 
 void test_sendNonBlockingMessageCanBeCalled(void) {
-  uint8_t memory_for_communication_module[sizeof(CommunicationModule)];
-  MockAllocateConfig config = {
-    .returned_address = memory_for_communication_module
-  };
+
   configureMockAllocate(&config);
   CommunicationModule *communication_module = CommunicationModule_create(mockAllocate);
   Message message;
