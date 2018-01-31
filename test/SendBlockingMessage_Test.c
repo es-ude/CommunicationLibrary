@@ -4,14 +4,15 @@
 
 uint8_t memory_for_communication_module[sizeof(CommunicationModule)];
 MockAllocateConfig config;
+
 void setUp(void) {
   config.size_allocated = 0;
   config.returned_address = memory_for_communication_module;
+  configureMockAllocate(&config);
+
 }
 
 void test_CommunicationModuleAllocationIsCorrect(void) {
-  configureMockAllocate(&config);
-
   CommunicationModule *communication_module = CommunicationModule_create(mockAllocate);
 
   TEST_ASSERT_EQUAL_UINT16(config.size_allocated, sizeof(CommunicationModule));
@@ -19,8 +20,6 @@ void test_CommunicationModuleAllocationIsCorrect(void) {
 }
 
 void test_sendNonBlockingMessageCanBeCalled(void) {
-
-  configureMockAllocate(&config);
   CommunicationModule *communication_module = CommunicationModule_create(mockAllocate);
   Message message;
   message.payload = (uint8_t*) "hello there";

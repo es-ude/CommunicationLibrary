@@ -5,9 +5,9 @@
 
 
 typedef struct PeripheralInterfaceMock {
-    Peripheral interface;
-    volatile uint8_t *ddr;
-    volatile uint8_t *port;
+  Peripheral interface;
+  volatile uint8_t *ddr;
+  volatile uint8_t *port;
 
 } PeripheralInterfaceMock;
 
