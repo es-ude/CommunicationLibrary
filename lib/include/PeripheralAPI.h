@@ -13,19 +13,19 @@ This combination of inline and extern has almost the effect of a macro.
  */
 
 
-inline void Peripheral_writeByte(Peripheral *self, uint8_t byte){
-    self->writeByte(self, byte);
+static inline void Peripheral_writeByteNonBlocking(Peripheral *self, uint8_t byte){
+    self->writeByteNonBlocking(self, byte);
 }
 
-inline uint8_t Peripheral_readByte(Peripheral *self) {
+static inline uint8_t Peripheral_readByte(Peripheral *self) {
     return self->readByte(self);
 }
 
-inline void Peripheral_setInterruptHandler(Peripheral *self, InterruptHandler handler) {
+static inline void Peripheral_setInterruptHandler(Peripheral *self, InterruptHandler handler) {
     self->setInterruptHandler(self, handler);
 }
 
-inline void Peripheral_handleInterrupt(Peripheral *self) {
+static inline void Peripheral_handleInterrupt(Peripheral *self) {
     self->handleInterrupt(self);
 }
 

@@ -5,7 +5,10 @@ static void writeByte(Peripheral *, uint8_t);
 static void setInterruptHandler(Peripheral *, InterruptHandler);
 static void handleInterrupt(Peripheral *);
 
-void writeByte(Peripheral *self, uint8_t byte) {}
+void writeByte(Peripheral *self, uint8_t byte) {
+  MockPeripheralImpl *mock = (MockPeripheralImpl*) self;
+  mock->written_bytes[0] = byte;
+}
 
 void setInterruptHandler(Peripheral *self, InterruptHandler handler) {}
 
@@ -15,7 +18,7 @@ uint8_t readByte(Peripheral *self) { return 0; }
 
 void MockPeripheralImpl_init(Peripheral *mock) {
   mock->readByte = readByte;
-  mock->writeByte = writeByte;
+  mock->writeByteNonBlocking = writeByte;
   mock->setInterruptHandler = setInterruptHandler;
   mock->handleInterrupt = handleInterrupt;
 }
