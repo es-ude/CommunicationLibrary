@@ -9,9 +9,9 @@ typedef struct MockAllocateConfig {
   void *returned_address;
 } MockAllocateConfig;
 
-void * mockAllocate(size_t bytes_allocated);
+void * MockAllocate_allocate(size_t bytes_allocated);
 
-void configureMockAllocate(MockAllocateConfig*);
+void MockAllocate_configure(MockAllocateConfig *config);
 
 
 #endif /* RUNTIMELIBRARYMOCK_H */

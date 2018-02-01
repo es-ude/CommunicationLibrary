@@ -1,7 +1,3 @@
-//
-// Created by luk on 1/25/18.
-//
-
 #ifndef COMMUNICATIONMODULE_PERIPHERALAPI_H
 #define COMMUNICATIONMODULE_PERIPHERALAPI_H
 
@@ -16,20 +12,22 @@ This combination of inline and extern has almost the effect of a macro.
  If any uses of the function remain, they refer to the single copy in the library.
  */
 
-inline extern void Peripheral_writeByte(Peripheral *self, uint8_t byte) {
+
+inline void Peripheral_writeByte(Peripheral *self, uint8_t byte){
     self->writeByte(self, byte);
 }
 
-inline extern uint8_t Peripheral_readByte(Peripheral *self) {
+inline uint8_t Peripheral_readByte(Peripheral *self) {
     return self->readByte(self);
 }
 
-inline extern void Peripheral_setInterruptHandler(Peripheral *self, InterruptHandler handler) {
+inline void Peripheral_setInterruptHandler(Peripheral *self, InterruptHandler handler) {
     self->setInterruptHandler(self, handler);
 }
 
-inline extern void Peripheral_handleInterrupt(Peripheral *self) {
+inline void Peripheral_handleInterrupt(Peripheral *self) {
     self->handleInterrupt(self);
 }
+
 
 #endif //COMMUNICATIONMODULE_PERIPHERALAPI_H

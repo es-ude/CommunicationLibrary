@@ -4,15 +4,16 @@
 #include "lib/include/Peripheral.h"
 
 
-typedef struct PeripheralInterfaceMock {
+typedef struct MockPeripheralImpl {
   Peripheral interface;
-  volatile uint8_t *ddr;
-  volatile uint8_t *port;
+  uint8_t *written_bytes;
+  uint8_t written_bytes_capacity;
+  uint8_t *read_bytes;
+  uint8_t read_bytes_capacity;
 
-} PeripheralInterfaceMock;
+} MockPeripheralImpl;
 
-void initPeripheralInterfaceMock(Peripheral *peripheral);
-
+void MockPeripheralImpl_init(Peripheral *mock);
 
 
 
