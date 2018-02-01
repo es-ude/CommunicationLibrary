@@ -17,7 +17,7 @@ void handleInterrupt(Peripheral *self) {}
 uint8_t readByte(Peripheral *self) { return 0; }
 
 void MockPeripheralImpl_init(Peripheral *mock) {
-  mock->readByte = readByte;
+  mock->readByteNonBlocking = readByte;
   mock->writeByteNonBlocking = writeByte;
   mock->setInterruptHandler = setInterruptHandler;
   mock->handleInterrupt = handleInterrupt;

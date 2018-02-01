@@ -24,11 +24,7 @@ void test_writeOneByte(void) {
 }
 
 void test_writeByteSecond(void) {
-  MockPeripheralImpl implementation;
-  uint8_t raw_memory[8];
-  implementation.written_bytes = raw_memory;
-  Peripheral *interface = (Peripheral*) &implementation;
-  MockPeripheralImpl_init(interface);
+
   Peripheral_writeByteNonBlocking(interface, 0x6D);
   TEST_ASSERT_EQUAL_UINT8(0x6D, implementation.written_bytes[0]);
 }

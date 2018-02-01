@@ -18,7 +18,7 @@ static inline void Peripheral_writeByteNonBlocking(Peripheral *self, uint8_t byt
 }
 
 static inline uint8_t Peripheral_readByte(Peripheral *self) {
-    return self->readByte(self);
+    return self->readByteNonBlocking(self);
 }
 
 static inline void Peripheral_setInterruptHandler(Peripheral *self, InterruptHandler handler) {
