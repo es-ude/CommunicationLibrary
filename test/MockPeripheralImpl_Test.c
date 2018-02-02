@@ -32,14 +32,13 @@ void test_writeByteSecond(void) {
 void test_writeSequence() {
   uint8_t sequence[] = "hello, world!";
   uint16_t length = (uint16_t)strlen((char*)sequence);
-  interface->writeSequenceBlocking(interface, sequence, length);
+  interface->writeBufferBlocking(interface, sequence, length);
   TEST_ASSERT_EQUAL_UINT8_ARRAY(sequence, implementation.written_bytes, length);
 }
 
-void test_readSequence() {
-  implementation.written_bytes = (uint8_t*)"this represents some arbitrary string";
-  uint16_t length = (uint16_t) strlen((char*)implementation.written_bytes);
-  uint8_t read_buffer[length];
-  interface->readSequenceBlocking(interface, read_buffer, length);
-  TEST_ASSERT_EQUAL_UINT8_ARRAY(implementation.written_bytes, read_buffer, length);
+void test_inspectLastBufferArg() {
+  uint16_t length = 8;
+  uint8_t content[length];
+  interface->writeBufferNonBlocking(interface, content, length);
+  TEST_ASSERT_EQUAL_PTR(content, implementation.last_buffer_arg);
 }
