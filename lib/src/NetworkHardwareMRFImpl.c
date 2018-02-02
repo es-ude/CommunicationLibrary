@@ -15,6 +15,7 @@ NetworkHardware *NetworkHardware_createMRF(Peripheral *output, Allocator allocat
   impl->output = output;
   NetworkHardware *interface = (NetworkHardware*) impl;
   interface->init = init;
+  return interface;
 }
 
 void init(NetworkHardware *self) {
