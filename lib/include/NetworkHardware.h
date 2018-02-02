@@ -13,6 +13,7 @@ struct NetworkHardware {
     void (*setPAN) (NetworkHardware *self, uint16_t);
     void (*receive) (NetworkHardware *self, Message *received_msg);
     void (*send) (NetworkHardware *self);
+    void (*init) (NetworkHardware *self);
 };
 
 #endif //COMMUNICATIONMODULE_NETWORKHARDWARE_H
