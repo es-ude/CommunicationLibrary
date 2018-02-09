@@ -1,5 +1,6 @@
 #include "lib/include/NetworkHardware.h"
 #include "lib/include/NetworkHardwareMRFImpl.h"
+#include "lib/include/NetworkHardwareMRFInternalConstants.h"
 
 /**
  * ## Memory Layout ##
@@ -70,5 +71,11 @@ NetworkHardware *NetworkHardware_createMRF(SPIDevice *output_device, Allocator a
 }
 
 void init(NetworkHardware *self) {
-
+  NetworkHardwareMRFImpl *impl = (NetworkHardwareMRFImpl *) self;
+  uint8_t initialization_sequence[] = {mrf_register_software_reset >> 8 & 0xFF,
+  mrf_register_software_reset & 0xFF, 0x07};
+  SPIMessage initialization_message = {.length = 3,
+          .outgoing_data = initialization_sequence,
+  .incoming_data = NULL};
+  SPI_transferSync(impl->output_device, &initialization_message);
 }
