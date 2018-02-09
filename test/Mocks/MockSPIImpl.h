@@ -16,8 +16,8 @@ struct SPIDeviceMockImpl {
 	uint8_t *output_buffer;
   uint8_t *input_buffer;
   uint8_t current_buffer_position;
-	bool transfer_async_called;
-	bool transfer_sync_called;
+	uint8_t number_of_async_transfer_calls;
+	uint8_t number_of_sync_transfer_calls;
 };
 
 void SPIDeviceMockImpl_init(SPIDeviceMockImpl *device);

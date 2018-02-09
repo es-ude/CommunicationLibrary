@@ -17,5 +17,8 @@ struct NetworkHardware {
     void (*init) (NetworkHardware *self);
 };
 
+static inline void NetworkHardware_init(NetworkHardware *hardware) {
+  hardware->init(hardware);
+}
 
 #endif //COMMUNICATIONMODULE_NETWORKHARDWARE_H

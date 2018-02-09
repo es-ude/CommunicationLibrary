@@ -10,8 +10,8 @@ void SPIDeviceMockImpl_init(SPIDeviceMockImpl *device) {
   device->device.transferSync = transferSync;
   device->device.transferAsync = transferAsync;
   device->device.init = init;
-  device->transfer_async_called = false;
-  device->transfer_sync_called = false;
+  device->number_of_sync_transfer_calls = 0;
+  device->number_of_async_transfer_calls = 0;
 }
 
 void init(SPIDevice *device) {}
@@ -29,12 +29,12 @@ void transfer(const SPIDevice *device, const SPIMessage *message) {
 
 void transferSync(const SPIDevice *device, const SPIMessage *message) {
   SPIDeviceMockImpl *mock = (SPIDeviceMockImpl *) device;
-  mock->transfer_sync_called = true;
+  mock->number_of_sync_transfer_calls++;
   transfer(device, message);
 }
 
 void transferAsync(const SPIDevice *device, const SPIMessage *message) {
   SPIDeviceMockImpl *mock = (SPIDeviceMockImpl *) device;
-  mock->transfer_async_called = true;
+  mock->number_of_async_transfer_calls++;
   transfer(device, message);
 }
