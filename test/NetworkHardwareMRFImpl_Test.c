@@ -18,25 +18,31 @@ static NetworkHardware *mrf;
 void setUp(void) {
   MockAllocate_configure(&allocate_config);
   SPIDeviceMockImpl_init(&spi_mock_device);
+  spi_mock_device.input_buffer = NULL;
+  spi_mock_device.output_buffer = NULL;
   mrf = NetworkHardware_createMRF(output_device, MockAllocate_allocate);
 }
 
 void test_initPerformsSoftwareReset(void) {
   uint8_t buffer[128];
-  spi_mock_device.input_buffer = buffer;
-  spi_mock_device.output_buffer = buffer;
   memset(buffer, 0, 128);
+  spi_mock_device.output_buffer = buffer;
+  uint8_t expected_buffer[3] = {
+          mrf_register_software_reset >> 3,
+          mrf_register_software_reset << 5,
+          0x07};
+  expected_buffer[0] |= 1 << 7;
+  expected_buffer[1] |= 1 << 4;
   NetworkHardware_init(mrf);
-  uint8_t expected_buffer[3] = {mrf_register_software_reset >> 8 & 0xFF, mrf_register_software_reset & 0xFF, 0x07};
-  TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_buffer, buffer, 3);
-
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer, 3);
 }
+
 
 void test_initMakesNoAsynchronousCallsToSPI(void) {
   uint8_t buffer[128];
-  spi_mock_device.input_buffer = buffer;
-  spi_mock_device.output_buffer = buffer;
   memset(buffer, 0, 128);
+  spi_mock_device.output_buffer = buffer;
+
   NetworkHardware_init(mrf);
   TEST_ASSERT_EQUAL_UINT8(0, spi_mock_device.number_of_async_transfer_calls);
 }

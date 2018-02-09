@@ -61,6 +61,8 @@ struct NetworkHardwareMRFImpl {
 };
 
 static void init(NetworkHardware *self);
+static void reset(NetworkHardwareMRFImpl *self);
+static inline uint16_t writeLongCommand(uint16_t address);
 
 NetworkHardware *NetworkHardware_createMRF(SPIDevice *output_device, Allocator allocate) {
   NetworkHardwareMRFImpl *impl = allocate(sizeof(NetworkHardwareMRFImpl));
@@ -72,10 +74,31 @@ NetworkHardware *NetworkHardware_createMRF(SPIDevice *output_device, Allocator a
 
 void init(NetworkHardware *self) {
   NetworkHardwareMRFImpl *impl = (NetworkHardwareMRFImpl *) self;
-  uint8_t initialization_sequence[] = {mrf_register_software_reset >> 8 & 0xFF,
-  mrf_register_software_reset & 0xFF, 0x07};
-  SPIMessage initialization_message = {.length = 3,
-          .outgoing_data = initialization_sequence,
-  .incoming_data = NULL};
-  SPI_transferSync(impl->output_device, &initialization_message);
+  reset(impl);
+}
+
+void reset(NetworkHardwareMRFImpl *self) {
+  uint8_t reset_power_circuit = 1 << 2;
+  uint8_t reset_baseband_circuit = 1 << 1;
+  uint8_t reset_all_mac_control_registers = 1;
+  uint8_t complete_reset = (
+          reset_all_mac_control_registers |
+          reset_baseband_circuit |
+          reset_power_circuit
+  );
+  uint16_t command = writeLongCommand(mrf_register_software_reset);
+  uint8_t reset_sequence[3];
+  reset_sequence[0] = (uint8_t)(command >> 8 & 0xFF);
+  reset_sequence[1] = (uint8_t)(command & 0xFF);
+  reset_sequence[2] = complete_reset;
+  SPIMessage reset_message = {
+          .length = 3,
+          .outgoing_data = reset_sequence,
+          .incoming_data = NULL
+  };
+  SPI_transferSync(self->output_device, &reset_message);
+}
+
+uint16_t writeLongCommand(uint16_t address) {
+  return (uint16_t)(1 << 15 | address << 5 | 1 << 4);
 }
