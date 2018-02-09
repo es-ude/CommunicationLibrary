@@ -31,5 +31,4 @@
 NetworkHardware *NetworkHardware_createMRF(SPIDevice *output_device, Allocator allocate);
 
 
-
 #endif /* end of include guard */

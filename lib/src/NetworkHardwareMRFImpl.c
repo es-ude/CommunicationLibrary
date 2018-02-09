@@ -1,6 +1,7 @@
 #include "lib/include/NetworkHardware.h"
 #include "lib/include/NetworkHardwareMRFImpl.h"
 #include "lib/include/NetworkHardwareMRFInternalConstants.h"
+#include "lib/include/MRFHelperFunctions.h"
 
 /**
  * ## Memory Layout ##
@@ -62,7 +63,6 @@ struct NetworkHardwareMRFImpl {
 
 static void init(NetworkHardware *self);
 static void reset(NetworkHardwareMRFImpl *self);
-static inline uint16_t writeLongCommand(uint16_t address);
 
 NetworkHardware *NetworkHardware_createMRF(SPIDevice *output_device, Allocator allocate) {
   NetworkHardwareMRFImpl *impl = allocate(sizeof(NetworkHardwareMRFImpl));
@@ -86,7 +86,7 @@ void reset(NetworkHardwareMRFImpl *self) {
           reset_baseband_circuit |
           reset_power_circuit
   );
-  uint16_t command = writeLongCommand(mrf_register_software_reset);
+  uint16_t command = MRF_writeLongCommand(mrf_register_software_reset);
   uint8_t reset_sequence[3];
   reset_sequence[0] = (uint8_t)(command >> 8 & 0xFF);
   reset_sequence[1] = (uint8_t)(command & 0xFF);
@@ -97,8 +97,4 @@ void reset(NetworkHardwareMRFImpl *self) {
           .incoming_data = NULL
   };
   SPI_transferSync(self->output_device, &reset_message);
-}
-
-uint16_t writeLongCommand(uint16_t address) {
-  return (uint16_t)(1 << 15 | address << 5 | 1 << 4);
 }
