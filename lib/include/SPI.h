@@ -28,6 +28,7 @@ struct SPIMessage {
 struct SPIDevice {
 	void (*transferSync) (const SPI *self, const SPIMessage *message);
 	void (*transferAsync) (const SPI *self, const SPIMessage *message)
+	void (*init) (void);
 };
 
 #endif /* end of include guard */
