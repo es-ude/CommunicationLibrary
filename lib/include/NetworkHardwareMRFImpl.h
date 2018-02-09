@@ -2,7 +2,7 @@
 #define NETWORK_HARDWARE_PERIPHERAL_IMPL_H
 
 #include "lib/include/NetworkHardware.h"
-#include "lib/include/Peripheral.h"
+#include "lib/include/SPI.h"
 #include "lib/include/RuntimeLibraryInterface.h"
 
 /**
@@ -28,7 +28,7 @@
  * written to the hardware again.
  */
 
-NetworkHardware *NetworkHardware_createMRF(Peripheral *peripheral, Allocator allocate);
+NetworkHardware *NetworkHardware_createMRF(SPIDevice *output_device, Allocator allocate);
 
 
 

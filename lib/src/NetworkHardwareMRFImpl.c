@@ -56,14 +56,14 @@ typedef struct NetworkHardwareMRFImpl NetworkHardwareMRFImpl;
 
 struct NetworkHardwareMRFImpl {
   NetworkHardware interface;
-  Peripheral *output;
+  SPIDevice *output_device;
 };
 
 static void init(NetworkHardware *self);
 
-NetworkHardware *NetworkHardware_createMRF(Peripheral *output, Allocator allocate) {
+NetworkHardware *NetworkHardware_createMRF(SPIDevice *output_device, Allocator allocate) {
   NetworkHardwareMRFImpl *impl = allocate(sizeof(NetworkHardwareMRFImpl));
-  impl->output = output;
+  impl->output_device = output_device;
   NetworkHardware *interface = (NetworkHardware*) impl;
   interface->init = init;
   return interface;

@@ -1,5 +1,5 @@
-#include "test/Mocks/MockPeripheralImpl.h"
 #include "lib/include/NetworkHardware.h"
+#include "test/Mocks/MockSPIImpl.h"
 #include "lib/include/NetworkHardwareMRFImpl.h"
 #include "test/Mocks/MockRuntimeLibraryImpl.h"
 #include "src/unity.h"
@@ -11,11 +11,9 @@ static MockAllocateConfig allocate_config = {.returned_address = raw_memory};
 
 void test_initWrites16BitBroadcastAddress(void) {
   MockAllocate_configure(&allocate_config);
-  MockPeripheralImpl mockPeripheral;
-  uint8_t written_bytes[8];
-  mockPeripheral.written_bytes = written_bytes;
-  Peripheral *output = (Peripheral*) &mockPeripheral;
-  NetworkHardware *hardware = NetworkHardware_createMRF(output, MockAllocate_allocate);
+  SPIDeviceMockImpl spi_mock_device;
+  SPIDevice *output_device = (SPIDevice *) &spi_mock_device;
+  NetworkHardware *hardware = NetworkHardware_createMRF(output_device, MockAllocate_allocate);
   hardware->init(hardware);
 }
 
