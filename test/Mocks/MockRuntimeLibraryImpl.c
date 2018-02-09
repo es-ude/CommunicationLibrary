@@ -1,4 +1,5 @@
-#include "MockRuntimeLibraryImpl.h"
+#include "test/Mocks/MockRuntimeLibraryImpl.h"
+
 
 size_t *input_value;
 
@@ -13,3 +14,4 @@ void MockAllocate_configure(MockAllocateConfig *config){
   input_value = &config->size_allocated;
   returned_pointer = config->returned_address;
 }
+
