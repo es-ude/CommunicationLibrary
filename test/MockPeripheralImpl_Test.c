@@ -14,7 +14,7 @@ void setUp(void) {
     raw_memory[i] = 0;
   }
   MockPeripheralImpl_init(interface);
-
+  
 }
 
 void test_writeOneByte(void) {

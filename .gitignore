@@ -53,6 +53,7 @@ dkms.conf
 
 # private helper tools and bazel folders
 bazel-*/
+Session.vim
 
 # compilation database
 compile_commands.json
@@ -116,10 +117,10 @@ local.properties
 .worksheet
 
 ### Eclipse Patch ###
-# Eclipse Core   
+# Eclipse Core
 .project
 
-# JDT-specific (Eclipse Java Development Tools)    
+# JDT-specific (Eclipse Java Development Tools)
 .classpath
 
 ### Linux ###

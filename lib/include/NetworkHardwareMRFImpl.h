@@ -1,5 +1,5 @@
-#ifndef COMMUNICATIONMODULE_NETWORKHARDWAREMRFIMPL_H
-#define COMMUNICATIONMODULE_NETWORKHARDWAREMRFIMPL_H
+#ifndef NETWORK_HARDWARE_PERIPHERAL_IMPL_H
+#define NETWORK_HARDWARE_PERIPHERAL_IMPL_H
 
 #include "lib/include/NetworkHardware.h"
 #include "lib/include/Peripheral.h"
@@ -30,4 +30,6 @@
 
 NetworkHardware *NetworkHardware_createMRF(Peripheral *peripheral, Allocator allocate);
 
-#endif //COMMUNICATIONMODULE_NETWORKHARDWAREMRFIMPL_H
+
+
+#endif /* end of include guard */
