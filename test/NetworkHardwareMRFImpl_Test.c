@@ -9,6 +9,12 @@
 #define UNITY_INCLUDE_DOUBLE
 #include "src/unity.h"
 
+/**
+ * TODO:
+ * add proper exceptions using the cexception library
+ * exceptions should be thrown in case the spi interface is busy
+ */
+
 #define MEMORY_CAPACITY 8*10
 static uint8_t raw_memory[MEMORY_CAPACITY];
 
