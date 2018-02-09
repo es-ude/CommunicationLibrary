@@ -59,22 +59,42 @@ typedef struct NetworkHardwareMRFImpl NetworkHardwareMRFImpl;
 struct NetworkHardwareMRFImpl {
   NetworkHardware interface;
   SPIDevice *output_device;
+  DelayFunction delayMicroseconds;
 };
 
 static void init(NetworkHardware *self);
 static void reset(NetworkHardwareMRFImpl *self);
+static void setShortRegister(NetworkHardwareMRFImpl *self, uint8_t address, uint8_t value);
+static void setLongRegister(NetworkHardwareMRFImpl *self, uint16_t address, uint8_t value);
+static void enableRXInterrupt(NetworkHardwareMRFImpl *self);
+static void setInitializationValuesFromDatasheet(NetworkHardwareMRFImpl *impl);
+static void selectChannel(NetworkHardwareMRFImpl *self, uint8_t channel_number);
+static void setTransmitterPower(NetworkHardwareMRFImpl *self);
+static void resetInternalStateMachine(NetworkHardwareMRFImpl *impl);
 
-NetworkHardware *NetworkHardware_createMRF(SPIDevice *output_device, Allocator allocate) {
+NetworkHardware *NetworkHardware_createMRF(SPIDevice *output_device, Allocator allocate, DelayFunction delay_microseconds) {
   NetworkHardwareMRFImpl *impl = allocate(sizeof(NetworkHardwareMRFImpl));
   impl->output_device = output_device;
   NetworkHardware *interface = (NetworkHardware*) impl;
   interface->init = init;
+  impl->delayMicroseconds = delay_microseconds;
   return interface;
 }
 
+/*
+ * Initialize the MRF Chip as shown in the datasheets initialization
+ * example. I don't think we need to set all of these, but we do
+ * for now just to be sure until we have figured out what each of these
+ * does exactly.
+ */
 void init(NetworkHardware *self) {
   NetworkHardwareMRFImpl *impl = (NetworkHardwareMRFImpl *) self;
   reset(impl);
+  setInitializationValuesFromDatasheet(impl);
+  enableRXInterrupt(impl);
+  selectChannel(impl, 11);
+  setTransmitterPower(impl);
+  resetInternalStateMachine(impl);
 }
 
 void reset(NetworkHardwareMRFImpl *self) {
@@ -86,15 +106,80 @@ void reset(NetworkHardwareMRFImpl *self) {
           reset_baseband_circuit |
           reset_power_circuit
   );
-  uint16_t command = MRF_writeLongCommand(mrf_register_software_reset);
-  uint8_t reset_sequence[3];
-  reset_sequence[0] = (uint8_t)(command >> 8 & 0xFF);
-  reset_sequence[1] = (uint8_t)(command & 0xFF);
-  reset_sequence[2] = complete_reset;
+  uint8_t command = MRF_writeShortCommand(mrf_register_software_reset);
+  uint8_t reset_sequence[] = {command, complete_reset};
   SPIMessage reset_message = {
-          .length = 3,
+          .length = 2,
           .outgoing_data = reset_sequence,
           .incoming_data = NULL
   };
   SPI_transferSync(self->output_device, &reset_message);
+}
+
+void enableRXInterrupt(NetworkHardwareMRFImpl *self) {
+  // setting a bit to zero enables the corresponding interrupt
+  uint8_t rx_interrupt_enabled = (uint8_t)(~(1 << 3));
+  setShortRegister(self, mrf_register_interrupt_control, rx_interrupt_enabled);
+}
+
+void setInitializationValuesFromDatasheet(NetworkHardwareMRFImpl *impl) {
+  setShortRegister(impl, mrf_register_power_amplifier_control2, 0x98);
+  setShortRegister(impl, mrf_register_tx_stabilization, 0x09);
+  setLongRegister(impl, mrf_register_rf_control0, 0x03);
+  setLongRegister(impl, mrf_register_rf_control1, 0x01);
+  setLongRegister(impl, mrf_register_rf_control2, 0x80); // enable PLL, this is certainly necessary
+  setLongRegister(impl, mrf_register_rf_control6, 0x90);
+  setLongRegister(impl, mrf_register_rf_control7, 0x80);
+  setLongRegister(impl, mrf_register_rf_control8, 0x10);
+  setLongRegister(impl, mrf_register_sleep_clock_control1, 0x21);
+  setShortRegister(impl, mrf_register_base_band2, 0x80);
+  setShortRegister(impl, mrf_register_energy_detection_threshold_for_clear_channel_assessment, 0x60);
+  setShortRegister(impl, mrf_register_base_band6, 0x40);
+}
+
+void setShortRegister(NetworkHardwareMRFImpl *self, uint8_t address, uint8_t value) {
+  uint8_t command = MRF_writeShortCommand(address);
+  uint8_t sequence[] = {command, value};
+  SPIMessage message = {
+          .length = 2,
+          .outgoing_data = sequence,
+          .incoming_data = NULL
+  };
+  SPI_transferSync(self->output_device, &message);
+}
+
+void setLongRegister(NetworkHardwareMRFImpl *self, uint16_t address, uint8_t value) {
+  uint16_t command = MRF_writeLongCommand(address);
+  uint8_t sequence[] = { (uint8_t)(command >> 8), (uint8_t)command, value};
+  SPIMessage message = {
+          .length = 3,
+          .outgoing_data = sequence,
+          .incoming_data = NULL
+  };
+  SPI_transferSync(self->output_device, &message);
+}
+
+/*
+ * The conversion from channel_number to register_value is derived
+ * from the table 3-4 in section 3.4 of the datasheet.
+ */
+void selectChannel(NetworkHardwareMRFImpl *impl, uint8_t channel_number) {
+  uint8_t register_value = (uint8_t)((channel_number % 10 - 1) * 4 + 0x03);
+  setLongRegister(impl, mrf_register_rf_control0, register_value);
+}
+
+// see data sheet description of the RFCON3 register for more info on how
+// to setup signal strength
+void setTransmitterPower(NetworkHardwareMRFImpl *impl) {
+  uint8_t minus_thirty_db = 3 << 6;
+  setLongRegister(impl, mrf_register_rf_control3, minus_thirty_db);
+}
+
+void resetInternalStateMachine(NetworkHardwareMRFImpl *impl) {
+  uint8_t reset_bit_enabled = 0x04;
+  setShortRegister(impl, mrf_register_rf_mode_control, reset_bit_enabled);
+  uint8_t start_internal_state_machine = 0x00;
+  setShortRegister(impl, mrf_register_rf_mode_control,
+                   start_internal_state_machine);
+  impl->delayMicroseconds(200);
 }

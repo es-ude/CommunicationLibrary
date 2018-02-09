@@ -21,6 +21,6 @@ cc_library (
         name = "unity",
         srcs = ["src/unity.c",  "src/unity_internals.h"],
         hdrs = ["src/unity.h"], # exported headers
-        copts = ["-Iexternal/unity/src/"], # allows to include the header with "unity.h" instead of "src/unity.h"
+        copts = ["-Iexternal/unity/src/", "-DUNITY_INCLUDE_DOUBLE"], # allows to include the header with "unity.h" instead of "src/unity.h"
         visibility = ["//visibility:public"],
         )

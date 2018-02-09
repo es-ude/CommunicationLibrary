@@ -2,6 +2,7 @@
 #define RUNTIMELIBRARYMOCK_H
 
 
+#include <stdint.h>
 #include "lib/include/RuntimeLibraryInterface.h"
 
 typedef struct MockAllocateConfig {
@@ -13,5 +14,8 @@ void * MockAllocate_allocate(size_t bytes_allocated);
 
 void MockAllocate_configure(MockAllocateConfig *config);
 
+void MockRuntime_delayMicroseconds(double microseconds);
+
+double MockRuntime_lastDelayMicrosecondsArg(void);
 
 #endif /* RUNTIMELIBRARYMOCK_H */

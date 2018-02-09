@@ -28,7 +28,7 @@
  * written to the hardware again.
  */
 
-NetworkHardware *NetworkHardware_createMRF(SPIDevice *output_device, Allocator allocate);
+NetworkHardware *NetworkHardware_createMRF(SPIDevice *output_device, Allocator allocate, DelayFunction delay_microseconds);
 
 
 #endif /* end of include guard */

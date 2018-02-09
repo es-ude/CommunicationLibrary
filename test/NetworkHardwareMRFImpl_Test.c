@@ -3,44 +3,163 @@
 #include "test/Mocks/MockSPIImpl.h"
 #include "lib/include/NetworkHardwareMRFImpl.h"
 #include "test/Mocks/MockRuntimeLibraryImpl.h"
-#include "src/unity.h"
 #include "lib/include/NetworkHardwareMRFInternalConstants.h"
+#include "lib/include/MRFHelperFunctions.h"
 
+#define UNITY_INCLUDE_DOUBLE
+#include "src/unity.h"
 
-#define MEMORY_CAPACITY 64
+#define MEMORY_CAPACITY 8*10
 static uint8_t raw_memory[MEMORY_CAPACITY];
 
 static MockAllocateConfig allocate_config = {.returned_address = raw_memory};
 static SPIDeviceMockImpl spi_mock_device;
 static SPIDevice *output_device = (SPIDevice *) &spi_mock_device;
 static NetworkHardware *mrf;
+static uint8_t buffer[128];
 
 void setUp(void) {
   MockAllocate_configure(&allocate_config);
   SPIDeviceMockImpl_init(&spi_mock_device);
   spi_mock_device.input_buffer = NULL;
   spi_mock_device.output_buffer = NULL;
-  mrf = NetworkHardware_createMRF(output_device, MockAllocate_allocate);
+  mrf = NetworkHardware_createMRF(output_device, MockAllocate_allocate, MockRuntime_delayMicroseconds);
+  memset(buffer, 0, 128);
 }
 
 void test_initPerformsSoftwareReset(void) {
-  uint8_t buffer[128];
-  memset(buffer, 0, 128);
   spi_mock_device.output_buffer = buffer;
   uint8_t expected_buffer[3] = {
-          mrf_register_software_reset >> 3,
-          mrf_register_software_reset << 5,
+          MRF_writeShortCommand(mrf_register_software_reset),
           0x07};
-  expected_buffer[0] |= 1 << 7;
-  expected_buffer[1] |= 1 << 4;
   NetworkHardware_init(mrf);
-  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer, 3);
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer, 2);
 }
 
+void test_initSetsTXStabilizationRegisterToRecommendedValue(void) {
+  spi_mock_device.output_buffer = buffer;
+  uint8_t expected_buffer[2] = {
+          ((mrf_register_tx_stabilization << 1) & ~(1 << 7)) | 1,
+          0x09,
+  };
+  NetworkHardware_init(mrf);
+  uint8_t offset_from_software_reset = 2;
+  uint8_t offset_from_power_amplifier_config = 2;
+  uint8_t total_offset = offset_from_power_amplifier_config +
+          offset_from_software_reset;
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+total_offset, 2);
+}
+
+void test_initConfiguresPowerAmplifierCorrectly(void) {
+  // we just use the values from the initialization example
+  // given in the datasheet here
+  spi_mock_device.output_buffer = buffer;
+  uint8_t command = MRF_writeShortCommand(mrf_register_power_amplifier_control2);
+  uint8_t enable_fifo = 1 << 7;
+  uint8_t transmitter_enable_on_time_symbol_bits = 3 << 3;
+  uint8_t expected_buffer[] = {
+          command, enable_fifo | transmitter_enable_on_time_symbol_bits
+  };
+  NetworkHardware_init(mrf);
+  uint8_t offset_from_software_reset = 2;
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+offset_from_software_reset, 2);
+}
+
+void test_initSetsOtherControlRegistersAsSpecifiedInDatasheetExample(void) {
+  spi_mock_device.output_buffer = buffer;
+  uint8_t expected_buffer[] = {
+          (uint8_t)(MRF_writeLongCommand(mrf_register_rf_control0) >> 8), (uint8_t)MRF_writeLongCommand(mrf_register_rf_control0), 0x03,
+          (uint8_t)(MRF_writeLongCommand(mrf_register_rf_control1) >> 8), (uint8_t)MRF_writeLongCommand(mrf_register_rf_control1), 0x01,
+          (uint8_t)(MRF_writeLongCommand(mrf_register_rf_control2) >> 8), (uint8_t)MRF_writeLongCommand(mrf_register_rf_control2), 0x80,
+          (uint8_t)(MRF_writeLongCommand(mrf_register_rf_control6) >> 8), (uint8_t)MRF_writeLongCommand(mrf_register_rf_control6), 0x90,
+          (uint8_t)(MRF_writeLongCommand(mrf_register_rf_control7) >> 8), (uint8_t)MRF_writeLongCommand(mrf_register_rf_control7), 0x80,
+          (uint8_t)(MRF_writeLongCommand(mrf_register_rf_control8) >> 8), (uint8_t)MRF_writeLongCommand(mrf_register_rf_control8), 0x10,
+          (uint8_t)(MRF_writeLongCommand(mrf_register_sleep_clock_control1) >> 8), (uint8_t)MRF_writeLongCommand(mrf_register_sleep_clock_control1), 0x21,
+          MRF_writeShortCommand(mrf_register_base_band2), 0x80,
+          MRF_writeShortCommand(mrf_register_energy_detection_threshold_for_clear_channel_assessment), 0x60,
+          MRF_writeShortCommand(mrf_register_base_band6), 0x40
+  };
+  NetworkHardware_init(mrf);
+  uint8_t number_of_previous_long_writes = 0;
+  uint8_t number_of_previouse_short_writes = 3;
+  int offset = number_of_previous_long_writes * 3 +
+          number_of_previouse_short_writes * 2;
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+offset, 7*3+3*2);
+
+}
+
+void test_initEnablesRXInterruptForMRF(void) {
+  uint8_t number_of_previous_short_writes = 6;
+  uint8_t number_of_previous_long_writes = 7;
+  int offset = number_of_previous_long_writes * 3 +
+          number_of_previous_short_writes * 2;
+
+  spi_mock_device.output_buffer = buffer;
+  uint8_t reception_interrupt_enable_bit = (1 << 3);
+  uint8_t expected_buffer[] = {
+          MRF_writeShortCommand(mrf_register_interrupt_control), ~reception_interrupt_enable_bit
+  };
+
+  NetworkHardware_init(mrf);
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+offset, 2);
+}
+
+void test_initSelectsChannelEleven(void) {
+  uint8_t number_of_previous_short_writes = 7;
+  uint8_t number_of_previous_long_writes = 7;
+  int offset = number_of_previous_long_writes * 3 +
+               number_of_previous_short_writes *2;
+  spi_mock_device.output_buffer = buffer;
+  uint8_t channel_eleven = 0x03;
+  uint8_t expected_buffer[] = {
+          (uint8_t)(MRF_writeLongCommand(mrf_register_rf_control0) >> 8), (uint8_t)MRF_writeLongCommand(mrf_register_rf_control0), channel_eleven
+  };
+  NetworkHardware_init(mrf);
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+offset, 3);
+}
+
+void test_initSetsTransmitterPowerTo30dB(void) {
+  uint8_t number_of_previouse_short_writes = 7;
+  uint8_t number_of_previouse_long_writes = 8;
+  int offset = number_of_previouse_long_writes * 3 +
+               number_of_previouse_short_writes *2;
+  spi_mock_device.output_buffer = buffer;
+  uint8_t minus_thirty_db = 3 << 6;
+  uint8_t expected_buffer[] = {
+          (uint8_t)(MRF_writeLongCommand(mrf_register_rf_control3) >> 8),
+          (uint8_t) MRF_writeLongCommand(mrf_register_rf_control3),
+          minus_thirty_db
+  };
+
+  NetworkHardware_init(mrf);
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+offset, 3);
+
+}
+
+void test_initResetsTheInternalStateMachine(void) {
+  uint8_t number_of_previous_short_writes = 7;
+  uint8_t number_of_previous_long_writes = 9;
+  int offset = number_of_previous_long_writes * 3 +
+               number_of_previous_short_writes * 2;
+  spi_mock_device.output_buffer = buffer;
+  uint8_t reset_state_machine = 0x04;
+  uint8_t start_state_machine = 0x00;
+  uint8_t expected_buffer[] = {
+          MRF_writeShortCommand(mrf_register_rf_mode_control), reset_state_machine,
+          MRF_writeShortCommand(mrf_register_rf_mode_control), start_state_machine
+  };
+
+  NetworkHardware_init(mrf);
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+offset, 4);
+}
+
+void test_waitFor200MicroSecondsAfterInitialization(void) {
+  spi_mock_device.output_buffer = buffer;
+  NetworkHardware_init(mrf);
+  TEST_ASSERT_EQUAL_DOUBLE(200, MockRuntime_lastDelayMicrosecondsArg());
+}
 
 void test_initMakesNoAsynchronousCallsToSPI(void) {
-  uint8_t buffer[128];
-  memset(buffer, 0, 128);
   spi_mock_device.output_buffer = buffer;
 
   NetworkHardware_init(mrf);
