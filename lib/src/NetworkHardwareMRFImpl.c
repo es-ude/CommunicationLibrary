@@ -58,7 +58,7 @@ typedef struct NetworkHardwareMRFImpl NetworkHardwareMRFImpl;
 
 struct NetworkHardwareMRFImpl {
   NetworkHardware interface;
-  SPIDevice *output_device;
+  SPISlave *output_device;
   DelayFunction delayMicroseconds;
 };
 
@@ -72,7 +72,7 @@ static void selectChannel(NetworkHardwareMRFImpl *self, uint8_t channel_number);
 static void setTransmitterPower(NetworkHardwareMRFImpl *self);
 static void resetInternalStateMachine(NetworkHardwareMRFImpl *impl);
 
-NetworkHardware *NetworkHardware_createMRF(SPIDevice *output_device, Allocator allocate, DelayFunction delay_microseconds) {
+NetworkHardware *NetworkHardware_createMRF(SPISlave *output_device, Allocator allocate, DelayFunction delay_microseconds) {
   NetworkHardwareMRFImpl *impl = allocate(sizeof(NetworkHardwareMRFImpl));
   impl->output_device = output_device;
   NetworkHardware *interface = (NetworkHardware*) impl;
