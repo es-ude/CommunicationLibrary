@@ -4,9 +4,7 @@
 #include <stdint.h>
 
 typedef struct SPIMessage SPIMessage;
-
-typedef struct SPISlave SPISlave;
-
+typedef struct SPIDevice SPIDevice;
 typedef struct SPI SPI;
 
 struct SPIMessage {
@@ -16,16 +14,16 @@ struct SPIMessage {
 };
 
 struct SPI {
-	void (*transferSync) (const SPISlave *self, 
+	void (*transferSync) (const SPIDevice *self, 
 			const SPIMessage *message,
 			uint8_t *slave_select_line);
-	void (*transferAsync) (const SPISlave *self, 
+	void (*transferAsync) (const SPIDevice *self, 
 			const SPIMessage *message,
 			uint8_t *slave_select_line);
-	void (*init) (SPISlave *self);
+	void (*init) (SPIDevice *self);
 };
 
-struct SPISlave {
+struct SPIDevice {
 	SPI *hw_interface;
 	uint8_t *slave_select_line;
 };
@@ -36,11 +34,11 @@ struct SPISlave {
  * to the spi device and store the received data to the memory incoming_data
  * points to.
  */
-static void SPI_transferSync(const SPISlave *self, const SPIMessage *data){
+static void SPI_transferSync(const SPIDevice *self, const SPIMessage *data){
 	self->interface->transferSync(self, data, self->slave_select_line);
 }
 
-static void SPI_transferAsync(const SPISlave *self, const SPIMessage *data) {
+static void SPI_transferAsync(const SPIDevice *self, const SPIMessage *data) {
 	self->interface->transferAsync(self, data, self->slave_select_line);
 }
 

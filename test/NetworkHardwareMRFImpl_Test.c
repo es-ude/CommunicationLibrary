@@ -20,7 +20,7 @@ static uint8_t raw_memory[MEMORY_CAPACITY];
 
 static MockAllocateConfig allocate_config = {.returned_address = raw_memory};
 static SPIDeviceMockImpl spi_mock_device;
-static SPISlave *output_device = (SPISlave *) &spi_mock_device;
+static SPIDevice *output_device = (SPIDevice *) &spi_mock_device;
 static NetworkHardware *mrf;
 static uint8_t buffer[128];
 

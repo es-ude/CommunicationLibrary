@@ -12,7 +12,7 @@ typedef struct SPIDeviceMockImpl SPIDeviceMockImpl;
  * owns.
  */
 struct SPIDeviceMockImpl {
-	SPISlave device;
+	SPIDevice device;
 	uint8_t *output_buffer;
   uint8_t *input_buffer;
   uint8_t current_buffer_position;

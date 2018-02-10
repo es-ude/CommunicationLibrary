@@ -28,7 +28,7 @@
  * written to the hardware again.
  */
 
-NetworkHardware *NetworkHardware_createMRF(SPISlave *output_device, Allocator allocate, DelayFunction delay_microseconds);
+NetworkHardware *NetworkHardware_createMRF(SPIDevice *output_device, Allocator allocate, DelayFunction delay_microseconds);
 
 
 #endif /* end of include guard */
