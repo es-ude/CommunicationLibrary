@@ -1,10 +1,11 @@
 #include <string.h>
 #include "test/Mocks/MockSPIImpl.h"
 
-static void transfer(const SPIDevice *device, const SPIMessage *message);
-static void transferSync(const SPIDevice *device, const SPIMessage *message);
-static void transferAsync(const SPIDevice *device, const SPIMessage *message);
-static void init(SPIDevice *device);
+static void transfer(const SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line);
+static void transferSync(const SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line);
+static void transferAsync(const SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line);
+static void init(SPI *device);
+static void destroy(SPI *device);
 
 void SPIDeviceMockImpl_init(SPIDeviceMockImpl *device) {
   device->device.transferSync = transferSync;
@@ -15,9 +16,9 @@ void SPIDeviceMockImpl_init(SPIDeviceMockImpl *device) {
   device->current_buffer_position = 0;
 }
 
-void init(SPIDevice *device) {}
+void init(SPI *device) {}
 
-void transfer(const SPIDevice *device, const SPIMessage *message) {
+void transfer(const SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line) {
   SPIDeviceMockImpl *self = (SPIDeviceMockImpl *) device;
   if (message->incoming_data != NULL) {
     memcpy(message->incoming_data,
@@ -32,14 +33,16 @@ void transfer(const SPIDevice *device, const SPIMessage *message) {
   self->current_buffer_position += message->length;
 }
 
-void transferSync(const SPIDevice *device, const SPIMessage *message) {
+void transferSync(const SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line) {
   SPIDeviceMockImpl *mock = (SPIDeviceMockImpl *) device;
   mock->number_of_sync_transfer_calls++;
-  transfer(device, message);
+  transfer(device, message, NULL);
 }
 
-void transferAsync(const SPIDevice *device, const SPIMessage *message) {
+void transferAsync(const SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line) {
   SPIDeviceMockImpl *mock = (SPIDeviceMockImpl *) device;
   mock->number_of_async_transfer_calls++;
-  transfer(device, message);
+  transfer(device, message, NULL);
 }
+
+void destroy(SPI *device) {}
