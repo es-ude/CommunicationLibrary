@@ -1,0 +1,17 @@
+filegroup (
+                name = "CExceptionSrc",
+                srcs = [ "lib/CException.c", ],
+                )
+
+filegroup (
+                name = "CExceptionHdr",
+                srcs = [ "lib/CException.h", ],
+                )
+
+cc_library (
+                name = "CException",
+                srcs = [":CExceptionSrc"],
+                hdrs = [":CExceptionHdr"],
+                strip_include_prefix = "lib/",
+                visibility = ["//visibility:public"],
+                )

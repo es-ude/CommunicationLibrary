@@ -37,4 +37,5 @@ cc_library(
         "//test:__pkg__",
         "//test/Mocks:__pkg__",
     ],
+    deps = ["@CException//:CException"]
 )

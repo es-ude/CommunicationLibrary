@@ -23,6 +23,13 @@ new_http_archive(
   strip_prefix = "Unity-master",
   )
 
+new_http_archive(
+  name = "CException",
+  urls = ["https://github.com/ThrowTheSwitch/CException/archive/master.tar.gz"],
+  build_file = "BUILD.CException",
+  strip_prefix = "CException-master",
+  )
+
 """
 From the Bazel documentation at https://docs.bazel.build/versions/master/build-ref.html#packages_targets :
  The primary unit of code organization in a workspace is the package.
