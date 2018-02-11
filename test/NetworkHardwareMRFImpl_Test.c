@@ -34,13 +34,12 @@ void setUp(void) {
   MockAllocate_configure(&allocate_config);
   SPIDeviceMockImpl_init(&mock_interface);
   mock_interface.input_buffer = NULL;
-  mock_interface.output_buffer = NULL;
+  mock_interface.output_buffer = buffer;
   mrf = NetworkHardware_createMRF(&output_device, MockAllocate_allocate, MockRuntime_delayMicroseconds);
   memset(buffer, 0, 128);
 }
 
 void test_initPerformsSoftwareReset(void) {
-  mock_interface.output_buffer = buffer;
   uint8_t expected_buffer[3] = {
           MRF_writeShortCommand(mrf_register_software_reset),
           0x07};
@@ -49,7 +48,6 @@ void test_initPerformsSoftwareReset(void) {
 }
 
 void test_initSetsTXStabilizationRegisterToRecommendedValue(void) {
-  mock_interface.output_buffer = buffer;
   uint8_t expected_buffer[2] = {
           ((mrf_register_tx_stabilization << 1) & ~(1 << 7)) | 1,
           0x09,
@@ -65,7 +63,6 @@ void test_initSetsTXStabilizationRegisterToRecommendedValue(void) {
 void test_initConfiguresPowerAmplifierCorrectly(void) {
   // we just use the values from the initialization example
   // given in the datasheet here
-  mock_interface.output_buffer = buffer;
   uint8_t command = MRF_writeShortCommand(mrf_register_power_amplifier_control2);
   uint8_t enable_fifo = 1 << 7;
   uint8_t transmitter_enable_on_time_symbol_bits = 3 << 3;
@@ -78,7 +75,6 @@ void test_initConfiguresPowerAmplifierCorrectly(void) {
 }
 
 void test_initSetsOtherControlRegistersAsSpecifiedInDatasheetExample(void) {
-  mock_interface.output_buffer = buffer;
   uint8_t expected_buffer[] = {
           (uint8_t)(MRF_writeLongCommand(mrf_register_rf_control0) >> 8), (uint8_t)MRF_writeLongCommand(mrf_register_rf_control0), 0x03,
           (uint8_t)(MRF_writeLongCommand(mrf_register_rf_control1) >> 8), (uint8_t)MRF_writeLongCommand(mrf_register_rf_control1), 0x01,
@@ -106,7 +102,6 @@ void test_initEnablesRXInterruptForMRF(void) {
   int offset = number_of_previous_long_writes * 3 +
           number_of_previous_short_writes * 2;
 
-  mock_interface.output_buffer = buffer;
   uint8_t reception_interrupt_enable_bit = (1 << 3);
   uint8_t expected_buffer[] = {
           MRF_writeShortCommand(mrf_register_interrupt_control), ~reception_interrupt_enable_bit
@@ -121,7 +116,6 @@ void test_initSelectsChannelEleven(void) {
   uint8_t number_of_previous_long_writes = 7;
   int offset = number_of_previous_long_writes * 3 +
                number_of_previous_short_writes *2;
-  mock_interface.output_buffer = buffer;
   uint8_t channel_eleven = 0x03;
   uint8_t expected_buffer[] = {
           (uint8_t)(MRF_writeLongCommand(mrf_register_rf_control0) >> 8), (uint8_t)MRF_writeLongCommand(mrf_register_rf_control0), channel_eleven
@@ -135,7 +129,6 @@ void test_initSetsTransmitterPowerTo30dB(void) {
   uint8_t number_of_previouse_long_writes = 8;
   int offset = number_of_previouse_long_writes * 3 +
                number_of_previouse_short_writes *2;
-  mock_interface.output_buffer = buffer;
   uint8_t minus_thirty_db = 3 << 6;
   uint8_t expected_buffer[] = {
           (uint8_t)(MRF_writeLongCommand(mrf_register_rf_control3) >> 8),
@@ -153,7 +146,6 @@ void test_initResetsTheInternalStateMachine(void) {
   uint8_t number_of_previous_long_writes = 9;
   int offset = number_of_previous_long_writes * 3 +
                number_of_previous_short_writes * 2;
-  mock_interface.output_buffer = buffer;
   uint8_t reset_state_machine = 0x04;
   uint8_t start_state_machine = 0x00;
   uint8_t expected_buffer[] = {
@@ -166,14 +158,11 @@ void test_initResetsTheInternalStateMachine(void) {
 }
 
 void test_waitFor200MicroSecondsAfterInitialization(void) {
-  mock_interface.output_buffer = buffer;
   NetworkHardware_init(mrf);
   TEST_ASSERT_EQUAL_DOUBLE(200, MockRuntime_lastDelayMicrosecondsArg());
 }
 
 void test_initMakesNoAsynchronousCallsToSPI(void) {
-  mock_interface.output_buffer = buffer;
-
   NetworkHardware_init(mrf);
   TEST_ASSERT_EQUAL_UINT8(0, mock_interface.number_of_async_transfer_calls);
 }
@@ -187,4 +176,9 @@ void test_ExceptionIsThrownWhenInterfaceIsBusyDuringInit(void) {
       } Catch (exception) {
     TEST_ASSERT_EQUAL_UINT8(NETWORK_HARDWARE_IS_BUSY_EXCEPTION, exception);
   }
+}
+
+void test_initMakesCorrectNumberOfSyncCalls(void) {
+  NetworkHardware_init(mrf);
+  TEST_ASSERT_EQUAL_UINT8(18, mock_interface.number_of_sync_transfer_calls);
 }
