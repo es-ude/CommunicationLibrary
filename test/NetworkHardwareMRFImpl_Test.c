@@ -1,13 +1,15 @@
 #include <string.h>
 #include "lib/include/NetworkHardware.h"
 #include "test/Mocks/MockSPIImpl.h"
-#include "lib/include/NetworkHardwareMRFImpl.h"
 #include "test/Mocks/MockRuntimeLibraryImpl.h"
 #include "lib/include/NetworkHardwareMRFInternalConstants.h"
 #include "lib/include/MRFHelperFunctions.h"
+#include "lib/include/Exception.h"
 
 #define UNITY_INCLUDE_DOUBLE
 #include "src/unity.h"
+#include "CException.h"
+#include "lib/include/NetworkHardwareMRFImpl.h"
 
 /**
  * TODO:
@@ -176,3 +178,13 @@ void test_initMakesNoAsynchronousCallsToSPI(void) {
   TEST_ASSERT_EQUAL_UINT8(0, mock_interface.number_of_async_transfer_calls);
 }
 
+void test_ExceptionIsThrownWhenInterfaceIsBusyDuringInit(void) {
+  mock_interface.isBusy = true;
+  CEXCEPTION_T exception = 0;
+  Try {
+        NetworkHardware_init(mrf);
+        TEST_FAIL();
+      } Catch (exception) {
+    TEST_ASSERT_EQUAL_UINT8(NETWORK_HARDWARE_IS_BUSY_EXCEPTION, exception);
+  }
+}

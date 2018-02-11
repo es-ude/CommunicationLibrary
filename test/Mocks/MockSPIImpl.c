@@ -1,5 +1,7 @@
 #include <string.h>
 #include "test/Mocks/MockSPIImpl.h"
+#include "CException.h"
+#include "lib/include/Exception.h"
 
 static void transfer(const SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line);
 static void transferSync(const SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line);
@@ -14,12 +16,18 @@ void SPIDeviceMockImpl_init(SPIDeviceMockImpl *device) {
   device->number_of_sync_transfer_calls = 0;
   device->number_of_async_transfer_calls = 0;
   device->current_buffer_position = 0;
+  device->isBusy = false;
 }
 
 void init(SPI *device) {}
 
-void transfer(const SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line) {
+void transfer(const SPI *device,
+              const SPIMessage *message,
+              volatile uint8_t *slave_select_line) {
   SPIDeviceMockImpl *self = (SPIDeviceMockImpl *) device;
+  if (self->isBusy) {
+    Throw (SPI_BUSY_EXCEPTION);
+  }
   if (message->incoming_data != NULL) {
     memcpy(message->incoming_data,
            self->input_buffer + self->current_buffer_position,

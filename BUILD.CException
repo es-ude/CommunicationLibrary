@@ -1,17 +1,18 @@
-filegroup (
-                name = "CExceptionSrc",
-                srcs = [ "lib/CException.c", ],
-                )
+filegroup(
+    name = "CExceptionSrc",
+    srcs = ["lib/CException.c"],
+)
 
-filegroup (
-                name = "CExceptionHdr",
-                srcs = [ "lib/CException.h", ],
-                )
+filegroup(
+    name = "CExceptionHdr",
+    srcs = ["lib/CException.h"],
+)
 
-cc_library (
-                name = "CException",
-                srcs = [":CExceptionSrc"],
-                hdrs = [":CExceptionHdr"],
-                strip_include_prefix = "lib/",
-                visibility = ["//visibility:public"],
-                )
+cc_library(
+    name = "CException",
+    srcs = [":CExceptionSrc"],
+    hdrs = [":CExceptionHdr"],
+    defines = ["CEXCEPTION_T=unsigned\ char", "CEXCEPTION_NONE=0x00"],
+    strip_include_prefix = "lib/",
+    visibility = ["//visibility:public"],
+)

@@ -57,7 +57,7 @@ struct SPISlave {
 /**
  * The transfer functions write outgoing_data contained inside message
  * to the spi device and store the received data to the memory incoming_data
- * points to.
+ * points to. Both functions might throw a SPI_BUSY_EXCEPTION.
  */
 static void SPI_transferSync(const SPISlave *self, const SPIMessage *data){
 	self->hw_interface->transferSync(self->hw_interface,

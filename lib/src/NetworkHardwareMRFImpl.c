@@ -2,6 +2,8 @@
 #include "lib/include/NetworkHardwareMRFImpl.h"
 #include "lib/include/NetworkHardwareMRFInternalConstants.h"
 #include "lib/include/MRFHelperFunctions.h"
+#include "CException.h"
+#include "lib/include/Exception.h"
 
 /**
  * ## Memory Layout ##
@@ -89,12 +91,17 @@ NetworkHardware *NetworkHardware_createMRF(SPISlave *output_device, Allocator al
  */
 void init(NetworkHardware *self) {
   NetworkHardwareMRFImpl *impl = (NetworkHardwareMRFImpl *) self;
-  reset(impl);
-  setInitializationValuesFromDatasheet(impl);
-  enableRXInterrupt(impl);
-  selectChannel(impl, 11);
-  setTransmitterPower(impl);
-  resetInternalStateMachine(impl);
+  CEXCEPTION_T is_busy_exception;
+  Try {
+        reset(impl);
+        setInitializationValuesFromDatasheet(impl);
+        enableRXInterrupt(impl);
+        selectChannel(impl, 11);
+        setTransmitterPower(impl);
+        resetInternalStateMachine(impl);
+      } Catch(is_busy_exception) {
+    Throw(NETWORK_HARDWARE_IS_BUSY_EXCEPTION);
+  }
 }
 
 void reset(NetworkHardwareMRFImpl *self) {
@@ -106,14 +113,7 @@ void reset(NetworkHardwareMRFImpl *self) {
           reset_baseband_circuit |
           reset_power_circuit
   );
-  uint8_t command = MRF_writeShortCommand(mrf_register_software_reset);
-  uint8_t reset_sequence[] = {command, complete_reset};
-  SPIMessage reset_message = {
-          .length = 2,
-          .outgoing_data = reset_sequence,
-          .incoming_data = NULL
-  };
-  SPI_transferSync(self->output_device, &reset_message);
+  setShortRegister(self, mrf_register_software_reset, complete_reset);
 }
 
 void enableRXInterrupt(NetworkHardwareMRFImpl *self) {
