@@ -6,6 +6,70 @@
 #include "lib/include/Exception.h"
 
 /**
+ * # Data Frame Header structure #
+ * To reduce the number of bytes that need to be transferred to actually send a data frame
+ * we make some protocol parameters fixed.
+ *
+ *  - include the short source address instead of the extended one
+ *  - for all frames destination and source pan id are equal (only intra-pan messages)
+ *  - only send data frames (this will change in future)
+ *  - always use pan id compression
+ *  - do not use any security mechanisms
+ *  - do not use acknowledgments (this will change soon)
+ *
+ *  Referring to the 802.15.4 standard this leads to the following header value:
+ *
+ * |Name               | Value | Description                                                                      |
+ * |------------------ |-------|----------------------------------------------------------------------------------|
+ * | Frame Type        | 0b001 | Data Frame (other possible values are e.g. Acknowledgment or MAC Command)        |
+ * | Security Enabled  | 0b0   | Disabled                                                                         |
+ * | Frame Pending     | 0b0   | only relevant for specific modes and frames, we say no frame pending here        |
+ * | AR                | 0b0   | tell the recepient we don't want an Acknowledgement                              |
+ * | PAN ID Compression| 0b1   | only use one PAN ID field because source and destination PAN ID will be the same |
+ * | Reserved field    | 0b0   | -                                                                                |
+ * | Sequence Number
+ * | suppression       | 0b0   | We have to include a sequence number (not supressing makes changes easier later on)|
+ * | IE Present        | 0b0   | We don't include an information element
+ * | Destination
+ * | Addressing mode   | 0b10/0b11 | short destination address / long destination address
+ * | Frame Version     | 0b10  | we follow the last standard from 2015
+ * | Source
+ * | Addressing mode   | 0b10  | always include the short source address
+ *
+ *
+ *
+ */
+typedef struct FrameControlField {
+  unsigned frame_type : 3;
+  unsigned security_enabled : 1;
+  unsigned frame_pending : 1;
+  unsigned acknowledgment_request : 1;
+  unsigned information_element_present : 1;
+  unsigned pan_id_compression : 1;
+  unsigned reserved : 1;
+  unsigned sequence_number_suppression : 1;
+  unsigned destination_addressing_mode : 2;
+  unsigned frame_version : 2;
+  unsigned source_addressing_mode : 2;
+} FrameControlField;
+
+struct FrameHeader {
+  uint8_t header_length;
+  uint8_t frame_length;
+  union {
+    uint8_t as_byte;
+    FrameControlField as_struct;
+  } control;
+  uint8_t sequence_number;
+  uint8_t destination_pan_id[2];
+  union {
+    uint8_t short_address[2];
+    uint8_t long_address[8];
+  } destination;
+};
+
+
+/**
  * ## Memory Layout ##
  * The memory mapped area for the TX Normal FIFO (the fifo buffer
  * that the mrf module uses for normal TX frames) has the address space
@@ -33,26 +97,6 @@
  * | 0/2/8            | Source Address            |
  * | 0/2/8            | Auxiliary Security Header |
  * | variable         | Header IEs                |
- *
- * Not all fields have to be used and we will restrict the use of 802.15.4 features so
- * creating frames and keeping the state of the TX Normal FIFO consistent becomes easier
- * and produces less overhead.
- *
- * In the following the choosen values of the fixed fields and general functionality of
- * some other fields are explained.
- *
- * ### Frame Control ###
- * The Frame Control field itself consists of several other fields.
- * The following table shows the chosen fixed values as well as a short description
- * of each values meaning
- *
- * |Name               | Value | Description                                                                      |
- * |------------------ |-------|----------------------------------------------------------------------------------|
- * | Frame Type        | 0b001 | Data Frame (other possible values are e.g. Acknowledgment or MAC Command)        |
- * | Security Enabled  | 0b0   | Disabled                                                                         |
- * | Frame Pending     | 0b0   | only relevant for specific modes and frames, we say no frame pending here        |
- * | AR                | 0b0   | tell the recepient we don't want an Acknowledgement                              |
- * | PAN ID Compression| 0b1   | only use one PAN ID field because source and destination PAN ID will be the same |
  *
  */
 

@@ -14,14 +14,13 @@ struct Mac802154 {
   void (*setExtendedDestinationAddress) (Mac802154 *self, uint8_t* address);
   void (*setPayload) (Mac802154 *self, uint8_t* buffer, size_t size);
 
-  void (*associate) (Mac802154 *self);
   void (*receive) (Mac802154 *self, Message *received_msg);
   void (*send) (Mac802154 *self);
   void (*init) (Mac802154 *self, const Mac802154Config *config);
   void (*destroy) (Mac802154 *self);
-  bool (*isAssociated) (Mac802154 *self);
-  uint16_t (*getAddress16Bit) (Mac802154 *self);
-  const uint8_t *(*getAddress64Bit) (Mac802154 *self);
+
+  uint16_t (*getShortDestinationAddress) (Mac802154 *self);
+  const uint8_t *(*getExtendedDestinationAddress) (Mac802154 *self);
   const uint8_t *(*getPayload) (Mac802154 *self);
   uint16_t (*getPayloadSize) (Mac802154 *self);
 };
