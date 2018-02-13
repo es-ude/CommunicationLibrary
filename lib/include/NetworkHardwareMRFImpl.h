@@ -29,6 +29,6 @@
  */
 
 NetworkHardware *NetworkHardware_createMRF(SPISlave *output_device, Allocator allocate, DelayFunction delay_microseconds);
-
+uint16_t NetworkHardware_sizeOfMRF(void);
 
 #endif /* end of include guard */
