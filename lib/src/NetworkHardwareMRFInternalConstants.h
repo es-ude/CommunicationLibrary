@@ -28,6 +28,9 @@ static const uint16_t mrf_register_sleep_clock_control1 = 0x220;
 
 static const uint8_t mrf_register_pan_id_low_byte = 0x01;
 static const uint8_t mrf_register_pan_id_high_byte = 0x02;
+static const uint8_t mrf_register_short_address_low_byte = 0x03;
+static const uint8_t mrf_register_short_address_high_byte = 0x04;
+static const uint8_t mrf_register_extended_address0 = 0x05;
 
 static const uint8_t mrf_bit_fifo_enable = 0x07;
 static const uint8_t mrf_tx_normal_fifo_length = 0x80;
