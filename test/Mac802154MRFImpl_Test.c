@@ -47,7 +47,7 @@ void test_initPerformsSoftwareReset(void) {
           MRF_writeShortCommand(mrf_register_software_reset),
           0x07};
   SPIMessage expected_message = {.length = 2, .outgoing_data = expected_buffer, .incoming_data = NULL};
-  NetworkHardware_init(mrf, &config);
+  Mac802154_init(mrf, &config);
   TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &expected_message));
 }
 
@@ -56,7 +56,7 @@ void test_initSetsTXStabilizationRegisterToRecommendedValue(void) {
           ((mrf_register_tx_stabilization << 1) & ~(1 << 7)) | 1,
           0x09,
   };
-  NetworkHardware_init(mrf, &config);
+  Mac802154_init(mrf, &config);
   SPIMessage message = {.length = 2, .incoming_data = NULL, .outgoing_data = expected_buffer};
 
   TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message));
@@ -75,7 +75,7 @@ void test_initConfiguresPowerAmplifierCorrectly(void) {
           .length = 2,
           .outgoing_data = expected_buffer,
   };
-  NetworkHardware_init(mrf, &config);
+  Mac802154_init(mrf, &config);
   TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &expected_message));
 }
 
@@ -92,7 +92,7 @@ void test_initSetsOtherControlRegistersAsSpecifiedInDatasheetExample(void) {
           MRF_writeShortCommand(mrf_register_energy_detection_threshold_for_clear_channel_assessment), 0x60,
           MRF_writeShortCommand(mrf_register_base_band6), 0x40
   };
-  NetworkHardware_init(mrf, &config);
+  Mac802154_init(mrf, &config);
   uint8_t number_of_previous_long_writes = 0;
   uint8_t number_of_previous_short_writes = 3;
   int offset = number_of_previous_long_writes * 3 +
@@ -112,7 +112,7 @@ void test_initEnablesRXInterruptForMRF(void) {
           .outgoing_data = expected_buffer,
           .incoming_data = NULL
   };
-  NetworkHardware_init(mrf, &config);
+  Mac802154_init(mrf, &config);
   TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message));
 }
 
@@ -126,7 +126,7 @@ void test_initSelectsChannelEleven(void) {
           .outgoing_data = expected_buffer,
           .incoming_data = NULL
   };
-  NetworkHardware_init(mrf, &config);
+  Mac802154_init(mrf, &config);
   TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message));
 }
 
@@ -143,7 +143,7 @@ void test_initSetsTransmitterPowerTo30dB(void) {
           .outgoing_data = expected_buffer,
           .incoming_data = NULL,
   };
-  NetworkHardware_init(mrf, &config);
+  Mac802154_init(mrf, &config);
   TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &expected_message));
 }
 
@@ -160,7 +160,7 @@ void test_initResetsTheInternalStateMachine(void) {
           .outgoing_data = expected_buffer,
           .incoming_data = NULL,
   };
-  NetworkHardware_init(mrf, &config);
+  Mac802154_init(mrf, &config);
   TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message));
   message.outgoing_data = expected_buffer + 2;
   TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message));
@@ -168,12 +168,12 @@ void test_initResetsTheInternalStateMachine(void) {
 }
 
 void test_waitFor200MicroSecondsAfterInitialization(void) {
-  NetworkHardware_init(mrf, &config);
+  Mac802154_init(mrf, &config);
   TEST_ASSERT_EQUAL_DOUBLE(200, MockRuntime_lastDelayMicrosecondsArg());
 }
 
 void test_initMakesNoAsynchronousCallsToSPI(void) {
-  NetworkHardware_init(mrf, &config);
+  Mac802154_init(mrf, &config);
   TEST_ASSERT_EQUAL_UINT8(0, mock_interface.number_of_async_transfer_calls);
 }
 
@@ -181,7 +181,7 @@ void test_ExceptionIsThrownWhenInterfaceIsBusyDuringInit(void) {
   mock_interface.isBusy = true;
   CEXCEPTION_T exception = 0;
   Try {
-        NetworkHardware_init(mrf, &config);
+        Mac802154_init(mrf, &config);
         TEST_FAIL();
       } Catch (exception) {
     TEST_ASSERT_EQUAL_UINT8(NETWORK_HARDWARE_IS_BUSY_EXCEPTION, exception);
@@ -198,7 +198,7 @@ void test_PanIdIsSetDuringInitialization(void) {
           .outgoing_data = expected,
           .incoming_data = NULL,
   };
-  NetworkHardware_init(mrf, &config);
+  Mac802154_init(mrf, &config);
   TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message));
 }
 
@@ -215,7 +215,7 @@ void test_ShortSourceAddressIsSetDuringInitialization(void) {
           .outgoing_data = expected,
           .incoming_data = NULL,
   };
-  NetworkHardware_init(mrf, &config);
+  Mac802154_init(mrf, &config);
   TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message));
 }
 
@@ -230,7 +230,7 @@ void test_ExtendedSourceAddressIsSetDuringInitialization(void) {
           .outgoing_data = expected,
           .incoming_data = NULL,
   };
-  NetworkHardware_init(mrf, &config);
+  Mac802154_init(mrf, &config);
   TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message));
 }
 
