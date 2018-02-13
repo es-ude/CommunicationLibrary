@@ -18,10 +18,14 @@ struct SPIDeviceMockImpl {
   uint8_t current_buffer_position;
 	uint8_t number_of_async_transfer_calls;
 	uint8_t number_of_sync_transfer_calls;
+  SPIMessage *message_buffer;
 	bool isBusy;
+  void (*transfer) (SPIDeviceMockImpl *self, const SPIMessage *message);
 };
 
 void SPIDeviceMockImpl_init(SPIDeviceMockImpl *device);
+
+bool SPIDeviceMockImpl_messageWasTransferred(SPIDeviceMockImpl *device, SPIMessage *message);
 
 #endif /* end of include guard */
 

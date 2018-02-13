@@ -31,14 +31,18 @@ static SPISlave output_device = {
 static NetworkHardware *mrf;
 static NetworkHardwareConfig config;
 static uint8_t buffer[128];
+static SPIMessage spi_message_buffer[30];
+static int buffer_offset = 0;
 
 static void setUpNetworkHardwareConfig(NetworkHardwareConfig *config);
+static uint16_t calculateOffset(uint16_t previous_short_writes, uint16_t previous_long_writes);
 
 void setUp(void) {
   MockAllocate_configure(&allocate_config);
   SPIDeviceMockImpl_init(&mock_interface);
   mock_interface.input_buffer = NULL;
   mock_interface.output_buffer = buffer;
+  mock_interface.message_buffer = spi_message_buffer;
   mrf = NetworkHardware_createMRF(&output_device, MockAllocate_allocate, MockRuntime_delayMicroseconds);
   setUpNetworkHardwareConfig(&config);
   memset(buffer, 0, 128);
@@ -94,9 +98,9 @@ void test_initSetsOtherControlRegistersAsSpecifiedInDatasheetExample(void) {
   };
   NetworkHardware_init(mrf, &config);
   uint8_t number_of_previous_long_writes = 0;
-  uint8_t number_of_previouse_short_writes = 3;
+  uint8_t number_of_previous_short_writes = 3;
   int offset = number_of_previous_long_writes * 3 +
-          number_of_previouse_short_writes * 2;
+          number_of_previous_short_writes * 2;
   TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+offset, 7*3+3*2);
 
 }
@@ -130,10 +134,10 @@ void test_initSelectsChannelEleven(void) {
 }
 
 void test_initSetsTransmitterPowerTo30dB(void) {
-  uint8_t number_of_previouse_short_writes = 7;
-  uint8_t number_of_previouse_long_writes = 8;
-  int offset = number_of_previouse_long_writes * 3 +
-               number_of_previouse_short_writes *2;
+  uint8_t number_of_previous_short_writes = 7;
+  uint8_t number_of_previous_long_writes = 8;
+  int offset = number_of_previous_long_writes * 3 +
+               number_of_previous_short_writes *2;
   uint8_t minus_thirty_db = 3 << 6;
   uint8_t expected_buffer[] = {
           (uint8_t)(MRF_writeLongCommand(mrf_register_rf_control3) >> 8),
@@ -183,15 +187,48 @@ void test_ExceptionIsThrownWhenInterfaceIsBusyDuringInit(void) {
   }
 }
 
-void test_initMakesCorrectNumberOfSyncCalls(void) {
+void test_PanIdIsSetDuringInitialization(void) {
+  config.pan_id = 0xABCD;
+  uint16_t offset = calculateOffset(9,9);
+  uint8_t expected[] = {
+          MRF_writeShortCommand(mrf_register_pan_id_low_byte), 0xCD, 0xAB,
+  };
   NetworkHardware_init(mrf, &config);
-  TEST_ASSERT_EQUAL_UINT8(18, mock_interface.number_of_sync_transfer_calls);
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, buffer+offset, 3);
+}
+
+void test_ShortSourceAddressIsSetDuringInitialization(void) {
+  config.short_source_address = 0xABDC;
+  uint16_t offset = calculateOffset(10,9) + 1;
+  uint8_t expected[] = {
+          MRF_writeShortCommand(mrf_register_short_address_low_byte),
+          0xDC,
+          0xAB,
+  };
+  NetworkHardware_init(mrf, &config);
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, buffer+offset, 3);
+  buffer_offset = offset + 3;
+}
+
+void test_ExtendedSourceAddressIsSetDuringInitialization(void) {
+  config.extended_source_address[3] = 0xA5;
+  config.extended_source_address[6] = 0xD6;
+  uint8_t expected[9];
+  expected[0] = MRF_writeShortCommand(mrf_register_extended_address0);
+  memcpy(expected+1, config.extended_source_address, 8);
+  NetworkHardware_init(mrf, &config);
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, buffer+buffer_offset, 9);
+  buffer_offset += 9;
 }
 
 void setUpNetworkHardwareConfig(NetworkHardwareConfig *config) {
   config->pan_id = 0xffff;
   config->short_source_address = 0xffff;
-  for (int i=0; i<4; i++) {
+  for (int i=0; i<8; i++) {
     config->extended_source_address[i] = 0xff;
   }
+}
+
+uint16_t calculateOffset(uint16_t previous_short_writes, uint16_t previous_long_writes) {
+  return previous_long_writes * 3 + previous_short_writes * 2;
 }
