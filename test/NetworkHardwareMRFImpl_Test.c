@@ -31,7 +31,7 @@ static SPISlave output_device = {
 static NetworkHardware *mrf;
 static NetworkHardwareConfig config;
 static uint8_t buffer[128];
-static SPIMessage spi_message_buffer[30];
+static SPIMessage spi_message_buffer[40];
 static int buffer_offset = 0;
 
 static void setUpNetworkHardwareConfig(NetworkHardwareConfig *config);
@@ -52,8 +52,9 @@ void test_initPerformsSoftwareReset(void) {
   uint8_t expected_buffer[3] = {
           MRF_writeShortCommand(mrf_register_software_reset),
           0x07};
+  SPIMessage expected_message = {.length = 2, .outgoing_data = expected_buffer, .incoming_data = NULL};
   NetworkHardware_init(mrf, &config);
-  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer, 2);
+  TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &expected_message));
 }
 
 void test_initSetsTXStabilizationRegisterToRecommendedValue(void) {
@@ -62,11 +63,9 @@ void test_initSetsTXStabilizationRegisterToRecommendedValue(void) {
           0x09,
   };
   NetworkHardware_init(mrf, &config);
-  uint8_t offset_from_software_reset = 2;
-  uint8_t offset_from_power_amplifier_config = 2;
-  uint8_t total_offset = offset_from_power_amplifier_config +
-          offset_from_software_reset;
-  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+total_offset, 2);
+  SPIMessage message = {.length = 2, .incoming_data = NULL, .outgoing_data = expected_buffer};
+
+  TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message));
 }
 
 void test_initConfiguresPowerAmplifierCorrectly(void) {
@@ -78,9 +77,12 @@ void test_initConfiguresPowerAmplifierCorrectly(void) {
   uint8_t expected_buffer[] = {
           command, enable_fifo | transmitter_enable_on_time_symbol_bits
   };
+  SPIMessage expected_message = {
+          .length = 2,
+          .outgoing_data = expected_buffer,
+  };
   NetworkHardware_init(mrf, &config);
-  uint8_t offset_from_software_reset = 2;
-  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+offset_from_software_reset, 2);
+  TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &expected_message));
 }
 
 void test_initSetsOtherControlRegistersAsSpecifiedInDatasheetExample(void) {
@@ -106,55 +108,52 @@ void test_initSetsOtherControlRegistersAsSpecifiedInDatasheetExample(void) {
 }
 
 void test_initEnablesRXInterruptForMRF(void) {
-  uint8_t number_of_previous_short_writes = 6;
-  uint8_t number_of_previous_long_writes = 7;
-  int offset = number_of_previous_long_writes * 3 +
-          number_of_previous_short_writes * 2;
 
   uint8_t reception_interrupt_enable_bit = (1 << 3);
   uint8_t expected_buffer[] = {
           MRF_writeShortCommand(mrf_register_interrupt_control), ~reception_interrupt_enable_bit
   };
-
+  SPIMessage message = {
+          .length = 2,
+          .outgoing_data = expected_buffer,
+          .incoming_data = NULL
+  };
   NetworkHardware_init(mrf, &config);
-  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+offset, 2);
+  TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message));
 }
 
 void test_initSelectsChannelEleven(void) {
-  uint8_t number_of_previous_short_writes = 7;
-  uint8_t number_of_previous_long_writes = 7;
-  int offset = number_of_previous_long_writes * 3 +
-               number_of_previous_short_writes *2;
   uint8_t channel_eleven = 0x03;
   uint8_t expected_buffer[] = {
           (uint8_t)(MRF_writeLongCommand(mrf_register_rf_control0) >> 8), (uint8_t)MRF_writeLongCommand(mrf_register_rf_control0), channel_eleven
   };
+  SPIMessage message = {
+          .length = 3,
+          .outgoing_data = expected_buffer,
+          .incoming_data = NULL
+  };
   NetworkHardware_init(mrf, &config);
-  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+offset, 3);
+  TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message));
 }
 
 void test_initSetsTransmitterPowerTo30dB(void) {
-  uint8_t number_of_previous_short_writes = 7;
-  uint8_t number_of_previous_long_writes = 8;
-  int offset = number_of_previous_long_writes * 3 +
-               number_of_previous_short_writes *2;
+
   uint8_t minus_thirty_db = 3 << 6;
   uint8_t expected_buffer[] = {
           (uint8_t)(MRF_writeLongCommand(mrf_register_rf_control3) >> 8),
           (uint8_t) MRF_writeLongCommand(mrf_register_rf_control3),
           minus_thirty_db
   };
-
+  SPIMessage expected_message = {
+          .length = 3,
+          .outgoing_data = expected_buffer,
+          .incoming_data = NULL,
+  };
   NetworkHardware_init(mrf, &config);
-  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+offset, 3);
-
+  TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &expected_message));
 }
 
 void test_initResetsTheInternalStateMachine(void) {
-  uint8_t number_of_previous_short_writes = 7;
-  uint8_t number_of_previous_long_writes = 9;
-  int offset = number_of_previous_long_writes * 3 +
-               number_of_previous_short_writes * 2;
   uint8_t reset_state_machine = 0x04;
   uint8_t start_state_machine = 0x00;
   uint8_t expected_buffer[] = {
@@ -162,8 +161,16 @@ void test_initResetsTheInternalStateMachine(void) {
           MRF_writeShortCommand(mrf_register_rf_mode_control), start_state_machine
   };
 
+  SPIMessage message = {
+          .length = 2,
+          .outgoing_data = expected_buffer,
+          .incoming_data = NULL,
+  };
   NetworkHardware_init(mrf, &config);
-  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+offset, 4);
+  TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message));
+  message.outgoing_data = expected_buffer + 2;
+  TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message));
+
 }
 
 void test_waitFor200MicroSecondsAfterInitialization(void) {
@@ -189,12 +196,16 @@ void test_ExceptionIsThrownWhenInterfaceIsBusyDuringInit(void) {
 
 void test_PanIdIsSetDuringInitialization(void) {
   config.pan_id = 0xABCD;
-  uint16_t offset = calculateOffset(9,9);
   uint8_t expected[] = {
           MRF_writeShortCommand(mrf_register_pan_id_low_byte), 0xCD, 0xAB,
   };
+  SPIMessage message = {
+          .length = 3,
+          .outgoing_data = expected,
+          .incoming_data = NULL,
+  };
   NetworkHardware_init(mrf, &config);
-  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, buffer+offset, 3);
+  TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message));
 }
 
 void test_ShortSourceAddressIsSetDuringInitialization(void) {
@@ -205,9 +216,13 @@ void test_ShortSourceAddressIsSetDuringInitialization(void) {
           0xDC,
           0xAB,
   };
+  SPIMessage message = {
+          .length = 3,
+          .outgoing_data = expected,
+          .incoming_data = NULL,
+  };
   NetworkHardware_init(mrf, &config);
-  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, buffer+offset, 3);
-  buffer_offset = offset + 3;
+  TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message));
 }
 
 void test_ExtendedSourceAddressIsSetDuringInitialization(void) {
@@ -216,9 +231,13 @@ void test_ExtendedSourceAddressIsSetDuringInitialization(void) {
   uint8_t expected[9];
   expected[0] = MRF_writeShortCommand(mrf_register_extended_address0);
   memcpy(expected+1, config.extended_source_address, 8);
+  SPIMessage message = {
+          .length = 9,
+          .outgoing_data = expected,
+          .incoming_data = NULL,
+  };
   NetworkHardware_init(mrf, &config);
-  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, buffer+buffer_offset, 9);
-  buffer_offset += 9;
+  TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message));
 }
 
 void setUpNetworkHardwareConfig(NetworkHardwareConfig *config) {
