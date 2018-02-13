@@ -35,9 +35,13 @@ struct SPI {
 	void (*transferSync)(const SPI *self,
                        const SPIMessage *message,
                        volatile uint8_t *slave_select_line);
-	void (*transferAsync)(const SPI *self,
+	void (*transferAsync)(SPI *self,
                         const SPIMessage *message,
                         volatile uint8_t *slave_select_line);
+	void (*transferAsyncWithCompletionCallback) (SPI *self,
+                                               const SPIMessage *message,
+                                               volatile uint8_t *slave_select_line,
+                                               void (*callback) (void));
 	void (*init)(SPI *self);
 	void (*destroy) (SPI *self);
 };
@@ -45,11 +49,16 @@ struct SPI {
 /*
  * An SPISlave represents an external device that you
  * want to communicate with using an spi. Typically you would want to create
- * one SPISlave instance for every external device.
+ * one SPISlave instance for every external device. Set completion_callback
+ * either to NULL, or a function that shall be called as soon as all bytes
+ * have been transferred. The callback has to be non blocking and should
+ * have fast execution time since it's going to be executed from inside
+ * an interrupt service routine.
  *
  */
 struct SPISlave {
 	SPI *hw_interface;
+  void (*completion_callback) (void);
 	volatile uint8_t *slave_select_line;
 };
 
@@ -66,9 +75,19 @@ static void SPI_transferSync(const SPISlave *self, const SPIMessage *data){
 }
 
 static void SPI_transferAsync(const SPISlave *self, const SPIMessage *data) {
-	self->hw_interface->transferAsync(self->hw_interface,
-                                    data,
-                                    self->slave_select_line);
+  if (self->completion_callback == NULL) {
+    self->hw_interface->transferAsync(self->hw_interface,
+                                      data,
+                                      self->slave_select_line);
+  }
+  else {
+    self->hw_interface->transferAsyncWithCompletionCallback(
+            self->hw_interface,
+            data,
+            self->slave_select_line,
+            self->completion_callback
+    );
+  }
 }
 
 #endif /* end of include guard */
