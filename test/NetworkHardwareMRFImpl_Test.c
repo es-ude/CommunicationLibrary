@@ -17,7 +17,7 @@
  * exceptions should be thrown in case the spi interface is busy
  */
 
-#define MEMORY_CAPACITY 8*10
+#define MEMORY_CAPACITY sizeof(NetworkHardware) + sizeof(SPISlave) + 64
 static uint8_t raw_memory[MEMORY_CAPACITY];
 
 static MockAllocateConfig allocate_config = {.returned_address = raw_memory};
@@ -28,7 +28,10 @@ static SPISlave output_device = {
         .slave_select_line = &slave_select_line
 };
 static NetworkHardware *mrf;
+static NetworkHardwareConfig config;
 static uint8_t buffer[128];
+
+static void setUpNetworkHardwareConfig(NetworkHardwareConfig *config);
 
 void setUp(void) {
   MockAllocate_configure(&allocate_config);
@@ -36,6 +39,7 @@ void setUp(void) {
   mock_interface.input_buffer = NULL;
   mock_interface.output_buffer = buffer;
   mrf = NetworkHardware_createMRF(&output_device, MockAllocate_allocate, MockRuntime_delayMicroseconds);
+  setUpNetworkHardwareConfig(&config);
   memset(buffer, 0, 128);
 }
 
@@ -43,7 +47,7 @@ void test_initPerformsSoftwareReset(void) {
   uint8_t expected_buffer[3] = {
           MRF_writeShortCommand(mrf_register_software_reset),
           0x07};
-  NetworkHardware_init(mrf);
+  NetworkHardware_init(mrf, &config);
   TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer, 2);
 }
 
@@ -52,7 +56,7 @@ void test_initSetsTXStabilizationRegisterToRecommendedValue(void) {
           ((mrf_register_tx_stabilization << 1) & ~(1 << 7)) | 1,
           0x09,
   };
-  NetworkHardware_init(mrf);
+  NetworkHardware_init(mrf, &config);
   uint8_t offset_from_software_reset = 2;
   uint8_t offset_from_power_amplifier_config = 2;
   uint8_t total_offset = offset_from_power_amplifier_config +
@@ -69,7 +73,7 @@ void test_initConfiguresPowerAmplifierCorrectly(void) {
   uint8_t expected_buffer[] = {
           command, enable_fifo | transmitter_enable_on_time_symbol_bits
   };
-  NetworkHardware_init(mrf);
+  NetworkHardware_init(mrf, &config);
   uint8_t offset_from_software_reset = 2;
   TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+offset_from_software_reset, 2);
 }
@@ -87,7 +91,7 @@ void test_initSetsOtherControlRegistersAsSpecifiedInDatasheetExample(void) {
           MRF_writeShortCommand(mrf_register_energy_detection_threshold_for_clear_channel_assessment), 0x60,
           MRF_writeShortCommand(mrf_register_base_band6), 0x40
   };
-  NetworkHardware_init(mrf);
+  NetworkHardware_init(mrf, &config);
   uint8_t number_of_previous_long_writes = 0;
   uint8_t number_of_previouse_short_writes = 3;
   int offset = number_of_previous_long_writes * 3 +
@@ -107,7 +111,7 @@ void test_initEnablesRXInterruptForMRF(void) {
           MRF_writeShortCommand(mrf_register_interrupt_control), ~reception_interrupt_enable_bit
   };
 
-  NetworkHardware_init(mrf);
+  NetworkHardware_init(mrf, &config);
   TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+offset, 2);
 }
 
@@ -120,7 +124,7 @@ void test_initSelectsChannelEleven(void) {
   uint8_t expected_buffer[] = {
           (uint8_t)(MRF_writeLongCommand(mrf_register_rf_control0) >> 8), (uint8_t)MRF_writeLongCommand(mrf_register_rf_control0), channel_eleven
   };
-  NetworkHardware_init(mrf);
+  NetworkHardware_init(mrf, &config);
   TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+offset, 3);
 }
 
@@ -136,7 +140,7 @@ void test_initSetsTransmitterPowerTo30dB(void) {
           minus_thirty_db
   };
 
-  NetworkHardware_init(mrf);
+  NetworkHardware_init(mrf, &config);
   TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+offset, 3);
 
 }
@@ -153,17 +157,17 @@ void test_initResetsTheInternalStateMachine(void) {
           MRF_writeShortCommand(mrf_register_rf_mode_control), start_state_machine
   };
 
-  NetworkHardware_init(mrf);
+  NetworkHardware_init(mrf, &config);
   TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer+offset, 4);
 }
 
 void test_waitFor200MicroSecondsAfterInitialization(void) {
-  NetworkHardware_init(mrf);
+  NetworkHardware_init(mrf, &config);
   TEST_ASSERT_EQUAL_DOUBLE(200, MockRuntime_lastDelayMicrosecondsArg());
 }
 
 void test_initMakesNoAsynchronousCallsToSPI(void) {
-  NetworkHardware_init(mrf);
+  NetworkHardware_init(mrf, &config);
   TEST_ASSERT_EQUAL_UINT8(0, mock_interface.number_of_async_transfer_calls);
 }
 
@@ -171,7 +175,7 @@ void test_ExceptionIsThrownWhenInterfaceIsBusyDuringInit(void) {
   mock_interface.isBusy = true;
   CEXCEPTION_T exception = 0;
   Try {
-        NetworkHardware_init(mrf);
+        NetworkHardware_init(mrf, &config);
         TEST_FAIL();
       } Catch (exception) {
     TEST_ASSERT_EQUAL_UINT8(NETWORK_HARDWARE_IS_BUSY_EXCEPTION, exception);
@@ -179,6 +183,14 @@ void test_ExceptionIsThrownWhenInterfaceIsBusyDuringInit(void) {
 }
 
 void test_initMakesCorrectNumberOfSyncCalls(void) {
-  NetworkHardware_init(mrf);
+  NetworkHardware_init(mrf, &config);
   TEST_ASSERT_EQUAL_UINT8(18, mock_interface.number_of_sync_transfer_calls);
+}
+
+void setUpNetworkHardwareConfig(NetworkHardwareConfig *config) {
+  config->pan_id = 0xffff;
+  config->short_source_address = 0xffff;
+  for (int i=0; i<4; i++) {
+    config->extended_source_address[i] = 0xff;
+  }
 }

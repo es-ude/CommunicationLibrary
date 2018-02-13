@@ -60,27 +60,55 @@ typedef struct NetworkHardwareMRFImpl NetworkHardwareMRFImpl;
 
 struct NetworkHardwareMRFImpl {
   NetworkHardware interface;
+  NetworkHardwareConfig config;
   SPISlave *output_device;
   DelayFunction delayMicroseconds;
+  uint16_t pan_id;
 };
 
-static void init(NetworkHardware *self);
+static void init(NetworkHardware *self, const NetworkHardwareConfig *config);
+static void setInterfaceFunctionPointers(NetworkHardware *self);
+static void setPrivateFunctionPointers(NetworkHardwareMRFImpl *self, DelayFunction delay_microseconds);
 static void reset(NetworkHardwareMRFImpl *self);
+static void setPrivateVariables(NetworkHardwareMRFImpl *self);
 static void setShortRegister(NetworkHardwareMRFImpl *self, uint8_t address, uint8_t value);
 static void setLongRegister(NetworkHardwareMRFImpl *self, uint16_t address, uint8_t value);
 static void enableRXInterrupt(NetworkHardwareMRFImpl *self);
 static void setInitializationValuesFromDatasheet(NetworkHardwareMRFImpl *impl);
 static void selectChannel(NetworkHardwareMRFImpl *self, uint8_t channel_number);
-static void setTransmitterPower(NetworkHardwareMRFImpl *self);
+static void setTransmitterPower(NetworkHardwareMRFImpl *impl);
 static void resetInternalStateMachine(NetworkHardwareMRFImpl *impl);
+static void setPanId(NetworkHardware *self, uint16_t pan_id);
+static uint16_t getPanId(const NetworkHardware *self);
 
-NetworkHardware *NetworkHardware_createMRF(SPISlave *output_device, Allocator allocate, DelayFunction delay_microseconds) {
+
+NetworkHardware *NetworkHardware_createMRF(SPISlave *output_device,
+                                           Allocator allocate,
+                                           DelayFunction delay_microseconds) {
   NetworkHardwareMRFImpl *impl = allocate(sizeof(NetworkHardwareMRFImpl));
   impl->output_device = output_device;
   NetworkHardware *interface = (NetworkHardware*) impl;
-  interface->init = init;
-  impl->delayMicroseconds = delay_microseconds;
+  setInterfaceFunctionPointers(interface);
+  setPrivateFunctionPointers(impl, delay_microseconds);
+  setPrivateVariables(impl);
   return interface;
+}
+
+void setInterfaceFunctionPointers(NetworkHardware *interface) {
+  interface->init = init;
+}
+
+void setPrivateFunctionPointers(NetworkHardwareMRFImpl *self, DelayFunction delay_microseconds) {
+  self->delayMicroseconds = delay_microseconds;
+}
+
+void setPrivateVariables(NetworkHardwareMRFImpl *self) {
+  self->config.pan_id = 0xffff;
+  self->config.extended_source_address[0] = 0xff;
+  self->config.extended_source_address[1] = 0xff;
+  self->config.extended_source_address[2] = 0xff;
+  self->config.extended_source_address[3] = 0xff;
+  self->config.short_source_address = 0xffff;
 }
 
 /*
@@ -89,7 +117,7 @@ NetworkHardware *NetworkHardware_createMRF(SPISlave *output_device, Allocator al
  * for now just to be sure until we have figured out what each of these
  * does exactly.
  */
-void init(NetworkHardware *self) {
+void init(NetworkHardware *self, const NetworkHardwareConfig *config) {
   NetworkHardwareMRFImpl *impl = (NetworkHardwareMRFImpl *) self;
   CEXCEPTION_T is_busy_exception;
   Try {
@@ -114,6 +142,23 @@ void reset(NetworkHardwareMRFImpl *self) {
           reset_power_circuit
   );
   setShortRegister(self, mrf_register_software_reset, complete_reset);
+}
+
+void setPanId(NetworkHardware *self, uint16_t pan_id) {
+  CEXCEPTION_T spi_busy_exception;
+  Try {
+        NetworkHardwareMRFImpl *impl = (NetworkHardwareMRFImpl *) self;
+        setShortRegister(impl, mrf_register_pan_id_low_byte, (uint8_t) (pan_id & 0xFF));
+        setShortRegister(impl, mrf_register_pan_id_high_byte, (uint8_t) ((pan_id >> 8) & 0xFF));
+        impl->pan_id = pan_id;
+      } Catch (spi_busy_exception) {
+        Throw(NETWORK_HARDWARE_IS_BUSY_EXCEPTION);
+  }
+}
+
+uint16_t getPanId(const NetworkHardware *self) {
+  NetworkHardwareMRFImpl *impl = (NetworkHardwareMRFImpl*) self;
+  return impl->pan_id;
 }
 
 void enableRXInterrupt(NetworkHardwareMRFImpl *self) {
