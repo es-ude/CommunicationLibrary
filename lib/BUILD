@@ -8,7 +8,10 @@ config_setting(
 
 filegroup(
     name = "CommunicationModuleSrc",
-    srcs = glob(["src/*.c"]),
+    srcs = glob([
+        "src/*.c",
+        "src/*.h",
+    ]),
 )
 
 filegroup(
@@ -37,5 +40,5 @@ cc_library(
         "//test:__pkg__",
         "//test/Mocks:__pkg__",
     ],
-    deps = ["@CException//:CException"]
+    deps = ["@CException//:CException"],
 )

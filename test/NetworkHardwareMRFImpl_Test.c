@@ -2,7 +2,7 @@
 #include "lib/include/NetworkHardware.h"
 #include "test/Mocks/MockSPIImpl.h"
 #include "test/Mocks/MockRuntimeLibraryImpl.h"
-#include "lib/include/NetworkHardwareMRFInternalConstants.h"
+#include "lib/src/NetworkHardwareMRFInternalConstants.h"
 #include "lib/include/MRFHelperFunctions.h"
 #include "lib/include/Exception.h"
 

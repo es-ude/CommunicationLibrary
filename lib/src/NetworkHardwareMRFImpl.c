@@ -1,6 +1,6 @@
 #include "lib/include/NetworkHardware.h"
 #include "lib/include/NetworkHardwareMRFImpl.h"
-#include "lib/include/NetworkHardwareMRFInternalConstants.h"
+#include "lib/src/NetworkHardwareMRFInternalConstants.h"
 #include "lib/include/MRFHelperFunctions.h"
 #include "CException.h"
 #include "lib/include/Exception.h"
