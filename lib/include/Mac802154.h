@@ -32,8 +32,8 @@ struct Mac802154Config {
   uint16_t pan_id;
 };
 
-static inline void NetworkHardware_init(Mac802154 *hardware,
-                                        const Mac802154Config *config) {
+static inline void Mac802154_init(Mac802154 *hardware,
+                                  const Mac802154Config *config) {
   hardware->init(hardware, config);
 }
 
