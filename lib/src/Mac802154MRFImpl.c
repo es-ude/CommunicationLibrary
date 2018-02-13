@@ -1,7 +1,7 @@
-#include "lib/include/NetworkHardware.h"
-#include "lib/include/NetworkHardwareMRFImpl.h"
-#include "lib/src/NetworkHardwareMRFInternalConstants.h"
-#include "lib/include/MRFHelperFunctions.h"
+#include "lib/include/Mac802154.h"
+#include "lib/include/Mac802154MRFImpl.h"
+#include "lib/src/MRFInternalConstants.h"
+#include "lib/src/MRFHelperFunctions.h"
 #include "CException.h"
 #include "lib/include/Exception.h"
 
@@ -56,46 +56,46 @@
  *
  */
 
-typedef struct NetworkHardwareMRFImpl NetworkHardwareMRFImpl;
+typedef struct MRFImpl MRFImpl;
 
-struct NetworkHardwareMRFImpl {
-  NetworkHardware interface;
+struct MRFImpl {
+  Mac802154 interface;
   SPISlave *output_device;
   DelayFunction delayMicroseconds;
   uint16_t pan_id;
 };
 
-static void init(NetworkHardware *self, const NetworkHardwareConfig *config);
-static void setInterfaceFunctionPointers(NetworkHardware *self);
-static void setPrivateFunctionPointers(NetworkHardwareMRFImpl *self, DelayFunction delay_microseconds);
-static void reset(NetworkHardwareMRFImpl *self);
-static void setShortRegister(NetworkHardwareMRFImpl *self, uint8_t address, uint8_t value);
-static void setLongRegister(NetworkHardwareMRFImpl *self, uint16_t address, uint8_t value);
-static void enableRXInterrupt(NetworkHardwareMRFImpl *self);
-static void setInitializationValuesFromDatasheet(NetworkHardwareMRFImpl *impl);
-static void selectChannel(NetworkHardwareMRFImpl *self, uint8_t channel_number);
-static void setTransmitterPower(NetworkHardwareMRFImpl *impl);
-static void resetInternalStateMachine(NetworkHardwareMRFImpl *impl);
-static void setPanId(NetworkHardwareMRFImpl *self, uint16_t pan_id);
-static void setShortSourceAddress(NetworkHardwareMRFImpl *self, uint16_t short_address);
-static void setExtendedSourceAddress(NetworkHardwareMRFImpl *self, const uint8_t *extended_address);
+static void init(Mac802154 *self, const Mac802154Config *config);
+static void setInterfaceFunctionPointers(Mac802154 *self);
+static void setPrivateFunctionPointers(MRFImpl *self, DelayFunction delay_microseconds);
+static void reset(MRFImpl *self);
+static void setShortRegister(MRFImpl *self, uint8_t address, uint8_t value);
+static void setLongRegister(MRFImpl *self, uint16_t address, uint8_t value);
+static void enableRXInterrupt(MRFImpl *self);
+static void setInitializationValuesFromDatasheet(MRFImpl *impl);
+static void selectChannel(MRFImpl *self, uint8_t channel_number);
+static void setTransmitterPower(MRFImpl *impl);
+static void resetInternalStateMachine(MRFImpl *impl);
+static void setPanId(MRFImpl *self, uint16_t pan_id);
+static void setShortSourceAddress(MRFImpl *self, uint16_t short_address);
+static void setExtendedSourceAddress(MRFImpl *self, const uint8_t *extended_address);
 
-NetworkHardware *NetworkHardware_createMRF(SPISlave *output_device,
-                                           Allocator allocate,
-                                           DelayFunction delay_microseconds) {
-  NetworkHardwareMRFImpl *impl = allocate(sizeof(NetworkHardwareMRFImpl));
+Mac802154 *Mac802154_createMRF(SPISlave *output_device,
+                               Allocator allocate,
+                               DelayFunction delay_microseconds) {
+  MRFImpl *impl = allocate(sizeof(MRFImpl));
   impl->output_device = output_device;
-  NetworkHardware *interface = (NetworkHardware*) impl;
+  Mac802154 *interface = (Mac802154*) impl;
   setInterfaceFunctionPointers(interface);
   setPrivateFunctionPointers(impl, delay_microseconds);
   return interface;
 }
 
-void setInterfaceFunctionPointers(NetworkHardware *interface) {
+void setInterfaceFunctionPointers(Mac802154 *interface) {
   interface->init = init;
 }
 
-void setPrivateFunctionPointers(NetworkHardwareMRFImpl *self, DelayFunction delay_microseconds) {
+void setPrivateFunctionPointers(MRFImpl *self, DelayFunction delay_microseconds) {
   self->delayMicroseconds = delay_microseconds;
 }
 
@@ -107,8 +107,8 @@ void setPrivateFunctionPointers(NetworkHardwareMRFImpl *self, DelayFunction dela
  * for now just to be sure until we have figured out what each of these
  * does exactly.
  */
-void init(NetworkHardware *self, const NetworkHardwareConfig *config) {
-  NetworkHardwareMRFImpl *impl = (NetworkHardwareMRFImpl *) self;
+void init(Mac802154 *self, const Mac802154Config *config) {
+  MRFImpl *impl = (MRFImpl *) self;
   CEXCEPTION_T is_busy_exception;
   Try {
         reset(impl);
@@ -125,7 +125,7 @@ void init(NetworkHardware *self, const NetworkHardwareConfig *config) {
   }
 }
 
-void reset(NetworkHardwareMRFImpl *self) {
+void reset(MRFImpl *self) {
   uint8_t reset_power_circuit = 1 << 2;
   uint8_t reset_baseband_circuit = 1 << 1;
   uint8_t reset_all_mac_control_registers = 1;
@@ -137,7 +137,7 @@ void reset(NetworkHardwareMRFImpl *self) {
   setShortRegister(self, mrf_register_software_reset, complete_reset);
 }
 
-void setPanId(NetworkHardwareMRFImpl *self, uint16_t pan_id) {
+void setPanId(MRFImpl *self, uint16_t pan_id) {
   CEXCEPTION_T spi_busy_exception;
   Try {
         uint8_t pan_id_buffer[] = {
@@ -156,18 +156,18 @@ void setPanId(NetworkHardwareMRFImpl *self, uint16_t pan_id) {
   }
 }
 
-uint16_t getPanId(const NetworkHardware *self) {
-  NetworkHardwareMRFImpl *impl = (NetworkHardwareMRFImpl*) self;
+uint16_t getPanId(const Mac802154 *self) {
+  MRFImpl *impl = (MRFImpl*) self;
   return impl->pan_id;
 }
 
-void enableRXInterrupt(NetworkHardwareMRFImpl *self) {
+void enableRXInterrupt(MRFImpl *self) {
   // setting a bit to zero enables the corresponding interrupt
   uint8_t rx_interrupt_enabled = (uint8_t)(~(1 << 3));
   setShortRegister(self, mrf_register_interrupt_control, rx_interrupt_enabled);
 }
 
-void setInitializationValuesFromDatasheet(NetworkHardwareMRFImpl *impl) {
+void setInitializationValuesFromDatasheet(MRFImpl *impl) {
   setShortRegister(impl, mrf_register_power_amplifier_control2, 0x98);
   setShortRegister(impl, mrf_register_tx_stabilization, 0x09);
   setLongRegister(impl, mrf_register_rf_control0, 0x03);
@@ -182,7 +182,7 @@ void setInitializationValuesFromDatasheet(NetworkHardwareMRFImpl *impl) {
   setShortRegister(impl, mrf_register_base_band6, 0x40);
 }
 
-void setShortRegister(NetworkHardwareMRFImpl *self, uint8_t address, uint8_t value) {
+void setShortRegister(MRFImpl *self, uint8_t address, uint8_t value) {
   uint8_t command = MRF_writeShortCommand(address);
   uint8_t sequence[] = {command, value};
   SPIMessage message = {
@@ -193,7 +193,7 @@ void setShortRegister(NetworkHardwareMRFImpl *self, uint8_t address, uint8_t val
   SPI_transferSync(self->output_device, &message);
 }
 
-void setLongRegister(NetworkHardwareMRFImpl *self, uint16_t address, uint8_t value) {
+void setLongRegister(MRFImpl *self, uint16_t address, uint8_t value) {
   uint16_t command = MRF_writeLongCommand(address);
   uint8_t sequence[] = { (uint8_t)(command >> 8), (uint8_t)command, value};
   SPIMessage message = {
@@ -208,19 +208,19 @@ void setLongRegister(NetworkHardwareMRFImpl *self, uint16_t address, uint8_t val
  * The conversion from channel_number to register_value is derived
  * from the table 3-4 in section 3.4 of the datasheet.
  */
-void selectChannel(NetworkHardwareMRFImpl *impl, uint8_t channel_number) {
+void selectChannel(MRFImpl *impl, uint8_t channel_number) {
   uint8_t register_value = (uint8_t)((channel_number % 10 - 1) * 4 + 0x03);
   setLongRegister(impl, mrf_register_rf_control0, register_value);
 }
 
 // see data sheet description of the RFCON3 register for more info on how
 // to setup signal strength
-void setTransmitterPower(NetworkHardwareMRFImpl *impl) {
+void setTransmitterPower(MRFImpl *impl) {
   uint8_t minus_thirty_db = 3 << 6;
   setLongRegister(impl, mrf_register_rf_control3, minus_thirty_db);
 }
 
-void resetInternalStateMachine(NetworkHardwareMRFImpl *impl) {
+void resetInternalStateMachine(MRFImpl *impl) {
   uint8_t reset_bit_enabled = 0x04;
   setShortRegister(impl, mrf_register_rf_mode_control, reset_bit_enabled);
   uint8_t start_internal_state_machine = 0x00;
@@ -229,7 +229,7 @@ void resetInternalStateMachine(NetworkHardwareMRFImpl *impl) {
   impl->delayMicroseconds(200);
 }
 
-void setShortSourceAddress(NetworkHardwareMRFImpl *self, uint16_t short_address) {
+void setShortSourceAddress(MRFImpl *self, uint16_t short_address) {
   uint8_t command_sequence[] = {
           MRF_writeShortCommand(mrf_register_short_address_low_byte),
           (uint8_t) short_address,
@@ -243,7 +243,7 @@ void setShortSourceAddress(NetworkHardwareMRFImpl *self, uint16_t short_address)
   SPI_transferSync(self->output_device, &message);
 }
 
-void setExtendedSourceAddress(NetworkHardwareMRFImpl *self, const uint8_t *extended_address) {
+void setExtendedSourceAddress(MRFImpl *self, const uint8_t *extended_address) {
   uint8_t command_sequence[9];
   command_sequence[0] = MRF_writeShortCommand(mrf_register_extended_address0);
   for (uint8_t address_index = 0; address_index < 8; address_index++) {
