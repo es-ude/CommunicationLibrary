@@ -20,7 +20,7 @@
 I propose the following Layers:
 
 -   **UserAPI** (send, receive, initialize necessary data structures)
--   **NetworkHardware** (MRF vs XBee)
+-   **Mac802154** (MRF vs XBee)
 -   **Peripheral** (Usart vs SPI)
 
 For now we expose the interfaces using abstract datatypes.
@@ -30,7 +30,7 @@ multiple hardware setups in parallel.
 The Tree could be created like so:
 
     Peripheral *peripheral = Peripheral_createSPI();
-    NetworkHardware *hardware = NetworkHardware_createMRF(peripheral);
+    Mac802154 *hardware = Mac802154_createMRF(peripheral);
     CommunicationModule *comm = CommunicationModule_create(hardware);
     
     runYourUserCode(comm);

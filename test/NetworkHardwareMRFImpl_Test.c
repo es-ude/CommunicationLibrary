@@ -1,23 +1,18 @@
 #include <string.h>
-#include "lib/include/NetworkHardware.h"
+#include "lib/include/Mac802154.h"
 #include "test/Mocks/MockSPIImpl.h"
 #include "test/Mocks/MockRuntimeLibraryImpl.h"
-#include "lib/src/NetworkHardwareMRFInternalConstants.h"
-#include "lib/include/MRFHelperFunctions.h"
+#include "lib/src/MRFInternalConstants.h"
+#include "lib/src/MRFHelperFunctions.h"
 #include "lib/include/Exception.h"
 
 #define UNITY_INCLUDE_DOUBLE
 #include "src/unity.h"
 #include "CException.h"
-#include "lib/include/NetworkHardwareMRFImpl.h"
+#include "lib/include/Mac802154MRFImpl.h"
 
-/**
- * TODO:
- * add proper exceptions using the cexception library
- * exceptions should be thrown in case the spi interface is busy
- */
 
-#define MEMORY_CAPACITY sizeof(NetworkHardware) + sizeof(SPISlave) + 64
+#define MEMORY_CAPACITY sizeof(Mac802154) + sizeof(SPISlave) + 64
 static uint8_t raw_memory[MEMORY_CAPACITY];
 
 static MockAllocateConfig allocate_config = {.returned_address = raw_memory};
@@ -28,13 +23,13 @@ static SPISlave output_device = {
         .slave_select_register = &slave_select_line,
         .slave_select_pin = 1,
 };
-static NetworkHardware *mrf;
-static NetworkHardwareConfig config;
+static Mac802154 *mrf;
+static Mac802154Config config;
 static uint8_t buffer[128];
 static SPIMessage spi_message_buffer[40];
 static int buffer_offset = 0;
 
-static void setUpNetworkHardwareConfig(NetworkHardwareConfig *config);
+static void setUpNetworkHardwareConfig(Mac802154Config *config);
 static uint16_t calculateOffset(uint16_t previous_short_writes, uint16_t previous_long_writes);
 
 void setUp(void) {
@@ -43,7 +38,7 @@ void setUp(void) {
   mock_interface.input_buffer = NULL;
   mock_interface.output_buffer = buffer;
   mock_interface.message_buffer = spi_message_buffer;
-  mrf = NetworkHardware_createMRF(&output_device, MockAllocate_allocate, MockRuntime_delayMicroseconds);
+  mrf = Mac802154_createMRF(&output_device, MockAllocate_allocate, MockRuntime_delayMicroseconds);
   setUpNetworkHardwareConfig(&config);
   memset(buffer, 0, 128);
 }
@@ -240,7 +235,7 @@ void test_ExtendedSourceAddressIsSetDuringInitialization(void) {
   TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message));
 }
 
-void setUpNetworkHardwareConfig(NetworkHardwareConfig *config) {
+void setUpNetworkHardwareConfig(Mac802154Config *config) {
   config->pan_id = 0xffff;
   config->short_source_address = 0xffff;
   for (int i=0; i<8; i++) {

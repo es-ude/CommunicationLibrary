@@ -1,7 +1,7 @@
 #ifndef NETWORK_HARDWARE_PERIPHERAL_IMPL_H
 #define NETWORK_HARDWARE_PERIPHERAL_IMPL_H
 
-#include "lib/include/NetworkHardware.h"
+#include "lib/include/Mac802154.h"
 #include "lib/include/SPI.h"
 #include "lib/include/RuntimeLibraryInterface.h"
 
@@ -28,7 +28,6 @@
  * written to the hardware again.
  */
 
-NetworkHardware *NetworkHardware_createMRF(SPISlave *output_device, Allocator allocate, DelayFunction delay_microseconds);
-uint16_t NetworkHardware_sizeOfMRF(void);
+Mac802154 *Mac802154_createMRF(SPISlave *output_device, Allocator allocate, DelayFunction delay_microseconds);
 
 #endif /* end of include guard */
