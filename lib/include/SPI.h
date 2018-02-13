@@ -2,6 +2,8 @@
 #define SPI_H
 
 #include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
 
 typedef struct SPIMessage SPIMessage;
 typedef struct SPISlave SPISlave;

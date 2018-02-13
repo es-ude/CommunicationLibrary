@@ -60,7 +60,6 @@ typedef struct NetworkHardwareMRFImpl NetworkHardwareMRFImpl;
 
 struct NetworkHardwareMRFImpl {
   NetworkHardware interface;
-  NetworkHardwareConfig config;
   SPISlave *output_device;
   DelayFunction delayMicroseconds;
   uint16_t pan_id;
@@ -70,7 +69,6 @@ static void init(NetworkHardware *self, const NetworkHardwareConfig *config);
 static void setInterfaceFunctionPointers(NetworkHardware *self);
 static void setPrivateFunctionPointers(NetworkHardwareMRFImpl *self, DelayFunction delay_microseconds);
 static void reset(NetworkHardwareMRFImpl *self);
-static void setPrivateVariables(NetworkHardwareMRFImpl *self);
 static void setShortRegister(NetworkHardwareMRFImpl *self, uint8_t address, uint8_t value);
 static void setLongRegister(NetworkHardwareMRFImpl *self, uint16_t address, uint8_t value);
 static void enableRXInterrupt(NetworkHardwareMRFImpl *self);
@@ -78,9 +76,9 @@ static void setInitializationValuesFromDatasheet(NetworkHardwareMRFImpl *impl);
 static void selectChannel(NetworkHardwareMRFImpl *self, uint8_t channel_number);
 static void setTransmitterPower(NetworkHardwareMRFImpl *impl);
 static void resetInternalStateMachine(NetworkHardwareMRFImpl *impl);
-static void setPanId(NetworkHardware *self, uint16_t pan_id);
-static uint16_t getPanId(const NetworkHardware *self);
-
+static void setPanId(NetworkHardwareMRFImpl *self, uint16_t pan_id);
+static void setShortSourceAddress(NetworkHardwareMRFImpl *self, uint16_t short_address);
+static void setExtendedSourceAddress(NetworkHardwareMRFImpl *self, const uint8_t *extended_address);
 
 NetworkHardware *NetworkHardware_createMRF(SPISlave *output_device,
                                            Allocator allocate,
@@ -90,7 +88,6 @@ NetworkHardware *NetworkHardware_createMRF(SPISlave *output_device,
   NetworkHardware *interface = (NetworkHardware*) impl;
   setInterfaceFunctionPointers(interface);
   setPrivateFunctionPointers(impl, delay_microseconds);
-  setPrivateVariables(impl);
   return interface;
 }
 
@@ -102,14 +99,7 @@ void setPrivateFunctionPointers(NetworkHardwareMRFImpl *self, DelayFunction dela
   self->delayMicroseconds = delay_microseconds;
 }
 
-void setPrivateVariables(NetworkHardwareMRFImpl *self) {
-  self->config.pan_id = 0xffff;
-  self->config.extended_source_address[0] = 0xff;
-  self->config.extended_source_address[1] = 0xff;
-  self->config.extended_source_address[2] = 0xff;
-  self->config.extended_source_address[3] = 0xff;
-  self->config.short_source_address = 0xffff;
-}
+
 
 /*
  * Initialize the MRF Chip as shown in the datasheets initialization
@@ -127,6 +117,9 @@ void init(NetworkHardware *self, const NetworkHardwareConfig *config) {
         selectChannel(impl, 11);
         setTransmitterPower(impl);
         resetInternalStateMachine(impl);
+        setPanId(impl,config->pan_id);
+        setShortSourceAddress(impl, config->short_source_address);
+        setExtendedSourceAddress(impl, config->extended_source_address);
       } Catch(is_busy_exception) {
     Throw(NETWORK_HARDWARE_IS_BUSY_EXCEPTION);
   }
@@ -144,13 +137,20 @@ void reset(NetworkHardwareMRFImpl *self) {
   setShortRegister(self, mrf_register_software_reset, complete_reset);
 }
 
-void setPanId(NetworkHardware *self, uint16_t pan_id) {
+void setPanId(NetworkHardwareMRFImpl *self, uint16_t pan_id) {
   CEXCEPTION_T spi_busy_exception;
   Try {
-        NetworkHardwareMRFImpl *impl = (NetworkHardwareMRFImpl *) self;
-        setShortRegister(impl, mrf_register_pan_id_low_byte, (uint8_t) (pan_id & 0xFF));
-        setShortRegister(impl, mrf_register_pan_id_high_byte, (uint8_t) ((pan_id >> 8) & 0xFF));
-        impl->pan_id = pan_id;
+        uint8_t pan_id_buffer[] = {
+                MRF_writeShortCommand(mrf_register_pan_id_low_byte),
+                (uint8_t)pan_id,
+                (uint8_t)(pan_id >> 8)
+        };
+        SPIMessage set_pan = {
+                .length = 3,
+                .incoming_data = NULL,
+                .outgoing_data = pan_id_buffer
+        };
+        SPI_transferSync(self->output_device, &set_pan);
       } Catch (spi_busy_exception) {
         Throw(NETWORK_HARDWARE_IS_BUSY_EXCEPTION);
   }
@@ -227,4 +227,32 @@ void resetInternalStateMachine(NetworkHardwareMRFImpl *impl) {
   setShortRegister(impl, mrf_register_rf_mode_control,
                    start_internal_state_machine);
   impl->delayMicroseconds(200);
+}
+
+void setShortSourceAddress(NetworkHardwareMRFImpl *self, uint16_t short_address) {
+  uint8_t command_sequence[] = {
+          MRF_writeShortCommand(mrf_register_short_address_low_byte),
+          (uint8_t) short_address,
+          (uint8_t) (short_address >> 8)
+  };
+  SPIMessage message = {
+          .length = 3,
+          .outgoing_data = command_sequence,
+          .incoming_data = NULL,
+  };
+  SPI_transferSync(self->output_device, &message);
+}
+
+void setExtendedSourceAddress(NetworkHardwareMRFImpl *self, const uint8_t *extended_address) {
+  uint8_t command_sequence[9];
+  command_sequence[0] = MRF_writeShortCommand(mrf_register_extended_address0);
+  for (uint8_t address_index = 0; address_index < 8; address_index++) {
+    command_sequence[address_index+1] = extended_address[address_index];
+  }
+  SPIMessage message = {
+          .length = 9,
+          .outgoing_data = command_sequence,
+          .incoming_data = NULL,
+  };
+  SPI_transferSync(self->output_device, &message);
 }
