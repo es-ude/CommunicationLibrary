@@ -4,8 +4,8 @@
 #include "lib/include/Exception.h"
 
 static void transfer(const SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line);
-static void transferSync(const SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line);
-static void transferAsync(const SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line);
+static void transferSync(SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line);
+static void transferAsync(SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line);
 static void init(SPI *device);
 static void destroy(SPI *device);
 
@@ -41,13 +41,13 @@ void transfer(const SPI *device,
   self->current_buffer_position += message->length;
 }
 
-void transferSync(const SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line) {
+void transferSync(SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line) {
   SPIDeviceMockImpl *mock = (SPIDeviceMockImpl *) device;
   mock->number_of_sync_transfer_calls++;
   transfer(device, message, NULL);
 }
 
-void transferAsync(const SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line) {
+void transferAsync(SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line) {
   SPIDeviceMockImpl *mock = (SPIDeviceMockImpl *) device;
   mock->number_of_async_transfer_calls++;
   transfer(device, message, NULL);

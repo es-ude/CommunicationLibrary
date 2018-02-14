@@ -32,7 +32,7 @@ struct SPIMessage {
  * provided by the host platform.
  */
 struct SPI {
-	void (*transferSync)(const SPI *self,
+	void (*transferSync)(SPI *self,
                        const SPIMessage *message,
                        volatile uint8_t *slave_select_line);
 	void (*transferAsync)(SPI *self,
