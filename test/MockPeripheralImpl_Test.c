@@ -1,6 +1,7 @@
 #include "test/Mocks/MockPeripheralImpl.h"
 #include <string.h>
 #include "unity.h"
+#include "lib/include/SPIMessage.h"
 
 #define RAW_MEMORY_SIZE 64
 

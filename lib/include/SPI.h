@@ -2,30 +2,10 @@
 #define SPI_H
 
 #include <stdint.h>
+#include "lib/include/SPIMessage.h"
 
-typedef struct SPIMessage SPIMessage;
 typedef struct SPISlave SPISlave;
 typedef struct SPI SPI;
-
-/*
- * When creating a new SPIMessage, the memory
- * areas provided through outgoing_data and incoming_data,
- * must have enough space for "length" number of bytes.
- * E.g.:
- * ```
- * uint8_t out[i];
- * uint8_t int[j];
- * SPIMessage m = { .length = minimum(i,j),
- *                  .outgoing_data = out,
- *                  .incoming_data = in };
- * ```
- *
- */
-struct SPIMessage {
-	uint8_t length;
-	uint8_t* outgoing_data;
-	uint8_t* incoming_data;
-};
 
 /*
  * The representation of a serial peripheral interface

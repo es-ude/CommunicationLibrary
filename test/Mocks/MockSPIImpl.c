@@ -45,12 +45,18 @@ void transferSync(SPI *device, const SPIMessage *message, volatile uint8_t *slav
   SPIDeviceMockImpl *mock = (SPIDeviceMockImpl *) device;
   mock->number_of_sync_transfer_calls++;
   transfer(device, message, NULL);
+  if (message->next != NULL) {
+    transferSync(device, message->next, NULL);
+  }
 }
 
 void transferAsync(SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line) {
   SPIDeviceMockImpl *mock = (SPIDeviceMockImpl *) device;
   mock->number_of_async_transfer_calls++;
   transfer(device, message, NULL);
+  if (message->next != NULL) {
+    transferAsync(device, message->next, NULL);
+  }
 }
 
 void destroy(SPI *device) {}
