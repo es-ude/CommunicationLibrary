@@ -8,7 +8,6 @@ static void transferSync(SPI *device, const SPIMessage *message, volatile uint8_
 static void transferAsync(SPI *device, const SPIMessage *message, volatile uint8_t *slave_select_line);
 static void init(SPI *device);
 static void destroy(SPI *device);
-static void newTransfer(SPIDeviceMockImpl *device, const SPIMessage *message);
 static uint8_t getTotalNumberOfMessages(const SPIDeviceMockImpl *device);
 static bool spiMessagesAreEqual(const SPIMessage *left, const SPIMessage *right);
 static bool byteArraysAreEqual(const uint8_t *left, const uint8_t *right, uint8_t size);
@@ -21,14 +20,10 @@ void SPIDeviceMockImpl_init(SPIDeviceMockImpl *device) {
   device->number_of_async_transfer_calls = 0;
   device->current_buffer_position = 0;
   device->isBusy = false;
-  device->transfer = newTransfer;
 }
 
 void init(SPI *device) {}
 
-void newTransfer(SPIDeviceMockImpl *device, const SPIMessage *message) {
-  transfer(device, message, 0);
-}
 
 void transfer(const SPI *device,
               const SPIMessage *message,
@@ -108,6 +103,7 @@ static bool spiMessagesAreEqual(const SPIMessage *left, const SPIMessage *right)
   }
   return false;
 }
+
 
 uint8_t getTotalNumberOfMessages(const SPIDeviceMockImpl *self) {
   return self->number_of_sync_transfer_calls + self->number_of_async_transfer_calls;
