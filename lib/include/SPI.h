@@ -12,15 +12,11 @@ typedef struct SPI SPI;
  * provided by the host platform.
  */
 struct SPI {
-	void (*transferSync)(SPI *self,
-                       const SPIMessage *message,
-                       volatile uint8_t *slave_select_line);
-	void (*transferAsync)(SPI *self,
-                        const SPIMessage *message,
-                        volatile uint8_t *slave_select_line);
-	void (*transferAsyncWithCompletionCallback) (SPI *self,
+	void (*transferSync)(const SPISlave *self, const SPIMessage *message);
+	void (*transferAsync)(const SPISlave *self,
+                        const SPIMessage *message);
+	void (*transferAsyncWithCompletionCallback) (const SPISlave *self,
                                                const SPIMessage *message,
-                                               volatile uint8_t *slave_select_line,
                                                void (*callback) (void));
 	void (*init)(SPI *self);
 	void (*destroy) (SPI *self);
@@ -39,7 +35,8 @@ struct SPI {
 struct SPISlave {
 	SPI *hw_interface;
   void (*completion_callback) (void);
-	volatile uint8_t *slave_select_line;
+	volatile uint8_t *slave_select_register;
+  uint8_t slave_select_pin;
 };
 
 
@@ -49,24 +46,16 @@ struct SPISlave {
  * points to. Both functions might throw a SPI_BUSY_EXCEPTION.
  */
 static void SPI_transferSync(const SPISlave *self, const SPIMessage *data){
-	self->hw_interface->transferSync(self->hw_interface,
-                                   data,
-                                   self->slave_select_line);
+  self->hw_interface->transferSync(self, data);
 }
 
 static void SPI_transferAsync(const SPISlave *self, const SPIMessage *data) {
   if (self->completion_callback == NULL) {
-    self->hw_interface->transferAsync(self->hw_interface,
-                                      data,
-                                      self->slave_select_line);
+    self->hw_interface->transferAsync(self, data);
   }
   else {
-    self->hw_interface->transferAsyncWithCompletionCallback(
-            self->hw_interface,
-            data,
-            self->slave_select_line,
-            self->completion_callback
-    );
+    self->hw_interface->transferAsyncWithCompletionCallback(self, data,
+                                                            self->completion_callback);
   }
 }
 
