@@ -3,6 +3,12 @@
 
 void test_findTransferSequence(void) {
   SPIDeviceMockImpl mock;
+  SPISlave slave = {
+          .hw_interface = (SPI*) &mock,
+          .completion_callback = NULL,
+          .slave_select_pin = 0,
+          .slave_select_register = NULL,
+  };
   uint8_t buffer[128];
   mock.output_buffer = buffer;
   SPIMessage message_buffer[10];
@@ -16,7 +22,7 @@ void test_findTransferSequence(void) {
           .outgoing_data = data,
           .incoming_data = NULL
   };
-  mock.device.transferSync(&mock, &message, 0);
+  mock.device.transferSync(&slave, &message);
 
   TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock, &message));
 

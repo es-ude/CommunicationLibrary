@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include "lib/include/SPIMessage.h"
 
+
 typedef struct SPISlave SPISlave;
 typedef struct SPI SPI;
 
