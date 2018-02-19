@@ -4,6 +4,8 @@
 
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 
 typedef struct SPIMessage SPIMessage;
 
@@ -38,5 +40,7 @@ static inline void SPIMessage_init(SPIMessage *self) {
   self->outgoing_data = NULL;
   self->next = NULL;
 }
+
+bool SPIMessage_equal(const SPIMessage *left, const SPIMessage *right);
 
 #endif //COMMUNICATIONMODULE_SPIMESSAGE_H

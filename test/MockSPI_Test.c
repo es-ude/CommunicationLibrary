@@ -20,7 +20,8 @@ void test_findTransferSequence(void) {
   SPIMessage message = {
           .length = 4,
           .outgoing_data = data,
-          .incoming_data = NULL
+          .incoming_data = NULL,
+          .next = NULL,
   };
   mock.device.transferSync(&slave, &message);
 

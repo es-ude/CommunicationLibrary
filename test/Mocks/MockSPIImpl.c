@@ -7,10 +7,12 @@ static void transfer(const SPISlave *device, const SPIMessage *message);
 static void transferSync(const SPISlave *device, const SPIMessage *message);
 static void transferAsync(const SPISlave *device, const SPIMessage *message);
 static void init(SPI *device);
-static void destroy(SPI *device);
+static void copyOutgoingDataToInternalBuffer(const SPIDeviceMockImpl *device, const SPIMessage *message);
 static uint8_t getTotalNumberOfMessages(const SPIDeviceMockImpl *device);
-static bool spiMessagesAreEqual(const SPIMessage *left, const SPIMessage *right);
-static bool byteArraysAreEqual(const uint8_t *left, const uint8_t *right, uint8_t size);
+static SPIMessage *getLastMessage(const SPIDeviceMockImpl *self);
+static void rebuildMessageInternally(SPIDeviceMockImpl *self, const SPIMessage *message);
+static void updateInternalBufferPosition(SPIDeviceMockImpl *self, const SPIMessage *message);
+static void setLastMessagesNextField(const SPIDeviceMockImpl *self, const SPIMessage *message);
 
 void SPIDeviceMockImpl_init(SPIDeviceMockImpl *device) {
   device->device.transferSync = transferSync;
@@ -22,32 +24,17 @@ void SPIDeviceMockImpl_init(SPIDeviceMockImpl *device) {
   device->isBusy = false;
 }
 
-void init(SPI *device) {}
-
-void transfer(const SPISlave *device, const SPIMessage *message) {
-  SPIDeviceMockImpl *self = (SPIDeviceMockImpl *) device->hw_interface;
-
-  if (self->isBusy) {
-    Throw (SPI_BUSY_EXCEPTION);
+bool SPIDeviceMockImpl_messageWasTransferred(SPIDeviceMockImpl *self, SPIMessage *message) {
+  for (uint16_t index = 0; index < getTotalNumberOfMessages(self); index++) {
+    if (SPIMessage_equal(self->message_buffer + index, message)){
+      return true;
+    }
   }
-  SPIMessage *last_message = self->message_buffer + getTotalNumberOfMessages(self)-1;
-  last_message->length = message->length;
-  last_message->incoming_data = NULL;
-  last_message->outgoing_data = NULL;
-  if (message->incoming_data != NULL) {
-    last_message->incoming_data = self->input_buffer + self->current_buffer_position;
-    memcpy(message->incoming_data,
-           last_message->incoming_data,
-           message->length);
-  }
-  if (message->outgoing_data != NULL) {
-    last_message->outgoing_data = self->output_buffer + self->current_buffer_position;
-    memcpy(last_message->outgoing_data,
-           message->outgoing_data,
-           message->length);
-  }
-  self->current_buffer_position += message->length;
+  return false;
 }
+
+
+void init(SPI *device) {}
 
 void transferSync(const SPISlave *device, const SPIMessage *message) {
   SPIDeviceMockImpl *mock = (SPIDeviceMockImpl *) device->hw_interface;
@@ -67,41 +54,48 @@ void transferAsync(const SPISlave *device, const SPIMessage *message) {
   }
 }
 
-void destroy(SPI *device) {}
+void transfer(const SPISlave *device, const SPIMessage *message) {
+  SPIDeviceMockImpl *self = (SPIDeviceMockImpl *) device->hw_interface;
 
-
-bool SPIDeviceMockImpl_messageWasTransferred(SPIDeviceMockImpl *self, SPIMessage *message) {
-  for (uint16_t index = 0; index < getTotalNumberOfMessages(self); index++) {
-    if (spiMessagesAreEqual(self->message_buffer + index, message)){
-      return true;
-    }
+  if (self->isBusy) {
+    Throw (SPI_BUSY_EXCEPTION);
   }
-  return false;
+  rebuildMessageInternally(self, message);
+  updateInternalBufferPosition(self, message);
 }
 
-
-static bool byteArraysAreEqual(const uint8_t *left, const uint8_t *right, uint8_t size) {
-  if (left == right) return true;
-  if ((left == NULL && right != NULL) || (left != NULL && right == NULL)) return false;
-  for (uint8_t i=0; i <size ; i++) {
-    if(left[i] != right[i]) return false;
-  }
-  return true;
+void rebuildMessageInternally(SPIDeviceMockImpl *self, const SPIMessage *message) {
+  SPIMessage *last_message = getLastMessage(self);
+  SPIMessage_init(last_message);
+  last_message->length = message->length;
+  setLastMessagesNextField(self, message);
+  copyOutgoingDataToInternalBuffer(self, message);
 }
 
-static bool spiMessagesAreEqual(const SPIMessage *left, const SPIMessage *right) {
-  if (left == right) return true;
-  if (left->length == right->length
-      && left->outgoing_data == right->outgoing_data
-      && left->incoming_data == right->incoming_data) return true;
-  if (left->length == right->length
-      && left->outgoing_data != NULL
-      && right->outgoing_data != NULL) {
-    return byteArraysAreEqual(left->outgoing_data, right->outgoing_data, right->length);
+void copyOutgoingDataToInternalBuffer(const SPIDeviceMockImpl *self, const SPIMessage *message) {
+  if (message->outgoing_data != NULL) {
+    SPIMessage *last_message = getLastMessage(self);
+    last_message->outgoing_data = self->output_buffer + self->current_buffer_position;
+    memcpy(last_message->outgoing_data,
+           message->outgoing_data,
+           message->length);
   }
-  return false;
 }
 
+void setLastMessagesNextField(const SPIDeviceMockImpl *self, const SPIMessage *message) {
+  if (message->next != NULL) {
+    SPIMessage *last_message = getLastMessage(self);
+    last_message->next = last_message + 1;
+  }
+}
+
+void updateInternalBufferPosition(SPIDeviceMockImpl *self, const SPIMessage *message) {
+  self->current_buffer_position += message->length;
+}
+
+SPIMessage *getLastMessage(const SPIDeviceMockImpl *self) {
+  return self->message_buffer + getTotalNumberOfMessages(self) - 1;
+}
 
 uint8_t getTotalNumberOfMessages(const SPIDeviceMockImpl *self) {
   return self->number_of_sync_transfer_calls + self->number_of_async_transfer_calls;
