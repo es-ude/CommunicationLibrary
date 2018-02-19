@@ -53,11 +53,34 @@ typedef struct FrameControlField {
   unsigned source_addressing_mode : 2;
 } FrameControlField;
 
+FrameControlField default_frame_control_field = {
+        .frame_type = 0b001,
+        .security_enabled = 0b0,
+        .frame_pending = 0b0,
+        .acknowledgment_request = 0b0,
+        .pan_id_compression = 0b1,
+        .reserved = 0b0,
+        .sequence_number_suppression = 0b0,
+        .information_element_present = 0b0,
+        .destination_addressing_mode = 0b10,
+        .frame_version = 0b10,
+        .source_addressing_mode = 0b10,
+};
+
+SPIMessage frame_control_field_message = {
+        .length = sizeof(FrameControlField),
+        .outgoing_data = (uint8_t*) &default_frame_control_field,
+        .incoming_data = NULL,
+};
+
 struct FrameHeader {
   uint8_t header_length;
   uint8_t frame_length;
   union {
-    uint8_t as_byte;
+    struct {
+      uint8_t first;
+      uint8_t second;
+    } as_byte;
     FrameControlField as_struct;
   } control;
   uint8_t sequence_number;
@@ -107,6 +130,16 @@ struct MRFImpl {
   SPISlave *output_device;
   DelayFunction delayMicroseconds;
   uint16_t pan_id;
+  struct {
+    uint8_t header;
+    uint8_t frame;
+  } current_header_and_frame_size;
+  FrameControlField current_frame_control;
+  SPIMessage frame_control_message;
+  SPIMessage header_and_frame_size_message;
+  SPIMessage payload_message;
+  SPIMessage address_message;
+  SPIMessage pan_id_message;
 };
 
 static void init(Mac802154 *self, const Mac802154Config *config);

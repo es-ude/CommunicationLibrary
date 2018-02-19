@@ -146,3 +146,26 @@ void test_twoDifferentMessageWithOnlyNextFieldDifferent(void) {
 
 }
 
+void test_twoEqualMessagesWithDifferentPartitioning(void) {
+  uint8_t data[6] = "hello";
+  SPIMessage first = {
+          .length = 6,
+          .outgoing_data = data,
+          .incoming_data = NULL,
+          .next = NULL,
+  };
+  SPIMessage second = {
+          .length = 3,
+          .outgoing_data = data,
+          .incoming_data = NULL,
+          .next = NULL,
+  };
+  SPIMessage third = {
+          .length = 3,
+          .outgoing_data = data+3,
+          .incoming_data = NULL,
+          .next = NULL,
+  };
+  second.next = &third;
+  TEST_ASSERT_TRUE(SPIMessage_equal(&first, &second));
+}
