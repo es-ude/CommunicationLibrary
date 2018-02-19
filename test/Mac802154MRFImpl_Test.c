@@ -27,10 +27,8 @@ static Mac802154 *mrf;
 static Mac802154Config config;
 static uint8_t buffer[128];
 static SPIMessage spi_message_buffer[40];
-static int buffer_offset = 0;
 
 static void setUpNetworkHardwareConfig(Mac802154Config *config);
-static uint16_t calculateOffset(uint16_t previous_short_writes, uint16_t previous_long_writes);
 
 void setUp(void) {
   MockAllocate_configure(&allocate_config);
@@ -205,7 +203,6 @@ void test_PanIdIsSetDuringInitialization(void) {
 
 void test_ShortSourceAddressIsSetDuringInitialization(void) {
   config.short_source_address = 0xABDC;
-  uint16_t offset = calculateOffset(10,9) + 1;
   uint8_t expected[] = {
           MRF_writeShortCommand(mrf_register_short_address_low_byte),
           0xDC,
@@ -243,6 +240,3 @@ void setUpNetworkHardwareConfig(Mac802154Config *config) {
   }
 }
 
-uint16_t calculateOffset(uint16_t previous_short_writes, uint16_t previous_long_writes) {
-  return previous_long_writes * 3 + previous_short_writes * 2;
-}
