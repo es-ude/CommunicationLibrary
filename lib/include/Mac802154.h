@@ -36,5 +36,38 @@ static inline void Mac802154_init(Mac802154 *hardware,
   hardware->init(hardware, config);
 }
 
+static inline void Mac802154_send(Mac802154 *hardware) {
+  hardware->send(hardware);
+}
+
+typedef struct FrameControlField802154 {
+  unsigned frame_type : 3;
+  unsigned security_enabled : 1;
+  unsigned frame_pending : 1;
+  unsigned acknowledgment_request : 1;
+  unsigned information_element_present : 1;
+  unsigned pan_id_compression : 1;
+  unsigned reserved : 1;
+  unsigned sequence_number_suppression : 1;
+  unsigned destination_addressing_mode : 2;
+  unsigned frame_version : 2;
+  unsigned source_addressing_mode : 2;
+} FrameControlField802154;
+
+typedef struct FrameHeader802154 {
+  union {
+    struct {
+      uint8_t first;
+      uint8_t second;
+    } as_byte;
+    FrameControlField802154 as_struct;
+  } control;
+  uint8_t sequence_number;
+  uint8_t destination_pan_id[2];
+  union {
+    uint8_t short_address[2];
+    uint8_t long_address[8];
+  } destination;
+} FrameHeader802154;
 
 #endif //COMMUNICATIONMODULE_NETWORKHARDWARE_H

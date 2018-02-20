@@ -232,6 +232,43 @@ void test_ExtendedSourceAddressIsSetDuringInitialization(void) {
   TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message));
 }
 
+void test_sendWithoutSettingAnything(void) {
+  TEST_IGNORE();
+  FrameHeader802154 header = {
+          .control.as_struct = {
+                  .frame_type = 0b001,
+                  .security_enabled = 0b0,
+                  .frame_pending = 0b0,
+                  .acknowledgment_request = 0b0,
+                  .pan_id_compression = 0b1,
+                  .reserved = 0b0,
+                  .sequence_number_suppression = 0b0,
+                  .information_element_present = 0b0,
+                  .destination_addressing_mode = 0b10,
+                  .frame_version = 0b10,
+                  .source_addressing_mode = 0b10,
+          },
+          .destination.short_address = {0x00, 0x00},
+          .destination_pan_id = {0xff, 0xff},
+          .sequence_number = 0,
+  };
+  SPIMessage header_part = {
+          .length = sizeof(FrameHeader802154) - 6,
+          .outgoing_data = (uint8_t*) &header,
+          .incoming_data = NULL,
+          .next = NULL,
+  };
+  uint8_t message_and_header_size[] = {0x07, 0x07};
+  SPIMessage message_and_header_size_part = {
+          .length = 2,
+          .outgoing_data = message_and_header_size,
+          .incoming_data = NULL,
+          .next = NULL,
+  };
+  Mac802154_send(mrf);
+  TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message_and_header_size_part));
+}
+
 void setUpNetworkHardwareConfig(Mac802154Config *config) {
   config->pan_id = 0xffff;
   config->short_source_address = 0xffff;

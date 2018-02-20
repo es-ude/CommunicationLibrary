@@ -30,3 +30,4 @@ void test_findTransferSequence(void) {
   message.outgoing_data = "efgh";
   TEST_ASSERT_FALSE(SPIDeviceMockImpl_messageWasTransferred(&mock, &message));
 }
+

@@ -83,9 +83,11 @@ void copyOutgoingDataToInternalBuffer(const SPIDeviceMockImpl *self, const SPIMe
 }
 
 void setLastMessagesNextField(const SPIDeviceMockImpl *self, const SPIMessage *message) {
+  SPIMessage *last_message = getLastMessage(self);
   if (message->next != NULL) {
-    SPIMessage *last_message = getLastMessage(self);
     last_message->next = last_message + 1;
+  } else {
+    last_message->next = NULL;
   }
 }
 

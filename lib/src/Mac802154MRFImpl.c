@@ -39,21 +39,7 @@
  *
  *
  */
-typedef struct FrameControlField {
-  unsigned frame_type : 3;
-  unsigned security_enabled : 1;
-  unsigned frame_pending : 1;
-  unsigned acknowledgment_request : 1;
-  unsigned information_element_present : 1;
-  unsigned pan_id_compression : 1;
-  unsigned reserved : 1;
-  unsigned sequence_number_suppression : 1;
-  unsigned destination_addressing_mode : 2;
-  unsigned frame_version : 2;
-  unsigned source_addressing_mode : 2;
-} FrameControlField;
-
-FrameControlField default_frame_control_field = {
+FrameControlField802154 default_frame_control_field = {
         .frame_type = 0b001,
         .security_enabled = 0b0,
         .frame_pending = 0b0,
@@ -68,29 +54,10 @@ FrameControlField default_frame_control_field = {
 };
 
 SPIMessage frame_control_field_message = {
-        .length = sizeof(FrameControlField),
+        .length = sizeof(FrameControlField802154),
         .outgoing_data = (uint8_t*) &default_frame_control_field,
         .incoming_data = NULL,
 };
-
-struct FrameHeader {
-  uint8_t header_length;
-  uint8_t frame_length;
-  union {
-    struct {
-      uint8_t first;
-      uint8_t second;
-    } as_byte;
-    FrameControlField as_struct;
-  } control;
-  uint8_t sequence_number;
-  uint8_t destination_pan_id[2];
-  union {
-    uint8_t short_address[2];
-    uint8_t long_address[8];
-  } destination;
-};
-
 
 /**
  * ## Memory Layout ##
@@ -130,21 +97,46 @@ struct MRFImpl {
   SPISlave *output_device;
   DelayFunction delayMicroseconds;
   uint16_t pan_id;
-  struct {
-    uint8_t header;
-    uint8_t frame;
+  union {
+    struct {
+      uint8_t header;
+      uint8_t frame;
+    } as_fields;
+    uint8_t as_byte_array[2];
   } current_header_and_frame_size;
-  FrameControlField current_frame_control;
-  SPIMessage frame_control_message;
+  union {
+    FrameHeader802154 as_fields;
+    uint8_t as_byte_array[sizeof(FrameHeader802154)];
+  } header;
   SPIMessage header_and_frame_size_message;
-  SPIMessage payload_message;
-  SPIMessage address_message;
-  SPIMessage pan_id_message;
+  SPIMessage header_message;
 };
 
+static const FrameHeader802154 default_header = {
+        .control.as_struct = {
+                .frame_type = 0b001,
+                .security_enabled = 0b0,
+                .frame_pending = 0b0,
+                .acknowledgment_request = 0b0,
+                .pan_id_compression = 0b1,
+                .reserved = 0b0,
+                .sequence_number_suppression = 0b0,
+                .information_element_present = 0b0,
+                .destination_addressing_mode = 0b10,
+                .frame_version = 0b10,
+                .source_addressing_mode = 0b10,
+        },
+        .destination.short_address = {0x00, 0x00},
+        .destination_pan_id = {0xff, 0xff},
+        .sequence_number = 0,
+};
+
+
 static void init(Mac802154 *self, const Mac802154Config *config);
+static void send(Mac802154 *self);
 static void setInterfaceFunctionPointers(Mac802154 *self);
 static void setPrivateFunctionPointers(MRFImpl *self, DelayFunction delay_microseconds);
+static void setPrivateDataMembers(MRFImpl *self);
 static void reset(MRFImpl *self);
 static void setShortRegister(MRFImpl *self, uint8_t address, uint8_t value);
 static void setLongRegister(MRFImpl *self, uint16_t address, uint8_t value);
@@ -157,6 +149,7 @@ static void setPanId(MRFImpl *self, uint16_t pan_id);
 static void setShortSourceAddress(MRFImpl *self, uint16_t short_address);
 static void setExtendedSourceAddress(MRFImpl *self, const uint8_t *extended_address);
 
+
 Mac802154 *Mac802154_createMRF(SPISlave *output_device,
                                Allocator allocate,
                                DelayFunction delay_microseconds) {
@@ -165,11 +158,29 @@ Mac802154 *Mac802154_createMRF(SPISlave *output_device,
   Mac802154 *interface = (Mac802154*) impl;
   setInterfaceFunctionPointers(interface);
   setPrivateFunctionPointers(impl, delay_microseconds);
+  setPrivateDataMembers(impl);
   return interface;
+}
+
+void setPrivateDataMembers(MRFImpl *self) {
+  self->current_header_and_frame_size.as_fields.header = 7;
+  self->current_header_and_frame_size.as_fields.frame =
+          self->current_header_and_frame_size.as_fields.header;
+  self->header.as_fields = default_header;
+  SPIMessage_init(&self->header_and_frame_size_message);
+  self->header_and_frame_size_message.outgoing_data = self->current_header_and_frame_size.as_byte_array;
+  self->header_and_frame_size_message.length = 2;
+  self->header_and_frame_size_message.next = &self->header_message;
+  self->header.as_fields = default_header;
+  self->header_message.length = 7;
+  self->header_message.outgoing_data = self->header.as_byte_array;
+  self->header_message.incoming_data = NULL;
+  self->header_message.next = NULL;
 }
 
 void setInterfaceFunctionPointers(Mac802154 *interface) {
   interface->init = init;
+  interface->send = send;
 }
 
 void setPrivateFunctionPointers(MRFImpl *self, DelayFunction delay_microseconds) {
@@ -200,6 +211,25 @@ void init(Mac802154 *self, const Mac802154Config *config) {
       } Catch(is_busy_exception) {
     Throw(NETWORK_HARDWARE_IS_BUSY_EXCEPTION);
   }
+}
+
+void send(Mac802154 *self) {
+  MRFImpl *impl = (MRFImpl *) self;
+  uint8_t message_and_header_size[] = {7, 7};
+  SPIMessage message = {
+          .length = 2,
+          .outgoing_data = message_and_header_size,
+          .incoming_data = NULL,
+  };
+  uint8_t header_data[] = {1,2,3};
+  SPIMessage header = {
+          .length = 3,
+          .outgoing_data = header_data,
+          .incoming_data = NULL,
+          .next = NULL,
+  };
+  message.next = &header;
+  SPI_transferSync(impl->output_device, &message);
 }
 
 void reset(MRFImpl *self) {
