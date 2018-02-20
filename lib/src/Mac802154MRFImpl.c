@@ -221,14 +221,13 @@ void send(Mac802154 *self) {
           .outgoing_data = message_and_header_size,
           .incoming_data = NULL,
   };
-  uint8_t header_data[] = {1,2,3};
-  SPIMessage header = {
-          .length = 3,
-          .outgoing_data = header_data,
+  SPIMessage header_message = {
+          .length = sizeof(FrameHeader802154) - 6,
+          .outgoing_data = impl->header.as_byte_array,
           .incoming_data = NULL,
           .next = NULL,
   };
-  message.next = &header;
+  message.next = &header_message;
   SPI_transferSync(impl->output_device, &message);
 }
 

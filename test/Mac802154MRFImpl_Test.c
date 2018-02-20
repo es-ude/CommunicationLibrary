@@ -233,7 +233,6 @@ void test_ExtendedSourceAddressIsSetDuringInitialization(void) {
 }
 
 void test_sendWithoutSettingAnything(void) {
-  TEST_IGNORE();
   FrameHeader802154 header = {
           .control.as_struct = {
                   .frame_type = 0b001,
@@ -263,7 +262,7 @@ void test_sendWithoutSettingAnything(void) {
           .length = 2,
           .outgoing_data = message_and_header_size,
           .incoming_data = NULL,
-          .next = NULL,
+          .next = &header_part,
   };
   Mac802154_send(mrf);
   TEST_ASSERT_TRUE(SPIDeviceMockImpl_messageWasTransferred(&mock_interface, &message_and_header_size_part));

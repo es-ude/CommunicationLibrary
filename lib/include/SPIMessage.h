@@ -41,6 +41,10 @@ static inline void SPIMessage_init(SPIMessage *self) {
   self->next = NULL;
 }
 
+/*
+ * This function compares the complete outgoing data of two messages byte by byte.
+ * The comparation is done over a linked list of uint8_t arrays.
+ */
 bool SPIMessage_equal(const SPIMessage *left, const SPIMessage *right);
 
 #endif //COMMUNICATIONMODULE_SPIMESSAGE_H
