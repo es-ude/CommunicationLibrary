@@ -171,7 +171,7 @@ void setPrivateDataMembers(MRFImpl *self) {
   self->header_and_frame_size_message.outgoing_data = self->current_header_and_frame_size.as_byte_array;
   self->header_and_frame_size_message.length = 2;
   self->header_and_frame_size_message.next = &self->header_message;
-  self->header.as_fields = default_header;
+  self->header.as_fields = Mac802154_defaultHeader();
   self->header_message.length = 7;
   self->header_message.outgoing_data = self->header.as_byte_array;
   self->header_message.incoming_data = NULL;

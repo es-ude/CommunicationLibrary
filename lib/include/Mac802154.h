@@ -70,4 +70,6 @@ typedef struct FrameHeader802154 {
   } destination;
 } FrameHeader802154;
 
+FrameHeader802154 Mac802154_defaultHeader(void);
+
 #endif //COMMUNICATIONMODULE_NETWORKHARDWARE_H
