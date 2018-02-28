@@ -12,7 +12,8 @@ cc_library(
     name = "CException",
     srcs = [":CExceptionSrc"],
     hdrs = [":CExceptionHdr"],
-    defines = ["CEXCEPTION_T=unsigned\ char", "CEXCEPTION_NONE=0x00"],
+    includes = ["-isystem<stdint.h>"],
+    copts = ["-G","-DCEXCEPTION_T=uint8_t", "-DCEXCEPTION_NONE=0x00"],
     strip_include_prefix = "lib/",
     visibility = ["//visibility:public"],
 )

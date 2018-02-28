@@ -22,7 +22,7 @@ void SPIDeviceMockImpl_init(SPIDeviceMockImpl *device) {
 void init(SPI *device) {}
 
 void transfer(const SPISlave *device, const SPIMessage *message) {
-  SPIDeviceMockImpl *self = (SPIDeviceMockImpl *) device->hw_interface;
+  SPIDeviceMockImpl *self = (SPIDeviceMockImpl *) device->messageModule;
   if (self->isBusy) {
     Throw (SPI_BUSY_EXCEPTION);
   }
@@ -40,7 +40,7 @@ void transfer(const SPISlave *device, const SPIMessage *message) {
 }
 
 void transferSync(const SPISlave *device, const SPIMessage *message) {
-  SPIDeviceMockImpl *mock = (SPIDeviceMockImpl *) device->hw_interface;
+  SPIDeviceMockImpl *mock = (SPIDeviceMockImpl *) device->messageModule;
   mock->number_of_sync_transfer_calls++;
   transfer(device, message);
   if (message->next != NULL) {
@@ -49,7 +49,7 @@ void transferSync(const SPISlave *device, const SPIMessage *message) {
 }
 
 void transferAsync(const SPISlave *device, const SPIMessage *message) {
-  SPIDeviceMockImpl *mock = (SPIDeviceMockImpl *) device->hw_interface;
+  SPIDeviceMockImpl *mock = (SPIDeviceMockImpl *) device->messageModule;
   mock->number_of_async_transfer_calls++;
   transfer(device, message);
   if (message->next != NULL) {
