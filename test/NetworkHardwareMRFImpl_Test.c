@@ -24,7 +24,7 @@ static MockAllocateConfig allocate_config = {.returned_address = raw_memory};
 static SPIDeviceMockImpl mock_interface;
 static uint8_t slave_select_line;
 static SPISlave output_device = {
-        .messageModule = (SPIMessageLayer*) &mock_interface,
+        .messageModule = (SPIMaster*) &mock_interface,
         .slave_select_register = &slave_select_line,
         .slave_select_pin = 1,
 };

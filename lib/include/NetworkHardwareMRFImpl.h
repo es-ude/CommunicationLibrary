@@ -2,7 +2,7 @@
 #define NETWORK_HARDWARE_PERIPHERAL_IMPL_H
 
 #include "lib/include/NetworkHardware.h"
-#include "lib/include/SPIMessageModule.h"
+#include "lib/include/SPICommunicationLayer.h"
 #include "lib/include/RuntimeLibraryInterface.h"
 
 /**

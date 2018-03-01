@@ -19,6 +19,13 @@ filegroup(
     srcs = glob(["include/*.h"]),
 )
 
+filegroup(
+    name = "PlatformDependencies",
+    srcs = glob(["include/platform/**/*.h"]),
+)
+
+
+
 """
 The select function allows to make the right hand option of a attribute
 depend on a command line argument. Attributes that allow this behaviour are called
@@ -31,7 +38,7 @@ and $(MCU) is replaced by <mcu-name>
 cc_library(
     name = "CommunicationModule",
     srcs = [":CommunicationModuleSrc"],
-    hdrs = [":CommunicationModuleIncl"],
+    hdrs = [":CommunicationModuleIncl", ":PlatformDependencies"],
     copts = select({
         ":avr-config": ["-mmcu=$(MCU)"],
         "//conditions:default": [],

@@ -6,8 +6,8 @@
 static void transfer(const SPISlave *device, const SPIMessage *message);
 static void transferSync(const SPISlave *device, const SPIMessage *message);
 static void transferAsync(const SPISlave *device, const SPIMessage *message);
-static void init(SPIMessageLayer *device);
-static void destroy(SPIMessageLayer *device);
+static void init(SPIMaster *device);
+static void destroy(SPIMaster *device);
 
 void SPIDeviceMockImpl_init(SPIDeviceMockImpl *device) {
   device->device.transferSync = transferSync;
@@ -19,7 +19,7 @@ void SPIDeviceMockImpl_init(SPIDeviceMockImpl *device) {
   device->isBusy = false;
 }
 
-void init(SPIMessageLayer *device) {}
+void init(SPIMaster *device) {}
 
 void transfer(const SPISlave *device, const SPIMessage *message) {
   SPIDeviceMockImpl *self = (SPIDeviceMockImpl *) device->messageModule;
@@ -57,4 +57,4 @@ void transferAsync(const SPISlave *device, const SPIMessage *message) {
   }
 }
 
-void destroy(SPIMessageLayer *device) {}
+void destroy(SPIMaster *device) {}

@@ -5,21 +5,21 @@
 #include "lib/include/SPIMessage.h"
 
 typedef struct SPISlave SPISlave;
-typedef struct SPIMessageLayer SPIMessageLayer;
+typedef struct SPIMaster SPIMaster;
 
 /*
  * The representation of a serial peripheral interface
  * provided by the host platform.
  */
-struct SPIMessageLayer {
+struct SPIMaster {
 	void (*transferSync)(const SPISlave *self, const SPIMessage *message);
 	void (*transferAsync)(const SPISlave *self,
                         const SPIMessage *message);
 	void (*transferAsyncWithCompletionCallback) (const SPISlave *self,
                                                const SPIMessage *message,
                                                void (*callback) (void));
-	void (*init)(SPIMessageLayer *self);
-	void (*destroy) (SPIMessageLayer *self);
+	void (*init)(SPIMaster *self);
+	void (*destroy) (SPIMaster *self);
 };
 
 /*
@@ -33,7 +33,7 @@ struct SPIMessageLayer {
  *
  */
 struct SPISlave {
-	SPIMessageLayer *messageModule;
+	SPIMaster *messageModule;
   void (*completion_callback) (void);
 	volatile uint8_t *slave_select_register;
   uint8_t slave_select_pin;

@@ -1,7 +1,7 @@
 #ifndef MOCK_SPI_H
 #define MOCK_SPI_H
 
-#include "lib/include/SPIMessageModule.h"
+#include "lib/include/SPICommunicationLayer.h"
 #include <stdbool.h>
 
 typedef struct SPIDeviceMockImpl SPIDeviceMockImpl;
@@ -12,7 +12,7 @@ typedef struct SPIDeviceMockImpl SPIDeviceMockImpl;
  * owns.
  */
 struct SPIDeviceMockImpl {
-	SPIMessageLayer device;
+	SPIMaster device;
 	uint8_t *output_buffer;
   uint8_t *input_buffer;
   uint8_t current_buffer_position;
