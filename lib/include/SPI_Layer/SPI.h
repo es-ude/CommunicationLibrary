@@ -30,19 +30,6 @@ struct SPI{
      * @return a byte received
      */
     uint8_t (*readFromSPDR)(SPI *self);
-
-
-    //TODO Delete this after some iterations
-    //You would expect to have such a method
-    //As we need async transmission, reading from SPDR will only happen after an interrupt.
-    //If we write, wait for the interrupt and then read, we have to wait.
-    //Therefore we need a write and a read method
-        /**
-        * transmits a single byte over spi and returns the received message
-        * @param data - uint8_t to transmit
-        * @return - Received uint8_t
-        */
-        //uint8_t (*transmit)(SPI *self, uint8_t data);
 };
 
 #endif //COMMUNICATIONMODULE_SPI_H

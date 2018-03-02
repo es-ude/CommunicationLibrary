@@ -1,7 +1,7 @@
 #ifndef MOCK_SPI_H
 #define MOCK_SPI_H
 
-#include "lib/include/SPICommunicationLayer.h"
+#include "lib/include/communicationLayer/SPICommunicationLayer.h"
 #include <stdbool.h>
 
 typedef struct SPIDeviceMockImpl SPIDeviceMockImpl;

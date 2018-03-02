@@ -28,15 +28,17 @@ struct SPIMessage {
   SPIMessage *next;
 };
 
+
+
 static inline void SPIMessage_append(SPIMessage *head, SPIMessage *tail) {
   head->next = tail;
 }
 
 static inline void SPIMessage_init(SPIMessage *self) {
   self->length = 0;
-  self->incoming_data = NULL;
-  self->outgoing_data = NULL;
-  self->next = NULL;
+  self->incoming_data = 0;
+  self->outgoing_data = 0;
+  self->next = 0;
 }
 
 #endif //COMMUNICATIONMODULE_SPIMESSAGE_H

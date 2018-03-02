@@ -4,8 +4,8 @@
 
 #include "unity.h"
 #include "test/Mocks/MockRuntimeLibraryImpl.h"
-#include "lib/include/SPI.h"
-#include "lib/include/SPIImpl.h"
+#include "lib/include/SPI_Layer/SPI.h"
+#include "lib/include/SPI_Layer/SPIImpl.h"
 #include "lib/include/platform/io.h"
 
 static uint8_t memory[20];

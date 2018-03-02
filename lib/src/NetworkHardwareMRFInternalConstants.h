@@ -1,7 +1,6 @@
 #ifndef COMMUNICATIONMODULE_NETWORKHARDWAREMRFIMPL_H
 #define COMMUNICATIONMODULE_NETWORKHARDWAREMRFIMPL_H
 
-#include "lib/include/Peripheral.h"
 #include "lib/include/RuntimeLibraryInterface.h"
 
 static const uint8_t mrf_register_power_amplifier_control2 = 0x18;

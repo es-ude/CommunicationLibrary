@@ -24,6 +24,25 @@ filegroup(
     srcs = glob(["include/platform/**/*.h"]),
 )
 
+filegroup(
+    name = "SPILayerIncl",
+    srcs = glob(["include/SPI_Layer/*.h"]),
+)
+
+filegroup(
+    name = "SPILayerSrc",
+    srcs = glob(["src/SPI_Layer/*.c"]),
+)
+
+filegroup(
+    name = "CommunicationLayerIncl",
+    srcs = glob(["include/communicationLayer/*.h"]),
+)
+
+filegroup(
+    name = "CommunicationLayerSrc",
+    srcs = glob(["src/communicationLayer/*.c"]),
+)
 
 
 """
@@ -37,8 +56,8 @@ and $(MCU) is replaced by <mcu-name>
 
 cc_library(
     name = "CommunicationModule",
-    srcs = [":CommunicationModuleSrc"],
-    hdrs = [":CommunicationModuleIncl", ":PlatformDependencies"],
+    srcs = [":CommunicationModuleSrc",":SPILayerSrc", ":CommunicationLayerSrc"],
+    hdrs = [":CommunicationModuleIncl", ":PlatformDependencies", ":SPILayerIncl", ":CommunicationLayerIncl"],
     copts = select({
         ":avr-config": ["-mmcu=$(MCU)"],
         "//conditions:default": [],

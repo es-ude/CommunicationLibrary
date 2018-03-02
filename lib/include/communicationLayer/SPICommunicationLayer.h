@@ -2,7 +2,8 @@
 #define SPI_H
 
 #include <stdint.h>
-#include "lib/include/SPIMessage.h"
+#include "lib/include/communicationLayer/SPIMessage.h"
+#include "lib/include/SPI_Layer/SPI.h"
 
 typedef struct SPISlave SPISlave;
 typedef struct SPIMaster SPIMaster;
@@ -12,14 +13,18 @@ typedef struct SPIMaster SPIMaster;
  * provided by the host platform.
  */
 struct SPIMaster {
-	void (*transferSync)(const SPISlave *self, const SPIMessage *message);
-	void (*transferAsync)(const SPISlave *self,
-                        const SPIMessage *message);
+    /**
+     * Initialize the SPIMaster
+     * @param self
+     */
+    void (*init)(SPIMaster *self);
+    void (*transferSync)(const SPISlave *self, const SPIMessage *message);
+	void (*transferAsync)(const SPISlave *self, const SPIMessage *message);
 	void (*transferAsyncWithCompletionCallback) (const SPISlave *self,
                                                const SPIMessage *message,
                                                void (*callback) (void));
-	void (*init)(SPIMaster *self);
-	void (*destroy) (SPIMaster *self);
+	void (*destroy) (SPI *self);
+    void (*setInterruptHandler)();
 };
 
 /*
@@ -34,9 +39,9 @@ struct SPIMaster {
  */
 struct SPISlave {
 	SPIMaster *messageModule;
-  void (*completion_callback) (void);
-	volatile uint8_t *slave_select_register;
-  uint8_t slave_select_pin;
+    void (*completion_callback) (void);
+    volatile uint8_t *slave_select_register;
+    uint8_t slave_select_pin;
 };
 
 
@@ -45,12 +50,13 @@ struct SPISlave {
  * to the spi device and store the received data to the memory incoming_data
  * points to. Both functions might throw a SPI_BUSY_EXCEPTION.
  */
+
 static void SPI_transferSync(const SPISlave *self, const SPIMessage *data){
   self->messageModule->transferSync(self, data);
 }
 
 static void SPI_transferAsync(const SPISlave *self, const SPIMessage *data) {
-  if (self->completion_callback == NULL) {
+  if (self->completion_callback == 0) {
     self->messageModule->transferAsync(self, data);
   }
   else {
@@ -58,5 +64,7 @@ static void SPI_transferAsync(const SPISlave *self, const SPIMessage *data) {
                                                             self->completion_callback);
   }
 }
+
+
 
 #endif /* end of include guard */
