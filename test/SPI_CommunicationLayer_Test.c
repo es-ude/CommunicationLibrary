@@ -20,7 +20,8 @@ void configureMock(void){
 
 volatile uint8_t mySPCR = 0;
 volatile uint8_t mySPDR = 0;
-volatile uint8_t myDDR = 0;
+volatile uint8_t myDDRB = 0;
+volatile uint8_t myPORTB = 0;
 
 static uint8_t f_osc = f_osc_16;
 
@@ -29,14 +30,12 @@ static uint8_t f_osc = f_osc_16;
 
 #define SPDR (*(volatile uint8_t *)&mySPDR)
 
-#define DDRB (*(volatile uint8_t *)&myDDR)
+#define DDRB (*(volatile uint8_t *)&myDDRB)
+
+#define PORTB (*(volatile uint8_t *)&myPORTB)
 
 void setUp(void){
     configureMock();
-    spi = SPI_createSPI(&DDRB, &SPCR, &SPDR, f_osc ,MockAllocate_allocate);
+    spi = SPI_createSPI(&DDRB, &PORTB, &SPCR, &SPDR, f_osc ,MockAllocate_allocate);
     communicationLayer = SPI_createCommunicationLayer(spi, MockAllocate_allocate);
-}
-
-void test_createCommunicationLayerReturnsCorrectPointer(void){
-    TEST_ASSERT_EQUAL_PTR(alloc_config.returned_address, communicationLayer);
 }
