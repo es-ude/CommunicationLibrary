@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+//DEPRACATED
+
 typedef struct Message Message;
 
 struct Message {

@@ -15,7 +15,8 @@ struct CommunicationLayer{
     bool (*isBusy)(CommunicationLayer *self);
     void (*transferSync)(CommunicationLayer *self, Message *m);
     void (*transferAsync)(CommunicationLayer *self);
-    void (*setInterruptHandler)(void (*handler)());
+    //The Interrupt Handler is always the same, therefore we shouldn't need to set it
+    //void (*setInterruptHandler)(void (*handler)());
 };
 
 #endif //COMMUNICATIONMODULE_COMMUNICATIONLAYER_H

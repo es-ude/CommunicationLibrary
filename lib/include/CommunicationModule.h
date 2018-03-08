@@ -4,6 +4,7 @@
 #include "lib/include/RuntimeLibraryInterface.h"
 #include "lib/include/Message.h"
 
+
 typedef struct CommunicationModule CommunicationModule;
 
 CommunicationModule * CommunicationModule_create(Allocator allocate);

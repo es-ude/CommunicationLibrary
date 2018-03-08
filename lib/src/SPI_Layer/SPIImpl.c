@@ -26,13 +26,13 @@ static void selectSlave(volatile uint8_t *PORT, uint8_t pin);
 static void deselectSlave(volatile uint8_t *PORT, uint8_t pin);
 static void configureAsSlave(volatile uint8_t *ddr, uint8_t pin,volatile  uint8_t *port);
 
-SPI * SPI_createSPI(volatile uint8_t *ddr, volatile uint8_t *port, volatile uint8_t *spcr, volatile uint8_t *spdr, uint8_t sck_rate, Allocator allocate) {
-    SPIImpl *implementation = allocate(sizeof(SPIImpl));
-    implementation->ddr = ddr;
-    implementation->port = port;
-    implementation->spcr = spcr;
-    implementation->spdr = spdr;
-    implementation->f_osc = sck_rate;
+SPI * SPI_createSPI(SPIConfig config) {
+    SPIImpl *implementation = config.allocate(sizeof(SPIImpl));
+    implementation->ddr = config.ddr;
+    implementation->port = config.port;
+    implementation->spcr = config.spcr;
+    implementation->spdr = config.spdr;
+    implementation->f_osc = config.sck_rate;
     implementation->interface.initSPI = init;
     implementation->interface.writeToSPDR = writeToSPDR;
     implementation->interface.readFromSPDR = readFromSPDR;
@@ -42,17 +42,28 @@ SPI * SPI_createSPI(volatile uint8_t *ddr, volatile uint8_t *port, volatile uint
     return (SPI*) implementation;
 }
 
+static void set_bit(volatile uint8_t *value, uint8_t pin){
+    *(value) |= (1<<pin);
+}
+
+static void unset_bit(volatile uint8_t *value, uint8_t pin){
+    *(value) &= ~(1<<pin);
+}
+
 static void set_ddr(SPIImpl *self){
-    *(self->ddr) |= (1<<spi_mosi_pin)|(1<<spi_sck_pin);
+    set_bit(self->ddr, spi_mosi_pin);
+    set_bit(self->ddr, spi_sck_pin);
 }
 
 static void set_spcr(SPIImpl *self){
-    *(self->spcr)|=(1<<spi_enable)|(1<<spi_master_slave_select);
+    set_bit(self->spcr, spi_enable);
+    set_bit(self->spcr, spi_master_slave_select);
+
     *(self->spcr)|=(0b00000011 & self->f_osc);
 }
 
 static void selectSS(SPIImpl *self){
-    *(self->ddr) |= (1<<spi_ss_pin);
+    set_bit(self->ddr, spi_ss_pin);
 }
 
 void init(SPI *self){
@@ -79,15 +90,15 @@ uint8_t readFromSPDR(SPI *self){
  *  2) Writing a '1' to their port
  */
 void configureAsSlave(volatile uint8_t *ddr, uint8_t pin,volatile  uint8_t *port){
-    *(ddr) |= (1<<pin);
-    *(port) |= (1<<pin);
+    set_bit(ddr, pin);
+    set_bit(port,pin);
 }
 
 
 void selectSlave(volatile uint8_t *PORT, uint8_t pin){
-    *(PORT) &= ~(1<<pin);
+    unset_bit(PORT, pin);
 }
 
 void deselectSlave(volatile uint8_t *PORT, uint8_t pin){
-    *(PORT) |= (1<<pin);
+    set_bit(PORT, pin);
 }

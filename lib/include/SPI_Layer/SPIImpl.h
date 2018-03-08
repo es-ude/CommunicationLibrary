@@ -7,8 +7,17 @@
 
 #include "lib/include/SPI_Layer/SPI.h"
 #include "lib/include/RuntimeLibraryInterface.h"
+#include "lib/include/platform/io.h"
 
-SPI * SPI_createSPI(volatile uint8_t *ddr, volatile uint8_t *port, volatile uint8_t *spcr, volatile uint8_t *spdr, uint8_t sck_rate, Allocator allocate);
-void setSPCR(SPI *self, volatile uint8_t *SPCR);
+typedef struct SPIConfig{
+    volatile uint8_t *ddr;
+    volatile uint8_t *port;
+    volatile uint8_t *spcr;
+    volatile uint8_t *spdr;
+    enum sck_rate sck_rate;
+    Allocator allocate;
+} SPIConfig;
+
+SPI * SPI_createSPI(SPIConfig config);
 
 #endif //COMMUNICATIONMODULE_SPIIMPL_H

@@ -5,6 +5,12 @@
 #include "lib/include/communicationLayer/SPIMessage.h"
 #include "lib/include/SPI_Layer/SPI.h"
 
+/**
+ * DEPRACATED
+ */
+
+
+
 typedef struct SPISlave SPISlave;
 typedef struct SPIMaster SPIMaster;
 

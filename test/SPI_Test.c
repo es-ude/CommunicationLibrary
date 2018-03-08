@@ -51,7 +51,8 @@ void setupDummyRegisters(void){
 void setUp(void){
     setupDummyRegisters();
     configureMock();
-    spi = SPI_createSPI(&DDRB, &PORTB, &SPCR, &SPDR, f_osc ,MockAllocate_allocate);
+    SPIConfig config = {&DDRB, &PORTB, &SPCR, &SPDR, f_osc, MockAllocate_allocate};
+    spi = SPI_createSPI(config);
 }
 
 void test_createSPIConfigReturnsCorrectPointer(void){

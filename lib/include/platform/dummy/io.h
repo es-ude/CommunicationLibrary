@@ -2,7 +2,13 @@
 #define IO_H
 #include <stdint.h>
 
-enum {f_osc_4, f_osc_16, f_osc_64, f_osc_128};
+/*
+ * f_osc_x -> Frequency of Oscillator divided by x
+ * f_osc_4 is fast
+ * f_osc_128 is super slow
+ */
+typedef enum sck_rate {f_osc_4, f_osc_16, f_osc_64, f_osc_128} sck_rate;
+
 
 static const uint8_t spi_clock_rate_select_0 = 0;
 static const uint8_t spi_clock_rate_select_1 = 1;

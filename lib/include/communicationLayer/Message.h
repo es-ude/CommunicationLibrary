@@ -9,11 +9,19 @@
 
 typedef struct Message Message;
 
+/**
+ * If inputBuffer and outputBuffer point to the same memory location,
+ * The outputbuffer will be used to store arriving messages
+ */
 struct Message{
     /**
-     * The message will be used to send a message and store arriving messages
+     * Where to store MISO Bytes
      */
-    uint8_t *message;
+    uint8_t *inputBuffer;
+    /**
+     * Which bytes to send over MOSI
+     */
+    uint8_t *outputBuffer;
     /**
      * The currently transmitted index
      */
@@ -23,13 +31,6 @@ struct Message{
      */
     uint16_t length;
 
-    /**
-     * A message is sent to a SPI Slave
-     * To address it, we need the DDR of the SS Pin and
-     * the pin itself
-     */
-    volatile uint8_t *slaveSelect_DDR;
-    uint8_t SS_Pin;
 };
 
 #endif //COMMUNICATIONMODULE_MESSAGE_H
