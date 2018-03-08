@@ -7,9 +7,8 @@
 #include "lib/include/SPI_Layer/SPI.h"
 #include "lib/include/SPI_Layer/SPIImpl.h"
 #include "lib/include/platform/io.h"
+#include <stdlib.h>
 
-static uint8_t memory[20];
-static MockAllocateConfig alloc_config = {.size_allocated = 0, .returned_address = &memory};
 static SPI *spi;
 
 volatile uint8_t mySPCR = 0;
@@ -37,9 +36,6 @@ typedef struct SPIImpl {
 
 #define PORTB (*(volatile uint8_t *)&myPORTB)
 
-void configureMock(void){
-    MockAllocate_configure(&alloc_config);
-}
 
 void setupDummyRegisters(void){
     SPCR = 0;
@@ -50,13 +46,12 @@ void setupDummyRegisters(void){
 
 void setUp(void){
     setupDummyRegisters();
-    configureMock();
-    SPIConfig config = {&DDRB, &PORTB, &SPCR, &SPDR, f_osc, MockAllocate_allocate};
+    SPIConfig config = {&DDRB, &PORTB, &SPCR, &SPDR, f_osc, malloc};
     spi = SPI_createSPI(config);
 }
 
 void test_createSPIConfigReturnsCorrectPointer(void){
-    TEST_ASSERT_EQUAL_PTR(alloc_config.returned_address, spi);
+    TEST_ASSERT_NOT_NULL(spi);
 }
 
 void test_ddr(void){

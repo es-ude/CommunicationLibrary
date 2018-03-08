@@ -5,6 +5,9 @@
 
 #include <stdint.h>
 
+
+//DEPRACATED
+
 typedef struct SPIMessage SPIMessage;
 
 /*

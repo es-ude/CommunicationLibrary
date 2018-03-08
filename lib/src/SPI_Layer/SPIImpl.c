@@ -5,7 +5,6 @@
 #include <stdint.h>
 #include "lib/include/SPI_Layer/SPI.h"
 #include "lib/include/SPI_Layer/SPIImpl.h"
-#include "lib/include/platform/io.h"
 
 typedef struct SPIImpl {
     SPI interface;
@@ -28,17 +27,18 @@ static void configureAsSlave(volatile uint8_t *ddr, uint8_t pin,volatile  uint8_
 
 SPI * SPI_createSPI(SPIConfig config) {
     SPIImpl *implementation = config.allocate(sizeof(SPIImpl));
-    implementation->ddr = config.ddr;
-    implementation->port = config.port;
-    implementation->spcr = config.spcr;
-    implementation->spdr = config.spdr;
-    implementation->f_osc = config.sck_rate;
     implementation->interface.initSPI = init;
     implementation->interface.writeToSPDR = writeToSPDR;
     implementation->interface.readFromSPDR = readFromSPDR;
     implementation->interface.configureAsSlave = configureAsSlave;
     implementation->interface.selectSlave = selectSlave;
     implementation->interface.deselectSlave = deselectSlave;
+    implementation->ddr = config.ddr;
+    implementation->port = config.port;
+    implementation->spcr = config.spcr;
+    implementation->spdr = config.spdr;
+    implementation->f_osc = config.sck_rate;
+
     return (SPI*) implementation;
 }
 

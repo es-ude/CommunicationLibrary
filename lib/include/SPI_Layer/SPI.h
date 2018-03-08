@@ -5,10 +5,11 @@
 #ifndef COMMUNICATIONMODULE_SPI_H
 #define COMMUNICATIONMODULE_SPI_H
 #include <stdint.h>
-
+#include "lib/include/Interrupt.h"
 
 
 typedef struct SPI SPI;
+
 
 struct SPI{
 
@@ -53,6 +54,10 @@ struct SPI{
      */
     void (*deselectSlave)(volatile uint8_t *PORT, uint8_t pin);
 
+    /**
+     * Handle an interrupt
+     */
+    void (*handleInterrupt)(InterruptData *id);
 };
 
 #endif //COMMUNICATIONMODULE_SPI_H
