@@ -1,7 +1,7 @@
 #include "lib/include/PeripheralSPIImpl.h"
 
 typedef struct PeripheralSPIImpl {
-  Peripheral interface;
+  PeripheralInterface interface;
   volatile uint8_t *ddr;
 } PeripheralSPIImpl;
 

@@ -4,16 +4,17 @@
 #include <stdint.h>
 
 typedef struct Peripheral Peripheral;
+typedef struct PeripheralInterface PeripheralInterface;
+typedef struct InterruptData InterruptData;
 
-struct Peripheral {
-  void (*writeByteNonBlocking)(Peripheral *self, uint8_t byte);
-  void (*writeByteBlocking) (Peripheral *self, uint8_t byte);
-  void (*writeBufferNonBlocking) (Peripheral *self, const uint8_t *buffer, uint16_t length);
-  void (*writeBufferBlocking) (Peripheral *self, const uint8_t *output, uint16_t length);
-
-  uint8_t (*readByteBlocking) (Peripheral *self);
-  uint8_t (*readByteNonBlocking) (Peripheral *self);
-
+struct PeripheralInterface {
+  void (*init) (PeripheralInterface *self);
+  void (*write) (Peripheral *device, uint8_t byte);
+  uint8_t (*read) (Peripheral *device);
+  void (*selectPeripheral) (PeripheralInterface *self, Peripheral *device);
+  void (*deselectPeripheral) (Peripheral *device);
+  void (*destroy) (PeripheralInterface *self);
+  void (*handleInterrupt) (InterruptData *data);
 };
 
 
