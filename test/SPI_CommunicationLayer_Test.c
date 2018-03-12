@@ -5,17 +5,17 @@
 #include <stdlib.h>
 #include "unity.h"
 #include "test/Mocks/MockRuntimeLibraryImpl.h"
-#include "lib/include/SPI_Layer/SPIImpl.h"
+#include "lib/include/Peripheral/SPIImpl.h"
 #include "lib/include/platform/io.h"
 #include "lib/include/communicationLayer/CommunicationLayer.h"
 #include "lib/include/communicationLayer/CommunicationLayerImpl.h"
 
 static CommunicationLayer *cl;
-static SPI *spi;
+static PeripheralInterface *spi;
 
 typedef struct CommunicationLayerImpl{
     CommunicationLayer communicationLayer;
-    SPI *spi;
+    PeripheralInterface *spi;
 } CommunicationLayerImpl;
 
 volatile uint8_t mySPCR = 0;

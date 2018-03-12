@@ -4,12 +4,13 @@
 
 #include "unity.h"
 #include "test/Mocks/MockRuntimeLibraryImpl.h"
-#include "lib/include/SPI_Layer/SPI.h"
-#include "lib/include/SPI_Layer/SPIImpl.h"
+#include "lib/include/Peripheral/PeripheralInterface.h"
+#include "lib/include/Peripheral/SPIImpl.h"
 #include "lib/include/platform/io.h"
 #include <stdlib.h>
 
-static SPI *spi;
+static PeripheralInterface *spi;
+static MemoryManagement *dynamic_memory;
 
 volatile uint8_t mySPCR = 0;
 volatile uint8_t mySPDR = 0;
@@ -19,7 +20,7 @@ volatile uint8_t myPORTB = 0;
 static uint8_t f_osc = f_osc_16;
 
 typedef struct SPIImpl {
-    SPI interface;
+    PeripheralInterface interface;
     volatile uint8_t *ddr;
     volatile uint8_t *port;
     volatile uint8_t *spcr;
@@ -46,9 +47,17 @@ void setupDummyRegisters(void){
 
 void setUp(void){
     setupDummyRegisters();
-    SPIConfig config = {&DDRB, &PORTB, &SPCR, &SPDR, f_osc, malloc};
+    dynamic_memory = MemoryManagement_createMockImpl();
+    SPIConfig config = {&DDRB, &PORTB, &SPCR, &SPDR, f_osc, dynamic_memory->allocate, dynamic_memory->deallocate};
     spi = SPI_createSPI(config);
 }
+
+void tearDown(void){
+    spi->destroy(spi);
+    TEST_ASSERT_EQUAL_UINT(0, MockMemoryManagement_numberOfAllocatedObjects(dynamic_memory));
+}
+
+//INITIALISATION
 
 void test_createSPIConfigReturnsCorrectPointer(void){
     TEST_ASSERT_NOT_NULL(spi);
@@ -58,9 +67,12 @@ void test_ddr(void){
     TEST_ASSERT_EQUAL(0, DDRB);
 }
 
-void test_spiInitNotNull(void){
-    TEST_ASSERT_NOT_NULL(spi->initSPI);
+void test_spcr(void){
+    SPIImpl *spiImpl = (SPIImpl *)spi;
+    TEST_ASSERT_EQUAL_INT(0, *(spiImpl->spcr));
 }
+
+
 
 void test_f_osc_4(void){
     TEST_ASSERT_BIT_LOW(0, f_osc_4);
@@ -84,14 +96,14 @@ void test_f_osc_128(void){
 
 void test_spiDDR(void){
     SPIImpl *spiImpl = (SPIImpl *)spi;
-    spiImpl->interface.initSPI(spi);
+    spiImpl->interface.init(spi);
     TEST_ASSERT_BIT_HIGH(spi_mosi_pin, *(spiImpl->ddr));
     TEST_ASSERT_BIT_HIGH(spi_sck_pin, *(spiImpl->ddr));
 }
 
 void test_spiSPCR(void){
     SPIImpl *spiImpl = (SPIImpl *)spi;
-    spiImpl->interface.initSPI(spi);
+    spiImpl->interface.init(spi);
     TEST_ASSERT_BIT_HIGH(spi_enable, *(spiImpl->spcr));
     TEST_ASSERT_BIT_HIGH(spi_master_slave_select, *(spiImpl->spcr));
     TEST_ASSERT_BIT_HIGH(spi_ss_pin, *(spiImpl->ddr));
@@ -100,32 +112,18 @@ void test_spiSPCR(void){
     TEST_ASSERT_EQUAL(f_osc, tempSPCR);
 }
 
-void test_spiWriteNotNull(void){
-    TEST_ASSERT_NOT_NULL(spi->writeToSPDR);
+//METHODS
+
+void test_spiInitNotNull(void){
+    TEST_ASSERT_NOT_NULL(spi->init);
 }
 
-void test_spiWriteChangesSPDR(void){
-    SPIImpl *spiImpl = (SPIImpl *)spi;
-    spiImpl->interface.initSPI(spi);
-    spiImpl->interface.writeToSPDR(spi, 42);
-    TEST_ASSERT_EQUAL(42, *(spiImpl->spdr));
+void test_spiWriteNotNull(void){
+    TEST_ASSERT_NOT_NULL(spi->write);
 }
 
 void test_spiReadNotNull(void){
-    TEST_ASSERT_NOT_NULL(spi->readFromSPDR);
-}
-
-void test_spiReadBeforeStartIsZero(void){
-    SPIImpl *spiImpl = (SPIImpl *)spi;
-    spiImpl->interface.initSPI(spi);
-    TEST_ASSERT_EQUAL(0, spiImpl->interface.readFromSPDR(spi));
-}
-
-void test_spiWriteThenReadIsTheSame(void){
-    SPIImpl *spiImpl = (SPIImpl *)spi;
-    spiImpl->interface.initSPI(spi);
-    spiImpl->interface.writeToSPDR(spi,42);
-    TEST_ASSERT_EQUAL(42, spiImpl->interface.readFromSPDR(spi));
+    TEST_ASSERT_NOT_NULL(spi->read);
 }
 
 void test_spiSlaveSelectNotNull(void){
@@ -140,10 +138,71 @@ void test_spiConfigureSlaveNotNull(void){
     TEST_ASSERT_NOT_NULL(spi->configureAsSlave);
 }
 
+void test_spiHandleInterruptNull(void){
+    //This has to be null, because the upper layer will set this
+    TEST_ASSERT_NULL(spi->handleInterrupt);
+}
+
+void test_spiEnableInterruptNotNull(void){
+    TEST_ASSERT_NOT_NULL(spi->enableInterrupt);
+}
+
+void test_spiDisableInterruptNotNull(void){
+    TEST_ASSERT_NOT_NULL(spi->disableInterrupt);
+}
+
+void test_spiDestroyNotNull(void){
+    TEST_ASSERT_NOT_NULL(spi->destroy);
+}
+
+
+
+
+//CODE
+
+void test_spiWriteChangesSPDR(void){
+    SPIImpl *spiImpl = (SPIImpl *)spi;
+    spiImpl->interface.init(spi);
+    spiImpl->interface.write(spi, 42);
+    TEST_ASSERT_EQUAL(42, *(spiImpl->spdr));
+}
+
+void test_enableInterruptEnablesInterruptBit(void){
+    SPIImpl *spiImpl = (SPIImpl *)spi;
+    spiImpl->interface.init(spi);
+    spiImpl->interface.enableInterrupt(spi);
+    TEST_ASSERT_BIT_HIGH(spi_interrupt_enable, *(spiImpl->spcr));
+}
+
+void test_disableInterruptDisablesInterruptBit(void){
+    SPIImpl *spiImpl = (SPIImpl *)spi;
+    spiImpl->interface.init(spi);
+    spiImpl->interface.enableInterrupt(spi);
+    TEST_ASSERT_BIT_HIGH(spi_interrupt_enable, *(spiImpl->spcr));
+    spiImpl->interface.disableInterrupt(spi);
+    TEST_ASSERT_BIT_LOW(spi_interrupt_enable, *(spiImpl->spcr));
+}
+
+
+void test_spiReadBeforeStartIsZero(void){
+    SPIImpl *spiImpl = (SPIImpl *)spi;
+    spiImpl->interface.init(spi);
+    TEST_ASSERT_EQUAL(0, spiImpl->interface.read(spi));
+}
+
+void test_spiWriteThenReadIsTheSame(void){
+    SPIImpl *spiImpl = (SPIImpl *)spi;
+    spiImpl->interface.init(spi);
+    spiImpl->interface.write(spi,42);
+    TEST_ASSERT_EQUAL(42, spiImpl->interface.read(spi));
+}
+
+
+
 void test_spiConfigureSetsDDRAndPORT(void){
     uint8_t spi_slave = 1;
     SPIImpl *spiImpl = (SPIImpl *)spi;
-    spiImpl->interface.initSPI(spi);
+    spiImpl->interface.init(spi);
     spiImpl->interface.configureAsSlave(&DDRB, spi_slave, &PORTB);
     TEST_ASSERT_BIT_HIGH(spi_slave, *(spiImpl->ddr));
     TEST_ASSERT_BIT_HIGH(spi_slave, *(spiImpl->port));
@@ -152,7 +211,7 @@ void test_spiConfigureSetsDDRAndPORT(void){
 void test_spiSelectSlave(void){
     uint8_t spi_slave = 1;
     SPIImpl *spiImpl = (SPIImpl *)spi;
-    spiImpl->interface.initSPI(spi);
+    spiImpl->interface.init(spi);
     spiImpl->interface.configureAsSlave(&DDRB, spi_slave, &PORTB);
     spiImpl->interface.selectSlave(&PORTB, spi_slave);
     TEST_ASSERT_BIT_LOW(spi_slave, *(spiImpl->port));
@@ -161,7 +220,7 @@ void test_spiSelectSlave(void){
 void test_spiDeselectSlave(void){
     uint8_t spi_slave = 1;
     SPIImpl *spiImpl = (SPIImpl *)spi;
-    spiImpl->interface.initSPI(spi);
+    spiImpl->interface.init(spi);
     spiImpl->interface.configureAsSlave(&DDRB, spi_slave, &PORTB);
     spiImpl->interface.selectSlave(&PORTB, spi_slave);
     spiImpl->interface.deselectSlave(&PORTB, spi_slave);

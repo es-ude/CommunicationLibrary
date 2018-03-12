@@ -8,12 +8,12 @@
 #include "stdbool.h"
 #include "lib/include/communicationLayer/Message.h"
 #include "lib/include/Interrupt.h"
-#include "lib/include/SPI_Layer/SPI.h"
+#include "lib/include/Peripheral/PeripheralInterface.h"
 
 typedef struct CommunicationLayer CommunicationLayer;
 
 struct CommunicationLayer{
-    void (*init)(CommunicationLayer *self, SPI *spi);
+    void (*init)(CommunicationLayer *self, PeripheralInterface *spi);
     bool (*isBusy)(CommunicationLayer *self);
     void (*transferSync)(CommunicationLayer *self, Message *m);
     void (*transferAsync)(CommunicationLayer *self, Message *m);

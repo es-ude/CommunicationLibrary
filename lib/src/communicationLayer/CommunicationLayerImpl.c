@@ -8,19 +8,19 @@
 
 typedef struct CommunicationLayerImpl{
     CommunicationLayer communicationLayer;
-    SPI *spi;
+    PeripheralInterface *spi;
 } CommunicationLayerImpl;
 
 struct InterruptData{
     Message *m;
-    SPI *s;
+    PeripheralInterface *s;
 };
 
 InterruptData interruptData;
 
 
 
-static void init(CommunicationLayer *self, SPI *spi);
+static void init(CommunicationLayer *self, PeripheralInterface *spi);
 static bool isBusy(CommunicationLayer *self);
 static void transferAsync(CommunicationLayer *self, Message *m);
 static void setInterruptHandler(CommunicationLayer *self, void (*handle)(InterruptData *id));
@@ -29,7 +29,7 @@ static void handleInterrupt(InterruptData *id);
 
 static bool busy = false;
 
-CommunicationLayer *CL_createCommunicationLayer(SPI *spi, Allocator allocate){
+CommunicationLayer *CL_createCommunicationLayer(PeripheralInterface *spi, Allocator allocate){
     CommunicationLayerImpl *communicationLayerImpl = allocate(sizeof(CommunicationLayerImpl));
     communicationLayerImpl->communicationLayer.init = init;
     communicationLayerImpl->communicationLayer.isBusy = isBusy;
@@ -41,7 +41,7 @@ CommunicationLayer *CL_createCommunicationLayer(SPI *spi, Allocator allocate){
     return (CommunicationLayer*)communicationLayerImpl;
 }
 
-void init(CommunicationLayer *self, SPI *spi){
+void init(CommunicationLayer *self, PeripheralInterface *spi){
     busy = false;
 }
 
@@ -57,9 +57,9 @@ void transferAsync(CommunicationLayer *self, Message *m){
 }
 
 static void handleInterrupt(InterruptData *id){
-    id->m->inputBuffer[id->m->index] = id->s->readFromSPDR(id->s);
+    id->m->inputBuffer[id->m->index] = id->s->read(id->s);
     if(id->m->index < id->m->length){
-        id->s->writeToSPDR(id->s,id->m->outputBuffer[++(id->m->index)]);
+        id->s->write(id->s,id->m->outputBuffer[++(id->m->index)]);
     }
     else{
         busy = false;

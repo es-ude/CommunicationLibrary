@@ -6,12 +6,12 @@
 #define COMMUNICATIONMODULE_SPICOMMUNICATIONLAYERIMPL_H_H
 
 
-#include "lib/include/SPI_Layer/SPI.h"
+#include "lib/include/Peripheral/PeripheralInterface.h"
 #include "lib/include/communicationLayer/CommunicationLayer.h"
 #include "lib/include/RuntimeLibraryInterface.h"
 
 //DEPRACATED
 
-CommunicationLayer * SPI_createCommunicationLayer(SPI *self, Allocator allocate);
+CommunicationLayer * SPI_createCommunicationLayer(PeripheralInterface *self, Allocator allocate);
 
 #endif //COMMUNICATIONMODULE_SPICOMMUNICATIONLAYERIMPL_H_H

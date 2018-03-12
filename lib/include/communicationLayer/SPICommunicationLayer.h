@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include "lib/include/communicationLayer/SPIMessage.h"
-#include "lib/include/SPI_Layer/SPI.h"
+#include "lib/include/Peripheral/PeripheralInterface.h"
 
 /**
  * DEPRACATED
@@ -29,7 +29,7 @@ struct SPIMaster {
 	void (*transferAsyncWithCompletionCallback) (const SPISlave *self,
                                                const SPIMessage *message,
                                                void (*callback) (void));
-	void (*destroy) (SPI *self);
+	void (*destroy) (PeripheralInterface *self);
     void (*setInterruptHandler)();
 };
 

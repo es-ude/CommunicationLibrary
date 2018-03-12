@@ -8,29 +8,29 @@
 #include "lib/include/Interrupt.h"
 
 
-typedef struct SPI SPI;
+typedef struct PeripheralInterface PeripheralInterface;
 
 
-struct SPI{
+struct PeripheralInterface{
 
     /**
     * The init function should set all register flags necessary to use SPI in Master configuration
     */
-    void (*initSPI)(SPI *self);
+    void (*init)(PeripheralInterface *self);
 
     /**
      * Write a byte to the SPDR
      * @param self - the SPI Master
      * @param data - a byte
      */
-    void (*writeToSPDR)(SPI *self, uint8_t data);
+    void (*write)(PeripheralInterface *self, uint8_t data);
 
     /**
      * Read a byte from SPDR
      * @param self - the SPI Master
      * @return a byte received
      */
-    uint8_t (*readFromSPDR)(SPI *self);
+    uint8_t (*read)(PeripheralInterface *self);
 
     /**
      * Configure the specified pin as a SPI slave by configuring it as an output and pulling it high
@@ -58,6 +58,27 @@ struct SPI{
      * Handle an interrupt
      */
     void (*handleInterrupt)(InterruptData *id);
+
+    /**
+     * Enable peripheralspecific interrupts
+     * Does not change global interrupt
+     * @param self - The peripheral
+     */
+    void (*enableInterrupt) (PeripheralInterface *self);
+
+    /**
+     * Disable peripheral interrupts
+     * Does not change global interrupt
+     * @param self - The peripheral
+     */
+    void (*disableInterrupt) (PeripheralInterface *self);
+
+
+    /**
+     * Clean up the PeripheralInterface
+     * @param self The Interface to be freed
+     */
+    void (*destroy) (PeripheralInterface *self);
 };
 
 #endif //COMMUNICATIONMODULE_SPI_H

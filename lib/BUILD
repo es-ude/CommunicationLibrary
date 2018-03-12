@@ -26,12 +26,12 @@ filegroup(
 
 filegroup(
     name = "SPILayerIncl",
-    srcs = glob(["include/SPI_Layer/*.h"]),
+    srcs = glob(["include/Peripheral/*.h"]),
 )
 
 filegroup(
     name = "SPILayerSrc",
-    srcs = glob(["src/SPI_Layer/*.c"]),
+    srcs = glob(["src/Peripheral/*.c"]),
 )
 
 filegroup(

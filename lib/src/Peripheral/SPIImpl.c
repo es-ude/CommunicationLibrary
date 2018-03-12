@@ -3,11 +3,11 @@
 //
 
 #include <stdint.h>
-#include "lib/include/SPI_Layer/SPI.h"
-#include "lib/include/SPI_Layer/SPIImpl.h"
+#include "lib/include/Peripheral/PeripheralInterface.h"
+#include "lib/include/Peripheral/SPIImpl.h"
 
 typedef struct SPIImpl {
-    SPI interface;
+    PeripheralInterface interface;
     volatile uint8_t *ddr;
     volatile uint8_t *port;
     volatile uint8_t *spcr;
@@ -15,31 +15,42 @@ typedef struct SPIImpl {
     uint8_t f_osc;
 } SPIImpl;
 
-static void init(SPI *self);
-static void writeToSPDR(SPI *self, uint8_t data);
-static uint8_t readFromSPDR(SPI *self);
+static void init(PeripheralInterface *self);
+static void writeToSPDR(PeripheralInterface *self, uint8_t data);
+static uint8_t readFromSPDR(PeripheralInterface *self);
 
 
-//The Slave selection is pretty decoupled from the rest of SPI, we might consider placing it in its own module
+//The Slave selection is pretty decoupled from the rest of PeripheralInterface, we might consider placing it in its own module
 static void selectSlave(volatile uint8_t *PORT, uint8_t pin);
 static void deselectSlave(volatile uint8_t *PORT, uint8_t pin);
 static void configureAsSlave(volatile uint8_t *ddr, uint8_t pin,volatile  uint8_t *port);
+static void enableInterrupt (PeripheralInterface *self);
+static void disableInterrupt(PeripheralInterface *self);
+static void destroy(PeripheralInterface *self);
 
-SPI * SPI_createSPI(SPIConfig config) {
+static void (*freeFunction)(void *);
+
+PeripheralInterface * SPI_createSPI(SPIConfig config) {
     SPIImpl *implementation = config.allocate(sizeof(SPIImpl));
-    implementation->interface.initSPI = init;
-    implementation->interface.writeToSPDR = writeToSPDR;
-    implementation->interface.readFromSPDR = readFromSPDR;
+    implementation->interface.init = init;
+    implementation->interface.write = writeToSPDR;
+    implementation->interface.read = readFromSPDR;
     implementation->interface.configureAsSlave = configureAsSlave;
     implementation->interface.selectSlave = selectSlave;
     implementation->interface.deselectSlave = deselectSlave;
+    implementation->interface.enableInterrupt = enableInterrupt;
+    implementation->interface.disableInterrupt = disableInterrupt;
+    implementation->interface.destroy = destroy;
+
+    freeFunction = config.deallocate;
+
     implementation->ddr = config.ddr;
     implementation->port = config.port;
     implementation->spcr = config.spcr;
     implementation->spdr = config.spdr;
     implementation->f_osc = config.sck_rate;
 
-    return (SPI*) implementation;
+    return (PeripheralInterface*) implementation;
 }
 
 static void set_bit(volatile uint8_t *value, uint8_t pin){
@@ -59,27 +70,29 @@ static void set_spcr(SPIImpl *self){
     set_bit(self->spcr, spi_enable);
     set_bit(self->spcr, spi_master_slave_select);
 
+    //Last 2 bits for f_osc
     *(self->spcr)|=(0b00000011 & self->f_osc);
 }
 
-static void selectSS(SPIImpl *self){
+static void set_ss(SPIImpl *self){
+    //Pull up Slave Select Line
     set_bit(self->ddr, spi_ss_pin);
 }
 
-void init(SPI *self){
+void init(PeripheralInterface *self){
     SPIImpl *spi = (SPIImpl *)self;
     set_ddr(spi);
     set_spcr(spi);
-    selectSS(spi);
+    set_ss(spi);
 }
 
 
-void writeToSPDR(SPI *self, uint8_t data){
+void writeToSPDR(PeripheralInterface *self, uint8_t data){
     SPIImpl *spi = (SPIImpl *)self;
     *(spi->spdr) = data;
 }
 
-uint8_t readFromSPDR(SPI *self){
+uint8_t readFromSPDR(PeripheralInterface *self){
     SPIImpl *spi = (SPIImpl *)self;
     return *(spi->spdr);
 }
@@ -101,4 +114,19 @@ void selectSlave(volatile uint8_t *PORT, uint8_t pin){
 
 void deselectSlave(volatile uint8_t *PORT, uint8_t pin){
     set_bit(PORT, pin);
+}
+
+void enableInterrupt (PeripheralInterface *self){
+    SPIImpl *spi = (SPIImpl *)self;
+    set_bit(spi->spcr, spi_interrupt_enable);
+}
+
+void disableInterrupt(PeripheralInterface *self){
+    SPIImpl *spi = (SPIImpl *)self;
+    unset_bit(spi->spcr, spi_interrupt_enable);
+}
+
+void destroy(PeripheralInterface *self){
+    SPIImpl *implementation = (SPIImpl *)self;
+    freeFunction(implementation);
 }

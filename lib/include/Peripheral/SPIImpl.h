@@ -5,7 +5,7 @@
 #ifndef COMMUNICATIONMODULE_SPIIMPL_H
 #define COMMUNICATIONMODULE_SPIIMPL_H
 
-#include "lib/include/SPI_Layer/SPI.h"
+#include "lib/include/Peripheral/PeripheralInterface.h"
 #include "lib/include/RuntimeLibraryInterface.h"
 #include "lib/include/platform/io.h"
 
@@ -16,8 +16,9 @@ typedef struct SPIConfig{
     volatile uint8_t *spdr;
     enum sck_rate sck_rate;
     Allocator allocate;
+    Deallocator deallocate;
 } SPIConfig;
 
-SPI * SPI_createSPI(SPIConfig config);
+PeripheralInterface * SPI_createSPI(SPIConfig config);
 
 #endif //COMMUNICATIONMODULE_SPIIMPL_H
