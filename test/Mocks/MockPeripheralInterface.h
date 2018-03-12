@@ -5,7 +5,6 @@
 #include "lib/include/RuntimeLibraryInterface.h"
 
 typedef struct MockPeripheral {
-  PeripheralInterface *interface;
   uint8_t *read_buffer;
   uint8_t *write_buffer;
   uint8_t read_buffer_size;
@@ -13,5 +12,4 @@ typedef struct MockPeripheral {
 } MockPeripheral;
 
 PeripheralInterface *PeripheralInterface_createMockImpl(const MemoryManagement *memory_managers);
-
 #endif //COMMUNICATIONMODULE_MOCKPERIPHERALINTERFACE_H

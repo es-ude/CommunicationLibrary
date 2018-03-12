@@ -58,7 +58,7 @@ void transfer(const SPISlave *device, const SPIMessage *message) {
   SPIDeviceMockImpl *self = (SPIDeviceMockImpl *) device->hw_interface;
 
   if (self->isBusy) {
-    Throw (SPI_BUSY_EXCEPTION);
+    Throw (PERIPHERAL_INTERFACE_BUSY_EXCEPTION);
   }
   rebuildMessageInternally(self, message);
   updateInternalBufferPosition(self, message);
