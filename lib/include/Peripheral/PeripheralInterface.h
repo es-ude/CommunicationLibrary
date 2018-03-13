@@ -5,7 +5,7 @@
 #ifndef COMMUNICATIONMODULE_SPI_H
 #define COMMUNICATIONMODULE_SPI_H
 #include <stdint.h>
-#include "lib/include/Interrupt.h"
+#include "lib/include/communicationLayer/InterruptData.h"
 
 
 typedef struct PeripheralInterface PeripheralInterface;
@@ -57,7 +57,7 @@ struct PeripheralInterface{
     /**
      * Handle an interrupt
      */
-    void (*handleInterrupt)(InterruptData *id);
+    void (*handleInterrupt)(void);
 
     /**
      * Enable peripheralspecific interrupts
@@ -72,7 +72,6 @@ struct PeripheralInterface{
      * @param self - The peripheral
      */
     void (*disableInterrupt) (PeripheralInterface *self);
-
 
     /**
      * Clean up the PeripheralInterface

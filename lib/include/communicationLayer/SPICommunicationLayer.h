@@ -39,7 +39,7 @@ struct SPIMaster {
  * one SPISlave instance for every external device. Set completion_callback
  * either to NULL, or a function that shall be called as soon as all bytes
  * have been transferred. The callback has to be non blocking and should
- * have fast execution time since it's going to be executed from inside
+ * have fast execution time since it'peripheral going to be executed from inside
  * an interrupt service routine.
  *
  */

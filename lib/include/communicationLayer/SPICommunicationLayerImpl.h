@@ -10,7 +10,9 @@
 #include "lib/include/communicationLayer/CommunicationLayer.h"
 #include "lib/include/RuntimeLibraryInterface.h"
 
-//DEPRACATED
+/**
+ *  DEPRACATED
+ */
 
 CommunicationLayer * SPI_createCommunicationLayer(PeripheralInterface *self, Allocator allocate);
 

@@ -7,7 +7,7 @@
 
 #include "stdbool.h"
 #include "lib/include/communicationLayer/Message.h"
-#include "lib/include/Interrupt.h"
+#include "lib/include/communicationLayer/InterruptData.h"
 #include "lib/include/Peripheral/PeripheralInterface.h"
 
 typedef struct CommunicationLayer CommunicationLayer;
@@ -20,7 +20,7 @@ struct CommunicationLayer{
     /**
      * Set the method to handle an interrupt
      */
-    void (*setInterruptHandler)(CommunicationLayer *self, void (*handle)(InterruptData *id));
+    void (*setInterruptHandler)(CommunicationLayer *self, void (*handle)(void));
 
 };
 

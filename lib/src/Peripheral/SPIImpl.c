@@ -130,3 +130,4 @@ void destroy(PeripheralInterface *self){
     SPIImpl *implementation = (SPIImpl *)self;
     freeFunction(implementation);
 }
+

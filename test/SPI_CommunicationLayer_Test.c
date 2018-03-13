@@ -18,6 +18,7 @@ typedef struct CommunicationLayerImpl{
     PeripheralInterface *spi;
 } CommunicationLayerImpl;
 
+
 volatile uint8_t mySPCR = 0;
 volatile uint8_t mySPDR = 0;
 volatile uint8_t myDDRB = 0;
@@ -65,6 +66,10 @@ void test_transferAsyncNotNull(void){
     TEST_ASSERT_NOT_NULL(cl->transferAsync);
 }
 
+void test_transferSyncNotNull(void){
+    TEST_ASSERT_NOT_NULL(cl->transferSync);
+}
+
 void test_spiNotNull(void){
     CommunicationLayerImpl *impl = (CommunicationLayerImpl *)cl;
     TEST_ASSERT_NOT_NULL(impl->spi);
@@ -89,12 +94,13 @@ void test_notBusyAtStart(void){
 }
 
 void test_setInterruptHandlerNotNull(void){
-    cl->init(cl, spi);
     TEST_ASSERT_NOT_NULL(cl->setInterruptHandler);
 }
 
 
 void test_notBusyAfterTransmissionFinished(void){
+    CommunicationLayerImpl *impl = (CommunicationLayerImpl *)cl;
+
     cl->init(cl, spi);
     uint16_t length = 2;
     uint8_t input[length];
@@ -104,5 +110,11 @@ void test_notBusyAfterTransmissionFinished(void){
             input, output, index, length
     };
     cl->transferAsync(cl, &m);
-    TEST_ASSERT_EQUAL_INT(1,1);
+    uint16_t i;
+    for(i = 0; i<=length; i++){
+        TEST_ASSERT_TRUE(cl->isBusy(cl));
+        impl->spi->handleInterrupt();
+    }
+    TEST_ASSERT_FALSE(cl->isBusy(cl));
+
 }

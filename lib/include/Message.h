@@ -3,7 +3,9 @@
 
 #include <stdint.h>
 
-//DEPRACATED
+/**
+ *  DEPRACATED
+ */
 
 typedef struct Message Message;
 
