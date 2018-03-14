@@ -8,81 +8,91 @@
 
 typedef struct CommunicationLayerImpl{
     CommunicationLayer communicationLayer;
-    PeripheralInterface *spi;
+    PeripheralInterface *peripheralInterface;
 } CommunicationLayerImpl;
+
 
 struct InterruptData{
     Message *m;
     PeripheralInterface *peripheral;
+    bool busy;
 };
 
-static InterruptData interruptData;
+
 
 
 static void init(CommunicationLayer *self, PeripheralInterface *spi);
 static bool isBusy(CommunicationLayer *self);
 static void transferSync(CommunicationLayer *self, Message *m);
 static void transferAsync(CommunicationLayer *self, Message *m);
-static void setInterruptHandler(CommunicationLayer *self, void (*handle)(void));
+static void setInterruptHandler(CommunicationLayer *self, void (*handle)(PeripheralInterface*));
 
 
 static bool busy = false;
 
 
-static void handleInterrupt();
+static void handleInterrupt(PeripheralInterface *self);
 
 
 
-CommunicationLayer *CL_createCommunicationLayer(PeripheralInterface *spi, Allocator allocate){
+CommunicationLayer *CL_createCommunicationLayer(PeripheralInterface *peripheral, Allocator allocate){
     CommunicationLayerImpl *communicationLayerImpl = allocate(sizeof(CommunicationLayerImpl));
+
     communicationLayerImpl->communicationLayer.init = init;
     communicationLayerImpl->communicationLayer.isBusy = isBusy;
     communicationLayerImpl->communicationLayer.transferSync = transferSync;
     communicationLayerImpl->communicationLayer.transferAsync = transferAsync;
     communicationLayerImpl->communicationLayer.setInterruptHandler = setInterruptHandler;
-    communicationLayerImpl->spi = spi;
-    communicationLayerImpl->spi->handleInterrupt = handleInterrupt;
+    communicationLayerImpl->peripheralInterface = peripheral;
+    communicationLayerImpl->peripheralInterface->handleInterrupt = handleInterrupt;
 
     return (CommunicationLayer*)communicationLayerImpl;
 }
 
 void init(CommunicationLayer *self, PeripheralInterface *spi){
-    busy = false;
+    spi->interruptData->busy = false;
 }
 
 bool isBusy(CommunicationLayer *self){
-    return busy;
+    CommunicationLayerImpl *impl = (CommunicationLayerImpl *) self;
+    return impl->peripheralInterface->interruptData->busy;
 }
 
 void transferAsync(CommunicationLayer *self, Message *m){
     CommunicationLayerImpl *impl = (CommunicationLayerImpl *) self;
-    interruptData.m = m;
-    interruptData.peripheral = impl->spi;
-    busy = true;
+    impl->peripheralInterface->interruptData->m = m;
+    impl->peripheralInterface->interruptData->peripheral = impl->peripheralInterface;
+    impl->peripheralInterface->interruptData->busy = true;
 }
 
-//If user thinks he can transfer without interrupts, he is wrong
+//TODO test sync in a real environment
 void transferSync(CommunicationLayer *self, Message *m){
-    transferAsync(self,m);
-    while(busy){
-        //PROCRASTINATE
+    CommunicationLayerImpl *impl = (CommunicationLayerImpl *) self;
+    PeripheralInterface *peripheral = impl->peripheralInterface;
+    Message *msg = peripheral->interruptData->m;
+
+    int i;
+    for(i = 0; i < msg->length; i++){
+        m->inputBuffer[m->index] = peripheral->transfer(peripheral, m->outputBuffer[m->index]);
+        ++(m->index);
     }
+    peripheral->interruptData->busy = false;
 }
 
-static void handleInterrupt(){
-    Message *m = interruptData.m;
-    PeripheralInterface *peripheral = interruptData.peripheral;
+static void handleInterrupt(PeripheralInterface *self){
+    Message *m = self->interruptData->m;
+    PeripheralInterface *peripheral = self->interruptData->peripheral;
     m->inputBuffer[m->index] = peripheral->read(peripheral);
     if(m->index < m->length){
         peripheral->write(peripheral,m->outputBuffer[++(m->index)]);
     }
     else{
-        busy = false;
+        self->interruptData->busy = false;
     }
 }
 
 
-void setInterruptHandler(CommunicationLayer *self, void (*handle)(void)){
+void setInterruptHandler(CommunicationLayer *self, void (*handle)(PeripheralInterface *self)){
     CommunicationLayerImpl *impl = (CommunicationLayerImpl *) self;
-    impl->spi->handleInterrupt = handle;
+    impl->peripheralInterface->handleInterrupt = handle;
 }

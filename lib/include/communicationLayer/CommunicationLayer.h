@@ -20,7 +20,7 @@ struct CommunicationLayer{
     /**
      * Set the method to handle an interrupt
      */
-    void (*setInterruptHandler)(CommunicationLayer *self, void (*handle)(void));
+    void (*setInterruptHandler)(CommunicationLayer *self, void (*handle)(PeripheralInterface *peripheralInterface));
 
 };
 

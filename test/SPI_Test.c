@@ -7,6 +7,7 @@
 #include "lib/include/Peripheral/PeripheralInterface.h"
 #include "lib/include/Peripheral/SPIImpl.h"
 #include "lib/include/platform/io.h"
+#include "lib/include/communicationLayer/Message.h"
 #include <stdlib.h>
 
 static PeripheralInterface *spi;
@@ -14,6 +15,7 @@ static MemoryManagement *dynamic_memory;
 
 volatile uint8_t mySPCR = 0;
 volatile uint8_t mySPDR = 0;
+volatile uint8_t mySPSR = 0;
 volatile uint8_t myDDR = 0;
 volatile uint8_t myPORTB = 0;
 
@@ -25,13 +27,22 @@ typedef struct SPIImpl {
     volatile uint8_t *port;
     volatile uint8_t *spcr;
     volatile uint8_t *spdr;
+    volatile uint8_t *spsr;
     uint8_t f_osc;
 } SPIImpl;
+
+struct InterruptData{
+    Message *m;
+    PeripheralInterface *peripheral;
+    bool busy;
+};
 
 
 #define SPCR (*(volatile uint8_t *)&mySPCR)
 
 #define SPDR (*(volatile uint8_t *)&mySPDR)
+
+#define SPSR (*(volatile uint8_t *)&mySPSR)
 
 #define DDRB (*(volatile uint8_t *)&myDDR)
 
@@ -48,7 +59,8 @@ void setupDummyRegisters(void){
 void setUp(void){
     setupDummyRegisters();
     dynamic_memory = MemoryManagement_createMockImpl();
-    SPIConfig config = {&DDRB, &PORTB, &SPCR, &SPDR, f_osc, dynamic_memory->allocate, dynamic_memory->deallocate};
+    InterruptData *interruptData = dynamic_memory->allocate(sizeof(InterruptData));
+    SPIConfig config = {&DDRB, &PORTB, &SPCR, &SPDR, &SPSR, f_osc, dynamic_memory->allocate, dynamic_memory->deallocate, interruptData};
     spi = SPI_createSPI(config);
 }
 
@@ -153,6 +165,10 @@ void test_spiDisableInterruptNotNull(void){
 
 void test_spiDestroyNotNull(void){
     TEST_ASSERT_NOT_NULL(spi->destroy);
+}
+
+void test_spiTransferNotNull(void){
+    TEST_ASSERT_NOT_NULL(spi->transfer);
 }
 
 

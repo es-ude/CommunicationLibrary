@@ -10,7 +10,6 @@
 
 typedef struct PeripheralInterface PeripheralInterface;
 
-
 struct PeripheralInterface{
 
     /**
@@ -19,18 +18,28 @@ struct PeripheralInterface{
     void (*init)(PeripheralInterface *self);
 
     /**
-     * Write a byte to the SPDR
-     * @param self - the SPI Master
+     * Write a byte to t
+     * @param self - the Peripheral device
      * @param data - a byte
      */
     void (*write)(PeripheralInterface *self, uint8_t data);
 
     /**
      * Read a byte from SPDR
-     * @param self - the SPI Master
-     * @return a byte received
+     * @param self - the peripheral device
+     * @return - a byte received
      */
     uint8_t (*read)(PeripheralInterface *self);
+
+
+    /**
+     * Writes a byte and waits until it gets a byte back
+     * Mainly used for synchronous communication
+     * @param self - the peripheral device
+     * @param data - byte to transfer
+     * @return - a byte received
+     */
+    uint8_t (*transfer)(PeripheralInterface *self, uint8_t data);
 
     /**
      * Configure the specified pin as a SPI slave by configuring it as an output and pulling it high
@@ -57,7 +66,7 @@ struct PeripheralInterface{
     /**
      * Handle an interrupt
      */
-    void (*handleInterrupt)(void);
+    void (*handleInterrupt)(PeripheralInterface *self);
 
     /**
      * Enable peripheralspecific interrupts
@@ -78,6 +87,12 @@ struct PeripheralInterface{
      * @param self The Interface to be freed
      */
     void (*destroy) (PeripheralInterface *self);
+
+
+    /**
+     * The data the PeripheralInterface needs to access when a peripheralspecific interrupt happens
+     */
+    InterruptData *interruptData;
 };
 
 #endif //COMMUNICATIONMODULE_SPI_H

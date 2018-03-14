@@ -12,12 +12,14 @@ typedef struct SPIImpl {
     volatile uint8_t *port;
     volatile uint8_t *spcr;
     volatile uint8_t *spdr;
+    volatile uint8_t *spsr;
     uint8_t f_osc;
 } SPIImpl;
 
 static void init(PeripheralInterface *self);
 static void writeToSPDR(PeripheralInterface *self, uint8_t data);
 static uint8_t readFromSPDR(PeripheralInterface *self);
+static uint8_t transfer(PeripheralInterface *self, uint8_t data);
 
 
 //The Slave selection is pretty decoupled from the rest of PeripheralInterface, we might consider placing it in its own module
@@ -32,15 +34,18 @@ static void (*freeFunction)(void *);
 
 PeripheralInterface * SPI_createSPI(SPIConfig config) {
     SPIImpl *implementation = config.allocate(sizeof(SPIImpl));
+
     implementation->interface.init = init;
     implementation->interface.write = writeToSPDR;
     implementation->interface.read = readFromSPDR;
+    implementation->interface.transfer = transfer;
     implementation->interface.configureAsSlave = configureAsSlave;
     implementation->interface.selectSlave = selectSlave;
     implementation->interface.deselectSlave = deselectSlave;
     implementation->interface.enableInterrupt = enableInterrupt;
     implementation->interface.disableInterrupt = disableInterrupt;
     implementation->interface.destroy = destroy;
+    implementation->interface.interruptData = config.interruptData;
 
     freeFunction = config.deallocate;
 
@@ -48,7 +53,9 @@ PeripheralInterface * SPI_createSPI(SPIConfig config) {
     implementation->port = config.port;
     implementation->spcr = config.spcr;
     implementation->spdr = config.spdr;
+    implementation->spsr = config.spsr;
     implementation->f_osc = config.sck_rate;
+
 
     return (PeripheralInterface*) implementation;
 }
@@ -97,6 +104,14 @@ uint8_t readFromSPDR(PeripheralInterface *self){
     return *(spi->spdr);
 }
 
+uint8_t transfer(PeripheralInterface *self, uint8_t data){
+    SPIImpl *spi = (SPIImpl *)self;
+    *(spi->spdr) = data;
+    while(!(*(spi->spsr) & (1<<spi_interrupt_flag))){} //Wait until SPIF is set
+    return *(spi->spdr);
+
+}
+
 /**
  * Configure a slave by
  *  1) Setting their pin as output in the Data Definition Register
@@ -128,6 +143,7 @@ void disableInterrupt(PeripheralInterface *self){
 
 void destroy(PeripheralInterface *self){
     SPIImpl *implementation = (SPIImpl *)self;
+    freeFunction(self->interruptData);
     freeFunction(implementation);
 }
 

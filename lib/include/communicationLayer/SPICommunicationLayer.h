@@ -35,7 +35,7 @@ struct SPIMaster {
 
 /*
  * An SPISlave represents an external device that you
- * want to communicate with using an spi. Typically you would want to create
+ * want to communicate with using an peripheralInterface. Typically you would want to create
  * one SPISlave instance for every external device. Set completion_callback
  * either to NULL, or a function that shall be called as soon as all bytes
  * have been transferred. The callback has to be non blocking and should

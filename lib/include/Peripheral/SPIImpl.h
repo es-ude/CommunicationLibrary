@@ -14,10 +14,14 @@ typedef struct SPIConfig{
     volatile uint8_t *port;
     volatile uint8_t *spcr;
     volatile uint8_t *spdr;
+    volatile uint8_t *spsr;
     enum sck_rate sck_rate;
     Allocator allocate;
     Deallocator deallocate;
+    InterruptData *interruptData;
 } SPIConfig;
+
+
 
 PeripheralInterface * SPI_createSPI(SPIConfig config);
 
