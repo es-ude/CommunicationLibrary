@@ -14,7 +14,6 @@ struct Mac802154 {
   void (*setExtendedDestinationAddress) (Mac802154 *self, uint8_t* address);
   void (*setPayload) (Mac802154 *self, uint8_t* buffer, size_t size);
 
-  void (*receive) (Mac802154 *self, Message *received_msg);
   void (*send) (Mac802154 *self);
   void (*init) (Mac802154 *self, const Mac802154Config *config);
   void (*destroy) (Mac802154 *self);

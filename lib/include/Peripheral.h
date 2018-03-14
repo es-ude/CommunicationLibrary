@@ -7,6 +7,15 @@ typedef struct Peripheral Peripheral;
 typedef struct PeripheralInterface PeripheralInterface;
 typedef struct InterruptData InterruptData;
 
+/**
+ * Datei mit ISR sollte dann wie folgt aussehen:
+ *
+ * PeripheralInterface *interface; // das interface zu dem der ISR gehoert, muss vom User gesetzt werden
+ *
+ * ISR(vect) {
+ *   interface->handleInterrupt(interface);
+ * }
+ */
 struct PeripheralInterface {
   void (*init) (PeripheralInterface *self);
   void (*write)(PeripheralInterface *self, uint8_t byte);
@@ -16,7 +25,8 @@ struct PeripheralInterface {
   void (*destroy) (PeripheralInterface *self);
   void (*enableInterrupt) (PeripheralInterface *self);
   void (*disableInterrupt) (PeripheralInterface *self);
-  void (*handleInterrupt) (PeripheralInterface *self, InterruptData *data);
+  void (*handleInterrupt) (PeripheralInterface *self);
+  InterruptData *interrupt_data;
 };
 
 
@@ -44,8 +54,8 @@ static inline void PeripheralInterface_destroy(PeripheralInterface *self) {
   self->destroy(self);
 }
 
-static inline void PeripheralInterface_handleInterrupt(PeripheralInterface *self, InterruptData *data) {
-  self->handleInterrupt(self, data);
+static inline void PeripheralInterface_handleInterrupt(PeripheralInterface *self) {
+  self->handleInterrupt(self);
 }
 
 static inline void PeripheralInterface_enableInterrupt(PeripheralInterface *self) {

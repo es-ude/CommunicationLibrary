@@ -14,6 +14,7 @@ static MockPeripheral mock_device = {
         .write_buffer = write_buffer,
         .write_buffer_size = WRITE_BUFFER_SIZE,
         .read_buffer_size = READ_BUFFER_SIZE,
+        .first = NULL,
 };
 static PeripheralInterface *interface;
 static Peripheral *device = (Peripheral*) &mock_device;
@@ -28,6 +29,7 @@ void setUp(void) {
 
 void tearDown(void) {
   interface->destroy(interface);
+  MockPeripheral_clean(&mock_device);
   TEST_ASSERT_EQUAL_UINT(0, MockMemoryManagement_numberOfAllocatedObjects(dynamic_memory));
 }
 
@@ -140,4 +142,43 @@ void test_readWithoutSelect(void) {
 
       } Catch(exception) {}
   TEST_ASSERT_EQUAL_UINT8(PERIPHERAL_INTERFACE_BUSY_EXCEPTION, exception);
+}
+
+void test_transferValueCorrectForOneWrite(void){
+  PeripheralInterface_selectPeripheral(interface, device);
+  PeripheralInterface_write(interface, 'A');
+  TEST_ASSERT_EQUAL_UINT8(1, mock_device.first->number_of_writes);
+}
+
+void test_writeSetsTransfer(void) {
+  PeripheralInterface_selectPeripheral(interface, device);
+  PeripheralInterface_write(interface, 'A');
+  PeripheralInterface_write(interface, 'F');
+  TEST_ASSERT_EQUAL_UINT8(2, MockPeripheral_getTransfer(&mock_device, 0)->number_of_writes);
+}
+
+void test_transferValueCorrectForOneRead(void){
+  PeripheralInterface_selectPeripheral(interface, device);
+  PeripheralInterface_read(interface);
+  TEST_ASSERT_EQUAL_UINT8(1, MockPeripheral_getTransfer(device, 0)->number_of_reads);
+}
+
+void test_selectingTwoTimesYieldsTwoTransfers(void) {
+  PeripheralInterface_selectPeripheral(interface, device);
+  PeripheralInterface_selectPeripheral(interface, device);
+  TEST_ASSERT_NOT_NULL(MockPeripheral_getTransfer(device, 1));
+}
+
+void test_WritesForSecondTransferAreCorrect(void) {
+  PeripheralInterface_selectPeripheral(interface, device);
+  PeripheralInterface_selectPeripheral(interface, device);
+  PeripheralInterface_write(interface, 'A');
+  TEST_ASSERT_EQUAL_UINT8(1, MockPeripheral_getTransfer(device, 1)->number_of_writes);
+}
+
+void test_ReadsForSecondTransferAreCorrect(void) {
+  PeripheralInterface_selectPeripheral(interface, device);
+  PeripheralInterface_selectPeripheral(interface, device);
+  PeripheralInterface_read(interface);
+  TEST_ASSERT_EQUAL_UINT8(1, MockPeripheral_getTransfer(device, 1)->number_of_reads);
 }
