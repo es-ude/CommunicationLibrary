@@ -9,6 +9,18 @@
 #include "lib/include/RuntimeLibraryInterface.h"
 #include "lib/include/Peripheral/PeripheralInterface.h"
 
-CommunicationLayer *CL_createCommunicationLayer(PeripheralInterface *spi, Allocator allocate);
+typedef struct CommunicationLayerConfig {
+    PeripheralInterface *peripheralInterface;
+    Allocator  allocate;
+    Deallocator deallocate;
+} CommunicationLayerConfig;
+
+
+/**
+ * Create a CommunicationLayer with the specified PeripheralInterface and an allocationfunction
+ * @param config - Configuration of the CommunicationLayer
+ * @return - A Pointer to a CommunicationLayer
+ */
+CommunicationLayer *CL_createCommunicationLayer(CommunicationLayerConfig config);
 
 #endif //COMMUNICATIONMODULE_COMMUNICATIONLAYERIMPL_H

@@ -2,7 +2,7 @@
 #define COMMUNICATIONMODULE_H
 
 #include "lib/include/RuntimeLibraryInterface.h"
-#include "lib/include/Message.h"
+#include "lib/include/DEPRACATED/Message.h"
 
 
 typedef struct CommunicationModule CommunicationModule;

@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "lib/include/Message.h"
+#include "lib/include/DEPRACATED/Message.h"
 
 typedef struct NetworkHardware NetworkHardware;
 

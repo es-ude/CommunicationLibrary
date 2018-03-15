@@ -26,25 +26,26 @@ static bool isBusy(CommunicationLayer *self);
 static void transferSync(CommunicationLayer *self, Message *m);
 static void transferAsync(CommunicationLayer *self, Message *m);
 static void setInterruptHandler(CommunicationLayer *self, void (*handle)(PeripheralInterface*));
-
-
-static bool busy = false;
-
+static void destroy(CommunicationLayer *self);
 
 static void handleInterrupt(PeripheralInterface *self);
 
+static void (*freeFunction)(void *);
 
 
-CommunicationLayer *CL_createCommunicationLayer(PeripheralInterface *peripheral, Allocator allocate){
-    CommunicationLayerImpl *communicationLayerImpl = allocate(sizeof(CommunicationLayerImpl));
+CommunicationLayer *CL_createCommunicationLayer(CommunicationLayerConfig config){
+    CommunicationLayerImpl *communicationLayerImpl = config.allocate(sizeof(CommunicationLayerImpl));
 
     communicationLayerImpl->communicationLayer.init = init;
     communicationLayerImpl->communicationLayer.isBusy = isBusy;
     communicationLayerImpl->communicationLayer.transferSync = transferSync;
     communicationLayerImpl->communicationLayer.transferAsync = transferAsync;
     communicationLayerImpl->communicationLayer.setInterruptHandler = setInterruptHandler;
-    communicationLayerImpl->peripheralInterface = peripheral;
+    communicationLayerImpl->communicationLayer.destroy = destroy;
+    communicationLayerImpl->peripheralInterface = config.peripheralInterface;
     communicationLayerImpl->peripheralInterface->handleInterrupt = handleInterrupt;
+
+    freeFunction = config.deallocate;
 
     return (CommunicationLayer*)communicationLayerImpl;
 }
@@ -63,6 +64,8 @@ void transferAsync(CommunicationLayer *self, Message *m){
     impl->peripheralInterface->interruptData->m = m;
     impl->peripheralInterface->interruptData->peripheral = impl->peripheralInterface;
     impl->peripheralInterface->interruptData->busy = true;
+    //Should actually write first byte but testing this is weird
+    impl->peripheralInterface->write(impl->peripheralInterface, m->outputBuffer[0]);
 }
 
 //TODO test sync in a real environment
@@ -79,6 +82,18 @@ void transferSync(CommunicationLayer *self, Message *m){
     peripheral->interruptData->busy = false;
 }
 
+
+void setInterruptHandler(CommunicationLayer *self, void (*handle)(PeripheralInterface *self)){
+    CommunicationLayerImpl *impl = (CommunicationLayerImpl *) self;
+    impl->peripheralInterface->handleInterrupt = handle;
+}
+
+void destroy(CommunicationLayer *self){
+    freeFunction(self);
+}
+
+
+//Default handler
 static void handleInterrupt(PeripheralInterface *self){
     Message *m = self->interruptData->m;
     PeripheralInterface *peripheral = self->interruptData->peripheral;
@@ -92,7 +107,3 @@ static void handleInterrupt(PeripheralInterface *self){
 }
 
 
-void setInterruptHandler(CommunicationLayer *self, void (*handle)(PeripheralInterface *self)){
-    CommunicationLayerImpl *impl = (CommunicationLayerImpl *) self;
-    impl->peripheralInterface->handleInterrupt = handle;
-}

@@ -44,6 +44,11 @@ filegroup(
     srcs = glob(["src/communicationLayer/*.c"]),
 )
 
+filegroup(
+    name = "DepracatedHeaderFiles",
+    srcs = glob(["include/DEPRACATED/*.h"]),
+)
+
 
 """
 The select function allows to make the right hand option of a attribute
@@ -57,7 +62,7 @@ and $(MCU) is replaced by <mcu-name>
 cc_library(
     name = "CommunicationModule",
     srcs = [":CommunicationModuleSrc",":SPILayerSrc", ":CommunicationLayerSrc"],
-    hdrs = [":CommunicationModuleIncl", ":PlatformDependencies", ":SPILayerIncl", ":CommunicationLayerIncl"],
+    hdrs = [":CommunicationModuleIncl", ":PlatformDependencies", ":SPILayerIncl", ":CommunicationLayerIncl", ":DepracatedHeaderFiles"],
     copts = select({
         ":avr-config": ["-mmcu=$(MCU)"],
         "//conditions:default": [],

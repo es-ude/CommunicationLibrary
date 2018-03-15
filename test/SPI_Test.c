@@ -213,6 +213,11 @@ void test_spiWriteThenReadIsTheSame(void){
     TEST_ASSERT_EQUAL(42, spiImpl->interface.read(spi));
 }
 
+void test_macrosAreNotNull(void){
+    SPIImpl *spiImpl = (SPIImpl *)spi;
+    TEST_ASSERT_NOT_NULL(spiImpl->spsr);
+}
+
 
 
 void test_spiConfigureSetsDDRAndPORT(void){

@@ -16,20 +16,21 @@ typedef struct SPIImpl {
     uint8_t f_osc;
 } SPIImpl;
 
+
 static void init(PeripheralInterface *self);
+
 static void writeToSPDR(PeripheralInterface *self, uint8_t data);
 static uint8_t readFromSPDR(PeripheralInterface *self);
 static uint8_t transfer(PeripheralInterface *self, uint8_t data);
 
-
-//The Slave selection is pretty decoupled from the rest of PeripheralInterface, we might consider placing it in its own module
 static void selectSlave(volatile uint8_t *PORT, uint8_t pin);
 static void deselectSlave(volatile uint8_t *PORT, uint8_t pin);
 static void configureAsSlave(volatile uint8_t *ddr, uint8_t pin,volatile  uint8_t *port);
+
 static void enableInterrupt (PeripheralInterface *self);
 static void disableInterrupt(PeripheralInterface *self);
-static void destroy(PeripheralInterface *self);
 
+static void destroy(PeripheralInterface *self);
 static void (*freeFunction)(void *);
 
 PeripheralInterface * SPI_createSPI(SPIConfig config) {
@@ -59,6 +60,7 @@ PeripheralInterface * SPI_createSPI(SPIConfig config) {
 
     return (PeripheralInterface*) implementation;
 }
+
 
 static void set_bit(volatile uint8_t *value, uint8_t pin){
     *(value) |= (1<<pin);

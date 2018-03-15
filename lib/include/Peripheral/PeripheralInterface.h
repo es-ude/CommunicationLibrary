@@ -13,19 +13,20 @@ typedef struct PeripheralInterface PeripheralInterface;
 struct PeripheralInterface{
 
     /**
-    * The init function should set all register flags necessary to use SPI in Master configuration
-    */
+     * The init function should set all register flags necessary to use SPI in Master configuration
+     * @param self - The PeripheralInterface
+     */
     void (*init)(PeripheralInterface *self);
 
     /**
-     * Write a byte to t
+     * Write a byte
      * @param self - the Peripheral device
      * @param data - a byte
      */
     void (*write)(PeripheralInterface *self, uint8_t data);
 
     /**
-     * Read a byte from SPDR
+     * Read a byte
      * @param self - the peripheral device
      * @return - a byte received
      */
