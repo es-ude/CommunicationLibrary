@@ -66,21 +66,28 @@ go into the init functions as well?
 
 For setup of the SPI Interface let's do something like this
 
-    typedef struct SPIConfig
-    {
-        PortRegister port;
-        DDRRegister ddr;
-        DDRRegister chip_select_ddr;
-        PortRegister chip_Select_port;
-    } SPIConfig;
+	typedef struct SPIConfig{
+    	volatile uint8_t *ddr;
+    	volatile uint8_t *port;
+    	volatile uint8_t *spcr;
+    	volatile uint8_t *spdr;
+    	volatile uint8_t *spsr;
+    	enum sck_rate sck_rate;
+    	Allocator allocate;
+    	Deallocator deallocate;
+    	InterruptData *interruptData;
+	} SPIConfig;
 
 Then for initialization of SPI do something like
 
-    SPIConfig spi_conf;
-    spi_conf.port = PORTD;
-    spi_conf.ddr = DDRD;
-    spi_conf.chip_select_ddr = DDRB;
-    spi_conf.chip_select_port = PORTB;
-    PeripheralInterface spi_interface;
-    initPeripheralInterfaceSPI(&spi_interface, &spi_conf);
+
+    static PeripheralInterface *spi;
+    static MemoryManagement *dynamic_memory;
+	void setUp(){
+		dynamic_memory = MemoryManagement_createMockImpl();
+    	InterruptData *interruptData = dynamic_memory->allocate(sizeof(InterruptData));
+    	SPIConfig config = {&DDRB, &PORTB, &SPCR, &SPDR, &SPSR, f_osc, dynamic_memory->allocate, dynamic_memory->deallocate, interruptData};
+    	spi = SPI_createSPI(config);
+    }
+
 
