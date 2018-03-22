@@ -18,6 +18,38 @@ struct PeripheralInterface{
      */
     void (*init)(PeripheralInterface *self);
 
+
+    /**
+     * Set the Callback to be called, when the specified amount of reading is finished
+     * @param callback - function
+     */
+    void (*setReadCallback)(PeripheralInterface *self,void(*callback)(void));
+
+    /**
+     * Set the Callback to be called, when the specified amount of writing is finished
+     * @param callback - function
+     */
+    void (*setWriteCallback)(PeripheralInterface *self,void(*callback)(void));
+
+
+    /**
+     * Write length bytes of data starting at 0
+     * @param self - The PeripheralInterface
+     * @param data - Pointer to data to be transmitted
+     * @param length - Amount Bytes to transmit
+     */
+    void (*writeBlocking)(PeripheralInterface *self, uint8_t *data, uint16_t length);
+
+
+    /**
+     * Read length bytes into the data buffer
+     * @param self - The PeripheralInterface
+     * @param data - Pointer to data where to store message
+     * @param length - Amount Bytes to read
+     * @warning Ensure data is big enough to store length bytes
+     */
+    void (*readBlocking)(PeripheralInterface *self, uint8_t *data, uint16_t length);
+
     /**
      * Write a byte
      * @param self - the Peripheral device
@@ -74,14 +106,14 @@ struct PeripheralInterface{
      * Does not change global interrupt
      * @param self - The peripheral
      */
-    void (*enableInterrupt) (PeripheralInterface *self);
+    void (*enableInterrupt) (PeripheralInterface *self); //DEPRACATED
 
     /**
      * Disable peripheral interrupts
      * Does not change global interrupt
      * @param self - The peripheral
      */
-    void (*disableInterrupt) (PeripheralInterface *self);
+    void (*disableInterrupt) (PeripheralInterface *self); //DEPRACATED
 
     /**
      * Clean up the PeripheralInterface

@@ -14,10 +14,19 @@ typedef struct SPIImpl {
     volatile uint8_t *spdr;
     volatile uint8_t *spsr;
     uint8_t f_osc;
+    void (*freeFunction)(void *);
+    void (*readCallback)(void);
+    void (*writeCallback)(void);
 } SPIImpl;
 
 
 static void init(PeripheralInterface *self);
+
+static void setReadCallback(PeripheralInterface *self,void (*callback)(void));
+static void setWriteCallback(PeripheralInterface *self,void (*callback)(void));
+
+static void writeBlocking(PeripheralInterface *self, uint8_t *data, uint16_t length);
+static void readBlocking(PeripheralInterface *self, uint8_t *data, uint16_t length);
 
 static void writeToSPDR(PeripheralInterface *self, uint8_t data);
 static uint8_t readFromSPDR(PeripheralInterface *self);
@@ -31,12 +40,18 @@ static void enableInterrupt (PeripheralInterface *self);
 static void disableInterrupt(PeripheralInterface *self);
 
 static void destroy(PeripheralInterface *self);
-static void (*freeFunction)(void *);
+
+
+
 
 PeripheralInterface * SPI_createSPI(SPIConfig config) {
     SPIImpl *implementation = config.allocate(sizeof(SPIImpl));
 
     implementation->interface.init = init;
+    implementation->interface.setReadCallback = setReadCallback;
+    implementation->interface.setWriteCallback = setWriteCallback;
+    implementation->interface.writeBlocking = writeBlocking;
+    implementation->interface.readBlocking = readBlocking;
     implementation->interface.write = writeToSPDR;
     implementation->interface.read = readFromSPDR;
     implementation->interface.transfer = transfer;
@@ -48,7 +63,7 @@ PeripheralInterface * SPI_createSPI(SPIConfig config) {
     implementation->interface.destroy = destroy;
     implementation->interface.interruptData = config.interruptData;
 
-    freeFunction = config.deallocate;
+    implementation->freeFunction = config.deallocate;
 
     implementation->ddr = config.ddr;
     implementation->port = config.port;
@@ -96,6 +111,26 @@ void init(PeripheralInterface *self){
 }
 
 
+void setReadCallback(PeripheralInterface *self,void (*callback)(void)){
+    SPIImpl *spi = (SPIImpl *)self;
+    spi->readCallback = callback;
+}
+
+void setWriteCallback(PeripheralInterface *self,void (*callback)(void)){
+    SPIImpl *spi = (SPIImpl *)self;
+    spi->writeCallback = callback;
+}
+
+void writeBlocking(PeripheralInterface *self, uint8_t *data, uint16_t length){
+
+}
+
+
+void readBlocking(PeripheralInterface *self, uint8_t *data, uint16_t length){
+
+}
+
+
 void writeToSPDR(PeripheralInterface *self, uint8_t data){
     SPIImpl *spi = (SPIImpl *)self;
     *(spi->spdr) = data;
@@ -111,7 +146,6 @@ uint8_t transfer(PeripheralInterface *self, uint8_t data){
     *(spi->spdr) = data;
     while(!(*(spi->spsr) & (1<<spi_interrupt_flag))){} //Wait until SPIF is set
     return *(spi->spdr);
-
 }
 
 /**
@@ -145,7 +179,7 @@ void disableInterrupt(PeripheralInterface *self){
 
 void destroy(PeripheralInterface *self){
     SPIImpl *implementation = (SPIImpl *)self;
-    freeFunction(self->interruptData);
-    freeFunction(implementation);
+    implementation->freeFunction(self->interruptData);
+    implementation->freeFunction(implementation);
 }
 

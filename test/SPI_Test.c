@@ -29,6 +29,9 @@ typedef struct SPIImpl {
     volatile uint8_t *spdr;
     volatile uint8_t *spsr;
     uint8_t f_osc;
+    void (*freeFunction)(void *);
+    void (*readCallback)(void);
+    void (*writeCallback)(void);
 } SPIImpl;
 
 struct InterruptData{
@@ -171,6 +174,22 @@ void test_spiTransferNotNull(void){
     TEST_ASSERT_NOT_NULL(spi->transfer);
 }
 
+void test_setReadCallbackNotNull(void){
+    TEST_ASSERT_NOT_NULL(spi->setReadCallback);
+}
+
+void test_setWriteCallbackNotNull(void){
+    TEST_ASSERT_NOT_NULL(spi->setWriteCallback);
+}
+
+void test_writeBlockingNotNull(void){
+    TEST_ASSERT_NOT_NULL(spi->writeBlocking);
+}
+
+void test_readBlockingNotNull(void){
+    TEST_ASSERT_NOT_NULL(spi->readBlocking);
+}
+
 
 
 
@@ -216,6 +235,24 @@ void test_spiWriteThenReadIsTheSame(void){
 void test_macrosAreNotNull(void){
     SPIImpl *spiImpl = (SPIImpl *)spi;
     TEST_ASSERT_NOT_NULL(spiImpl->spsr);
+}
+
+void dummy(void){
+
+}
+
+void test_readCallback(void){
+    SPIImpl *spiImpl = (SPIImpl *)spi;
+    spiImpl->interface.init(spi);
+    spi->setReadCallback(spi,dummy);
+    TEST_ASSERT_EQUAL_PTR(dummy, spiImpl->readCallback);
+}
+
+void test_writeCallback(void){
+    SPIImpl *spiImpl = (SPIImpl *)spi;
+    spiImpl->interface.init(spi);
+    spi->setWriteCallback(spi,dummy);
+    TEST_ASSERT_EQUAL_PTR(dummy, spiImpl->writeCallback);
 }
 
 
