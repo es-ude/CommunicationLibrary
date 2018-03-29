@@ -12,6 +12,7 @@
 #include "CException.h"
 #include "lib/include/MockPeripheral.h"
 #include "lib/src/MockMRFHelperFunctions.h"
+#include "test/MockMac802154MRF_TestHelper.h"
 
 
 #define WRITE_BUFFER_SIZE 128
@@ -33,7 +34,6 @@ PeripheralInterface *interface;
 Mac802154 *mrf;
 Mac802154Config mrf_config;
 
-
 void setUp(void) {
   memset(read_buffer, 0, READ_BUFFER_SIZE);
   memset(write_buffer, 0, WRITE_BUFFER_SIZE);
@@ -47,7 +47,7 @@ void setUp(void) {
   mrf_config.pan_id = 0;
   mrf_config.extended_source_address = 0;
   mrf_config.short_source_address = 0;
-  mrf = Mac802154_createMRF(inspected_memory, NULL);
+  mrf = Mac802154_createMRF(inspected_memory, fakeDelay);
   mock_device.current_write_buffer_position = 0;
   mock_device.current_read_buffer_position = 0;
 }
@@ -71,6 +71,8 @@ void test_initPerformsSetupLikeShownInDatasheet(void) {
   MRF_setControlRegister_Expect(impl, mrf_register_base_band2, 0x80);
   MRF_setControlRegister_Expect(impl, mrf_register_energy_detection_threshold_for_clear_channel_assessment, 0x60);
   MRF_setControlRegister_Expect(impl, mrf_register_base_band6, 0x40);
+  MRF_setControlRegister_Expect(impl, mrf_register_interrupt_control, (uint8_t) ~(1 << 3));
+  fakeDelay_Expect(200);
   Mac802154_init(mrf, &mrf_config);
 }
 

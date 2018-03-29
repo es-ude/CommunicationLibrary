@@ -52,12 +52,18 @@ mock(
     deps = ["//lib:CommunicationModule"],
 )
 
+mock(
+    name = "MockMac802153Test_Helper",
+    file = "//test:Mac802154MRF_TestHelper.h",
+)
+
 generate_a_unity_test_for_every_file(
     file_list = [
         "Mac802154MRF_Test.c",
     ],
     deps = [
         ":MockMRFHelperFunctions",
+        ":MockMac802153Test_Helper",
         ":MockPeripheralInterface",
         "//lib:CommunicationModule",
         "//test/Mocks:MockLibrary",

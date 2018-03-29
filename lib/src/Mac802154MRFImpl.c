@@ -151,6 +151,7 @@ Mac802154 *Mac802154_createMRF(MemoryManagement *dynamic_memory, DelayFunction d
   impl->deallocate = dynamic_memory->deallocate;
   impl->mac.init = init;
   impl->mac.destroy = destroy;
+  impl->delay = delay;
   return (Mac802154*)impl;
 }
 
@@ -159,11 +160,13 @@ void init(Mac802154 *self, const Mac802154Config *config) {
   setPrivateVariables(impl, config);
   reset(impl);
   setInitializationValuesFromDatasheet(impl);
+  enableRXInterrupt(impl);
+  impl->delay(200);
 }
 
 void enableRXInterrupt(MRF *impl) {
   // clearing a bit in the register enables the corresponding interrupt
-  setShortAddressRegister(impl, mrf_register_interrupt_control, (uint8_t) ~(1 << 3));
+  MRF_setControlRegister(impl, mrf_register_interrupt_control, (uint8_t) ~(1 << 3));
 }
 
 void setPrivateVariables(MRF *impl, const Mac802154Config *config) {
