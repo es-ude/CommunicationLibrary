@@ -36,7 +36,7 @@ void setUp(void) {
   mock_interface.input_buffer = NULL;
   mock_interface.output_buffer = buffer;
   mock_interface.message_buffer = spi_message_buffer;
-  mrf = Mac802154_createMRF(MockAllocate_allocate);
+  mrf = Mac802154_createMRF(MockAllocate_allocate, NULL);
   setUpNetworkHardwareConfig(&config);
   memset(buffer, 0, 128);
 }

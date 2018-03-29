@@ -35,8 +35,6 @@ static inline uint8_t MRF_writeLongCommandLowByte(uint16_t address) {
   return (uint8_t ) MRF_writeLongCommand(address);
 }
 
-bool MRF_isLongAddress(uint16_t address);
-
-void MRF_setAddress(MRF *impl, uint16_t address, uint8_t value);
+void MRF_setControlRegister(MRF *impl, uint16_t address, uint8_t value);
 
 #endif //COMMUNICATIONMODULE_MRFHELPERFUNCTIONS_H

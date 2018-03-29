@@ -30,6 +30,7 @@ generate_a_unity_test_for_every_file(
         ["*_Test.c"],
         exclude = [
             "Mac802154MRF_Test.c",
+            "MRFSetAddress_Test.c",
         ],
     ),
     deps = [
@@ -58,7 +59,18 @@ generate_a_unity_test_for_every_file(
     deps = [
         ":MockMRFHelperFunctions",
         ":MockPeripheralInterface",
+        "//lib:CommunicationModule",
         "//test/Mocks:MockLibrary",
+        "@CException//:CException",
+        "@CMock//:CMock",
+    ],
+)
+
+unity_test(
+    file_name = "MRFSetAddress_Test.c",
+    deps = [
+        ":MockPeripheralInterface",
+        "//lib:CommunicationModule",
         "@CException//:CException",
         "@CMock//:CMock",
     ],

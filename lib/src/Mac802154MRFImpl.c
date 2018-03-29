@@ -146,7 +146,7 @@ static void deselectDevice(MRF *impl);
 static void enableRXInterrupt(MRF *impl);
 static void setChannel(MRF *impl, uint8_t channel);
 
-Mac802154 *Mac802154_createMRF(MemoryManagement *dynamic_memory) {
+Mac802154 *Mac802154_createMRF(MemoryManagement *dynamic_memory, DelayFunction delay) {
   MRF *impl = dynamic_memory->allocate(sizeof(*impl));
   impl->deallocate = dynamic_memory->deallocate;
   impl->mac.init = init;
@@ -172,21 +172,21 @@ void setPrivateVariables(MRF *impl, const Mac802154Config *config) {
 }
 
 void reset(MRF *impl) {
-  MRF_setAddress(impl, mrf_register_software_reset, 0x07);
+  MRF_setControlRegister(impl, mrf_register_software_reset, 0x07);
 }
 
 void setInitializationValuesFromDatasheet(MRF *impl){
-  MRF_setAddress(impl, mrf_register_power_amplifier_control2, 0x98);
-  MRF_setAddress(impl, mrf_register_tx_stabilization, 0x95);
-  MRF_setAddress(impl, mrf_register_rf_control0, 0x03);
-  MRF_setAddress(impl, mrf_register_rf_control1, 0x01);
-  MRF_setAddress(impl, mrf_register_rf_control2, 0x80);
-  MRF_setAddress(impl, mrf_register_rf_control6, 0x90);
-  MRF_setAddress(impl, mrf_register_rf_control7, 0x80);
-  MRF_setAddress(impl, mrf_register_sleep_clock_control1, 0x21);
-  MRF_setAddress(impl, mrf_register_base_band2, 0x80);
-  MRF_setAddress(impl, mrf_register_energy_detection_threshold_for_clear_channel_assessment, 0x60);
-  MRF_setAddress(impl, mrf_register_base_band6, 0x40);
+  MRF_setControlRegister(impl, mrf_register_power_amplifier_control2, 0x98);
+  MRF_setControlRegister(impl, mrf_register_tx_stabilization, 0x95);
+  MRF_setControlRegister(impl, mrf_register_rf_control0, 0x03);
+  MRF_setControlRegister(impl, mrf_register_rf_control1, 0x01);
+  MRF_setControlRegister(impl, mrf_register_rf_control2, 0x80);
+  MRF_setControlRegister(impl, mrf_register_rf_control6, 0x90);
+  MRF_setControlRegister(impl, mrf_register_rf_control7, 0x80);
+  MRF_setControlRegister(impl, mrf_register_sleep_clock_control1, 0x21);
+  MRF_setControlRegister(impl, mrf_register_base_band2, 0x80);
+  MRF_setControlRegister(impl, mrf_register_energy_detection_threshold_for_clear_channel_assessment, 0x60);
+  MRF_setControlRegister(impl, mrf_register_base_band6, 0x40);
 }
 
 void setChannel(MRF *impl, uint8_t channel_number) {

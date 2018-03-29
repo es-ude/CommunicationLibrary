@@ -47,7 +47,7 @@ void setUp(void) {
   mrf_config.pan_id = 0;
   mrf_config.extended_source_address = 0;
   mrf_config.short_source_address = 0;
-  mrf = Mac802154_createMRF(inspected_memory);
+  mrf = Mac802154_createMRF(inspected_memory, NULL);
   mock_device.current_write_buffer_position = 0;
   mock_device.current_read_buffer_position = 0;
 }
@@ -58,38 +58,22 @@ void tearDown(void) {
 }
 
 void test_initPerformsSetupLikeShownInDatasheet(void) {
-
-  MRF_setAddress_Expect(mrf, mrf_register_software_reset, 0x07);
-  MRF_setAddress_Expect(mrf, mrf_register_power_amplifier_control2, 0x98);
-  MRF_setAddress_Expect(mrf, mrf_register_tx_stabilization, 0x95);
-  MRF_setAddress_Expect(mrf, mrf_register_rf_control0, 0x03);
-  MRF_setAddress_Expect(mrf, mrf_register_rf_control1, 0x01);
-  MRF_setAddress_Expect(mrf, mrf_register_rf_control2, 0x80);
-  MRF_setAddress_Expect(mrf, mrf_register_rf_control6, 0x90);
-  MRF_setAddress_Expect(mrf, mrf_register_rf_control7, 0x80);
-  MRF_setAddress_Expect(mrf, mrf_register_sleep_clock_control1, 0x21);
-  MRF_setAddress_Expect(mrf, mrf_register_base_band2, 0x80);
-  MRF_setAddress_Expect(mrf, mrf_register_energy_detection_threshold_for_clear_channel_assessment, 0x60);
-  MRF_setAddress_Expect(mrf, mrf_register_base_band6, 0x40);
-
+  MRF *impl = (MRF*) mrf;
+  MRF_setControlRegister_Expect(impl, mrf_register_software_reset, 0x07);
+  MRF_setControlRegister_Expect(impl, mrf_register_power_amplifier_control2, 0x98);
+  MRF_setControlRegister_Expect(impl, mrf_register_tx_stabilization, 0x95);
+  MRF_setControlRegister_Expect(impl, mrf_register_rf_control0, 0x03);
+  MRF_setControlRegister_Expect(impl, mrf_register_rf_control1, 0x01);
+  MRF_setControlRegister_Expect(impl, mrf_register_rf_control2, 0x80);
+  MRF_setControlRegister_Expect(impl, mrf_register_rf_control6, 0x90);
+  MRF_setControlRegister_Expect(impl, mrf_register_rf_control7, 0x80);
+  MRF_setControlRegister_Expect(impl, mrf_register_sleep_clock_control1, 0x21);
+  MRF_setControlRegister_Expect(impl, mrf_register_base_band2, 0x80);
+  MRF_setControlRegister_Expect(impl, mrf_register_energy_detection_threshold_for_clear_channel_assessment, 0x60);
+  MRF_setControlRegister_Expect(impl, mrf_register_base_band6, 0x40);
   Mac802154_init(mrf, &mrf_config);
 }
 
-void test_initUsesCorrectTransferSequence(void) {
-  TEST_IGNORE();
-  uint8_t total_number_of_transfers = 12;
-  uint8_t bytes_written_per_transfer[] = {2, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 2};
-  Mac802154_init(mrf, &mrf_config);
-  char fail_message[] = "in transfer number x";
-  for (uint8_t current_transfer_number = 0; current_transfer_number < total_number_of_transfers;
-          current_transfer_number++) {
-    fail_message[strlen(fail_message) - 1] = current_transfer_number + '0';
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE(bytes_written_per_transfer[current_transfer_number],
-                            MockPeripheral_getTransfer(device, current_transfer_number)->number_of_writes,
-                            fail_message
-    );
-  }
-}
 
 void test_initEnablesInterruptLineOnMRF(void) {
   TEST_IGNORE();
