@@ -1,7 +1,7 @@
 #include <string.h>
 #include "lib/include/Mac802154.h"
-#include "test/Mocks/MockSPIImpl.h"
-#include "test/Mocks/MockRuntimeLibraryImpl.h"
+#include "test/Mocks/SPIImplMock.h"
+#include "test/Mocks/RuntimeLibraryImplMock.h"
 #include "lib/src/MRFInternalConstants.h"
 #include "lib/src/MRFHelperFunctions.h"
 #include "lib/include/Exception.h"
@@ -36,7 +36,7 @@ void setUp(void) {
   mock_interface.input_buffer = NULL;
   mock_interface.output_buffer = buffer;
   mock_interface.message_buffer = spi_message_buffer;
-  mrf = Mac802154_createMRF(&output_device, MockAllocate_allocate, MockRuntime_delayMicroseconds);
+  mrf = Mac802154_createMRF(MockAllocate_allocate);
   setUpNetworkHardwareConfig(&config);
   memset(buffer, 0, 128);
 }

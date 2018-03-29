@@ -19,6 +19,17 @@ filegroup(
     srcs = glob(["include/*.h"]),
 )
 
+exports_files(
+    glob([
+        "include/**/*.h",
+        "src/**/*.h",
+    ]),
+    visibility = [
+        "//test:__pkg__",
+        "@CMock//CMock:__pkg__",
+    ],
+)
+
 """
 The select function allows to make the right hand option of a attribute
 depend on a command line argument. Attributes that allow this behaviour are called
@@ -35,7 +46,7 @@ cc_library(
     copts = select({
         ":avr-config": ["-mmcu=$(MCU)"],
         "//conditions:default": [],
-    }),
+    }) + ["-Winline"],
     visibility = [
         "//test:__pkg__",
         "//test/Mocks:__pkg__",

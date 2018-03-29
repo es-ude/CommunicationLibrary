@@ -27,7 +27,6 @@
  * values that are different for the second frame have to be set. Unchanged data is not
  * written to the hardware again.
  */
-
-Mac802154 *Mac802154_createMRF(SPISlave *output_device, Allocator allocate, DelayFunction delay_microseconds);
+Mac802154 *Mac802154_createMRF(MemoryManagement *dynamic_memory);
 
 #endif /* end of include guard */

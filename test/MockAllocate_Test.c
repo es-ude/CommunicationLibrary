@@ -1,5 +1,5 @@
-#include "test/Mocks/MockRuntimeLibraryImpl.h"
-#include "src/unity.h"
+#include "test/Mocks/RuntimeLibraryImplMock.h"
+#include "unity.h"
 
 MemoryManagement *mock;
 

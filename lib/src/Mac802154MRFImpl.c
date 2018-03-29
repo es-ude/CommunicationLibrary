@@ -132,233 +132,82 @@ static const FrameHeader802154 default_header = {
 };
 
 
+
 static void init(Mac802154 *self, const Mac802154Config *config);
-static void send(Mac802154 *self);
-static void setInterfaceFunctionPointers(Mac802154 *self);
-static void setPrivateFunctionPointers(MRFImpl *self, DelayFunction delay_microseconds);
-static void setPrivateDataMembers(MRFImpl *self);
-static void reset(MRFImpl *self);
-static void setShortRegister(MRFImpl *self, uint8_t address, uint8_t value);
-static void setLongRegister(MRFImpl *self, uint16_t address, uint8_t value);
-static void enableRXInterrupt(MRFImpl *self);
-static void setInitializationValuesFromDatasheet(MRFImpl *impl);
-static void selectChannel(MRFImpl *self, uint8_t channel_number);
-static void setTransmitterPower(MRFImpl *impl);
-static void resetInternalStateMachine(MRFImpl *impl);
-static void setPanId(MRFImpl *self, uint16_t pan_id);
-static void setShortSourceAddress(MRFImpl *self, uint16_t short_address);
-static void setExtendedSourceAddress(MRFImpl *self, const uint8_t *extended_address);
+static void destroy(Mac802154 *self);
 
+static void setShortAddressRegister(MRF *impl, uint8_t register_address, uint8_t value);
+static void setLongAddressRegister(MRF *impl, uint16_t register_address, uint8_t value);
+static void reset(MRF *impl);
+static void setInitializationValuesFromDatasheet(MRF *impl);
+static void setPrivateVariables(MRF *impl, const Mac802154Config *config);
+static void selectDevice(MRF *impl);
+static void deselectDevice(MRF *impl);
+static void enableRXInterrupt(MRF *impl);
+static void setChannel(MRF *impl, uint8_t channel);
 
-Mac802154 *Mac802154_createMRF(SPISlave *output_device,
-                               Allocator allocate,
-                               DelayFunction delay_microseconds) {
-  MRFImpl *impl = allocate(sizeof(MRFImpl));
-  impl->output_device = output_device;
-  Mac802154 *interface = (Mac802154*) impl;
-  setInterfaceFunctionPointers(interface);
-  setPrivateFunctionPointers(impl, delay_microseconds);
-  setPrivateDataMembers(impl);
-  return interface;
+Mac802154 *Mac802154_createMRF(MemoryManagement *dynamic_memory) {
+  MRF *impl = dynamic_memory->allocate(sizeof(*impl));
+  impl->deallocate = dynamic_memory->deallocate;
+  impl->mac.init = init;
+  impl->mac.destroy = destroy;
+  return (Mac802154*)impl;
 }
 
-void setPrivateDataMembers(MRFImpl *self) {
-  self->current_header_and_frame_size.as_fields.header = 7;
-  self->current_header_and_frame_size.as_fields.frame =
-          self->current_header_and_frame_size.as_fields.header;
-  self->header.as_fields = default_header;
-  SPIMessage_init(&self->header_and_frame_size_message);
-  self->header_and_frame_size_message.outgoing_data = self->current_header_and_frame_size.as_byte_array;
-  self->header_and_frame_size_message.length = 2;
-  self->header_and_frame_size_message.next = &self->header_message;
-  self->header.as_fields = Mac802154_defaultHeader();
-  self->header_message.length = 7;
-  self->header_message.outgoing_data = self->header.as_byte_array;
-  self->header_message.incoming_data = NULL;
-  self->header_message.next = NULL;
-}
-
-void setInterfaceFunctionPointers(Mac802154 *interface) {
-  interface->init = init;
-  interface->send = send;
-}
-
-void setPrivateFunctionPointers(MRFImpl *self, DelayFunction delay_microseconds) {
-  self->delayMicroseconds = delay_microseconds;
-}
-
-
-
-/*
- * Initialize the MRF Chip as shown in the datasheets initialization
- * example. I don't think we need to set all of these, but we do
- * for now just to be sure until we have figured out what each of these
- * does exactly.
- */
 void init(Mac802154 *self, const Mac802154Config *config) {
-  MRFImpl *impl = (MRFImpl *) self;
-  CEXCEPTION_T is_busy_exception;
-  Try {
-        reset(impl);
-        setInitializationValuesFromDatasheet(impl);
-        enableRXInterrupt(impl);
-        selectChannel(impl, 11);
-        setTransmitterPower(impl);
-        resetInternalStateMachine(impl);
-        setPanId(impl,config->pan_id);
-        setShortSourceAddress(impl, config->short_source_address);
-        setExtendedSourceAddress(impl, config->extended_source_address);
-      } Catch(is_busy_exception) {
-    Throw(NETWORK_HARDWARE_IS_BUSY_EXCEPTION);
-  }
+  MRF *impl = (MRF *) self;
+  setPrivateVariables(impl, config);
+  reset(impl);
+  setInitializationValuesFromDatasheet(impl);
 }
 
-void send(Mac802154 *self) {
-  MRFImpl *impl = (MRFImpl *) self;
-  uint8_t message_and_header_size[] = {7, 7};
-  SPIMessage message = {
-          .length = 2,
-          .outgoing_data = message_and_header_size,
-          .incoming_data = NULL,
-  };
-  SPIMessage header_message = {
-          .length = sizeof(FrameHeader802154) - 6,
-          .outgoing_data = impl->header.as_byte_array,
-          .incoming_data = NULL,
-          .next = NULL,
-  };
-  message.next = &header_message;
-  SPI_transferSync(impl->output_device, &message);
+void enableRXInterrupt(MRF *impl) {
+  // clearing a bit in the register enables the corresponding interrupt
+  setShortAddressRegister(impl, mrf_register_interrupt_control, (uint8_t) ~(1 << 3));
 }
 
-void reset(MRFImpl *self) {
-  uint8_t reset_power_circuit = 1 << 2;
-  uint8_t reset_baseband_circuit = 1 << 1;
-  uint8_t reset_all_mac_control_registers = 1;
-  uint8_t complete_reset = (
-          reset_all_mac_control_registers |
-          reset_baseband_circuit |
-          reset_power_circuit
-  );
-  setShortRegister(self, mrf_register_software_reset, complete_reset);
+void setPrivateVariables(MRF *impl, const Mac802154Config *config) {
+  impl->interface = config->interface;
+  impl->device = config->device;
 }
 
-void setPanId(MRFImpl *self, uint16_t pan_id) {
-  CEXCEPTION_T spi_busy_exception;
-  Try {
-        uint8_t pan_id_buffer[] = {
-                MRF_writeShortCommand(mrf_register_pan_id_low_byte),
-                (uint8_t)pan_id,
-                (uint8_t)(pan_id >> 8)
-        };
-        SPIMessage set_pan = {
-                .length = 3,
-                .incoming_data = NULL,
-                .outgoing_data = pan_id_buffer
-        };
-        SPI_transferSync(self->output_device, &set_pan);
-      } Catch (spi_busy_exception) {
-        Throw(NETWORK_HARDWARE_IS_BUSY_EXCEPTION);
-  }
+void reset(MRF *impl) {
+  MRF_setAddress(impl, mrf_register_software_reset, 0x07);
 }
 
-uint16_t getPanId(const Mac802154 *self) {
-  MRFImpl *impl = (MRFImpl*) self;
-  return impl->pan_id;
+void setInitializationValuesFromDatasheet(MRF *impl){
+  MRF_setAddress(impl, mrf_register_power_amplifier_control2, 0x98);
+  MRF_setAddress(impl, mrf_register_tx_stabilization, 0x95);
+  MRF_setAddress(impl, mrf_register_rf_control0, 0x03);
+  MRF_setAddress(impl, mrf_register_rf_control1, 0x01);
+  MRF_setAddress(impl, mrf_register_rf_control2, 0x80);
+  MRF_setAddress(impl, mrf_register_rf_control6, 0x90);
+  MRF_setAddress(impl, mrf_register_rf_control7, 0x80);
+  MRF_setAddress(impl, mrf_register_sleep_clock_control1, 0x21);
+  MRF_setAddress(impl, mrf_register_base_band2, 0x80);
+  MRF_setAddress(impl, mrf_register_energy_detection_threshold_for_clear_channel_assessment, 0x60);
+  MRF_setAddress(impl, mrf_register_base_band6, 0x40);
 }
 
-void enableRXInterrupt(MRFImpl *self) {
-  // setting a bit to zero enables the corresponding interrupt
-  uint8_t rx_interrupt_enabled = (uint8_t)(~(1 << 3));
-  setShortRegister(self, mrf_register_interrupt_control, rx_interrupt_enabled);
+void setChannel(MRF *impl, uint8_t channel_number) {
+
 }
 
-void setInitializationValuesFromDatasheet(MRFImpl *impl) {
-  setShortRegister(impl, mrf_register_power_amplifier_control2, 0x98);
-  setShortRegister(impl, mrf_register_tx_stabilization, 0x09);
-  setLongRegister(impl, mrf_register_rf_control0, 0x03);
-  setLongRegister(impl, mrf_register_rf_control1, 0x01);
-  setLongRegister(impl, mrf_register_rf_control2, 0x80); // enable PLL, this is certainly necessary
-  setLongRegister(impl, mrf_register_rf_control6, 0x90);
-  setLongRegister(impl, mrf_register_rf_control7, 0x80);
-  setLongRegister(impl, mrf_register_rf_control8, 0x10);
-  setLongRegister(impl, mrf_register_sleep_clock_control1, 0x21);
-  setShortRegister(impl, mrf_register_base_band2, 0x80);
-  setShortRegister(impl, mrf_register_energy_detection_threshold_for_clear_channel_assessment, 0x60);
-  setShortRegister(impl, mrf_register_base_band6, 0x40);
+void setShortAddressRegister(MRF *impl, uint8_t register_address, uint8_t value) {
 }
 
-void setShortRegister(MRFImpl *self, uint8_t address, uint8_t value) {
-  uint8_t command = MRF_writeShortCommand(address);
-  uint8_t sequence[] = {command, value};
-  SPIMessage message = {
-          .length = 2,
-          .outgoing_data = sequence,
-          .incoming_data = NULL
-  };
-  SPI_transferSync(self->output_device, &message);
+void setLongAddressRegister(MRF *impl, uint16_t register_address, uint8_t value) {
 }
 
-void setLongRegister(MRFImpl *self, uint16_t address, uint8_t value) {
-  uint16_t command = MRF_writeLongCommand(address);
-  uint8_t sequence[] = { (uint8_t)(command >> 8), (uint8_t)command, value};
-  SPIMessage message = {
-          .length = 3,
-          .outgoing_data = sequence,
-          .incoming_data = NULL
-  };
-  SPI_transferSync(self->output_device, &message);
+void selectDevice(MRF *impl) {
+  PeripheralInterface_selectPeripheral(impl->interface, impl->device);
 }
 
-/*
- * The conversion from channel_number to register_value is derived
- * from the table 3-4 in section 3.4 of the datasheet.
- */
-void selectChannel(MRFImpl *impl, uint8_t channel_number) {
-  uint8_t register_value = (uint8_t)((channel_number % 10 - 1) * 4 + 0x03);
-  setLongRegister(impl, mrf_register_rf_control0, register_value);
+void deselectDevice(MRF *impl) {
+  PeripheralInterface_deselectPeripheral(impl->interface, impl->device);
 }
 
-// see data sheet description of the RFCON3 register for more info on how
-// to setup signal strength
-void setTransmitterPower(MRFImpl *impl) {
-  uint8_t minus_thirty_db = 3 << 6;
-  setLongRegister(impl, mrf_register_rf_control3, minus_thirty_db);
-}
-
-void resetInternalStateMachine(MRFImpl *impl) {
-  uint8_t reset_bit_enabled = 0x04;
-  setShortRegister(impl, mrf_register_rf_mode_control, reset_bit_enabled);
-  uint8_t start_internal_state_machine = 0x00;
-  setShortRegister(impl, mrf_register_rf_mode_control,
-                   start_internal_state_machine);
-  impl->delayMicroseconds(200);
-}
-
-void setShortSourceAddress(MRFImpl *self, uint16_t short_address) {
-  uint8_t command_sequence[] = {
-          MRF_writeShortCommand(mrf_register_short_address_low_byte),
-          (uint8_t) short_address,
-          (uint8_t) (short_address >> 8)
-  };
-  SPIMessage message = {
-          .length = 3,
-          .outgoing_data = command_sequence,
-          .incoming_data = NULL,
-  };
-  SPI_transferSync(self->output_device, &message);
-}
-
-void setExtendedSourceAddress(MRFImpl *self, const uint8_t *extended_address) {
-  uint8_t command_sequence[9];
-  command_sequence[0] = MRF_writeShortCommand(mrf_register_extended_address0);
-  for (uint8_t address_index = 0; address_index < 8; address_index++) {
-    command_sequence[address_index+1] = extended_address[address_index];
-  }
-  SPIMessage message = {
-          .length = 9,
-          .outgoing_data = command_sequence,
-          .incoming_data = NULL,
-  };
-  SPI_transferSync(self->output_device, &message);
+void destroy(Mac802154 *self){
+  MRF *impl = (MRF*) self;
+  impl->deallocate(impl);
 }

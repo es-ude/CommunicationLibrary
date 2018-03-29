@@ -1,5 +1,5 @@
 #include "lib/include/SPIMessage.h"
-#include "src/unity.h"
+#include "unity.h"
 
 void test_TwoMessagesWithEmptyStringAsOutgoingDataAreEqual(void) {
   uint8_t first_out[] = "";

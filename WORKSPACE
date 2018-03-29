@@ -17,9 +17,9 @@ We use the prefix new because unity isn't a bazel project, so we need to provide
 More info under https://docs.bazel.build/versions/master/be/workspace.html#new_http_archive
 """
 new_http_archive(
-  name = "unity",
+  name = "Unity",
   urls = ["https://github.com/ThrowTheSwitch/Unity/archive/master.tar.gz"],
-  build_file= "BUILD.unity",
+  build_file= "BUILD.Unity",
   strip_prefix = "Unity-master",
   )
 
@@ -29,6 +29,19 @@ new_http_archive(
   build_file = "BUILD.CException",
   strip_prefix = "CException-master",
   )
+
+local_repository(
+    name = "UnityPlugin",
+    path = "../UnityPlugin",
+)
+
+new_http_archive(
+  name = "CMock",
+  urls = ["https://github.com/ThrowTheSwitch/CMock/archive/master.tar.gz"],
+  build_file = "BUILD.CMock",
+  strip_prefix = "CMock-master",
+  )
+
 
 """
 From the Bazel documentation at https://docs.bazel.build/versions/master/build-ref.html#packages_targets :

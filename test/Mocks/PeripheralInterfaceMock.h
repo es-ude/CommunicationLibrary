@@ -11,6 +11,8 @@ typedef struct MockPeripheral {
   uint8_t *write_buffer;
   uint8_t read_buffer_size;
   uint8_t write_buffer_size;
+  uint8_t current_write_buffer_position;
+  uint8_t current_read_buffer_position;
   MockPeripheralTransfer *first;
 } MockPeripheral;
 

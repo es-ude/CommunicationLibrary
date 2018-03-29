@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "test/Mocks/MockRuntimeLibraryImpl.h"
+#include "test/Mocks/RuntimeLibraryImplMock.h"
 
 
 size_t *input_value;

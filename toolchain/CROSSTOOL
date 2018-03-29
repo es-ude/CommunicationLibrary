@@ -98,7 +98,7 @@ toolchain {
     compiler_flag: "-Wall"
     compiler_flag: "-std=gnu99"
 
-    cxx_builtin_include_directory: "/usr/lib/gcc/avr/7.3.0/include"
-    cxx_builtin_include_directory: "/usr/lib/gcc/avr/7.3.0/include-fixed"
+    cxx_builtin_include_directory: "/usr/lib/gcc/avr/7.3.1/include"
+    cxx_builtin_include_directory: "/usr/lib/gcc/avr/7.3.1/include-fixed"
     cxx_builtin_include_directory: "/usr/avr/include"
  }

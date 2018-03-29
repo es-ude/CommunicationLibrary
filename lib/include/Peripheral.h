@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-typedef struct Peripheral Peripheral;
+typedef void Peripheral;
 typedef struct PeripheralInterface PeripheralInterface;
 typedef struct InterruptData InterruptData;
 
@@ -30,39 +30,18 @@ struct PeripheralInterface {
 };
 
 
-static inline void PeripheralInterface_init(PeripheralInterface *self) {
-  self->init(self);
-}
+void PeripheralInterface_init(PeripheralInterface *self);
 
-static inline void PeripheralInterface_write(PeripheralInterface *self, uint8_t byte) {
-  self->write(self, byte);
-}
+uint8_t PeripheralInterface_read(PeripheralInterface *self);
 
-static inline uint8_t PeripheralInterface_read(PeripheralInterface *self) {
-  return self->read(self);
-}
+void PeripheralInterface_writeBlocking(PeripheralInterface *self, const uint8_t *buffer, uint16_t size);
 
-static inline void PeripheralInterface_selectPeripheral(PeripheralInterface *self, Peripheral *device) {
-  self->selectPeripheral(self, device);
-}
+void PeripheralInterface_selectPeripheral(PeripheralInterface *self, Peripheral *device);
 
-static inline void PeripheralInterface_deselectPeripheral(PeripheralInterface *self, Peripheral *device) {
-  self->deselectPeripheral(self, device);
-}
+void PeripheralInterface_deselectPeripheral(PeripheralInterface *self, Peripheral *device);
 
-static inline void PeripheralInterface_destroy(PeripheralInterface *self) {
-  self->destroy(self);
-}
 
-static inline void PeripheralInterface_handleInterrupt(PeripheralInterface *self) {
-  self->handleInterrupt(self);
-}
+void PeripheralInterface_destroy(PeripheralInterface *self);
 
-static inline void PeripheralInterface_enableInterrupt(PeripheralInterface *self) {
-  self->enableInterrupt(self);
-}
 
-static inline void PeripheralInterface_disableInterrupt(PeripheralInterface *self) {
-  self->disableInterrupt(self);
-}
 #endif /* PERIPHERALINTERFACE_H */

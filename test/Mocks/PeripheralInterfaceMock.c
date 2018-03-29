@@ -1,6 +1,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
-#include "MockPeripheralInterface.h"
+#include "PeripheralInterfaceMock.h"
 #include "lib/include/Exception.h"
 
 static void selectPeripheral(PeripheralInterface *interface, Peripheral *device);
@@ -29,7 +29,7 @@ static void addNewTransfer(MockPeripheral *device);
 static MockPeripheralTransfer* getCurrentTransfer(MockPeripheral *device);
 
 PeripheralInterface *PeripheralInterface_createMockImpl(const MemoryManagement *memory_managers) {
-  PeripheralInterface *interface = memory_managers->allocate(sizeof(MockPeripheralInterface));
+  PeripheralInterface *interface = memory_managers->allocate(sizeof(*interface));
   initInterface(interface);
   MockPeripheralInterface *impl = (MockPeripheralInterface *) interface;
   initPrivateVariables(impl, memory_managers);
@@ -41,16 +41,11 @@ void initInterface(PeripheralInterface *interface) {
   interface->write = write;
   interface->read = read;
   interface->deselectPeripheral = deselectPeripheral;
-  interface->destroy = destroy;
-  interface->enableInterrupt = enableInterrupt;
-  interface->disableInterrupt = disableInterrupt;
 }
 
 void initPrivateVariables(MockPeripheralInterface *impl, const MemoryManagement *dynamic_memory) {
   impl->deallocate = dynamic_memory->deallocate;
   impl->allocate = dynamic_memory->allocate;
-  impl->current_write_buffer_position = 0;
-  impl->current_read_buffer_position = 0;
   impl->device = NULL;
 }
 
@@ -61,8 +56,6 @@ void selectPeripheral(PeripheralInterface *interface, Peripheral *device) {
     Throw(PERIPHERAL_INTERFACE_BUSY_EXCEPTION);
   }
   impl->device = mock_device;
-  impl->current_read_buffer_position = 0;
-  impl->current_write_buffer_position = 0;
   addNewTransfer(mock_device);
 }
 
@@ -88,8 +81,8 @@ void write(PeripheralInterface *self, uint8_t byte) {
   if ( impl->device == NULL ) {
     Throw(PERIPHERAL_INTERFACE_BUSY_EXCEPTION);
   }
-  mock->write_buffer[impl->current_write_buffer_position] = byte;
-  updateBufferPosition(&impl->current_write_buffer_position,
+  mock->write_buffer[mock->current_write_buffer_position] = byte;
+  updateBufferPosition(&mock->current_write_buffer_position,
                        mock->write_buffer_size);
   getCurrentTransfer(mock)->number_of_writes++;
 }
@@ -100,8 +93,8 @@ uint8_t read(PeripheralInterface *self) {
   if ( impl->device == NULL ) {
     Throw(PERIPHERAL_INTERFACE_BUSY_EXCEPTION);
   }
-  uint8_t byte = mock->read_buffer[impl->current_read_buffer_position];
-  updateBufferPosition(&impl->current_read_buffer_position,
+  uint8_t byte = mock->read_buffer[mock->current_read_buffer_position];
+  updateBufferPosition(&mock->current_read_buffer_position,
                        mock->read_buffer_size);
   getCurrentTransfer(mock)->number_of_reads++;
   return byte;

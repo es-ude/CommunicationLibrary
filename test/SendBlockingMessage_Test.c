@@ -1,5 +1,5 @@
 #include "lib/include/CommunicationModule.h"
-#include "test/Mocks/MockRuntimeLibraryImpl.h"
+#include "test/Mocks/RuntimeLibraryImplMock.h"
 #include "unity.h"
 
 uint8_t memory_for_communication_module[sizeof(CommunicationModule)];

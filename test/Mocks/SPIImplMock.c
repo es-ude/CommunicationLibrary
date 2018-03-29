@@ -1,5 +1,5 @@
 #include <string.h>
-#include "test/Mocks/MockSPIImpl.h"
+#include "test/Mocks/SPIImplMock.h"
 #include "CException.h"
 #include "lib/include/Exception.h"
 

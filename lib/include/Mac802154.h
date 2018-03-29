@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "lib/include/Message.h"
+#include "lib/include/Peripheral.h"
 
 typedef struct Mac802154 Mac802154;
 typedef struct Mac802154Config Mac802154Config;
@@ -26,8 +27,11 @@ struct Mac802154 {
 
 struct Mac802154Config {
   uint16_t short_source_address;
-  uint8_t extended_source_address[8];
+  uint64_t extended_source_address;
   uint16_t pan_id;
+  uint8_t channel;
+  PeripheralInterface *interface;
+  Peripheral *device;
 };
 
 static inline void Mac802154_init(Mac802154 *hardware,
@@ -37,6 +41,10 @@ static inline void Mac802154_init(Mac802154 *hardware,
 
 static inline void Mac802154_send(Mac802154 *hardware) {
   hardware->send(hardware);
+}
+
+static inline void Mac802154_destroy(Mac802154 *self) {
+  self->destroy(self);
 }
 
 typedef struct FrameControlField802154 {

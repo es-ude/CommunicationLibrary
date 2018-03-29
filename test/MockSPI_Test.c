@@ -1,4 +1,4 @@
-#include "test/Mocks/MockSPIImpl.h"
+#include "test/Mocks/SPIImplMock.h"
 #include "unity.h"
 
 void test_findTransferSequence(void) {

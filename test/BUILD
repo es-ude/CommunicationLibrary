@@ -5,7 +5,13 @@ The load function is used to make the function generate_a_unity_test_for_every_f
 from the file unity_helpers.bzl in the package test available here.
 """
 
-load("//test:unity_helpers.bzl", "generate_a_unity_test_for_every_file")
+#load("//:unity_helpers.bzl", "generate_a_unity_test_for_every_file")
+load(
+    "@UnityPlugin//Unity_rules:unity.bzl",
+    "generate_a_unity_test_for_every_file",
+    "unity_test",
+    "mock",
+)
 
 filegroup(
     name = "TestRunnerGenerator",
@@ -20,11 +26,41 @@ for every file specified and  a cc_test (the bazel test entity for c/c++).
 """
 
 generate_a_unity_test_for_every_file(
-    file_list = glob(["*_Test.c"]),
+    file_list = glob(
+        ["*_Test.c"],
+        exclude = [
+            "Mac802154MRF_Test.c",
+        ],
+    ),
     deps = [
         "//lib:CommunicationModule",
         "//test/Mocks:MockLibrary",
         "@CException//:CException",
+        "@CMock//:CMock",
+    ],
+)
+
+mock(
+    name = "MockPeripheralInterface",
+    file = "//lib:include/Peripheral.h",
+)
+
+mock(
+    name = "MockMRFHelperFunctions",
+    file = "//lib:src/MRFHelperFunctions.h",
+    deps = ["//lib:CommunicationModule"],
+)
+
+generate_a_unity_test_for_every_file(
+    file_list = [
+        "Mac802154MRF_Test.c",
+    ],
+    deps = [
+        ":MockMRFHelperFunctions",
+        ":MockPeripheralInterface",
+        "//test/Mocks:MockLibrary",
+        "@CException//:CException",
+        "@CMock//:CMock",
     ],
 )
 
