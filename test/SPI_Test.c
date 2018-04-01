@@ -4,7 +4,7 @@
 
 #include "unity.h"
 #include "test/Mocks/MockRuntimeLibraryImpl.h"
-#include "lib/include/Peripheral/PeripheralInterface.h"
+#include "lib/include/Peripheral/PeripheralInterfaceImpl.h"
 #include "lib/include/Peripheral/SPIImpl.h"
 #include "lib/include/platform/io.h"
 #include "lib/include/communicationLayer/Message.h"

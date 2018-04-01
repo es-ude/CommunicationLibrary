@@ -5,7 +5,7 @@
 #ifndef COMMUNICATIONMODULE_SPIIMPL_H
 #define COMMUNICATIONMODULE_SPIIMPL_H
 
-#include "lib/include/Peripheral/PeripheralInterface.h"
+#include "lib/include/Peripheral/PeripheralInterfaceImpl.h"
 #include "lib/include/RuntimeLibraryInterface.h"
 #include "lib/include/platform/io.h"
 

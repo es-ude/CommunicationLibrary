@@ -6,7 +6,7 @@
 #define COMMUNICATIONMODULE_SPICOMMUNICATIONLAYERIMPL_H_H
 
 
-#include "lib/include/Peripheral/PeripheralInterface.h"
+#include "lib/include/Peripheral/PeripheralInterfaceImpl.h"
 #include "lib/include/communicationLayer/CommunicationLayer.h"
 #include "lib/include/RuntimeLibraryInterface.h"
 

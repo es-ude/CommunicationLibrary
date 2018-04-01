@@ -7,7 +7,7 @@
 
 #include "lib/include/communicationLayer/CommunicationLayer.h"
 #include "lib/include/RuntimeLibraryInterface.h"
-#include "lib/include/Peripheral/PeripheralInterface.h"
+#include "lib/include/Peripheral/PeripheralInterfaceImpl.h"
 
 typedef struct CommunicationLayerConfig {
     PeripheralInterface *peripheralInterface;

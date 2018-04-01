@@ -8,7 +8,7 @@
 #include "stdbool.h"
 #include "lib/include/communicationLayer/Message.h"
 #include "lib/include/communicationLayer/InterruptData.h"
-#include "lib/include/Peripheral/PeripheralInterface.h"
+#include "lib/include/Peripheral/PeripheralInterfaceImpl.h"
 
 typedef struct CommunicationLayer CommunicationLayer;
 

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include "lib/include/DEPRACATED/SPIMessage.h"
-#include "lib/include/Peripheral/PeripheralInterface.h"
+#include "lib/include/Peripheral/PeripheralInterfaceImpl.h"
 
 /**
  * DEPRACATED

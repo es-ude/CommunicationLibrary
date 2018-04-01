@@ -3,7 +3,7 @@
 //
 
 #include <stdint.h>
-#include "lib/include/Peripheral/PeripheralInterface.h"
+#include "lib/include/Peripheral/PeripheralInterfaceImpl.h"
 #include "lib/include/Peripheral/SPIImpl.h"
 
 typedef struct SPIImpl {
