@@ -8,24 +8,38 @@
 #include "lib/include/TransferLayer/PeripheralSPIImpl.h"
 #include "unity.h"
 #include "lib/include/platform/io.h"
+#include "lib/include/communicationLayer/InterruptData.h"
 
 static PeripheralInterface *interface;
 static MemoryManagement *dynamic_memory;
 
-typedef struct SPIImpl {
+struct InterruptData{
+    uint8_t *buffer;
+    uint16_t length;
+    uint16_t index;
+    bool busy;
+};
+
+typedef struct PeripheralInterfaceImpl {
     PeripheralInterface interface;
+    PeripheralCallback readCallback;
+    void *readCallbackParameter;
+    PeripheralCallback writeCallback;
+    void *writeCallbackParameter;
     volatile uint8_t *ddr;
     volatile uint8_t *port;
     volatile uint8_t *spcr;
     volatile uint8_t *spdr;
     volatile uint8_t *spsr;
     uint8_t f_osc;
-} SPIImpl;
+    InterruptData interruptData;
+} PeripheralInterfaceImpl;
 
-typedef struct PeripheralSPIImpl{
-    PeripheralInterface interface;
-    SPIImpl *spi;
-} PeripheralSPIImpl;
+struct Peripheral{
+    volatile uint8_t *DDR;
+    uint8_t PIN;
+    volatile  uint8_t *PORT;
+};
 
 volatile uint8_t mySPCR = 0;
 volatile uint8_t mySPDR = 0;
@@ -83,18 +97,14 @@ void test_destroyNotNull(void){
 
 //SPI
 
-void test_spiInitNotNull(void){
-    SPIImpl *spiImpl = ((PeripheralSPIImpl *)interface)->spi;
-    TEST_ASSERT_NOT_NULL(spiImpl->interface.init);
-}
 
 void test_ddr(void){
     TEST_ASSERT_EQUAL(0, DDRB);
 }
 
 void test_spcr(void){
-    SPIImpl *spiImpl = ((PeripheralSPIImpl *)interface)->spi;
-    TEST_ASSERT_EQUAL_INT(0, *(spiImpl->spcr));
+    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    TEST_ASSERT_EQUAL_INT(0, *(impl->spcr));
 }
 
 
@@ -120,21 +130,141 @@ void test_f_osc_128(void){
 }
 
 void test_spiDDR(void){
-    SPIImpl *spiImpl = ((PeripheralSPIImpl *)interface)->spi;
-
+    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
     interface->init(interface);
 
-    TEST_ASSERT_BIT_HIGH(spi_mosi_pin, *(spiImpl->ddr));
-    TEST_ASSERT_BIT_HIGH(spi_sck_pin, *(spiImpl->ddr));
+    TEST_ASSERT_BIT_HIGH(spi_mosi_pin, *(impl->ddr));
+    TEST_ASSERT_BIT_HIGH(spi_sck_pin, *(impl->ddr));
 }
 
 void test_spiSPCR(void){
-    SPIImpl *spiImpl = ((PeripheralSPIImpl *)interface)->spi;
+    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
     interface->init(interface);
-    TEST_ASSERT_BIT_HIGH(spi_enable, *(spiImpl->spcr));
-    TEST_ASSERT_BIT_HIGH(spi_master_slave_select, *(spiImpl->spcr));
-    TEST_ASSERT_BIT_HIGH(spi_ss_pin, *(spiImpl->ddr));
-    uint8_t tempSPCR = *(spiImpl->spcr);
+    TEST_ASSERT_BIT_HIGH(spi_enable, *(impl->spcr));
+    TEST_ASSERT_BIT_HIGH(spi_master_slave_select, *(impl->spcr));
+    TEST_ASSERT_BIT_HIGH(spi_ss_pin, *(impl->ddr));
+    uint8_t tempSPCR = *(impl->spcr);
     tempSPCR &= 0b00000011;
     TEST_ASSERT_EQUAL(f_osc, tempSPCR);
+}
+
+
+void test_setReadCallbackNotNull(void){
+    TEST_ASSERT_NOT_NULL(interface->setReadCallback);
+}
+void test_setWriteCallbackNotNull(void){
+    TEST_ASSERT_NOT_NULL(interface->setWriteCallback);
+}
+
+//typedef void (*PeripheralCallback) (void *);
+void test(){
+
+}
+
+void test_setReadCallbackChangesMethod(void){
+    interface->setReadCallback(interface,test, NULL);
+    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    TEST_ASSERT_EQUAL_PTR(test, impl->readCallback);
+}
+
+void test_setReadCallbackParameter(void){
+    int data = 2;
+    interface->setReadCallback(interface,test, &data);
+    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    TEST_ASSERT_EQUAL_PTR(&data, impl->readCallbackParameter);
+}
+
+void test_setWriteCallbackChangesMethod(void){
+    interface->setWriteCallback(interface,test, NULL);
+    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    TEST_ASSERT_EQUAL_PTR(test, impl->writeCallback);
+}
+
+void test_setWriteCallbackParameter(void){
+    int data = 2;
+    interface->setWriteCallback(interface,test, &data);
+    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    TEST_ASSERT_EQUAL_PTR(&data, impl->writeCallbackParameter);
+}
+
+void test_configurePeripheralNotNull(void){
+    TEST_ASSERT_NOT_NULL(interface->configurePeripheral);
+}
+
+void test_configurePeripheral(void){
+    uint8_t spi_slave = 1;
+    Peripheral device = {&DDRB, spi_slave, &PORTB};
+    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    interface->init(interface);
+    interface->configurePeripheral(interface, &device);
+    TEST_ASSERT_BIT_HIGH(spi_slave, DDRB);
+    TEST_ASSERT_BIT_HIGH(spi_slave, PORTB);
+    TEST_ASSERT_BIT_HIGH(spi_slave,*device.DDR);
+    TEST_ASSERT_BIT_HIGH(spi_slave,*device.PORT);
+    TEST_ASSERT_BIT_HIGH(spi_slave,*impl->ddr);
+    TEST_ASSERT_BIT_HIGH(spi_slave,*impl->port);
+}
+
+void test_selectPeripheralNotNull(void){
+    TEST_ASSERT_NOT_NULL(interface->selectPeripheral);
+}
+
+void test_selectPeripheral(void){
+    uint8_t spi_slave = 1;
+    Peripheral device = {&DDRB, spi_slave, &PORTB};
+    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    interface->init(interface);
+    interface->configurePeripheral(interface, &device);
+    interface->selectPeripheral(interface, &device);
+    TEST_ASSERT_BIT_LOW(spi_slave, PORTB);
+    TEST_ASSERT_BIT_LOW(spi_slave,*device.PORT);
+    TEST_ASSERT_BIT_LOW(spi_slave,*impl->port);
+}
+
+void test_deselectPeripheralNotNull(void){
+    TEST_ASSERT_NOT_NULL(interface->deselectPeripheral);
+}
+
+void test_deselectPeripheral(void){
+    uint8_t spi_slave = 1;
+    Peripheral device = {&DDRB, spi_slave, &PORTB};
+    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    interface->init(interface);
+    interface->configurePeripheral(interface, &device);
+    interface->selectPeripheral(interface, &device);
+    interface->deselectPeripheral(interface, &device);
+    TEST_ASSERT_BIT_HIGH(spi_slave, PORTB);
+    TEST_ASSERT_BIT_HIGH(spi_slave,*device.PORT);
+    TEST_ASSERT_BIT_HIGH(spi_slave,*impl->port);
+}
+
+void test_writeBlockingNotNull(void){
+    TEST_ASSERT_NOT_NULL(interface->writeBlocking);
+}
+
+void test_readBlockingNotNull(void){
+    TEST_ASSERT_NOT_NULL(interface->readBlocking);
+}
+
+void test_writeNonBlockingNotNull(void){
+    TEST_ASSERT_NOT_NULL(interface->writeNonBlocking);
+}
+
+void test_isNotBusyAtBegin(void){
+    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    TEST_ASSERT_FALSE(impl->interruptData.busy);
+}
+
+void test_isBusyAfterNonBlockingWrite(void){
+    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    interface->init(interface);
+    interface->writeNonBlocking(interface, NULL, NULL);
+    TEST_ASSERT_TRUE(impl->interruptData.busy);
+}
+
+void test_interruptsEnabledAfterNonBlockingWrite(void){
+    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    interface->init(interface);
+    interface->writeNonBlocking(interface, NULL, NULL);
+    TEST_ASSERT_BIT_HIGH(spi_interrupt_enable, impl->spcr);
 }
