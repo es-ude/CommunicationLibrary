@@ -58,4 +58,5 @@ static const uint8_t mrf_value_rf_state_machine_reset_state = 0x04;
 static const uint8_t mrf_value_rf_state_machine_operating_state = 0x00;
 static const uint8_t mrf_value_delay_interval_after_state_machine_reset = 200;
 static const uint8_t mrf_value_rx_interrupt_enabled = (uint8_t) ~(1 << 3);
+
 #endif //COMMUNICATIONMODULE_NETWORKHARDWAREMRFIMPL_H

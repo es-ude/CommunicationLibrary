@@ -14,11 +14,6 @@
 #include "lib/src/MockMRFHelperFunctions.h"
 #include "test/MockMac802154MRF_TestHelper.h"
 
-/**
- * TODO:
- * - make sure source addresses are correctly set in big endian environments
- */
-
 #define WRITE_BUFFER_SIZE 128
 #define READ_BUFFER_SIZE 128
 
@@ -109,7 +104,7 @@ void setUpInitializationValues(MRF *impl, const Mac802154Config *config) {
   // set transmitter power to -30dB
   MRF_setControlRegister_Expect(impl, mrf_register_rf_control3, mrf_value_transmitter_power_minus30dB);
 
-  // this only works on little endian systems
-  MRF_writeBytesToLongRegister_Expect(impl, mrf_register_short_address_low_byte, (uint8_t*) &config->short_source_address, 2);
-  MRF_writeBytesToLongRegister_Expect(impl, mrf_register_extended_address0, (uint8_t*) &config->extended_source_address, 8);
+  // here the addresses are required to be stored in ascending byte order (big endian)
+  MRF_writeBytesToShortRegisterAddress_Expect(impl, mrf_register_short_address_low_byte, (uint8_t*) &config->short_source_address, 2);
+  MRF_writeBytesToShortRegisterAddress_Expect(impl, mrf_register_extended_address0, (uint8_t*) &config->extended_source_address, 8);
 }

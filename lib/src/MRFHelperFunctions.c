@@ -24,13 +24,10 @@ void MRF_setControlRegister(MRF *impl, uint16_t address, uint8_t value) {
   PeripheralInterface_deselectPeripheral(impl->interface, impl->device);
 }
 
-void MRF_writeBytesToLongRegister(MRF *impl, uint16_t address, const uint8_t *buffer, uint16_t size) {
+void MRF_writeBytesToShortRegisterAddress(MRF *impl, uint8_t address, const uint8_t *buffer, uint16_t size) {
   PeripheralInterface_selectPeripheral(impl->interface, impl->device);
-  uint8_t command[] = {
-          MRF_writeLongCommandHighByte(address),
-          MRF_writeLongCommandLowByte(address),
-  };
-  PeripheralInterface_writeBlocking(impl->interface, command, 2);
+  uint8_t command = MRF_writeShortCommand(address);
+  PeripheralInterface_writeBlocking(impl->interface, &command, 1);
   PeripheralInterface_writeBlocking(impl->interface, buffer, size);
   PeripheralInterface_deselectPeripheral(impl->interface, impl->device);
 }

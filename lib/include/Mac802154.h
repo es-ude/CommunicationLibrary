@@ -25,6 +25,9 @@ struct Mac802154 {
   uint16_t (*getPayloadSize) (Mac802154 *self);
 };
 
+/**
+ * both addresses and the pan id are to be set in ascending byte order (big endian)
+ */
 struct Mac802154Config {
   uint16_t short_source_address;
   uint64_t extended_source_address;

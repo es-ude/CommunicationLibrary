@@ -172,11 +172,13 @@ void init(Mac802154 *self, const Mac802154Config *config) {
 }
 
 void setShortSourceAddress(MRF *impl, const uint16_t *address) {
-  MRF_writeBytesToLongRegister(impl, mrf_register_short_address_low_byte, (const uint8_t*) address, sizeof(uint16_t));
+  MRF_writeBytesToShortRegisterAddress(impl, mrf_register_short_address_low_byte, (const uint8_t *) address,
+                                       sizeof(uint16_t));
 }
 
 void setExtendedSourceAddress(MRF *impl, const uint64_t *address) {
-  MRF_writeBytesToLongRegister(impl, mrf_register_extended_address0, (const uint8_t *)address, sizeof(uint64_t));
+  MRF_writeBytesToShortRegisterAddress(impl, mrf_register_extended_address0, (const uint8_t *) address,
+                                       sizeof(uint64_t));
 }
 
 void enableRXInterrupt(MRF *impl) {
