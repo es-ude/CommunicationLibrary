@@ -14,6 +14,10 @@
 #include "lib/src/MockMRFHelperFunctions.h"
 #include "test/MockMac802154MRF_TestHelper.h"
 
+/**
+ * TODO:
+ * - make sure source addresses are correctly set in big endian environments
+ */
 
 #define WRITE_BUFFER_SIZE 128
 #define READ_BUFFER_SIZE 128
@@ -60,7 +64,22 @@ void tearDown(void) {
 
 static void setUpInitializationValues(MRF *impl, const Mac802154Config *config);
 
+void test_channelSelectionRegisterValueIsCalculatedCorrectly(void) {
+  TEST_ASSERT_EQUAL_UINT8(0x23, MRF_getRegisterValueForChannelNumber(13));
+  TEST_ASSERT_EQUAL_UINT8(0x43, MRF_getRegisterValueForChannelNumber(15));
+  TEST_ASSERT_EQUAL_UINT8(0xF3, MRF_getRegisterValueForChannelNumber(26));
+}
+
 void test_initPerformsSetupLikeShownInDatasheet(void) {
+  MRF *impl = (MRF *) mrf;
+  setUpInitializationValues(impl, &mrf_config);
+  Mac802154_init(mrf, &mrf_config);
+}
+
+void test_initWithDifferentConfig(void) {
+  mrf_config.extended_source_address = 0xFFFFABABCDCD1234;
+  mrf_config.short_source_address = 0xFFAB;
+  mrf_config.channel = 22;
   MRF *impl = (MRF *) mrf;
   setUpInitializationValues(impl, &mrf_config);
   Mac802154_init(mrf, &mrf_config);
@@ -79,14 +98,18 @@ void setUpInitializationValues(MRF *impl, const Mac802154Config *config) {
   MRF_setControlRegister_Expect(impl, mrf_register_base_band2, mrf_value_clear_channel_assessment_energy_detection_only);
   MRF_setControlRegister_Expect(impl, mrf_register_energy_detection_threshold_for_clear_channel_assessment, mrf_value_recommended_energy_detection_threshold);
   MRF_setControlRegister_Expect(impl, mrf_register_base_band6, mrf_value_append_rssi_value_to_rxfifo);
-  MRF_setControlRegister_Expect(impl, mrf_register_interrupt_control, (uint8_t) ~(1 << 3));
+  MRF_setControlRegister_Expect(impl, mrf_register_interrupt_control, mrf_value_rx_interrupt_enabled);
 
   // select channel 11, afterwards the rf state machine should be reset
-  MRF_setControlRegister_Expect(impl, mrf_register_rf_control0, mrf_value_recommended_rf_optimize_control0);
+  MRF_setControlRegister_Expect(impl, mrf_register_rf_control0, MRF_getRegisterValueForChannelNumber(config->channel));
   MRF_setControlRegister_Expect(impl, mrf_register_rf_mode_control, mrf_value_rf_state_machine_reset_state);
   MRF_setControlRegister_Expect(impl, mrf_register_rf_mode_control, mrf_value_rf_state_machine_operating_state);
   fakeDelay_Expect(mrf_value_delay_interval_after_state_machine_reset);
 
   // set transmitter power to -30dB
   MRF_setControlRegister_Expect(impl, mrf_register_rf_control3, mrf_value_transmitter_power_minus30dB);
+
+  // this only works on little endian systems
+  MRF_writeBytesToLongRegister_Expect(impl, mrf_register_short_address_low_byte, (uint8_t*) &config->short_source_address, 2);
+  MRF_writeBytesToLongRegister_Expect(impl, mrf_register_extended_address0, (uint8_t*) &config->extended_source_address, 8);
 }

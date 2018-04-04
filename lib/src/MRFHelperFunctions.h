@@ -36,6 +36,11 @@ static inline uint8_t MRF_writeLongCommandLowByte(uint16_t address) {
   return (uint8_t ) MRF_writeLongCommand(address);
 }
 
+static inline uint8_t MRF_getRegisterValueForChannelNumber(uint8_t channel_number) {
+  return ((channel_number - 11) << 4) | 0x03;
+}
+
 void MRF_setControlRegister(MRF *impl, uint16_t address, uint8_t value);
+void MRF_writeBytesToLongRegister(MRF *impl, uint16_t address, const uint8_t *buffer, uint16_t size);
 
 #endif //COMMUNICATIONMODULE_MRFHELPERFUNCTIONS_H

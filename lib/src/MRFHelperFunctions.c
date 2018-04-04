@@ -6,10 +6,6 @@ bool isLongAddress(uint16_t address){
   return (address > last_short_control_register_address);
 }
 
-bool MRF_isLongAddress(uint16_t address){
-  return isLongAddress(address);
-}
-
 void MRF_setControlRegister(MRF *impl, uint16_t address, uint8_t value) {
   PeripheralInterface_selectPeripheral(impl->interface, impl->device);
   if (isLongAddress(address)) {
@@ -17,7 +13,7 @@ void MRF_setControlRegister(MRF *impl, uint16_t address, uint8_t value) {
             MRF_writeLongCommandHighByte(address),
             MRF_writeLongCommandLowByte(address),
     };
-    PeripheralInterface_writeBlocking(impl->interface, &command, 2);
+    PeripheralInterface_writeBlocking(impl->interface, command, 2);
     PeripheralInterface_writeBlocking(impl->interface, &value, 1);
 
   } else {
@@ -25,5 +21,16 @@ void MRF_setControlRegister(MRF *impl, uint16_t address, uint8_t value) {
     PeripheralInterface_writeBlocking(impl->interface, &command, 1);
     PeripheralInterface_writeBlocking(impl->interface, &value, 1);
   }
+  PeripheralInterface_deselectPeripheral(impl->interface, impl->device);
+}
+
+void MRF_writeBytesToLongRegister(MRF *impl, uint16_t address, const uint8_t *buffer, uint16_t size) {
+  PeripheralInterface_selectPeripheral(impl->interface, impl->device);
+  uint8_t command[] = {
+          MRF_writeLongCommandHighByte(address),
+          MRF_writeLongCommandLowByte(address),
+  };
+  PeripheralInterface_writeBlocking(impl->interface, command, 2);
+  PeripheralInterface_writeBlocking(impl->interface, buffer, size);
   PeripheralInterface_deselectPeripheral(impl->interface, impl->device);
 }

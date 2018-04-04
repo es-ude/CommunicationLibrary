@@ -147,6 +147,8 @@ static void enableRXInterrupt(MRF *impl);
 static void setChannel(MRF *impl, uint8_t channel);
 static void setUpTransmitterPower(MRF *impl);
 static void resetInternalRFStateMachine(MRF *impl);
+static void setShortSourceAddress(MRF *impl, const uint16_t* address);
+static void setExtendedSourceAddress(MRF *impl, const uint64_t *address);
 
 Mac802154 *Mac802154_createMRF(MemoryManagement *dynamic_memory, DelayFunction delay_microseconds) {
   MRF *impl = dynamic_memory->allocate(sizeof(*impl));
@@ -163,8 +165,18 @@ void init(Mac802154 *self, const Mac802154Config *config) {
   reset(impl);
   setInitializationValuesFromDatasheet(impl);
   enableRXInterrupt(impl);
-  setChannel(impl, 11);
+  setChannel(impl, config->channel);
   setUpTransmitterPower(impl);
+  setShortSourceAddress(impl, &config->short_source_address);
+  setExtendedSourceAddress(impl, &config->extended_source_address);
+}
+
+void setShortSourceAddress(MRF *impl, const uint16_t *address) {
+  MRF_writeBytesToLongRegister(impl, mrf_register_short_address_low_byte, (const uint8_t*) address, sizeof(uint16_t));
+}
+
+void setExtendedSourceAddress(MRF *impl, const uint64_t *address) {
+  MRF_writeBytesToLongRegister(impl, mrf_register_extended_address0, (const uint8_t *)address, sizeof(uint64_t));
 }
 
 void enableRXInterrupt(MRF *impl) {
@@ -208,7 +220,7 @@ void setInitializationValuesFromDatasheet(MRF *impl){
 }
 
 void setChannel(MRF *impl, uint8_t channel_number) {
-  MRF_setControlRegister(impl, mrf_register_rf_control0, 0x03);
+  MRF_setControlRegister(impl, mrf_register_rf_control0, MRF_getRegisterValueForChannelNumber(channel_number));
   resetInternalRFStateMachine(impl);
 }
 
