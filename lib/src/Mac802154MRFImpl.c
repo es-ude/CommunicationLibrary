@@ -136,13 +136,10 @@ static const FrameHeader802154 default_header = {
 static void init(Mac802154 *self, const Mac802154Config *config);
 static void destroy(Mac802154 *self);
 
-static void setShortAddressRegister(MRF *impl, uint8_t register_address, uint8_t value);
-static void setLongAddressRegister(MRF *impl, uint16_t register_address, uint8_t value);
 static void reset(MRF *impl);
 static void setInitializationValuesFromDatasheet(MRF *impl);
 static void setPrivateVariables(MRF *impl, const Mac802154Config *config);
-static void selectDevice(MRF *impl);
-static void deselectDevice(MRF *impl);
+
 static void enableRXInterrupt(MRF *impl);
 static void setChannel(MRF *impl, uint8_t channel);
 static void setUpTransmitterPower(MRF *impl);
@@ -234,20 +231,6 @@ void resetInternalRFStateMachine(MRF *impl) {
   MRF_setControlRegister(impl, mrf_register_rf_mode_control, mrf_value_rf_state_machine_reset_state);
   MRF_setControlRegister(impl, mrf_register_rf_mode_control, mrf_value_rf_state_machine_operating_state);
   impl->delay_microseconds(mrf_value_delay_interval_after_state_machine_reset);
-}
-
-void setShortAddressRegister(MRF *impl, uint8_t register_address, uint8_t value) {
-}
-
-void setLongAddressRegister(MRF *impl, uint16_t register_address, uint8_t value) {
-}
-
-void selectDevice(MRF *impl) {
-  PeripheralInterface_selectPeripheral(impl->interface, impl->device);
-}
-
-void deselectDevice(MRF *impl) {
-  PeripheralInterface_deselectPeripheral(impl->interface, impl->device);
 }
 
 void destroy(Mac802154 *self){
