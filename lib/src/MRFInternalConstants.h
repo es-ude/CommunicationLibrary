@@ -39,4 +39,22 @@ static const uint16_t mrf_tx_fifo_start = 0x0;
 static const uint16_t mrf_rx_fifo_start = 0x300;
 static const uint8_t mrf_rx_fifo_length = 0x90;
 
+static const uint8_t mrf_value_full_software_reset = 0x07;
+static const uint8_t mrf_value_recommended_transmitter_on_time_before_beginning_a_packet = 0x18;
+static const uint8_t mrf_value_recommended_interframe_spacing = 0x95;
+static const uint8_t mrf_value_recommended_rf_optimize_control0 = 0x03;
+static const uint8_t mrf_value_recommended_rf_optimize_control1 = 0x02;
+static const uint8_t mrf_value_phase_locked_loop_enabled = 0x01 << 7;
+static const uint8_t mrf_value_transmitter_power_minus30dB = 0x03 << 6;
+static const uint8_t mrf_value_enable_tx_filter = 0x01 << 7;
+static const uint8_t mrf_value_20MHz_clock_recovery_less_than_1ms = 0x01 << 4;
+static const uint8_t mrf_value_use_internal_100kHz_oscillator = 0x80;
+static const uint8_t mrf_value_disable_deprecated_clkout_sleep_clock_feature = 1 << 5;
+static const uint8_t mrf_value_minimum_sleep_clock_divisor_for_internal_oscillator = 1;
+static const uint8_t mrf_value_clear_channel_assessment_energy_detection_only = 0x80;
+static const uint8_t mrf_value_recommended_energy_detection_threshold = 0x60;
+static const uint8_t mrf_value_append_rssi_value_to_rxfifo = 0x40;
+static const uint8_t mrf_value_rf_state_machine_reset_state = 0x04;
+static const uint8_t mrf_value_rf_state_machine_operating_state = 0x00;
+static const uint8_t mrf_value_delay_interval_after_state_machine_reset = 200;
 #endif //COMMUNICATIONMODULE_NETWORKHARDWAREMRFIMPL_H

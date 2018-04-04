@@ -145,13 +145,15 @@ static void selectDevice(MRF *impl);
 static void deselectDevice(MRF *impl);
 static void enableRXInterrupt(MRF *impl);
 static void setChannel(MRF *impl, uint8_t channel);
+static void setUpTransmitterPower(MRF *impl);
+static void resetInternalRFStateMachine(MRF *impl);
 
-Mac802154 *Mac802154_createMRF(MemoryManagement *dynamic_memory, DelayFunction delay) {
+Mac802154 *Mac802154_createMRF(MemoryManagement *dynamic_memory, DelayFunction delay_microseconds) {
   MRF *impl = dynamic_memory->allocate(sizeof(*impl));
   impl->deallocate = dynamic_memory->deallocate;
   impl->mac.init = init;
   impl->mac.destroy = destroy;
-  impl->delay = delay;
+  impl->delay_microseconds = delay_microseconds;
   return (Mac802154*)impl;
 }
 
@@ -161,7 +163,8 @@ void init(Mac802154 *self, const Mac802154Config *config) {
   reset(impl);
   setInitializationValuesFromDatasheet(impl);
   enableRXInterrupt(impl);
-  impl->delay(200);
+  setChannel(impl, 11);
+  setUpTransmitterPower(impl);
 }
 
 void enableRXInterrupt(MRF *impl) {
@@ -175,25 +178,48 @@ void setPrivateVariables(MRF *impl, const Mac802154Config *config) {
 }
 
 void reset(MRF *impl) {
-  MRF_setControlRegister(impl, mrf_register_software_reset, 0x07);
+  MRF_setControlRegister(impl, mrf_register_software_reset, mrf_value_full_software_reset);
 }
 
 void setInitializationValuesFromDatasheet(MRF *impl){
-  MRF_setControlRegister(impl, mrf_register_power_amplifier_control2, 0x98);
-  MRF_setControlRegister(impl, mrf_register_tx_stabilization, 0x95);
-  MRF_setControlRegister(impl, mrf_register_rf_control0, 0x03);
-  MRF_setControlRegister(impl, mrf_register_rf_control1, 0x01);
-  MRF_setControlRegister(impl, mrf_register_rf_control2, 0x80);
-  MRF_setControlRegister(impl, mrf_register_rf_control6, 0x90);
-  MRF_setControlRegister(impl, mrf_register_rf_control7, 0x80);
-  MRF_setControlRegister(impl, mrf_register_sleep_clock_control1, 0x21);
-  MRF_setControlRegister(impl, mrf_register_base_band2, 0x80);
-  MRF_setControlRegister(impl, mrf_register_energy_detection_threshold_for_clear_channel_assessment, 0x60);
-  MRF_setControlRegister(impl, mrf_register_base_band6, 0x40);
+  MRF_setControlRegister(
+          impl,
+          mrf_register_power_amplifier_control2,
+          (1 << mrf_bit_fifo_enable) | mrf_value_recommended_transmitter_on_time_before_beginning_a_packet
+  );
+  MRF_setControlRegister(impl, mrf_register_tx_stabilization, mrf_value_recommended_interframe_spacing);
+  MRF_setControlRegister(impl, mrf_register_rf_control0, mrf_value_recommended_rf_optimize_control0);
+  MRF_setControlRegister(impl, mrf_register_rf_control1, mrf_value_recommended_rf_optimize_control1);
+  MRF_setControlRegister(impl, mrf_register_rf_control2, mrf_value_phase_locked_loop_enabled);
+  MRF_setControlRegister(
+          impl,
+          mrf_register_rf_control6,
+          mrf_value_enable_tx_filter | mrf_value_20MHz_clock_recovery_less_than_1ms
+  );
+  MRF_setControlRegister(impl, mrf_register_rf_control7, mrf_value_use_internal_100kHz_oscillator);
+  MRF_setControlRegister(
+          impl,
+          mrf_register_sleep_clock_control1,
+          mrf_value_disable_deprecated_clkout_sleep_clock_feature | mrf_value_minimum_sleep_clock_divisor_for_internal_oscillator
+  );
+  MRF_setControlRegister(impl, mrf_register_base_band2, mrf_value_clear_channel_assessment_energy_detection_only);
+  MRF_setControlRegister(impl, mrf_register_energy_detection_threshold_for_clear_channel_assessment, mrf_value_recommended_energy_detection_threshold);
+  MRF_setControlRegister(impl, mrf_register_base_band6, mrf_value_append_rssi_value_to_rxfifo);
 }
 
 void setChannel(MRF *impl, uint8_t channel_number) {
+  MRF_setControlRegister(impl, mrf_register_rf_control0, 0x03);
+  resetInternalRFStateMachine(impl);
+}
 
+void setUpTransmitterPower(MRF *impl) {
+  MRF_setControlRegister(impl, mrf_register_rf_control3, mrf_value_transmitter_power_minus30dB);
+}
+
+void resetInternalRFStateMachine(MRF *impl) {
+  MRF_setControlRegister(impl, mrf_register_rf_mode_control, mrf_value_rf_state_machine_reset_state);
+  MRF_setControlRegister(impl, mrf_register_rf_mode_control, mrf_value_rf_state_machine_operating_state);
+  impl->delay_microseconds(mrf_value_delay_interval_after_state_machine_reset);
 }
 
 void setShortAddressRegister(MRF *impl, uint8_t register_address, uint8_t value) {

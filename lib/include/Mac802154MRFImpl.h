@@ -27,6 +27,6 @@
  * values that are different for the second frame have to be set. Unchanged data is not
  * written to the hardware again.
  */
-Mac802154 *Mac802154_createMRF(MemoryManagement *dynamic_memory, DelayFunction delay);
+Mac802154 *Mac802154_createMRF(MemoryManagement *dynamic_memory, DelayFunction delay_microseconds);
 
 #endif /* end of include guard */

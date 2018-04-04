@@ -13,7 +13,7 @@ struct MRF {
   PeripheralInterface *interface;
   Peripheral *device;
   Deallocator deallocate;
-  DelayFunction delay;
+  DelayFunction delay_microseconds;
 };
 
 static inline uint16_t MRF_readLongCommand(uint16_t address) {
