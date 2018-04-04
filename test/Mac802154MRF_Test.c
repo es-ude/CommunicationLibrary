@@ -3,14 +3,9 @@
 #include "lib/include/Mac802154MRFImpl.h"
 #include "test/Mocks/RuntimeLibraryImplMock.h"
 #include "test/Mocks/PeripheralInterfaceMock.h"
-
 #include "lib/src/MRFInternalConstants.h"
 
-
-#define UNITY_INCLUDE_DOUBLE
 #include "unity.h"
-#include "CException.h"
-#include "lib/include/MockPeripheral.h"
 #include "lib/src/MockMRFHelperFunctions.h"
 #include "test/MockMac802154MRF_TestHelper.h"
 
@@ -21,14 +16,8 @@ uint8_t write_buffer[WRITE_BUFFER_SIZE];
 uint8_t read_buffer[READ_BUFFER_SIZE];
 
 MemoryManagement *inspected_memory;
-MockPeripheral mock_device = {
-        .first = NULL,
-        .write_buffer = write_buffer,
-        .read_buffer = read_buffer,
-        .write_buffer_size = WRITE_BUFFER_SIZE,
-        .read_buffer_size = READ_BUFFER_SIZE,
-};
-Peripheral *device = (Peripheral*)&mock_device;
+
+Peripheral *device;
 PeripheralInterface *interface;
 Mac802154 *mrf;
 Mac802154Config mrf_config;
@@ -37,10 +26,7 @@ void setUp(void) {
   memset(read_buffer, 0, READ_BUFFER_SIZE);
   memset(write_buffer, 0, WRITE_BUFFER_SIZE);
   inspected_memory = MemoryManagement_createMockImpl();
-  MemoryManagement system_memory = {
-          .allocate = malloc,
-          .deallocate = free,
-  };
+
   mrf_config.interface = interface;
   mrf_config.device = device;
   mrf_config.pan_id = 0;
@@ -48,8 +34,6 @@ void setUp(void) {
   mrf_config.short_source_address = 0;
   mrf_config.channel = 11;
   mrf = Mac802154_createMRF(inspected_memory, fakeDelay);
-  mock_device.current_write_buffer_position = 0;
-  mock_device.current_read_buffer_position = 0;
 }
 
 void tearDown(void) {
