@@ -1,7 +1,7 @@
 #include "lib/include/Mac802154.h"
 
-FrameHeader802154 Mac802154_defaultHeader(void) {
-  FrameHeader802154 header = {
+const FrameHeader802154 *Mac802154_defaultHeader(void) {
+  static FrameHeader802154 header = {
           .control.as_struct = {
                   .frame_type = 0b001,
                   .security_enabled = 0b0,
@@ -19,5 +19,5 @@ FrameHeader802154 Mac802154_defaultHeader(void) {
           .destination_pan_id = {0xff, 0xff},
           .sequence_number = 0,
   };
-  return header;
+  return &header;
 }

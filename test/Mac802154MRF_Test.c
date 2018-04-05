@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include "lib/include/Mac802154MRFImpl.h"
 #include "test/Mocks/RuntimeLibraryImplMock.h"
-#include "test/Mocks/PeripheralInterfaceMock.h"
 #include "lib/src/MRFInternalConstants.h"
 
 #include "unity.h"
@@ -59,10 +58,12 @@ void test_initWithDifferentConfig(void) {
   mrf_config.extended_source_address = 0xFFFFABABCDCD1234;
   mrf_config.short_source_address = 0xFFAB;
   mrf_config.channel = 22;
+  mrf_config.pan_id = 0xABCD;
   MRF *impl = (MRF *) mrf;
   setUpInitializationValues(impl, &mrf_config);
   Mac802154_init(mrf, &mrf_config);
 }
+
 
 void setUpInitializationValues(MRF *impl, const Mac802154Config *config) {
   MRF_setControlRegister_Expect(impl, mrf_register_software_reset, mrf_value_full_software_reset);
@@ -89,6 +90,7 @@ void setUpInitializationValues(MRF *impl, const Mac802154Config *config) {
   MRF_setControlRegister_Expect(impl, mrf_register_rf_control3, mrf_value_transmitter_power_minus30dB);
 
   // here the addresses are required to be stored in ascending byte order (big endian)
-  MRF_writeBytesToShortRegisterAddress_Expect(impl, mrf_register_short_address_low_byte, (uint8_t*) &config->short_source_address, 2);
-  MRF_writeBytesToShortRegisterAddress_Expect(impl, mrf_register_extended_address0, (uint8_t*) &config->extended_source_address, 8);
+  MRF_writeBlockingToShortAddress_Expect(impl, mrf_register_short_address_low_byte, (uint8_t *)&config->short_source_address, 2);
+  MRF_writeBlockingToShortAddress_Expect(impl, mrf_register_extended_address0, (uint8_t *)&config->extended_source_address, 8);
+  MRF_writeBlockingToShortAddress_Expect(impl, mrf_register_pan_id_low_byte, (uint8_t *)&config->pan_id, 2);
 }

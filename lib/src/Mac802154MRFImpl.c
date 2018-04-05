@@ -2,8 +2,6 @@
 #include "lib/include/Mac802154MRFImpl.h"
 #include "lib/src/MRFInternalConstants.h"
 #include "lib/src/MRFHelperFunctions.h"
-#include "CException.h"
-#include "lib/include/Exception.h"
 
 /**
  * # Data Frame Header structure #
@@ -38,28 +36,6 @@
  *
  *
  *
- */
-FrameControlField802154 default_frame_control_field = {
-        .frame_type = 0b001,
-        .security_enabled = 0b0,
-        .frame_pending = 0b0,
-        .acknowledgment_request = 0b0,
-        .pan_id_compression = 0b1,
-        .reserved = 0b0,
-        .sequence_number_suppression = 0b0,
-        .information_element_present = 0b0,
-        .destination_addressing_mode = 0b10,
-        .frame_version = 0b10,
-        .source_addressing_mode = 0b10,
-};
-
-SPIMessage frame_control_field_message = {
-        .length = sizeof(FrameControlField802154),
-        .outgoing_data = (uint8_t*) &default_frame_control_field,
-        .incoming_data = NULL,
-};
-
-/**
  * ## Memory Layout ##
  * The memory mapped area for the TX Normal FIFO (the fifo buffer
  * that the mrf module uses for normal TX frames) has the address space
@@ -90,48 +66,19 @@ SPIMessage frame_control_field_message = {
  *
  */
 
-typedef struct MRFImpl MRFImpl;
-
-struct MRFImpl {
-  Mac802154 interface;
-  SPISlave *output_device;
-  DelayFunction delayMicroseconds;
-  uint16_t pan_id;
-  union {
-    struct {
-      uint8_t header;
-      uint8_t frame;
-    } as_fields;
-    uint8_t as_byte_array[2];
-  } current_header_and_frame_size;
-  union {
-    FrameHeader802154 as_fields;
-    uint8_t as_byte_array[sizeof(FrameHeader802154)];
-  } header;
-  SPIMessage header_and_frame_size_message;
-  SPIMessage header_message;
+static FrameControlField802154 default_frame_control_field = {
+        .frame_type = 0b001,
+        .security_enabled = 0b0,
+        .frame_pending = 0b0,
+        .acknowledgment_request = 0b0,
+        .pan_id_compression = 0b1,
+        .reserved = 0b0,
+        .sequence_number_suppression = 0b0,
+        .information_element_present = 0b0,
+        .destination_addressing_mode = 0b10,
+        .frame_version = 0b10,
+        .source_addressing_mode = 0b10,
 };
-
-static const FrameHeader802154 default_header = {
-        .control.as_struct = {
-                .frame_type = 0b001,
-                .security_enabled = 0b0,
-                .frame_pending = 0b0,
-                .acknowledgment_request = 0b0,
-                .pan_id_compression = 0b1,
-                .reserved = 0b0,
-                .sequence_number_suppression = 0b0,
-                .information_element_present = 0b0,
-                .destination_addressing_mode = 0b10,
-                .frame_version = 0b10,
-                .source_addressing_mode = 0b10,
-        },
-        .destination.short_address = {0x00, 0x00},
-        .destination_pan_id = {0xff, 0xff},
-        .sequence_number = 0,
-};
-
-
 
 static void init(Mac802154 *self, const Mac802154Config *config);
 static void destroy(Mac802154 *self);
@@ -146,6 +93,7 @@ static void setUpTransmitterPower(MRF *impl);
 static void resetInternalRFStateMachine(MRF *impl);
 static void setShortSourceAddress(MRF *impl, const uint16_t* address);
 static void setExtendedSourceAddress(MRF *impl, const uint64_t *address);
+static void setPanId(MRF *impl, const uint16_t *pan_id);
 
 Mac802154 *Mac802154_createMRF(MemoryManagement *dynamic_memory, DelayFunction delay_microseconds) {
   MRF *impl = dynamic_memory->allocate(sizeof(*impl));
@@ -166,16 +114,21 @@ void init(Mac802154 *self, const Mac802154Config *config) {
   setUpTransmitterPower(impl);
   setShortSourceAddress(impl, &config->short_source_address);
   setExtendedSourceAddress(impl, &config->extended_source_address);
+  setPanId(impl, &config->pan_id);
 }
 
 void setShortSourceAddress(MRF *impl, const uint16_t *address) {
-  MRF_writeBytesToShortRegisterAddress(impl, mrf_register_short_address_low_byte, (const uint8_t *) address,
-                                       sizeof(uint16_t));
+  MRF_writeBlockingToShortAddress(impl, mrf_register_short_address_low_byte, (const uint8_t *) address,
+                                  sizeof(uint16_t));
 }
 
 void setExtendedSourceAddress(MRF *impl, const uint64_t *address) {
-  MRF_writeBytesToShortRegisterAddress(impl, mrf_register_extended_address0, (const uint8_t *) address,
-                                       sizeof(uint64_t));
+  MRF_writeBlockingToShortAddress(impl, mrf_register_extended_address0, (const uint8_t *) address,
+                                  sizeof(uint64_t));
+}
+
+void setPanId(MRF *impl, const uint16_t *pan_id) {
+  MRF_writeBlockingToShortAddress(impl, mrf_register_pan_id_low_byte, (const uint8_t *) pan_id, sizeof(uint16_t));
 }
 
 void enableRXInterrupt(MRF *impl) {

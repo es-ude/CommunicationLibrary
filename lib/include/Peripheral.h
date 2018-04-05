@@ -7,6 +7,10 @@ typedef void Peripheral;
 typedef struct PeripheralInterface PeripheralInterface;
 typedef struct InterruptData InterruptData;
 
+typedef struct PeripheralCallback {
+  void (*function) (void *);
+  void *argument;
+} PeripheralCallback;
 /**
  * Datei mit ISR sollte dann wie folgt aussehen:
  *
@@ -23,10 +27,8 @@ struct PeripheralInterface {
   void (*selectPeripheral) (PeripheralInterface *self, Peripheral *device);
   void (*deselectPeripheral)(PeripheralInterface *interface, Peripheral *device);
   void (*destroy) (PeripheralInterface *self);
-  void (*enableInterrupt) (PeripheralInterface *self);
-  void (*disableInterrupt) (PeripheralInterface *self);
-  void (*handleInterrupt) (PeripheralInterface *self);
-  InterruptData *interrupt_data;
+  void (*setWriteCallback) (PeripheralInterface *self, PeripheralCallback write_callback);
+  void (*setReadCallback) (PeripheralInterface *self, PeripheralCallback read_callback);
 };
 
 
@@ -35,6 +37,10 @@ void PeripheralInterface_init(PeripheralInterface *self);
 uint8_t PeripheralInterface_read(PeripheralInterface *self);
 
 void PeripheralInterface_writeBlocking(PeripheralInterface *self, const uint8_t *buffer, uint16_t size);
+
+void PeripheralInterface_writeNonBlocking(PeripheralInterface *self, const uint8_t *buffer, uint16_t size);
+
+void PeripheralInterface_setWriteCallback(PeripheralInterface *self, PeripheralCallback write_callback);
 
 void PeripheralInterface_selectPeripheral(PeripheralInterface *self, Peripheral *device);
 
