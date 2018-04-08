@@ -68,6 +68,7 @@ void setUp(void){
 }
 
 void tearDown(void){
+    spi->handleInterrupt = NULL;
     spi->destroy(spi);
     TEST_ASSERT_EQUAL_UINT(0, MockMemoryManagement_numberOfAllocatedObjects(dynamic_memory));
 }

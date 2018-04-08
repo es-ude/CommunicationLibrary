@@ -263,8 +263,6 @@ void test_setInterruptHandler(void){
 }
 
 void handleInterrupt(PeripheralInterface *self){
-
-
     Message *m = self->interruptData->m;
     PeripheralInterface *peripheral = self->interruptData->peripheral;
     m->inputBuffer[m->index] = peripheral->read(peripheral);
@@ -274,6 +272,4 @@ void handleInterrupt(PeripheralInterface *self){
     else{
         self->interruptData->busy = false;
     }
-
-
 }
