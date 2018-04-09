@@ -22,8 +22,6 @@ typedef struct SPIConfig{
     volatile uint8_t *spdr;
     volatile uint8_t *spsr;
     enum sck_rate sck_rate;
-    Allocator allocate;
-    Deallocator deallocate;
 } SPIConfig;
 
 
