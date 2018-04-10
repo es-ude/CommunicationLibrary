@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include "lib/include/Mac802154MRFImpl.h"
 #include "test/Mocks/RuntimeLibraryImplMock.h"
-#include "lib/src/MRFInternalConstants.h"
+#include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
 
 #include "unity.h"
-#include "lib/src/MockMRFHelperFunctions.h"
+#include "lib/src/Mac802154/MRF/MockMRFHelperFunctions.h"
 #include "test/MockMac802154MRF_TestHelper.h"
 
 #define WRITE_BUFFER_SIZE 128

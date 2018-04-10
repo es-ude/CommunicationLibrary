@@ -1,5 +1,5 @@
-#include "MRFHelperFunctions.h"
-#include "lib/src/MRFInternalConstants.h"
+#include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
+#include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
 
 bool isLongAddress(uint16_t address){
   uint8_t last_short_control_register_address = 0x3F;

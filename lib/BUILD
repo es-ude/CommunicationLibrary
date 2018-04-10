@@ -9,8 +9,8 @@ config_setting(
 filegroup(
     name = "CommunicationModuleSrc",
     srcs = glob([
-        "src/*.c",
-        "src/*.h",
+        "src/**/*.c",
+        "src/**/*.h",
     ]),
 )
 

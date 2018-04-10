@@ -1,7 +1,7 @@
 #include "lib/include/Mac802154.h"
 #include "lib/include/Mac802154MRFImpl.h"
-#include "lib/src/MRFInternalConstants.h"
-#include "lib/src/MRFHelperFunctions.h"
+#include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
+#include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
 
 /**
  * # Data Frame Header structure #

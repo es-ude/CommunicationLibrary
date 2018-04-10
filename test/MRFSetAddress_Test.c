@@ -1,7 +1,7 @@
 #include "unity.h"
 #include "lib/include/MockPeripheral.h"
-#include "lib/src/MRFHelperFunctions.h"
-#include "lib/src/MRFInternalConstants.h"
+#include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
+#include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
 
 void test_setAddressForShortAddress(void){
   MRF mrf;
