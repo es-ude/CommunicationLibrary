@@ -7,6 +7,8 @@
 #include "lib/include/TransferLayer/PeripheralInterface.h"
 #include "lib/include/TransferLayer/PeripheralSPIImpl.h"
 #include "lib/include/TransferLayer/InterruptData.h"
+#include "CException.h"
+#include "lib/include/Exception.h"
 
 struct InterruptData{
     uint8_t *buffer;
@@ -21,12 +23,15 @@ typedef struct PeripheralInterfaceImpl {
     void *readCallbackParameter;
     PeripheralCallback writeCallback;
     void *writeCallbackParameter;
+
     volatile uint8_t *ddr;
     volatile uint8_t *port;
     volatile uint8_t *spcr;
     volatile uint8_t *spdr;
     volatile uint8_t *spsr;
-    uint8_t f_osc;
+    bool clearWriteCallback :1;
+    bool clearReadCallback :1;
+    uint8_t f_osc : 4;
     void (*handleInterrupt)(void);
     InterruptData interruptData;
 } PeripheralInterfaceImpl;
@@ -52,6 +57,7 @@ static void writeNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_
 static void readNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
 static void setReadCallback(PeripheralInterface *self, PeripheralCallback callback, void *callback_parameter);
 static void setWriteCallback(PeripheralInterface *self, PeripheralCallback callback, void *callback_parameter);
+static void setCallbackClearFlags(PeripheralInterface *self, bool clearReadCallbackOnCall, bool clearWriteCallbackOnCall);
 static void configurePeripheral(PeripheralInterface *self, Peripheral *device);
 static void selectPeripheral(PeripheralInterface *self, Peripheral *device);
 static void deselectPeripheral(PeripheralInterface *self, Peripheral *device);
@@ -81,6 +87,7 @@ PeripheralInterface * PeripheralInterface_create(TransferLayerConfig transferLay
     PIImpl->interface.destroy = destroy;
     PIImpl->interface.setReadCallback = setReadCallback;
     PIImpl->interface.setWriteCallback = setWriteCallback;
+    PIImpl->interface.setCallbackClearFlags = setCallbackClearFlags;
     PIImpl->interface.configurePeripheral = configurePeripheral;
     PIImpl->interface.selectPeripheral = selectPeripheral;
     PIImpl->interface.deselectPeripheral = deselectPeripheral;
@@ -206,19 +213,48 @@ static bool spiBusy(PeripheralInterfaceImpl *self){
 
 
 /**
+ * Check if a callback is set and call it, check if clear flag is set and clear if so
+ * @param impl - The PeripheralInterface
+ */
+static void readCallback(PeripheralInterfaceImpl *impl){
+    if (impl->readCallback != NULL) {
+        impl->readCallback(impl->readCallbackParameter);
+    }
+    if (impl->clearReadCallback){
+        impl->readCallback = NULL;
+        impl->readCallbackParameter = NULL;
+    }
+}
+
+static void writeCallback(PeripheralInterfaceImpl *impl){
+    if (impl->writeCallback != NULL) {
+        impl->writeCallback(impl->writeCallbackParameter);
+    }
+    if(impl->clearWriteCallback){
+        impl->writeCallback = NULL;
+        impl->writeCallbackParameter = NULL;
+    }
+}
+
+/**
  * One method, which may be called when calling handleInterrupt() inside the ISR
  * This method is called when a SPI transmission is finished, therefore a previous byte is sent.
- * If a callback is included, it will be called with the last byte.
+ * If a callback is included, it will be called after the last byte.
  * The callback won't be cleared
  * The Interrupts are disabled with sending the last byte
+ *
+ * First Byte is written in writeNonBlocking
+ *
+ * Last Byte is written in writeInInterrupt and completion triggers WriteCallback
+ *
  */
 static void writeInInterrupt() {
-    write(interfacePTR, interfacePTR->interruptData.buffer[interfacePTR->interruptData.index]);
-    (interfacePTR->interruptData.index)++;
-    if (interfacePTR->interruptData.index >= interfacePTR->interruptData.length) {
-        if (interfacePTR->writeCallback != NULL) {
-            interfacePTR->writeCallback(interfacePTR->writeCallbackParameter);
-        }
+    if (interfacePTR->interruptData.index < interfacePTR->interruptData.length) {
+        write(interfacePTR, interfacePTR->interruptData.buffer[interfacePTR->interruptData.index]);
+        ++interfacePTR->interruptData.index;
+    }
+    else{
+        writeCallback(interfacePTR);
         interfacePTR->interruptData.busy = false;
         disableInterrupts(interfacePTR);
     }
@@ -233,9 +269,7 @@ static void readInInterrupt() {
     interfacePTR->interruptData.buffer[interfacePTR->interruptData.index] = read(interfacePTR);
     (interfacePTR->interruptData.index)++;
     if (interfacePTR->interruptData.index >= interfacePTR->interruptData.length) {
-        if (interfacePTR->readCallback != NULL) {
-            interfacePTR->readCallback(interfacePTR->readCallbackParameter);
-        }
+        readCallback(interfacePTR);
         interfacePTR->interruptData.busy = false;
         disableInterrupts(interfacePTR);
     }
@@ -243,6 +277,23 @@ static void readInInterrupt() {
     //else{
     //    write(interfacePTR, 0x00);
     //}
+}
+
+/**
+ * Sets up the InterruptData and the Interrupthandler for both Reading and Writing
+ * @param impl - The PeripheralInterfaceImplementation
+ * @param buffer - The Buffer to transmit/write in
+ * @param length - Max Length of the buffer
+ * @param interruptHandler - The method to call when handling an interrupt
+ */
+static void setupNonBlocking(PeripheralInterfaceImpl *impl, uint8_t *buffer, uint16_t length, void (*interruptHandler)(void)){
+    impl->interruptData.busy = true;
+    impl->handleInterrupt = interruptHandler;
+    impl->interruptData.length = length;
+    impl->interruptData.buffer = buffer;
+    impl->interruptData.index = 0;
+    interfacePTR = impl;
+    enableInterrupts(impl);
 }
 
 //TODO test this on real hardware
@@ -256,18 +307,11 @@ static void readInInterrupt() {
 void writeNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length){
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)self;
     if(impl->interruptData.busy == false) {
-        impl->interruptData.busy = true;
-        impl->handleInterrupt = writeInInterrupt;
-        impl->interruptData.length = length;
-        impl->interruptData.buffer = buffer;
-        impl->interruptData.index = 0;
-        enableInterrupts(impl);
-        interfacePTR = impl;
-        interfacePTR->handleInterrupt();
+        setupNonBlocking(impl, buffer, length, writeInInterrupt);
+        interfacePTR->handleInterrupt(); //Write First Byte
+    }else{
+        Throw(SPI_BUSY_EXCEPTION);
     }
-    //else{
-    //TODO  Throw an evil exception
-    //}
 
 }
 
@@ -282,14 +326,11 @@ void writeNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t lengt
 void readNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length){
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)self;
     if(impl->interruptData.busy == false) {
-        impl->interruptData.busy = true;
-        impl->handleInterrupt = readInInterrupt;
-        impl->interruptData.length = length;
-        impl->interruptData.buffer = buffer;
-        impl->interruptData.index = 0;
-        enableInterrupts(impl);
-        interfacePTR = impl;
+        setupNonBlocking(impl, buffer, length, readInInterrupt);
         write(impl, 0x00); // Start transmission
+    }
+    else{
+        Throw(SPI_BUSY_EXCEPTION);
     }
 }
 
@@ -308,9 +349,7 @@ void writeBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length) 
         write(peripheralSPI, buffer[i]);
         while (spiBusy(peripheralSPI)) {}
     }
-    if(peripheralSPI->readCallback != NULL){
-        peripheralSPI->readCallback(peripheralSPI->readCallbackParameter);
-    }
+    writeCallback(peripheralSPI);
 }
 
 /**
@@ -328,9 +367,7 @@ void readBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length) {
         while (spiBusy(peripheralSPI)) {}
         buffer[i] = read(peripheralSPI);
     }
-    if(peripheralSPI->readCallback != NULL){
-        peripheralSPI->readCallback(peripheralSPI->readCallbackParameter);
-    }
+    readCallback(peripheralSPI);
 }
 
 
@@ -364,6 +401,18 @@ void setWriteCallback(PeripheralInterface *self, PeripheralCallback callback, vo
     PeripheralInterfaceImpl *peripheralSPI = (PeripheralInterfaceImpl *)self;
     peripheralSPI->writeCallback = callback;
     peripheralSPI->writeCallbackParameter = callback_parameter;
+}
+
+/**
+ * Sets whether after calling one of the callbacks, the callback should be cleared and not called at the next write/read
+ * @param self - The PeripheralInterface
+ * @param clearReadCallbackOnCall - Clear ReadCallback after calling it?
+ * @param clearWriteCallbackOnCall - Clear WriteCallback after calling it?
+ */
+void setCallbackClearFlags(PeripheralInterface *self,bool clearReadCallbackOnCall, bool clearWriteCallbackOnCall){
+    PeripheralInterfaceImpl *peripheralSPI = (PeripheralInterfaceImpl *)self;
+    peripheralSPI->clearReadCallback = clearReadCallbackOnCall;
+    peripheralSPI->clearWriteCallback = clearWriteCallbackOnCall;
 }
 
 /**

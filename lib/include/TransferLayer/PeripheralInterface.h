@@ -5,6 +5,7 @@
 #ifndef COMMUNICATIONMODULE_PERIPHERALINTERFACE_H
 #define COMMUNICATIONMODULE_PERIPHERALINTERFACE_H
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef struct PeripheralInterface PeripheralInterface;
 typedef struct Peripheral Peripheral;
@@ -18,6 +19,7 @@ struct PeripheralInterface {
     void (*readBlocking)(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
     void (*setReadCallback)(PeripheralInterface *self, PeripheralCallback callback, void *callback_parameter);
     void (*setWriteCallback)(PeripheralInterface *self, PeripheralCallback callback, void *callback_parameter);
+    void (*setCallbackClearFlags)(PeripheralInterface *self, bool clearReadCallbackOnCall, bool clearWriteCallbackOnCall);
     void (*configurePeripheral)(PeripheralInterface *self, Peripheral *device);
     void (*selectPeripheral)(PeripheralInterface *self, Peripheral *device);
     void (*deselectPeripheral)(PeripheralInterface *self, Peripheral *device);
