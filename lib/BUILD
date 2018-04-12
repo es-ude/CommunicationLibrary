@@ -26,6 +26,7 @@ exports_files(
     ]),
     visibility = [
         "//test:__pkg__",
+        "//test:__subpackages__",
         "@CMock//CMock:__pkg__",
     ],
 )
@@ -49,7 +50,7 @@ cc_library(
     }) + ["-Winline"],
     visibility = [
         "//test:__pkg__",
-        "//test/Mocks:__pkg__",
+        "//test:__subpackages__",
     ],
     deps = ["@CException//:CException"],
 )

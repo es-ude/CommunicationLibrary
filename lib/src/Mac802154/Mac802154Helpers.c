@@ -2,7 +2,7 @@
 
 const FrameHeader802154 *Mac802154_defaultHeader(void) {
   static FrameHeader802154 header = {
-          .control.as_struct = {
+          .fields.control = {
                   .frame_type = 0b001,
                   .security_enabled = 0b0,
                   .frame_pending = 0b0,
@@ -15,9 +15,9 @@ const FrameHeader802154 *Mac802154_defaultHeader(void) {
                   .frame_version = 0b10,
                   .source_addressing_mode = 0b10,
           },
-          .destination.short_address = {0x00, 0x00},
-          .destination_pan_id = {0xff, 0xff},
-          .sequence_number = 0,
+          .fields.destination_address = 0x00,
+          .fields.destination_pan_id = 0xffff,
+          .fields.sequence_number = 0,
   };
   return &header;
 }

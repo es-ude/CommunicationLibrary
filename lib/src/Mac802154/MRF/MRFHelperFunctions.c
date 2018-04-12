@@ -52,10 +52,3 @@ void MRF_triggerTXSendNonBlocking(MRF *impl) {
   PeripheralInterface_setWriteCallback(impl->interface, callback);
   PeripheralInterface_writeNonBlocking(impl->interface, &command, 1);
 }
-
-void MRF_writeNonBlockingToLongAddress(MRF *impl, uint16_t address, const uint8_t *buffer, uint8_t size) {
-  impl->current_long_command[0] = MRF_writeLongCommandHighByte(address);
-  impl->current_long_command[1] = MRF_writeLongCommandLowByte(address);
-  PeripheralInterface_selectPeripheral(impl->interface, impl->device);
-
-}

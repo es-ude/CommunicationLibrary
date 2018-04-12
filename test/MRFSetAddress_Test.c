@@ -88,8 +88,24 @@ void test_triggerNonBlockingSendIncludingCallback(void) {
 void test_writeNonBlockingToLongAddress(void) {
   MRF mrf;
   uint16_t address = 0;
+  const uint8_t command[] = {MRF_writeLongCommandHighByte(address), MRF_writeLongCommandLowByte(address)};
   const uint8_t buffer[] = {0xAB, 0xCD};
   uint16_t size = 2;
   PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
+  PeripheralInterface_setWriteCallback_StubWithCallback(setWriteCallbackStub);
+  PeripheralInterface_writeNonBlocking_ExpectWithArray(mrf.interface, 1, command, 2, 2);
   MRF_writeNonBlockingToLongAddress(&mrf, address, buffer, 2);
+}
+
+void test_writeNonBlockingToLongAddressWithCallback(void) {
+  MRF mrf;
+  uint16_t address = 0;
+  const uint8_t command[] = {MRF_writeLongCommandHighByte(address), MRF_writeLongCommandLowByte(address)};
+  const uint8_t buffer[] = {0xAB, 0xCD};
+  uint16_t size = 2;
+  PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
+  PeripheralInterface_setWriteCallback_StubWithCallback(setWriteCallbackStub);
+  PeripheralInterface_writeNonBlocking_ExpectWithArray(mrf.interface, 1, command, 2, 2);
+  MRF_writeNonBlockingToLongAddress(&mrf, address, buffer, 2);
+  current_write_callback.function(current_write_callback.argument);
 }

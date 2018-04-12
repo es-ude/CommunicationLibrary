@@ -6,13 +6,7 @@
 
 #include "unity.h"
 #include "lib/src/Mac802154/MRF/MockMRFHelperFunctions.h"
-#include "test/MockMac802154MRF_TestHelper.h"
-
-#define WRITE_BUFFER_SIZE 128
-#define READ_BUFFER_SIZE 128
-
-uint8_t write_buffer[WRITE_BUFFER_SIZE];
-uint8_t read_buffer[READ_BUFFER_SIZE];
+#include "test/MRF/MockMac802154MRF_TestHelper.h"
 
 MemoryManagement *inspected_memory;
 
@@ -22,8 +16,6 @@ Mac802154 *mrf;
 Mac802154Config mrf_config;
 
 void setUp(void) {
-  memset(read_buffer, 0, READ_BUFFER_SIZE);
-  memset(write_buffer, 0, WRITE_BUFFER_SIZE);
   inspected_memory = MemoryManagement_createMockImpl();
 
   mrf_config.interface = interface;

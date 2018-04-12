@@ -64,20 +64,14 @@ typedef struct FrameControlField802154 {
   unsigned source_addressing_mode : 2;
 } FrameControlField802154;
 
-typedef struct FrameHeader802154 {
-  union {
-    struct {
-      uint8_t first;
-      uint8_t second;
-    } as_byte;
-    FrameControlField802154 as_struct;
-  } control;
-  uint8_t sequence_number;
-  uint8_t destination_pan_id[2];
-  union {
-    uint8_t short_address[2];
-    uint8_t long_address[8];
-  } destination;
+typedef union FrameHeader802154 {
+  struct {
+    FrameControlField802154 control;
+    uint8_t sequence_number;
+    uint16_t destination_pan_id;
+    uint64_t destination_address;
+  } fields;
+  uint8_t array[13];
 } FrameHeader802154;
 
 const FrameHeader802154 *Mac802154_defaultHeader(void);
