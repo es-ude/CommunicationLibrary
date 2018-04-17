@@ -149,48 +149,22 @@ uint8_t FrameHeader802154_getHeaderSize(FrameHeader802154_t *self) {
 }
 
 void FrameHeader802154_setExtendedSourceAddress(FrameHeader802154_t *self, uint64_t address) {
-  if (!panIdIsPresent(self) && getDestinationAddressingMode(self) == ADDRESSING_MODE_SHORT_ADDRESS
-      || panIdIsPresent(self) && !destinationAddressIsPresent(self)) {
-    Throw(FRAMEHEADER802154_INVALID_EXCEPTION);
-  }
+
   setSourceAddressingMode(self, ADDRESSING_MODE_EXTENDED_ADDRESS);
 }
 
 void FrameHeader802154_setShortSourceAddress(FrameHeader802154_t *self, uint16_t address) {
-  if (!panIdIsPresent(self) && !destinationAddressIsPresent(self)){
-    enablePanIdCompression(self);
-  }
-  else if ((panIdIsPresent(self) && !destinationAddressIsPresent(self))
-          || (!panIdIsPresent(self) && destinationAddressIsPresent(self))) {
-    Throw(FRAMEHEADER802154_INVALID_EXCEPTION);
-  }
+
   setSourceAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
 }
 
 void FrameHeader802154_setExtendedDestinationAddress(FrameHeader802154_t *self, uint64_t address) {
-  if (panIdIsPresent(self) && !sourceAddressIsPresent(self)) {
-    disablePanIdCompression(self);
-  }
-    else if(!panIdIsPresent(self) && !sourceAddressIsPresent(self) ||
-          panIdIsPresent(self) && sourceAddressIsPresent(self)) {
-    enablePanIdCompression(self);
-  }
-  else if (!panIdIsPresent(self) && getSourceAddressingMode(self) == ADDRESSING_MODE_SHORT_ADDRESS) {
-    Throw(FRAMEHEADER802154_INVALID_EXCEPTION);
-  }
+
   setDestinationAddressingMode(self, ADDRESSING_MODE_EXTENDED_ADDRESS);
 }
 
 void FrameHeader802154_setShortDestinationAddress(FrameHeader802154_t *self, uint16_t address) {
-  if (!panIdIsPresent(self) && !sourceAddressIsPresent(self)) {
-    enablePanIdCompression(self);
-  }
-  else if (panIdIsPresent(self) && !sourceAddressIsPresent(self)) {
-    disablePanIdCompression(self);
-  }
-  else if (!panIdIsPresent(self) && sourceAddressIsPresent(self)) {
-    Throw(FRAMEHEADER802154_INVALID_EXCEPTION);
-  }
+
   setDestinationAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
 }
 
@@ -261,6 +235,20 @@ void setFrameType(FrameHeader802154_t *self, uint8_t frame_type) {
 }
 
 void setDestinationAddressingMode(FrameHeader802154_t *self, uint8_t mode) {
+  if (!panIdIsPresent(self) && !sourceAddressIsPresent(self) ||
+          panIdIsPresent(self) && sourceAddressIsPresent(self)) {
+    enablePanIdCompression(self);
+  }
+  else if (mode != ADDRESSING_MODE_NEITHER_PAN_NOR_ADDRESS_PRESENT
+          && panIdIsPresent(self) && !sourceAddressIsPresent(self)) {
+    disablePanIdCompression(self);
+  }
+  else if (!panIdIsPresent(self) &&
+          (mode == ADDRESSING_MODE_SHORT_ADDRESS && sourceAddressIsPresent(self) ||
+          mode == ADDRESSING_MODE_EXTENDED_ADDRESS &&
+          getSourceAddressingMode(self) != ADDRESSING_MODE_EXTENDED_ADDRESS)) {
+    Throw(FRAMEHEADER802154_INVALID_EXCEPTION);
+  }
   BitManipulation_setByte(self->data, destination_addressing_mode_bitmask, destination_addressing_mode_offset, mode);
 }
 
@@ -273,6 +261,17 @@ void setFrameVersion(FrameHeader802154_t *self, uint8_t version) {
 }
 
 void setSourceAddressingMode(FrameHeader802154_t *self, uint8_t mode) {
+  if (!panIdIsPresent(self) && getDestinationAddressingMode(self) == ADDRESSING_MODE_SHORT_ADDRESS
+      || panIdIsPresent(self) && !destinationAddressIsPresent(self)
+      || mode == ADDRESSING_MODE_SHORT_ADDRESS && !panIdIsPresent(self) && destinationAddressIsPresent(self))
+  {
+    Throw(FRAMEHEADER802154_INVALID_EXCEPTION);
+  }
+  else if (!panIdIsPresent(self) && !destinationAddressIsPresent(self)
+        ||
+        panIdIsPresent(self) && destinationAddressIsPresent(self)) {
+    enablePanIdCompression(self);
+  }
   BitManipulation_setByte(self->data, source_addressing_mode_bitmask, source_addressing_mode_offset, mode);
 }
 

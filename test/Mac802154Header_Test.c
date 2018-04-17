@@ -212,9 +212,9 @@ void test_setExtendedSourcePanId(void) {
   }
 }
 
-void test_setExtendedAddressesAndPanId(void) {
-  FrameHeader802154_setExtendedDestinationAddress(header, 0);
-  FrameHeader802154_setExtendedSourceAddress(header, 0);
+void test_setShortAddressesAndPanId(void) {
   FrameHeader802154_setPanId(header, 0);
+  FrameHeader802154_setShortDestinationAddress(header, 0);
+  FrameHeader802154_setShortSourceAddress(header, 0);
   TEST_ASSERT_BIT_HIGH(pan_id_compression_bit, header_data[0]);
 }
