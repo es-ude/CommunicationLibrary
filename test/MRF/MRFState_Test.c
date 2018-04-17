@@ -26,6 +26,7 @@ void test_writeEveryField(void) {
   MRFSendContext_runSendSequence(&data);
 }
 
+
 void test_writeEveryFieldWithCallback(void) {
   MRFSendContext data;
 

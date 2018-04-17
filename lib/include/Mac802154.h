@@ -25,6 +25,19 @@ struct Mac802154 {
   uint16_t (*getPayloadSize) (Mac802154 *self);
 };
 
+enum {
+  FRAME_TYPE_BEACON = 0,
+  FRAME_TYPE_DATA = 1,
+  FRAME_TYPE_ACKNOWLEDGEMENT = 2,
+  FRAME_TYPE_MAC_COMMAND = 3,
+  ADDRESSING_MODE_NEITHER_PAN_NOR_ADDRESS_PRESENT = 0,
+  ADDRESSING_MODE_SHORT_ADDRESS = 0b10,
+  ADDRESSING_MODE_EXTENDED_ADDRESS = 0b11,
+  FRAME_VERSION_2015 = 0b10,
+  FRAME_VERSION_2003 = 0b00,
+  FRAME_VERSION_2006 = 0b01,
+};
+
 /**
  * both addresses and the pan id are to be set in ascending byte order (big endian)
  */
@@ -64,14 +77,11 @@ typedef struct FrameControlField802154 {
   unsigned source_addressing_mode : 2;
 } FrameControlField802154;
 
-typedef union FrameHeader802154 {
-  struct {
+typedef struct FrameHeader802154 {
     FrameControlField802154 control;
     uint8_t sequence_number;
     uint16_t destination_pan_id;
     uint64_t destination_address;
-  } fields;
-  uint8_t array[13];
 } FrameHeader802154;
 
 const FrameHeader802154 *Mac802154_defaultHeader(void);

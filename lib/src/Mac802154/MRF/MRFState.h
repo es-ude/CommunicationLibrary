@@ -7,14 +7,22 @@
 typedef struct MRFSendContext MRFSendContext;
 
 typedef PeripheralCallback MRFWriteCallback;
+
+typedef union MRFHeader {
+  struct {
+    uint8_t header_length;
+    uint8_t frame_length;
+    FrameHeader802154 header;
+  } fields;
+  uint8_t array[sizeof(FrameHeader802154) + 2];
+} MRFHeader;
 /**
  * This struct holds all data needed for asynchronously writing a
  * 80154 frame to the mrf chip.
  */
 typedef struct MRFSendContext {
-  FrameHeader802154 header;
+  MRFHeader header;
   const uint8_t *payload;
-  uint16_t payload_size;
   uint8_t current_command[2];
   PeripheralInterface *hw_interface;
   Peripheral *device;
