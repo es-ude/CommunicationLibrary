@@ -168,6 +168,14 @@ void FrameHeader802154_setShortDestinationAddress(FrameHeader802154_t *self, uin
   setDestinationAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
 }
 
+uint8_t FrameHeader802154_getSourceAddressSize(const FrameHeader802154_t *self){
+  return getAddressSize(getSourceAddressingMode(self));
+}
+
+uint8_t FrameHeader802154_getDestinationAddressSize(const FrameHeader802154_t *self) {
+  return getAddressSize(getDestinationAddressingMode(self));
+}
+
 uint8_t getAddressSize(uint8_t addressing_mode) {
   switch (addressing_mode) {
     case ADDRESSING_MODE_EXTENDED_ADDRESS:

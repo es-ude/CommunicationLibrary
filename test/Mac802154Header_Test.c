@@ -218,3 +218,22 @@ void test_setShortAddressesAndPanId(void) {
   FrameHeader802154_setShortSourceAddress(header, 0);
   TEST_ASSERT_BIT_HIGH(pan_id_compression_bit, header_data[0]);
 }
+
+void test_getSizeOfShortSourceAddress(void) {
+  FrameHeader802154_setShortSourceAddress(header, 0);
+  TEST_ASSERT_EQUAL(2, FrameHeader802154_getSourceAddressSize(header));
+}
+
+void test_getSizeOfExtendedSourceAddress(void) {
+  FrameHeader802154_setExtendedSourceAddress(header, 0);
+  TEST_ASSERT_EQUAL(8, FrameHeader802154_getSourceAddressSize(header));
+}
+
+void test_getSizeOfDestinationAddress(void) {
+  TEST_ASSERT_EQUAL(0, FrameHeader802154_getDestinationAddressSize(header));
+}
+
+void test_getSizeOfShortDestinationAddress(void) {
+  FrameHeader802154_setShortDestinationAddress(header, 0);
+  TEST_ASSERT_EQUAL(2, FrameHeader802154_getDestinationAddressSize(header));
+}
