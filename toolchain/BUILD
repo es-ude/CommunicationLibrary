@@ -32,3 +32,10 @@ cc_toolchain(
     strip_files = ":empty",
     supports_param_files = 1,
 )
+
+config_setting(
+        name = "avr-config",
+        values = {
+                "cpu": "avr",
+                },
+        visibility = ["//visibility:public"])

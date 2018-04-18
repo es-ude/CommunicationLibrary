@@ -10,7 +10,7 @@ test --test_output=errors
 # executing the command:
 # bazel build lib:CommunicationModule --config=328p
 # would lead to appending all of the options below on command line
-build:328p --crosstool_top=//toolchain:toolchain
+build:328p --crosstool_top=@AVR_Toolchain//:toolchain
 build:328p --cpu=avr
 build:328p --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
 build:328p --define MCU=atmega328p

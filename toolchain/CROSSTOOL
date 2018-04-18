@@ -47,58 +47,59 @@ toolchain {
 # An example for this is given in the links at the top.
     tool_path {
         name: "gcc"
-        path: "/usr/bin/avr-gcc"
+        path: "/usr/local/CrossPack-AVR/bin/avr-gcc"
     }
 
     tool_path {
         name: "compat-ld"
-        path: "/usr/bin/avr-ld"
+        path: "/usr/local/CrossPack-AVR/bin/avr-ld"
     }
 
     tool_path {
         name: "cpp"
-        path: "/usr/bin/avr-cpp"
+        path: "/usr/local/CrossPack-AVR/bin/avr-cpp"
     }
 
     tool_path {
         name: "ar"
-        path: "/usr/bin/avr-ar"
+        path: "/usr/local/CrossPack-AVR/bin/avr-ar"
     }
 
     tool_path {
         name: "gcov"
-        path: "/usr/bin/avr-gcov"
+        path: "/usr/local/CrossPack-AVR/bin/avr-gcov"
     }
 
     tool_path {
         name: "ld"
-        path: "/usr/bin/avr-ld"
+        path: "/usr/local/CrossPack-AVR/bin/avr-ld"
     }
 
     tool_path {
         name: "nm"
-        path: "/usr/bin/avr-nm"
+        path: "/usr/local/CrossPack-AVR/bin/avr-nm"
     }
 
     tool_path {
         name: "objcopy"
-        path: "/usr/bin/avr-objcopy"
+        path: "/usr/local/CrossPack-AVR/bin/avr-objcopy"
     }
 
     tool_path {
         name: "objdump"
-        path: "/usr/bin/avr-objdump"
+        path: "/usr/local/CrossPack-AVR/bin/avr-objdump"
     }
 
     tool_path {
         name: "strip"
-        path: "/usr/bin/avr-strip"
+        path: "/usr/local/CrossPack-AVR/bin/avr-strip"
     }
 
     compiler_flag: "-Wall"
     compiler_flag: "-std=gnu99"
 
-    cxx_builtin_include_directory: "/usr/lib/gcc/avr/7.3.0/include"
-    cxx_builtin_include_directory: "/usr/lib/gcc/avr/7.3.0/include-fixed"
-    cxx_builtin_include_directory: "/usr/avr/include"
+ #    cxx_builtin_include_directory: "/usr/local/CrossPack-AVR-20131216/lib/gcc/avr/4.8.1/include/"
+ #     cxx_builtin_include_directory: "/usr/local/CrossPack-AVR-20131216/lib/gcc/avr/4.8.1/include/"
+      cxx_builtin_include_directory: "/usr/local/CrossPack-AVR-20131216/avr/include/"
+      cxx_builtin_include_directory: "/usr/local/CrossPack-AVR-20131216/lib/gcc/avr/4.8.1/include/"
  }

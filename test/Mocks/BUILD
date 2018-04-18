@@ -13,7 +13,7 @@ filegroup(
     srcs = glob(["Mock*.h", "Mock*.c"])
 )
 
-cc_inc_library(
+cc_library(
     name = "MockLibrary",
     hdrs = [
          ":MockModulesHeaders",

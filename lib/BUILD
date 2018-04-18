@@ -59,6 +59,7 @@ filegroup(
 )
 
 
+
 """
 The select function allows to make the right hand option of a attribute
 depend on a command line argument. Attributes that allow this behaviour are called
@@ -69,16 +70,15 @@ and $(MCU) is replaced by <mcu-name>
 """
 
 cc_library(
-    name = "CommunicationModule",
+    name = "CommunicationLibrary",
     srcs = [":CommunicationModuleSrc",":SPILayerSrc", ":CommunicationLayerSrc",":TransferLayerSrc"],
     hdrs = [":CommunicationModuleIncl", ":PlatformDependencies", ":SPILayerIncl", ":CommunicationLayerIncl", ":DepracatedHeaderFiles", ":TransferLayerIncl"],
     copts = select({
         ":avr-config": ["-mmcu=$(MCU)"],
         "//conditions:default": [],
-    }),
+        }),
     visibility = [
-        "//test:__pkg__",
-        "//test/Mocks:__pkg__",
-    ],
+        "//visibility:public"
+        ],
     deps = ["@CException//:CException"],
-)
+    )

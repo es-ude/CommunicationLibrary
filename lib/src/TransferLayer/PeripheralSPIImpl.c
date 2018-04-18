@@ -172,7 +172,7 @@ static void disableInterrupts(PeripheralInterfaceImpl *self){
 void init(PeripheralInterface * self){
     PeripheralInterfaceImpl *peripheralImpl = (PeripheralInterfaceImpl *)self;
     set_ddr(peripheralImpl);
-    set_spcr(peripheralImpl);
+    //set_spcr(peripheralImpl);
 }
 
 /**

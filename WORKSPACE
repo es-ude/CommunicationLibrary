@@ -30,6 +30,11 @@ new_http_archive(
   strip_prefix = "CException-master",
   )
 
+local_repository(
+    name = "AVR_Toolchain",
+    path = "/Users/peterzdankin/ES_WORK/CommunicationModule/AVR-Toolchain/",
+    )
+
 """
 From the Bazel documentation at https://docs.bazel.build/versions/master/build-ref.html#packages_targets :
  The primary unit of code organization in a workspace is the package.
