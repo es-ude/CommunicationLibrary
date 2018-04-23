@@ -3,6 +3,7 @@
 #define COMMUNICATIONMODULE_MAC802154FRAMEHEADER_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #define MAXIMUM_HEADER_SIZE 21
 
 typedef struct FrameHeader802154_t FrameHeader802154_t;
@@ -15,7 +16,9 @@ void FrameHeader802154_setShortDestinationAddress(FrameHeader802154_t *self, uin
 void FrameHeader802154_setExtendedDestinationAddress(FrameHeader802154_t *self, uint64_t address);
 void FrameHeader802154_setShortSourceAddress(FrameHeader802154_t *self, uint16_t address);
 void FrameHeader802154_setExtendedSourceAddress(FrameHeader802154_t *self, uint64_t address);
-
+bool FrameHeader802154_isValid(const FrameHeader802154_t *self);
+uint8_t FrameHeader802154_sizeOfNextField(const FrameHeader802154_t *self);
+const uint8_t *FrameHeader802154_nextField(const FrameHeader802154_t *self);
 /**
  * The pan id is always interpreted as the destination pan id, this leads to
  * some invalid configurations being possible, trying to set up an invalid configuration
@@ -31,7 +34,11 @@ void FrameHeader802154_setSequenceNumber(FrameHeader802154_t *self, uint8_t numb
 uint8_t FrameHeader802154_getHeaderSize(FrameHeader802154_t *self);
 uint8_t FrameHeader802154_getSourceAddressSize(const FrameHeader802154_t *self);
 uint8_t FrameHeader802154_getDestinationAddressSize(const FrameHeader802154_t *self);
-const uint8_t *FrameHeader802154_getSequenceNumberPtr(FrameHeader802154_t *self);
-const uint8_t *FrameHeader802154_getPanIdPtr(FrameHeader802154_t *self);
+uint8_t FrameHeader802154_getPanIdSize(const FrameHeader802154_t *self);
+uint8_t FrameHeader802154_getSequenceNumberSize(const FrameHeader802154_t *self);
+
+const uint8_t *FrameHeader802154_getSequenceNumberPtr(const FrameHeader802154_t *self);
+const uint8_t *FrameHeader802154_getPanIdPtr(const FrameHeader802154_t *self);
+const uint8_t *FrameHeader802154_getDestinationAddressPtr(const FrameHeader802154_t *self);
 
 #endif //COMMUNICATIONMODULE_MAC802154FRAMEHEADER_H
