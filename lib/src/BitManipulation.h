@@ -49,4 +49,20 @@ static inline bool BitManipulation_bitIsSet(const uint8_t *field, uint8_t offset
   return ((field[byte_index] >> local_offset) & 1) == 1;
 }
 
+static inline void BitManipulation_fillByteArrayWith64BitBigEndian(uint8_t *array, uint64_t value) {
+  for (uint8_t index = 0; index < 8; index++)
+  {
+    *array = (uint8_t) (value >> index * 8);
+    array++;
+  }
+}
+
+static inline void BitManipulation_fillByteArrayWith16BitBigEndian(uint8_t *array, uint16_t value) {
+  for (uint8_t index = 0; index < 2; index++)
+  {
+    *array = (uint8_t) (value >> index * 8);
+    array++;
+  }
+}
+
 #endif //COMMUNICATIONMODULE_BITMANIPULATION_H

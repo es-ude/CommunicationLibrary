@@ -2,6 +2,7 @@
 #include "lib/src/Mac802154/FrameHeader802154.h"
 #include "CException.h"
 #include "lib/include/Exception.h"
+#include "lib/src/BitManipulation.h"
 
 /**
  * Currently we assume the network byte order for pan ids and addresses to be big endian.
@@ -12,10 +13,9 @@
  * [[Regarding the retrieval of field values: it might be best to only getNextFieldPtr and getNextFieldSize
  * instead of get<InsertFieldNameHere>Ptr(), this way we would not expose the inner structure
  * and semantics of the header.]]
- * The iterator functionality belongs into another module because
+ * This iterator functionality belongs into another module because
  * the necessary fields might differ on a network chip base, opposed
  * to this 802154 header that should only change for performance reasons.
- *
  *
  **/
 
@@ -213,4 +213,84 @@ void test_setPanIdAfterExtendedDestinationAndSourceAddress(void) {
                                FrameHeader802154_getPanIdPtr(header),
                                18
   );
+}
+
+void test_changeDestinationAddressFromLongToShort(void) {
+  uint64_t destination_address = 0x55667788AABBCCDD;
+  uint16_t source_address = 0x1122;
+  uint16_t new_destination_address = 0x3344;
+  uint8_t expected[] = {
+          0x44, 0x33,
+          0x22, 0x11,
+  };
+  FrameHeader802154_setExtendedDestinationAddress(header, destination_address);
+  FrameHeader802154_setShortSourceAddress(header, source_address);
+  FrameHeader802154_setShortDestinationAddress(header, new_destination_address);
+
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, FrameHeader802154_getDestinationAddressPtr(header), 4);
+}
+
+void test_setExtendedDestinationTwice(void) {
+  uint64_t source_address = 0x1122;
+  uint64_t new_destination_address = 0x5566778899AABBCC;
+  uint8_t expected[16];
+  BitManipulation_fillByteArrayWith64BitBigEndian(expected, new_destination_address);
+  BitManipulation_fillByteArrayWith64BitBigEndian(expected+8, source_address);
+  FrameHeader802154_setExtendedSourceAddress(header, source_address);
+  FrameHeader802154_setExtendedDestinationAddress(header, new_destination_address);
+  FrameHeader802154_setExtendedDestinationAddress(header, new_destination_address);
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, FrameHeader802154_getDestinationAddressPtr(header), 16);
+}
+
+void test_setAllFields(void) {
+  FrameHeader802154_setExtendedDestinationAddress(header, ~0);
+  FrameHeader802154_setExtendedSourceAddress(header, ~0);
+  FrameHeader802154_setSequenceNumber(header, 1);
+  FrameHeader802154_setPanId(header, ~0);
+  uint8_t expected[19];
+  for (uint8_t index = 0; index < 19; index++)
+  {
+    expected[index] = 0xff;
+  }
+  expected[0] = 1;
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, FrameHeader802154_getSequenceNumberPtr(header), 19);
+}
+
+void test_getSizeWhenMaximum(void) {
+  FrameHeader802154_setExtendedSourceAddress(header, 0);
+  FrameHeader802154_setSequenceNumber(header, 0);
+  FrameHeader802154_setExtendedDestinationAddress(header, 0);
+  TEST_ASSERT_EQUAL_UINT8(21, FrameHeader802154_getHeaderSize(header));
+}
+
+void test_panIdCompressionDisabledWhenBothAddressesAreExtended(void) {
+  FrameHeader802154_setExtendedDestinationAddress(header, 0);
+  FrameHeader802154_setExtendedSourceAddress(header, 0);
+  TEST_ASSERT_BIT_LOW(pan_id_compression_bit, *FrameHeader802154_getHeaderPtr(header));
+}
+
+void test_panIdCompressionDisabledWhenBothAddressesAreExtended2(void) {
+  FrameHeader802154_setExtendedSourceAddress(header, 0);
+  FrameHeader802154_setExtendedDestinationAddress(header, 0);
+  TEST_ASSERT_BIT_LOW(pan_id_compression_bit, *FrameHeader802154_getHeaderPtr(header));
+}
+
+void test_panIdCompressionGetsEnabledWhenNecessary(void) {
+  FrameHeader802154_setExtendedSourceAddress(header, 0);
+  FrameHeader802154_setExtendedDestinationAddress(header, 0);
+  FrameHeader802154_setShortSourceAddress(header, 0);
+  TEST_ASSERT_BIT_HIGH(pan_id_compression_bit, *FrameHeader802154_getHeaderPtr(header));
+}
+
+void test_panIdCompressionGetsEnabledWhenNecessary2(void) {
+  FrameHeader802154_setExtendedSourceAddress(header, 0);
+  FrameHeader802154_setExtendedDestinationAddress(header, 0);
+  FrameHeader802154_setShortDestinationAddress(header, 0);
+  TEST_ASSERT_BIT_HIGH(pan_id_compression_bit, *FrameHeader802154_getHeaderPtr(header));
+}
+
+
+void test_sizeOfHeaderForExtendedDestination(void) {
+  FrameHeader802154_setExtendedSourceAddress(header, 0);
+  TEST_ASSERT_EQUAL_UINT8(14, FrameHeader802154_getHeaderSize(header));
 }

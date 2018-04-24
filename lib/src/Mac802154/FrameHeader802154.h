@@ -16,9 +16,6 @@ void FrameHeader802154_setShortDestinationAddress(FrameHeader802154_t *self, uin
 void FrameHeader802154_setExtendedDestinationAddress(FrameHeader802154_t *self, uint64_t address);
 void FrameHeader802154_setShortSourceAddress(FrameHeader802154_t *self, uint16_t address);
 void FrameHeader802154_setExtendedSourceAddress(FrameHeader802154_t *self, uint64_t address);
-bool FrameHeader802154_isValid(const FrameHeader802154_t *self);
-uint8_t FrameHeader802154_sizeOfNextField(const FrameHeader802154_t *self);
-const uint8_t *FrameHeader802154_nextField(const FrameHeader802154_t *self);
 /**
  * The pan id is always interpreted as the destination pan id, this leads to
  * some invalid configurations being possible, trying to set up an invalid configuration
@@ -40,5 +37,5 @@ uint8_t FrameHeader802154_getSequenceNumberSize(const FrameHeader802154_t *self)
 const uint8_t *FrameHeader802154_getSequenceNumberPtr(const FrameHeader802154_t *self);
 const uint8_t *FrameHeader802154_getPanIdPtr(const FrameHeader802154_t *self);
 const uint8_t *FrameHeader802154_getDestinationAddressPtr(const FrameHeader802154_t *self);
-
+const uint8_t *FrameHeader802154_getHeaderPtr(const FrameHeader802154_t *self);
 #endif //COMMUNICATIONMODULE_MAC802154FRAMEHEADER_H
