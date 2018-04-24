@@ -2,6 +2,7 @@
 #define COMMUNICATIONMODULE_MRFSTATE_H
 
 #include "lib/include/Mac802154.h"
+#include "lib/src/Mac802154/FrameHeader802154.h"
 
 
 typedef struct MRFSendContext MRFSendContext;
@@ -12,9 +13,8 @@ typedef union MRFHeader {
   struct {
     uint8_t header_length;
     uint8_t frame_length;
-    FrameHeader802154 header;
+    FrameHeader802154 *header;
   } fields;
-  uint8_t array[sizeof(FrameHeader802154) + 2];
 } MRFHeader;
 /**
  * This struct holds all data needed for asynchronously writing a

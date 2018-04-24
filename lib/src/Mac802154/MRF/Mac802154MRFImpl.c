@@ -66,20 +66,6 @@
  *
  */
 
-static FrameControlField802154 default_frame_control_field = {
-        .frame_type = 0b001,
-        .security_enabled = 0b0,
-        .frame_pending = 0b0,
-        .acknowledgment_request = 0b0,
-        .pan_id_compression = 0b1,
-        .reserved = 0b0,
-        .sequence_number_suppression = 0b0,
-        .information_element_present = 0b0,
-        .destination_addressing_mode = 0b10,
-        .frame_version = 0b10,
-        .source_addressing_mode = 0b10,
-};
-
 static void init(Mac802154 *self, const Mac802154Config *config);
 static void destroy(Mac802154 *self);
 

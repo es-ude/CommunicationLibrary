@@ -1,7 +1,6 @@
 #include "MRFState.h"
 #include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
 
-
 void MRFSendContext_setExtendedAddress(MRFSendContext *self, uint64_t address) {}
 void MRFSendContext_setShortAddress(MRFSendContext *self, uint16_t address){}
 void MRFSendContext_setPayload(MRFSendContext *self, const uint8_t *payload, uint16_t size){}

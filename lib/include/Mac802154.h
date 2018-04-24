@@ -77,13 +77,4 @@ typedef struct FrameControlField802154 {
   unsigned source_addressing_mode : 2;
 } FrameControlField802154;
 
-typedef struct FrameHeader802154 {
-    FrameControlField802154 control;
-    uint8_t sequence_number;
-    uint16_t destination_pan_id;
-    uint64_t destination_address;
-} FrameHeader802154;
-
-const FrameHeader802154 *Mac802154_defaultHeader(void);
-
 #endif //COMMUNICATIONMODULE_NETWORKHARDWARE_H

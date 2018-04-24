@@ -20,7 +20,7 @@
  **/
 
 static uint8_t header_data[MAXIMUM_HEADER_SIZE];
-static FrameHeader802154_t *header = (FrameHeader802154_t *)header_data;
+static FrameHeader802154 *header = (FrameHeader802154 *)header_data;
 static const uint8_t pan_id_compression_bit = 6;
 static const uint8_t minimum_packet_size = 2;
 static const uint8_t fresh_header_size = 2 + 2 + 2 + 2;
