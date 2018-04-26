@@ -32,6 +32,7 @@ generate_a_unity_test_for_every_file(
             "Mac802154MRF_Test.c",
             "MRFSetAddress_Test.c",
             "MRFState_Test.c",
+            "MrfIo_Test.c",
         ],
     ),
     deps = [
@@ -61,6 +62,7 @@ mock(
 generate_a_unity_test_for_every_file(
     file_list = [
         "Mac802154MRF_Test.c",
+        "MrfIo_Test.c",
     ],
     deps = [
         ":MockMRFHelperFunctions",
