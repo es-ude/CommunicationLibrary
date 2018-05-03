@@ -17,8 +17,8 @@ void test_setAddressForShortAddress(void){
 void test_setAddressForLongAddress(void) {
   MRF mrf;
   uint8_t command[] = {
-          MRF_writeLongCommandHighByte(mrf_register_rf_control6),
-          MRF_writeLongCommandLowByte(mrf_register_rf_control6),
+          MRF_writeLongCommandFirstByte(mrf_register_rf_control6),
+          MRF_writeLongCommandSecondByte(mrf_register_rf_control6),
   };
   uint8_t value;
   PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);

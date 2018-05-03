@@ -31,11 +31,11 @@ static inline uint8_t MRF_writeShortCommand(uint8_t address) {
   return (uint8_t)((address << 1 & ~(1 << 7)) | 1);
 }
 
-static inline uint8_t MRF_writeLongCommandHighByte(uint16_t address) {
+static inline uint8_t MRF_writeLongCommandFirstByte(uint16_t address) {
   return (uint8_t) (MRF_writeLongCommand(address) >> 8);
 }
 
-static inline uint8_t MRF_writeLongCommandLowByte(uint16_t address) {
+static inline uint8_t MRF_writeLongCommandSecondByte(uint16_t address) {
   return (uint8_t ) MRF_writeLongCommand(address);
 }
 

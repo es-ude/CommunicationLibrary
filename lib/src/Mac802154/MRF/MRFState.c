@@ -16,7 +16,7 @@ void some_function(void *args) {}
 
 void MRFSendContext_runSendSequence(MRFSendContext *self){
   PeripheralInterface_selectPeripheral(self->hw_interface, self->device);
-  uint8_t command[] = {MRF_writeLongCommandHighByte(0), MRF_writeLongCommandLowByte(0)};
+  uint8_t command[] = {MRF_writeLongCommandFirstByte(0), MRF_writeLongCommandSecondByte(0)};
   PeripheralInterface_writeNonBlocking(self->hw_interface, command, 2);
   MRFWriteCallback callback = {.function = some_function, .argument= NULL};
   PeripheralInterface_setWriteCallback(self->hw_interface, callback);

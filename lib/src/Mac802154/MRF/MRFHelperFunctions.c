@@ -10,8 +10,8 @@ void MRF_setControlRegister(MRF *impl, uint16_t address, uint8_t value) {
   PeripheralInterface_selectPeripheral(impl->interface, impl->device);
   if (isLongAddress(address)) {
     uint8_t command[] = {
-            MRF_writeLongCommandHighByte(address),
-            MRF_writeLongCommandLowByte(address),
+            MRF_writeLongCommandFirstByte(address),
+            MRF_writeLongCommandSecondByte(address),
     };
     PeripheralInterface_writeBlocking(impl->interface, command, 2);
     PeripheralInterface_writeBlocking(impl->interface, &value, 1);

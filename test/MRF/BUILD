@@ -55,7 +55,7 @@ mock(
 )
 
 mock(
-    name = "MockMac802153Test_Helper",
+    name = "MockMac802154Test_Helper",
     file = "Mac802154MRF_TestHelper.h",
 )
 
@@ -66,7 +66,7 @@ generate_a_unity_test_for_every_file(
     ],
     deps = [
         ":MockMRFHelperFunctions",
-        ":MockMac802153Test_Helper",
+        ":MockMac802154Test_Helper",
         ":MockPeripheralInterface",
         "//lib:CommunicationModule",
         "//test/Mocks:MockLibrary",

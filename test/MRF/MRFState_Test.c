@@ -20,7 +20,7 @@ void test_writeEveryField(void) {
   PeripheralInterface_setWriteCallback_Ignore();
 //  PeripheralInterface_setWriteCallback_StubWithCallback(setWriteCallbackStub);
   PeripheralInterface_selectPeripheral_Expect(data.hw_interface, data.device);
-  uint8_t command[] = {MRF_writeLongCommandHighByte(0), MRF_writeLongCommandLowByte(0)};
+  uint8_t command[] = {MRF_writeLongCommandFirstByte(0), MRF_writeLongCommandSecondByte(0)};
   PeripheralInterface_writeNonBlocking_ExpectWithArray(data.hw_interface, 1, command, 2, 2);
 
   MRFSendContext_runSendSequence(&data);
@@ -36,7 +36,7 @@ void test_writeEveryFieldWithCallback(void) {
   MRFSendContext_setPayload(&data, payload, 9);
   PeripheralInterface_setWriteCallback_StubWithCallback(setWriteCallbackStub);
   PeripheralInterface_selectPeripheral_Ignore();
-  uint8_t command[] = {MRF_writeLongCommandHighByte(0), MRF_writeLongCommandLowByte(0)};
+  uint8_t command[] = {MRF_writeLongCommandFirstByte(0), MRF_writeLongCommandSecondByte(0)};
   PeripheralInterface_writeNonBlocking_ExpectWithArray(data.hw_interface, 1, command, 2, 2);
   MRFSendContext_runSendSequence(&data);
   current_write_callback.function(current_write_callback.argument);
