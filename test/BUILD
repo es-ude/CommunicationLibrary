@@ -22,7 +22,7 @@ for every file specified and  a cc_test (the bazel test entity for c/c++).
 generate_a_unity_test_for_every_file(
     file_list = glob(["*_Test.c"]),
     deps = [
-        "//lib:CommunicationModule",
+        "//lib:CommunicationLibrary",
         "//test/Mocks:MockLibrary",
         "@CException//:CException",
     ],

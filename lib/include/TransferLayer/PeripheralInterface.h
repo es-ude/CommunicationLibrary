@@ -23,6 +23,7 @@ struct PeripheralInterface {
     void (*configurePeripheral)(PeripheralInterface *self, Peripheral *device);
     void (*selectPeripheral)(PeripheralInterface *self, Peripheral *device);
     void (*deselectPeripheral)(PeripheralInterface *self, Peripheral *device);
+    bool (*isBusy)(PeripheralInterface *self);
     void (*destroy)(PeripheralInterface *self);
 };
 

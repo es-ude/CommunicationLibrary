@@ -25,6 +25,11 @@ filegroup(
 )
 
 filegroup(
+    name = "PlatformSrc",
+    srcs = glob(["src/platform/**/*.c"]),
+)
+
+filegroup(
     name = "SPILayerIncl",
     srcs = glob(["include/Peripheral/*.h"]),
 )
@@ -32,6 +37,16 @@ filegroup(
 filegroup(
     name = "SPILayerSrc",
     srcs = glob(["src/Peripheral/*.c"]),
+)
+
+filegroup(
+    name = "UartIncl",
+    srcs = glob(["include/usart/*.h"]),
+)
+
+filegroup(
+    name = "UartSrc",
+    srcs = glob(["src/usart/*.c"]),
 )
 
 filegroup(
@@ -71,8 +86,8 @@ and $(MCU) is replaced by <mcu-name>
 
 cc_library(
     name = "CommunicationLibrary",
-    srcs = [":CommunicationModuleSrc",":SPILayerSrc", ":CommunicationLayerSrc",":TransferLayerSrc"],
-    hdrs = [":CommunicationModuleIncl", ":PlatformDependencies", ":SPILayerIncl", ":CommunicationLayerIncl", ":DepracatedHeaderFiles", ":TransferLayerIncl"],
+    srcs = [":CommunicationModuleSrc",":SPILayerSrc", ":CommunicationLayerSrc",":TransferLayerSrc",":UartSrc", ":PlatformSrc"],
+    hdrs = [":CommunicationModuleIncl", ":PlatformDependencies", ":SPILayerIncl", ":CommunicationLayerIncl", ":DepracatedHeaderFiles", ":TransferLayerIncl",":UartIncl"],
     copts = select({
         ":avr-config": ["-mmcu=$(MCU)"],
         "//conditions:default": [],

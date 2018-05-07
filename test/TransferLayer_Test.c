@@ -34,9 +34,9 @@ typedef struct PeripheralInterfaceImpl {
     volatile uint8_t *spcr;
     volatile uint8_t *spdr;
     volatile uint8_t *spsr;
-    bool clearWriteCallback :1;
-    bool clearReadCallback :1;
-    uint8_t f_osc : 4;
+    bool clearWriteCallback;
+    bool clearReadCallback;
+    uint8_t f_osc;
     void (*handleInterrupt)(void);
     InterruptData interruptData;
 } PeripheralInterfaceImpl;
@@ -159,6 +159,10 @@ void test_readNonBlockingNotNull(void){
 
 void test_clearCallbackNotNull(void){
     TEST_ASSERT_NOT_NULL(interface->setCallbackClearFlags);
+}
+
+void test_isBusyNotNull(void){
+    TEST_ASSERT_NOT_NULL(interface->isBusy);
 }
 
 //SPI
@@ -420,6 +424,7 @@ void test_isBusyAfterStartNonBlockingRead(void){
     interface->init(interface);
     interface->readNonBlocking(interface, receiveBuffer, length);
     TEST_ASSERT_TRUE(impl->interruptData.busy);
+    TEST_ASSERT_TRUE(interface->isBusy(interface));
 }
 
 void test_NotBusyAfterNonBlockingRead(void){
@@ -431,6 +436,7 @@ void test_NotBusyAfterNonBlockingRead(void){
         impl->handleInterrupt();
     }
     TEST_ASSERT_FALSE(impl->interruptData.busy);
+    TEST_ASSERT_FALSE(interface->isBusy(interface));
 }
 
 void test_InterruptsDisabledAfterNonBlockingRead(void){
@@ -467,7 +473,6 @@ void test_nonBlockingReadReceiveBuffer(void){
 }
 
 void test_writeNonBlockingTwiceGivesException(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
     interface->init(interface);
     CEXCEPTION_T ex;
     interface->writeNonBlocking(interface, buffer, length);
@@ -480,7 +485,6 @@ void test_writeNonBlockingTwiceGivesException(void){
 }
 
 void test_readNonBlockingTwiceGivesException(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
     interface->init(interface);
     CEXCEPTION_T ex;
     interface->readNonBlocking(interface, buffer, length);
@@ -493,7 +497,6 @@ void test_readNonBlockingTwiceGivesException(void){
 }
 
 void test_readAndWriteNonBlockingGivesException(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
     interface->init(interface);
     CEXCEPTION_T ex;
     interface->readNonBlocking(interface, buffer, length);
@@ -506,7 +509,6 @@ void test_readAndWriteNonBlockingGivesException(void){
 }
 
 void test_writeAndreadNonBlockingGivesException(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
     interface->init(interface);
     CEXCEPTION_T ex;
     interface->writeNonBlocking(interface, buffer, length);
@@ -548,7 +550,7 @@ void test_writeCallbackBlocking(){
     //interface->init(interface);
     //uint16_t value = 0;
     //uint16_t *valuePTR = &value;
-    //interface->setReadCallback(interface, (void *) writeCallback, valuePTR);
+    //interface->setWriteCallback(interface, (void *) writeCallback, valuePTR);
     //interface->writeBlocking(interface, buffer, length);
     //TEST_ASSERT_EQUAL_UINT16(123, *valuePTR);
 }

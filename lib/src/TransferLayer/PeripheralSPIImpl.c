@@ -17,6 +17,12 @@ struct InterruptData{
     bool busy;
 };
 
+struct Peripheral{
+    volatile uint8_t *DDR;
+    uint8_t PIN;
+    volatile  uint8_t *PORT;
+};
+
 typedef struct PeripheralInterfaceImpl {
     PeripheralInterface interface;
     PeripheralCallback readCallback;
@@ -29,11 +35,12 @@ typedef struct PeripheralInterfaceImpl {
     volatile uint8_t *spcr;
     volatile uint8_t *spdr;
     volatile uint8_t *spsr;
-    bool clearWriteCallback :1;
-    bool clearReadCallback :1;
-    uint8_t f_osc : 4;
+    bool clearWriteCallback;
+    bool clearReadCallback;
+    uint8_t f_osc;
     void (*handleInterrupt)(void);
     InterruptData interruptData;
+    Peripheral *device;
 } PeripheralInterfaceImpl;
 
 
@@ -41,11 +48,6 @@ typedef struct PeripheralInterfaceImpl {
 static PeripheralInterfaceImpl *interfacePTR;
 
 
-struct Peripheral{
-    volatile uint8_t *DDR;
-    uint8_t PIN;
-    volatile  uint8_t *PORT;
-};
 
 
 
@@ -61,6 +63,7 @@ static void setCallbackClearFlags(PeripheralInterface *self, bool clearReadCallb
 static void configurePeripheral(PeripheralInterface *self, Peripheral *device);
 static void selectPeripheral(PeripheralInterface *self, Peripheral *device);
 static void deselectPeripheral(PeripheralInterface *self, Peripheral *device);
+static bool isBusy(PeripheralInterface *self);
 
 Deallocator (deallocator);
 
@@ -78,6 +81,8 @@ PeripheralInterface * PeripheralInterface_create(TransferLayerConfig transferLay
     PIImpl->spdr = spiConfig.spdr;
     PIImpl->spsr = spiConfig.spsr;
     PIImpl->f_osc = spiConfig.sck_rate;
+    PIImpl->readCallback = NULL;
+    PIImpl->writeCallback = NULL;
 
     PIImpl->interface.init = init;
     PIImpl->interface.writeNonBlocking = writeNonBlocking;
@@ -91,6 +96,7 @@ PeripheralInterface * PeripheralInterface_create(TransferLayerConfig transferLay
     PIImpl->interface.configurePeripheral = configurePeripheral;
     PIImpl->interface.selectPeripheral = selectPeripheral;
     PIImpl->interface.deselectPeripheral = deselectPeripheral;
+    PIImpl->interface.isBusy = isBusy;
 
     deallocator = transferLayerConfig.deallocate;
 
@@ -131,6 +137,7 @@ static void unset_bit(volatile uint8_t *value, uint8_t pin){
  */
 static void set_ddr(PeripheralInterfaceImpl *self){
     set_bit(self->ddr, spi_mosi_pin);
+    unset_bit(self->ddr, spi_miso_pin);
     set_bit(self->ddr, spi_sck_pin);
     set_bit(self->ddr, spi_ss_pin);
     set_bit(self->port, spi_ss_pin);
@@ -141,11 +148,37 @@ static void set_ddr(PeripheralInterfaceImpl *self){
  * @param self - The PeripheralInterface
  */
 static void set_spcr(PeripheralInterfaceImpl *self){
-    set_bit(self->spcr, spi_enable);
-    set_bit(self->spcr, spi_master_slave_select);
+    set_bit(self->spcr, spi_enable);                    //Bit 6
+    unset_bit(self->spcr, spi_data_order);              //Bit 5
+    set_bit(self->spcr, spi_master_slave_select);       //Bit 4
+    unset_bit(self->spcr, spi_clock_polarity);          //Bit 3
+    unset_bit(self->spcr, spi_clock_phase);             //Bit 2
+
 
     //Last 2 bits are f_osc
-    *(self->spcr)|=(0b00000011 & self->f_osc);
+    switch(self->f_osc){
+        case f_osc_4: {
+            unset_bit(self->spcr, spi_clock_rate_select_0);
+            unset_bit(self->spcr, spi_clock_rate_select_1);
+            break;
+        }
+        case f_osc_16: {
+            set_bit(self->spcr, spi_clock_rate_select_0);
+            unset_bit(self->spcr, spi_clock_rate_select_1);
+            break;
+        }
+        case f_osc_64: {
+            unset_bit(self->spcr, spi_clock_rate_select_0);
+            set_bit(self->spcr, spi_clock_rate_select_1);
+            break;
+        }
+        case f_osc_128: {
+            set_bit(self->spcr, spi_clock_rate_select_0);
+            set_bit(self->spcr, spi_clock_rate_select_1);
+            break;
+        }
+    }
+
 }
 
 /**
@@ -172,7 +205,7 @@ static void disableInterrupts(PeripheralInterfaceImpl *self){
 void init(PeripheralInterface * self){
     PeripheralInterfaceImpl *peripheralImpl = (PeripheralInterfaceImpl *)self;
     set_ddr(peripheralImpl);
-    //set_spcr(peripheralImpl);
+    set_spcr(peripheralImpl);
 }
 
 /**
@@ -349,7 +382,6 @@ void writeBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length) 
         write(peripheralSPI, buffer[i]);
         while (spiBusy(peripheralSPI)) {}
     }
-    writeCallback(peripheralSPI);
 }
 
 /**
@@ -421,6 +453,8 @@ void setCallbackClearFlags(PeripheralInterface *self,bool clearReadCallbackOnCal
  * @param device - The device to become a slave
  */
 void configurePeripheral(PeripheralInterface *self, Peripheral *device){
+    PeripheralInterfaceImpl *peripheralSPI = (PeripheralInterfaceImpl *)self;
+    peripheralSPI->device = device;
     set_bit(device->DDR, device->PIN);
     set_bit(device->PORT, device->PIN);
 }
@@ -441,4 +475,14 @@ void selectPeripheral(PeripheralInterface *self, Peripheral *device){
  */
 void deselectPeripheral(PeripheralInterface *self, Peripheral *device){
     set_bit(device->PORT, device->PIN);
+}
+
+/**
+ * Returns whether the device is currently busy with transmitting a message
+ * @param self - The PeripheralInterface
+ * @return true if the device is busy
+ */
+bool isBusy(PeripheralInterface *self){
+    PeripheralInterfaceImpl *peripheralSPI = (PeripheralInterfaceImpl *)self;
+    return peripheralSPI->interruptData.busy;
 }

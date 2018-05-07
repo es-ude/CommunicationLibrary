@@ -29,6 +29,6 @@ cc_library(
     name = "MockLibrary_impl",
     srcs = [":MockModulesFiles"],
     visibility = ["//visibility:private"],
-    deps = ["//lib:CommunicationModule"],
+    deps = ["//lib:CommunicationLibrary"],
     linkstatic = 1, #not sure why we set that, but bazel recommended it
 )
