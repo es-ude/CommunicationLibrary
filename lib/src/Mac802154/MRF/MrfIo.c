@@ -1,4 +1,5 @@
 #include "lib/src/Mac802154/MRF/MrfIo.h"
+#include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
 
 static void setWriteLongCommand(MrfIo *mrf, uint16_t address);
 static void writeBlockingWithCommand(MrfIo *mrf, const uint8_t *payload, uint8_t size);
@@ -45,7 +46,7 @@ void callbackForDeselect(void *arg) {
 }
 
 void clearMrfIoWriteCallback(MrfIo *mrf) {
-  MRFCallback callback = {
+  MrfIoCallback callback = {
           .argument = NULL,
           .function = NULL,
   };
@@ -101,6 +102,6 @@ void writeBlockingWithCommand(MrfIo *mrf, const uint8_t *payload, uint8_t size) 
   PeripheralInterface_deselectPeripheral(mrf->interface, mrf->device);
 }
 
-void MrfIo_setWriteCallback(MrfIo *mrf, MRFCallback callback) {
+void MrfIo_setWriteCallback(MrfIo *mrf, MrfIoCallback callback) {
   mrf->callback = callback;
 }

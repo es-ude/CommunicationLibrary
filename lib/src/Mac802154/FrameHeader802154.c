@@ -60,9 +60,6 @@ static const uint8_t pan_id_size = 2;
  */
 
 
-struct FrameHeader802154 {
-  uint8_t data[21];
-};
 
 static bool sourceAddressIsPresent(const FrameHeader802154 *self);
 static bool destinationAddressIsPresent(const FrameHeader802154 *self);

@@ -85,9 +85,22 @@ unity_test(
     ],
 )
 
+mock(
+    name = "MockMrfIo",
+    file = "//lib:src/Mac802154/MRF/MrfIo.h",
+    deps = ["//lib:CommunicationModule"],
+)
+
+mock(
+    name = "MockFrameHeader802154",
+    file = "//lib:src/Mac802154/FrameHeader802154.h",
+)
+
 unity_test(
     file_name = "MRFState_Test.c",
     deps = [
+        ":MockFrameHeader802154",
+        ":MockMrfIo",
         ":MockPeripheralInterface",
         "//lib:CommunicationModule",
         "@CException//:CException",

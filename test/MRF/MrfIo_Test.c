@@ -1,6 +1,7 @@
 #include "unity.h"
 #include "lib/src/Mac802154/MRF/MrfIo.h"
 #include "lib/include/MockPeripheral.h"
+#include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
 
 static void captureWriteCallback(PeripheralInterface *interface, PeripheralCallback callback, int number_of_calls);
 
@@ -102,7 +103,7 @@ void test_writeNonBlockingToLongAddressTwoTimesUsingCallback(void) {
   uint8_t second_payload_size = 16;
   uint8_t second_payload[second_payload_size];
   bool write_callback_called = false;
-  MRFCallback callback = {
+  MrfIoCallback callback = {
           .function = writeCallback,
           .argument = &write_callback_called,
   };

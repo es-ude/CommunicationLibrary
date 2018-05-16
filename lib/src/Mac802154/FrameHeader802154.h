@@ -38,4 +38,9 @@ const uint8_t *FrameHeader802154_getSequenceNumberPtr(const FrameHeader802154 *s
 const uint8_t *FrameHeader802154_getPanIdPtr(const FrameHeader802154 *self);
 const uint8_t *FrameHeader802154_getDestinationAddressPtr(const FrameHeader802154 *self);
 const uint8_t *FrameHeader802154_getHeaderPtr(const FrameHeader802154 *self);
+
+
+struct FrameHeader802154 {
+  uint8_t data[MAXIMUM_HEADER_SIZE];
+};
 #endif //COMMUNICATIONMODULE_MAC802154FRAMEHEADER_H

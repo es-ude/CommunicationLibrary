@@ -17,8 +17,6 @@ struct MRF {
   const uint8_t *payload;
 };
 
-typedef PeripheralCallback MRFCallback;
-
 static inline uint16_t MRF_readLongCommand(uint16_t address) {
   return (uint16_t)(1 << 15 | address << 5);
 }
@@ -46,7 +44,6 @@ static inline uint8_t MRF_getRegisterValueForChannelNumber(uint8_t channel_numbe
 void MRF_setControlRegister(MRF *impl, uint16_t address, uint8_t value);
 void MRF_writeBlockingToShortAddress(MRF *impl, uint8_t address, const uint8_t *buffer, uint8_t size);
 void MRF_triggerTXSendNonBlocking(MRF *impl);
-void MRF_setWriteCallback(MRFCallback *callback);
 void MRF_writeNonBlockingToLongAddress(MRF *impl, uint16_t address, const uint8_t *buffer, uint8_t size);
 
 #endif //COMMUNICATIONMODULE_MRFHELPERFUNCTIONS_H
