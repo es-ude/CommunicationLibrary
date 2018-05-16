@@ -25,6 +25,7 @@ struct PeripheralInterface {
     void (*deselectPeripheral)(PeripheralInterface *self, Peripheral *device);
     bool (*isBusy)(PeripheralInterface *self);
     void (*destroy)(PeripheralInterface *self);
+    void (*handleInterrupt)();
 };
 
 void PeripheralInterface_writeNonBlocking(PeripheralInterface *self, const uint8_t *buffer, uint16_t length);

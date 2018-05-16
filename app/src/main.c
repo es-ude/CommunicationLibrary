@@ -31,6 +31,7 @@ int main() {
     Peripheral device = {&DDRB, spi_slave, &PORTB};
     SPIConfig spiConfig = {&DDRB, &PORTB, &SPCR, &SPDR, &SPSR, f_osc};
 
+
     TransferLayerConfig transferConfig = {malloc, free};
     interface = PeripheralInterface_create(transferConfig, spiConfig);
 
@@ -39,7 +40,7 @@ int main() {
     interface->configurePeripheral(interface, &device);
     uint16_t baud_rate = 9600;
     USART_init(baud_rate);
-    uint8_t buff[] = "Start";
+    uint8_t buff[] = "Start\r\n";
 
     USART_writeN(buff, 5);
     sei();
@@ -47,37 +48,53 @@ int main() {
     uint8_t buffer[] = "Writing Blocking";
     uint16_t length = sizeof(buffer) / sizeof(uint8_t);
 
+    uint8_t wb[] = "\r\nWriting Blocking\r\n";
+    uint16_t lengthwb = sizeof(wb) / sizeof(uint8_t);
+    uint8_t rb[] = "\r\nReading Blocking\r\n";
+    uint16_t lengthrb = sizeof(rb) / sizeof(uint8_t);
+    uint8_t wnb[] = "\r\nWriting Nonblocking\r\n";
+    uint16_t lengthwnb = sizeof(wnb) / sizeof(uint8_t);
+    uint8_t rnb[] = "\r\nReading Nonblocking\r\n";
+    uint16_t lengthrnb = sizeof(rnb) / sizeof(uint8_t);
+
+
     //Test writing
-/*
+    USART_writeN(wb, lengthwb);
     interface->selectPeripheral(interface, &device);
     interface->writeBlocking(interface, buffer, length);
     interface->deselectPeripheral(interface, &device);
-*/
 
-    //Test writing
-    /*
+    //Test reading
+    USART_writeN(rb, lengthrb);
     interface->selectPeripheral(interface, &device);
     interface->readBlocking(interface, buffer, length);
     interface->deselectPeripheral(interface, &device);
-    UART_transmitStrN(buffer, length);
-    UART_transmitStr("Continuing\r\n");
-    */
+    USART_writeN(buffer, length);
 
     //Test NonBlocking Writing
+    USART_writeN(wnb, lengthwnb);
     interface->selectPeripheral(interface, &device);
     interface->writeNonBlocking(interface, buffer, length);
     interface->deselectPeripheral(interface, &device);
-    while(1){
+     while(interface->isBusy(interface)){
 
     }
 
+
     //Test NonBlocking Reading
-    /*
+    USART_writeN(rnb, lengthrnb);
     interface->selectPeripheral(interface, &device);
     interface->readNonBlocking(interface, buffer, length);
     interface->deselectPeripheral(interface, &device);
-    USART_writeN(buffer, length);
-     */
+    while(interface->isBusy(interface)){
 
+    }
+
+    USART_writeN(buffer, length);
+
+}
+
+ISR(SPI_STC_vect){
+    interface->handleInterrupt();
 }
 

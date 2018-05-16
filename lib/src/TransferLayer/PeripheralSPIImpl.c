@@ -11,10 +11,10 @@
 #include "lib/include/Exception.h"
 
 struct InterruptData{
-    volatile uint8_t *buffer;
+    uint8_t *buffer;
     uint16_t length;
     uint16_t index;
-    volatile bool busy;
+    bool busy;
 };
 
 struct Peripheral{
@@ -44,11 +44,9 @@ typedef struct PeripheralInterfaceImpl {
 } PeripheralInterfaceImpl;
 
 
-static PeripheralInterfaceImpl *interfacePTR;
 
-ISR(SPI_STC_vect){
-    interfacePTR->handleInterrupt();
-}
+
+static PeripheralInterfaceImpl *interfacePTR;
 
 static void destroy(PeripheralInterface *self);
 static void init(PeripheralInterface *self);
@@ -63,6 +61,11 @@ static void configurePeripheral(PeripheralInterface *self, Peripheral *device);
 static void selectPeripheral(PeripheralInterface *self, Peripheral *device);
 static void deselectPeripheral(PeripheralInterface *self, Peripheral *device);
 static bool isBusy(PeripheralInterface *self);
+static void handleInterrupt();
+
+void handleInterrupt(){
+    interfacePTR->handleInterrupt();
+}
 
 Deallocator (deallocator);
 
@@ -97,6 +100,7 @@ PeripheralInterface * PeripheralInterface_create(TransferLayerConfig transferLay
     PIImpl->interface.selectPeripheral = selectPeripheral;
     PIImpl->interface.deselectPeripheral = deselectPeripheral;
     PIImpl->interface.isBusy = isBusy;
+    PIImpl->interface.handleInterrupt = handleInterrupt;
     PIImpl->interruptData.index = 0;
     PIImpl->interruptData.buffer = NULL;
     PIImpl->interruptData.busy = false;
@@ -192,7 +196,6 @@ static void set_spcr(PeripheralInterfaceImpl *self){
  */
 static void enableInterrupts(PeripheralInterfaceImpl *self){
     //TODO global Interrupts?
-
     set_bit(self->spcr, spi_interrupt_enable);
 }
 
@@ -312,9 +315,9 @@ static void readInInterrupt() {
         disableInterrupts(interfacePTR);
     }
     //TODO activate this on real hardware for SPI to start the next transmission
-    //else{
-    //    write(interfacePTR, 0x00);
-    //}
+    else{
+        write(interfacePTR, 0x00);
+    }
 }
 
 /**
@@ -343,6 +346,7 @@ static void setupNonBlocking(PeripheralInterfaceImpl *impl, uint8_t *buffer, uin
  * @warning - Length shouldn't be bigger than the buffer
  */
 void writeNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length){
+
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)self;
     if(impl->interruptData.busy == false) {
         setupNonBlocking(impl, buffer, length, writeInInterrupt);
@@ -350,7 +354,6 @@ void writeNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t lengt
     }else{
         Throw(SPI_BUSY_EXCEPTION);
     }
-
 }
 
 //TODO test this on real hardware
