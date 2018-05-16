@@ -14,7 +14,7 @@
 #include "lib/include/usart/USART.h"
 
 static uint8_t f_osc = f_osc_16;
-
+PeripheralInterface *interface;
 
 struct Peripheral{
     volatile uint8_t *DDR;
@@ -32,7 +32,7 @@ int main() {
     SPIConfig spiConfig = {&DDRB, &PORTB, &SPCR, &SPDR, &SPSR, f_osc};
 
     TransferLayerConfig transferConfig = {malloc, free};
-    PeripheralInterface *interface = PeripheralInterface_create(transferConfig, spiConfig);
+    interface = PeripheralInterface_create(transferConfig, spiConfig);
 
 
     interface->init(interface);
@@ -42,17 +42,17 @@ int main() {
     uint8_t buff[] = "Start";
 
     USART_writeN(buff, 5);
+    sei();
 
     uint8_t buffer[] = "Writing Blocking";
     uint16_t length = sizeof(buffer) / sizeof(uint8_t);
 
     //Test writing
-    /*
+/*
     interface->selectPeripheral(interface, &device);
     interface->writeBlocking(interface, buffer, length);
     interface->deselectPeripheral(interface, &device);
-    */
-
+*/
 
     //Test writing
     /*
@@ -64,13 +64,20 @@ int main() {
     */
 
     //Test NonBlocking Writing
-    while(interface->isBusy(interface)){
-        //Rewrite SPI or sth
-    }
     interface->selectPeripheral(interface, &device);
     interface->writeNonBlocking(interface, buffer, length);
     interface->deselectPeripheral(interface, &device);
+    while(1){
 
+    }
+
+    //Test NonBlocking Reading
+    /*
+    interface->selectPeripheral(interface, &device);
+    interface->readNonBlocking(interface, buffer, length);
+    interface->deselectPeripheral(interface, &device);
+    USART_writeN(buffer, length);
+     */
 
 }
 

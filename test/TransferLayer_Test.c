@@ -461,6 +461,19 @@ void test_nonBlockingReadSPDR(void){
     }
 }
 
+void test_nonBlockingWriteInitializesAllValues(void){
+    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    interface->init(interface);
+    interface->writeNonBlocking(interface, buffer, length);
+    TEST_ASSERT_NOT_NULL(impl->interruptData.buffer);
+    TEST_ASSERT_NOT_NULL(impl->handleInterrupt);
+    TEST_ASSERT_NOT_NULL(interface->isBusy);
+    TEST_ASSERT_EQUAL_UINT16(1, impl->interruptData.index);
+    impl->handleInterrupt();
+    TEST_ASSERT_EQUAL_UINT16(2, impl->interruptData.index);
+
+}
+
 void test_nonBlockingReadReceiveBuffer(void){
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
     interface->init(interface);
