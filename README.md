@@ -19,8 +19,8 @@
 
 I propose the following Layers:
 
--   **UserAPI** (send, receive, initialize necessary data structures)
--   **Mac802154** (MRF vs XBee)
+-   **UserAPI** (sendNonBlocking, receive, initialize necessary data structures)
+-   **Mac802154** (Mrf vs XBee)
 -   **Peripheral** (Usart vs SPI)
 
 For now we expose the interfaces using abstract datatypes.

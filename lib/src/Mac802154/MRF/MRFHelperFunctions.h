@@ -6,10 +6,12 @@
 #include "lib/include/Peripheral.h"
 #include "lib/include/Mac802154.h"
 #include "lib/include/RuntimeLibraryInterface.h"
+#include "lib/src/Mac802154/MRF/MrfIo.h"
 
-typedef struct MRF MRF;
-struct MRF {
+typedef struct Mrf Mrf;
+struct Mrf {
   Mac802154 mac;
+  MrfIo io;
   PeripheralInterface *interface;
   Peripheral *device;
   Deallocator deallocate;
@@ -40,10 +42,5 @@ static inline uint8_t MRF_writeLongCommandSecondByte(uint16_t address) {
 static inline uint8_t MRF_getRegisterValueForChannelNumber(uint8_t channel_number) {
   return (uint8_t)(((channel_number - 11) << 4) | 0x03);
 }
-
-void MRF_setControlRegister(MRF *impl, uint16_t address, uint8_t value);
-void MRF_writeBlockingToShortAddress(MRF *impl, uint8_t address, const uint8_t *buffer, uint8_t size);
-void MRF_triggerTXSendNonBlocking(MRF *impl);
-void MRF_writeNonBlockingToLongAddress(MRF *impl, uint16_t address, const uint8_t *buffer, uint8_t size);
 
 #endif //COMMUNICATIONMODULE_MRFHELPERFUNCTIONS_H

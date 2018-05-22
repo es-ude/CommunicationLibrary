@@ -16,6 +16,15 @@ void MrfIo_writeBlockingToShortAddress(MrfIo *mrf, const uint8_t *payload, uint8
 void MrfIo_writeNonBlockingToLongAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size, uint16_t address);
 void MrfIo_setWriteCallback(MrfIo *mrf, MrfIoCallback callback);
 void MrfIo_writeNonBlockingToShortAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size, uint8_t address);
+
+/**
+ * Evaluates the register address to determine if it belongs to the short or long address space of
+ * the mrf chip. Then synchronously writes that value to the address.
+ * @param mrf
+ * @param register_address
+ * @param value
+ */
+void MrfIo_setControlRegister(MrfIo *mrf, uint16_t register_address, uint8_t value);
 void MrfIo_readBlockingFromLongAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size);
 void MrfIo_readNonBlockingFromLongAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size);
 void MrfIo_readBlockingFromShortAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size);
