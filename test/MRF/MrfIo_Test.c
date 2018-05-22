@@ -2,6 +2,7 @@
 #include "lib/src/Mac802154/MRF/MrfIo.h"
 #include "lib/include/MockPeripheral.h"
 #include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
+#include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
 
 static void captureWriteCallback(PeripheralInterface *interface, PeripheralCallback callback, int number_of_calls);
 
@@ -126,4 +127,29 @@ void test_writeNonBlockingToLongAddressTwoTimesUsingCallback(void) {
 
 void captureWriteCallback(PeripheralInterface *interface, PeripheralCallback callback, int number_of_calls) {
    last_write_callback = callback;
+}
+
+void test_setAddressForShortAddress(void){
+  MrfIo mrf;
+  uint8_t command = MRF_writeShortCommand(mrf_register_software_reset);
+  PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
+  PeripheralInterface_writeBlocking_Expect(mrf.interface, &command, 1);
+  uint8_t value = 0xAB;
+  PeripheralInterface_writeBlocking_Expect(mrf.interface, &value, 1);
+  PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
+  MrfIo_setControlRegister(&mrf, mrf_register_software_reset, 0xAB);
+}
+
+void test_setAddressForLongAddress(void) {
+  MrfIo mrf;
+  uint8_t command[] = {
+          MRF_writeLongCommandFirstByte(mrf_register_rf_control6),
+          MRF_writeLongCommandSecondByte(mrf_register_rf_control6),
+  };
+  uint8_t value;
+  PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
+  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, 1, command, 2, 2);
+  PeripheralInterface_writeBlocking_Expect(mrf.interface, &value, 1);
+  PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
+  MrfIo_setControlRegister(&mrf, mrf_register_rf_control6, value);
 }
