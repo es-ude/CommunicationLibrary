@@ -91,9 +91,9 @@ void setUpInitializationValues(MrfIo *impl, const Mac802154Config *config) {
 }
 
 void test_sendBlocking(void) {
-  uint16_t destination_address = 13;
-//  uint8_t payload[] = "hello, world!";
-//  uint8_t payload_length = strlen((const char *) payload);
-  Mac802154_setShortDestinationAddress(mrf, destination_address);
-//  Mac802154_setPayload(mrf, payload, payload_length);
+  uint8_t payload[] = "hello, world!";
+  uint8_t payload_length = strlen((const char *) payload);
+  Mac802154_setPayload(mrf, payload, payload_length);
+
+  Mac802154_send(mrf);
 }

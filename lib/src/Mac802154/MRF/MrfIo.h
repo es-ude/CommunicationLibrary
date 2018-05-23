@@ -34,6 +34,7 @@ struct MrfIoCallback {
   void (*function) (void *arg);
   void *argument;
 };
+
 struct MrfIo {
   Peripheral *device;
   PeripheralInterface *interface;
