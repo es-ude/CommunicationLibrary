@@ -32,20 +32,21 @@ typedef struct MrfField {
 
 typedef struct MrfState {
   uint8_t state;
-  FrameHeader802154 *header;
+  MrfHeader header;
   const uint8_t *payload;
-  uint8_t payload_size;
+  uint8_t payload_length;
 } MrfState;
 
 void MrfState_setLongDestinationAddress(MrfState *mrf);
 void MrfState_setShortDestinationAddress(MrfState *mrf);
-void MrfState_setPayload(MrfState *mrf);
+void MrfState_setPayload(MrfState *mrf, const uint8_t *payload, uint8_t payload_length);
 void MrfState_setSequenceNumber(MrfState *mrf);
 void MrfState_disableSequenceNumber(MrfState *mrf);
 void MrfState_enableSequenceNumber(MrfState *mrf);
+const uint8_t *MrfState_getFullHeaderData(MrfState *mrf);
 bool MrfState_nextField(MrfState *mrf);
 MrfField MrfState_getCurrentField(MrfState *mrf);
-uint8_t MrfState_getCurrentFieldsSize(MrfState *mrf);
+uint8_t MrfState_getFullDataLength(MrfState *mrf);
 uint8_t MrfState_getCurrentFieldsOffset(MrfState *mrf);
 const uint8_t *MrfState_getCurrentFieldsData(MrfState *mrf);
 #endif
