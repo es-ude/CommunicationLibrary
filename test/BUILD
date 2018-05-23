@@ -52,16 +52,6 @@ mock(
     deps = ["//lib:CommunicationModule"],
 )
 
-unity_test(
-    file_name = "MRFSetAddress_Test.c",
-    deps = [
-        ":MockPeripheralInterface",
-        "//lib:CommunicationModule",
-        "@CException//:CException",
-        "@CMock//:CMock",
-    ],
-)
-
 """
 We have every *_Test.c seperately build as an executable.
 This rule gathers a set of cc_test rules and let's the user
