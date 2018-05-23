@@ -93,7 +93,7 @@ static void moveDestinationAddress(FrameHeader802154 *Self, int8_t distance);
 
 void FrameHeader802154_init(FrameHeader802154 *self) {
   memset(self->data, 0, MAXIMUM_HEADER_SIZE);
-  enableSequenceNumberSuppression(self);
+  FrameHeader802154_enableSequenceNumberSuppression(self);
   enablePanIdCompression(self);
   setDestinationAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
   setSourceAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
@@ -111,7 +111,7 @@ const uint8_t *FrameHeader802154_getSequenceNumberPtr(const FrameHeader802154 *s
 
 void FrameHeader802154_setSequenceNumber(FrameHeader802154 *self, uint8_t number) {
   movePanId(self, sizeof(number));
-  disableSequenceNumberSuppression(self);
+  FrameHeader802154_disableSequenceNumberSuppression(self);
   self->data[2] = number;
 }
 
@@ -248,11 +248,11 @@ bool panIdCompressionIsEnabled(const FrameHeader802154 *self) {
   return BitManipulation_bitIsSet(self->data, pan_id_compression_offset);
 }
 
-void enableSequenceNumberSuppression(FrameHeader802154 *self) {
+void FrameHeader802154_enableSequenceNumberSuppression(FrameHeader802154 *self) {
   BitManipulation_setBit(self->data, sequence_number_suppression_offset);
 }
 
-void disableSequenceNumberSuppression(FrameHeader802154 *self) {
+void FrameHeader802154_disableSequenceNumberSuppression(FrameHeader802154 *self) {
   BitManipulation_clearBit(self->data, sequence_number_suppression_offset);
 }
 

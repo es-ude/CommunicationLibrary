@@ -10,8 +10,8 @@ typedef struct FrameHeader802154 FrameHeader802154;
 
 void FrameHeader802154_init(FrameHeader802154 *self);
 
-void enableSequenceNumberSuppression(FrameHeader802154 *self);
-void disableSequenceNumberSuppression(FrameHeader802154 *self);
+void FrameHeader802154_enableSequenceNumberSuppression(FrameHeader802154 *self);
+void FrameHeader802154_disableSequenceNumberSuppression(FrameHeader802154 *self);
 void FrameHeader802154_setShortDestinationAddress(FrameHeader802154 *self, uint16_t address);
 void FrameHeader802154_setExtendedDestinationAddress(FrameHeader802154 *self, uint64_t address);
 void FrameHeader802154_setShortSourceAddress(FrameHeader802154 *self, uint16_t address);
