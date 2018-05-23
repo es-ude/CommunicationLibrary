@@ -69,6 +69,7 @@
 static void init(Mac802154 *self, const Mac802154Config *config);
 static void destroy(Mac802154 *self);
 static void setShortDestinationAddress(Mac802154 *self, uint16_t address);
+static void setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length);
 
 static void reset(Mrf *impl);
 static void setInitializationValuesFromDatasheet(MrfIo *impl);
@@ -96,6 +97,7 @@ void setUpInterface(Mac802154 *interface) {
   interface->init = init;
   interface->destroy = destroy;
   interface->setShortDestinationAddress = setShortDestinationAddress;
+  interface->setPayload = setPayload;
 }
 
 void init(Mac802154 *self, const Mac802154Config *config) {
@@ -193,5 +195,9 @@ void destroy(Mac802154 *self){
 }
 
 void setShortDestinationAddress(Mac802154 *self, uint16_t address) {
+  Mrf *impl = (Mrf *) self;
+}
+
+void setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length) {
   Mrf *impl = (Mrf *) self;
 }

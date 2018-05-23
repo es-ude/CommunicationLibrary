@@ -28,6 +28,7 @@
  * of the header consists of two bytes.
  */
 
+
 // first byte
 static const uint8_t frame_type_bitmask = 0b111;
 static const uint8_t security_enabled_offset = 3;

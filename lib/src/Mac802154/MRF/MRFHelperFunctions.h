@@ -9,6 +9,7 @@
 #include "lib/src/Mac802154/MRF/MrfIo.h"
 
 typedef struct Mrf Mrf;
+
 struct Mrf {
   Mac802154 mac;
   MrfIo io;

@@ -24,5 +24,5 @@ cc_library(
     ],
     linkstatic = 1,  #not sure why we set that, but bazel recommended it
     visibility = ["//visibility:public"],
-    deps = ["//lib:CommunicationModule"],
+    deps = ["//lib:CommunicationModuleLibForTest"],
 )

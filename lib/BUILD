@@ -10,8 +10,12 @@ filegroup(
     name = "CommunicationModuleSrc",
     srcs = glob([
         "src/**/*.c",
-        "src/**/*.h",
     ]),
+)
+
+filegroup(
+    name = "PrivateHdrFiles",
+    srcs = glob(["src/**/*.h"]),
 )
 
 filegroup(
@@ -42,14 +46,32 @@ and $(MCU) is replaced by <mcu-name>
 
 cc_library(
     name = "CommunicationModule",
-    srcs = [":CommunicationModuleSrc"],
+    srcs = [
+        ":CommunicationModuleSrc",
+        ":PrivateHdrFiles",
+    ],
     hdrs = [":CommunicationModuleIncl"],
     copts = select({
         ":avr-config": ["-mmcu=$(MCU)"],
         "//conditions:default": [],
     }) + ["-Winline"],
     visibility = [
-        "//test:__pkg__",
+    ],
+    deps = ["@CException//:CException"],
+)
+
+cc_library(
+    name = "CommunicationModuleLibForTest",
+    srcs = [":CommunicationModuleSrc"],
+    hdrs = [
+        ":CommunicationModuleIncl",
+        ":PrivateHdrFiles",
+    ],
+    copts = select({
+        ":avr-config": ["-mmcu=$(MCU)"],
+        "//conditions:default": [],
+    }) + ["-Winline"],
+    visibility = [
         "//test:__subpackages__",
     ],
     deps = ["@CException//:CException"],

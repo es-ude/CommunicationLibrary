@@ -6,6 +6,7 @@
 
 #include "unity.h"
 #include "lib/src/Mac802154/MRF/MockMRFHelperFunctions.h"
+#include "lib/src/Mac802154/MRF/MockMRFState.h"
 #include "test/MRF/MockMac802154MRF_TestHelper.h"
 #include "lib/src/Mac802154/MRF/MockMrfIo.h"
 
@@ -53,6 +54,7 @@ void test_initWithDifferentConfig(void) {
   mrf_config.channel = 22;
   mrf_config.pan_id = 0xABCD;
   Mrf *impl = (Mrf *) mrf;
+  MrfState_init_ExpectAnyArgs();
   setUpInitializationValues(&impl->io, &mrf_config);
   Mac802154_init(mrf, &mrf_config);
 }
@@ -91,5 +93,11 @@ void setUpInitializationValues(MrfIo *impl, const Mac802154Config *config) {
 
 void test_sendBlocking(void) {
   uint8_t payload[] = "hello, world!";
-  uint8_t payload_length = (uint8_t) strlen((const char *) payload);
+
+  uint8_t payload_length = strlen((const char *) payload);
+  uint16_t address = 1234;
+
+  Mac802154_setPayload(mrf, payload, payload_length);
+  Mac802154_setShortDestinationAddress(mrf, address);
+  Mac802154_sendBlocking(mrf);
 }

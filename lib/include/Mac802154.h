@@ -55,7 +55,7 @@ static inline void Mac802154_init(Mac802154 *hardware,
   hardware->init(hardware, config);
 }
 
-static inline void Mac802154_send(Mac802154 *hardware) {
+static inline void Mac802154_sendBlocking(Mac802154 *hardware) {
   hardware->sendNonBlocking(hardware);
 }
 

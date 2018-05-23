@@ -31,7 +31,7 @@ generate_a_unity_test_for_every_file(
         ],
     ),
     deps = [
-        "//lib:CommunicationModule",
+        "//lib:CommunicationModuleLibForTest",
         "//test/Mocks:MockLibrary",
         "@CException//:CException",
         "@CMock//:CMock",
@@ -46,22 +46,30 @@ mock(
 mock(
     name = "MockMRFHelperFunctions",
     file = "//lib:src/Mac802154/MRF/MRFHelperFunctions.h",
-    deps = ["//lib:CommunicationModule"],
+    deps = ["//lib:CommunicationModuleLibForTest"],
 )
 
 mock(
     name = "MockMac802154Test_Helper",
     file = "Mac802154MRF_TestHelper.h",
+    deps = ["//lib:CommunicationModuleLibForTest"],
+)
+
+mock(
+    name = "MockMRFState",
+    file = "//lib:src/Mac802154/MRF/MRFState.h",
+    deps = ["//lib:CommunicationModuleLibForTest"],
 )
 
 unity_test(
     file_name = "Mac802154MRF_Test.c",
     deps = [
         ":MockMRFHelperFunctions",
+        ":MockMRFState",
         ":MockMac802154Test_Helper",
         ":MockMrfIo",
         ":MockPeripheralInterface",
-        "//lib:CommunicationModule",
+        "//lib:CommunicationModuleLibForTest",
         "//test/Mocks:MockLibrary",
         "@CException//:CException",
         "@CMock//:CMock",
@@ -73,7 +81,8 @@ unity_test(
     deps = [
         ":MockMac802154Test_Helper",
         ":MockPeripheralInterface",
-        "//lib:CommunicationModule",
+
+        "//lib:CommunicationModuleLibForTest",
         "@CException//:CException",
         "@CMock//:CMock",
     ],
@@ -82,7 +91,7 @@ unity_test(
 mock(
     name = "MockMrfIo",
     file = "//lib:src/Mac802154/MRF/MrfIo.h",
-    deps = ["//lib:CommunicationModule"],
+    deps = ["//lib:CommunicationModuleLibForTest"],
 )
 
 mock(
@@ -95,7 +104,7 @@ unity_test(
     deps = [
         ":MockFrameHeader802154",
         ":MockPeripheralInterface",
-        "//lib:CommunicationModule",
+        "//lib:CommunicationModuleLibForTest",
         "@CException//:CException",
         "@CMock//:CMock",
     ],
