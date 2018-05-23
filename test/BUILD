@@ -13,11 +13,6 @@ load(
     "mock",
 )
 
-filegroup(
-    name = "TestRunnerGenerator",
-    srcs = ["TestRunnerGenerator.py"],
-)
-
 """
 This macro is still somewhat hacky. But generally it mimicks
 the behaviour of ceedling to some extend. It uses the helper scripts
@@ -50,16 +45,6 @@ mock(
     name = "MockMRFHelperFunctions",
     file = "//lib:src/Mac802154/MRF/MRFHelperFunctions.h",
     deps = ["//lib:CommunicationModule"],
-)
-
-unity_test(
-    file_name = "MRFSetAddress_Test.c",
-    deps = [
-        ":MockPeripheralInterface",
-        "//lib:CommunicationModule",
-        "@CException//:CException",
-        "@CMock//:CMock",
-    ],
 )
 
 """

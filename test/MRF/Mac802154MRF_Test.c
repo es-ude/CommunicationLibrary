@@ -34,7 +34,6 @@ void tearDown(void) {
 }
 
 static void setUpInitializationValues(MrfIo *impl, const Mac802154Config *config);
-static void deprecatedSetUpInitializationValues(Mrf *impl, const Mac802154Config *config);
 
 void test_channelSelectionRegisterValueIsCalculatedCorrectly(void) {
   TEST_ASSERT_EQUAL_UINT8(0x23, MRF_getRegisterValueForChannelNumber(13));
@@ -92,8 +91,5 @@ void setUpInitializationValues(MrfIo *impl, const Mac802154Config *config) {
 
 void test_sendBlocking(void) {
   uint8_t payload[] = "hello, world!";
-  uint8_t payload_length = strlen((const char *) payload);
-  Mac802154_setPayload(mrf, payload, payload_length);
-
-  Mac802154_send(mrf);
+  uint8_t payload_length = (uint8_t) strlen((const char *) payload);
 }

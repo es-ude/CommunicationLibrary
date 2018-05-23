@@ -1,21 +1,53 @@
 #include "MRFState.h"
 
-void MrfState_setShortDestinationAddress(MrfState *mrf) {
+void MrfState_init(MrfState *mrf) {
+  FrameHeader802154_init(&mrf->header.frame_header);
+  mrf->header.frame_header_length = FrameHeader802154_getHeaderSize(&mrf->header.frame_header);
+  mrf->header.frame_length = mrf->header.frame_header_length;
+}
+
+void MrfState_setShortDestinationAddress(MrfState *mrf, uint16_t address) {
+  FrameHeader802154_setShortDestinationAddress(&mrf->header.frame_header, address);
   mrf->state = 1;
 }
 
-void MrfState_setPayload(MrfState *mrf, const uint8_t *payload, uint8_t payload_length){
-  mrf->payload_length = payload_length;
+void MrfState_setExtendedDestinationAddress(MrfState *mrf, uint64_t address) {
+  FrameHeader802154_setExtendedDestinationAddress(&mrf->header.frame_header, address);
 }
 
-uint8_t MrfState_getFullDataLength(MrfState *mrf) {
-  return FrameHeader802154_getHeaderSize(&mrf->header.frame_header) + 2;
+void MrfState_setShortSourceAddress(MrfState *mrf, uint16_t address) {
+  FrameHeader802154_setShortSourceAddress(&mrf->header.frame_header, address);
+}
+
+void MrfState_setPayload(MrfState *mrf, const uint8_t *payload, uint8_t payload_length){
+  mrf->header.frame_length = payload_length + mrf->header.frame_header_length;
+  mrf->payload = payload;
+}
+
+uint8_t MrfState_getPayloadLength(MrfState *mrf) {
+  return mrf->header.frame_length - mrf->header.frame_header_length;
+}
+
+void MrfState_setPanId(MrfState *mrf, uint16_t pan_id) {
+  FrameHeader802154_setPanId(&mrf->header.frame_header, pan_id);
+}
+
+uint8_t MrfState_getFullHeaderLength(MrfState *mrf) {
+  return (uint8_t)(FrameHeader802154_getHeaderSize(&mrf->header.frame_header) + 2);
 }
 
 const uint8_t *MrfState_getFullHeaderData(MrfState *mrf) {
-  mrf->header.frame_header_length =
-          FrameHeader802154_getHeaderSize(&mrf->header.frame_header);
-  mrf->header.frame_length = mrf->payload_length + mrf->header.frame_header_length;
   return (uint8_t *) &mrf->header;
 }
 
+const uint8_t *MrfState_getPayload(MrfState *mrf) {
+  return mrf->payload;
+}
+
+bool MrfState_nextField(MrfState *mrf) {
+  if (mrf->state != 0)
+  {
+    mrf->state = 0;
+    return true;
+  }
+}
