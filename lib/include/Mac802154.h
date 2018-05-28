@@ -4,7 +4,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "lib/include/Message.h"
 #include "lib/include/Peripheral.h"
 
 typedef struct Mac802154 Mac802154;

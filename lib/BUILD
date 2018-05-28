@@ -16,7 +16,7 @@ filegroup(
 
 filegroup(
     name = "CommunicationModuleIncl",
-    srcs = glob(["include/*.h"]),
+    srcs = glob(["include/**/*.h"]),
 )
 
 exports_files(

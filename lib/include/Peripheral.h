@@ -2,6 +2,7 @@
 #define PERIPHERALINTERFACE_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef void Peripheral;
 typedef struct PeripheralInterface PeripheralInterface;
@@ -11,6 +12,7 @@ typedef struct PeripheralCallback {
   void (*function) (void *);
   void *argument;
 } PeripheralCallback;
+
 /**
  * Datei mit ISR sollte dann wie folgt aussehen:
  *
@@ -20,17 +22,23 @@ typedef struct PeripheralCallback {
  *   interface->handleInterrupt(interface);
  * }
  */
-struct PeripheralInterface {
-  void (*init) (PeripheralInterface *self);
-  void (*write)(PeripheralInterface *self, uint8_t byte);
-  uint8_t (*read)(PeripheralInterface *self);
-  void (*selectPeripheral) (PeripheralInterface *self, Peripheral *device);
-  void (*deselectPeripheral)(PeripheralInterface *interface, Peripheral *device);
-  void (*destroy) (PeripheralInterface *self);
-  void (*setWriteCallback) (PeripheralInterface *self, PeripheralCallback write_callback);
-  void (*setReadCallback) (PeripheralInterface *self, PeripheralCallback read_callback);
-};
 
+struct PeripheralInterface {
+  void (*init)(PeripheralInterface *self);
+  void (*writeNonBlocking)(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
+  void (*readNonBlocking)(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
+  void (*writeBlocking)(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
+  void (*readBlocking)(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
+  void (*setReadCallback)(PeripheralInterface *self, PeripheralCallback callback);
+  void (*setWriteCallback)(PeripheralInterface *self, PeripheralCallback callback);
+  void (*setCallbackClearFlags)(PeripheralInterface *self, bool clearReadCallbackOnCall, bool clearWriteCallbackOnCall);
+  void (*configurePeripheral)(PeripheralInterface *self, Peripheral *device);
+  void (*selectPeripheral)(PeripheralInterface *self, Peripheral *device);
+  void (*deselectPeripheral)(PeripheralInterface *self, Peripheral *device);
+  bool (*isBusy)(PeripheralInterface *self);
+  void (*destroy)(PeripheralInterface *self);
+  void (*handleInterrupt)();
+};
 
 void PeripheralInterface_init(PeripheralInterface *self);
 

@@ -2,7 +2,6 @@
 #define NETWORK_HARDWARE_PERIPHERAL_IMPL_H
 
 #include "lib/include/Mac802154.h"
-#include "lib/include/SPI.h"
 #include "lib/include/RuntimeLibraryInterface.h"
 
 /**

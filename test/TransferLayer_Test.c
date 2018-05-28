@@ -3,9 +3,9 @@
 //
 
 #include <string.h>
-#include "lib/include/TransferLayer/PeripheralInterface.h"
+#include "lib/include/Peripheral.h"
 #include "lib/include/RuntimeLibraryInterface.h"
-#include "test/Mocks/MockRuntimeLibraryImpl.h"
+#include "test/Mocks/RuntimeLibraryImplMock.h"
 #include "lib/include/TransferLayer/PeripheralSPIImpl.h"
 #include "unity.h"
 #include "lib/include/TransferLayer/InterruptData.h"
@@ -25,9 +25,7 @@ struct InterruptData{
 typedef struct PeripheralInterfaceImpl {
     PeripheralInterface interface;
     PeripheralCallback readCallback;
-    void *readCallbackParameter;
     PeripheralCallback writeCallback;
-    void *writeCallbackParameter;
     volatile uint8_t *ddr;
     volatile uint8_t *port;
     volatile uint8_t *spcr;
@@ -40,11 +38,11 @@ typedef struct PeripheralInterfaceImpl {
     InterruptData interruptData;
 } PeripheralInterfaceImpl;
 
-struct Peripheral{
+typedef struct SPIPeripheral{
     volatile uint8_t *DDR;
     uint8_t PIN;
     volatile  uint8_t *PORT;
-};
+} SPIPeripheral;
 
 volatile uint8_t mySPCR = 0;
 volatile uint8_t mySPDR = 0;
@@ -90,10 +88,10 @@ void setUp(){
     impl->interruptData.index = 0;
     impl->interruptData.buffer = NULL;
     impl->interruptData.length = 0;
-    impl->readCallback = NULL;
-    impl->readCallbackParameter = NULL;
-    impl->writeCallbackParameter = NULL;
-    impl->writeCallback = NULL;
+    impl->readCallback.function = NULL;
+    impl->readCallback.argument = NULL;
+    impl->writeCallback.function = NULL;
+    impl->writeCallback.argument = NULL;
 
     receiveBuffer = dynamic_memory->allocate(sizeof(uint8_t) * (11 + 1));
 }
@@ -115,9 +113,11 @@ void writeCallback(uint16_t *thingy){
 }
 
 
-void stub_callback(){
+void stub_callback_function(void * arg){
 
 }
+void *stub_callback_argument = (void*)2;
+PeripheralCallback stub_callback = {.argument = (void*) 2, .function = stub_callback_function};
 
 //METHODS
 
@@ -221,29 +221,28 @@ void test_spiSPCR(void){
 
 
 void test_setReadCallbackChangesMethod(void){
-  interface->setReadCallback(interface, stub_callback, NULL);
+    interface->setReadCallback(interface, stub_callback);
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
-    TEST_ASSERT_EQUAL_PTR(stub_callback, impl->readCallback);
+    TEST_ASSERT_EQUAL_PTR(stub_callback_function, impl->readCallback.function);
 }
 
 void test_setReadCallbackParameter(void){
-    int data = 2;
-  interface->setReadCallback(interface, stub_callback, &data);
+    interface->setReadCallback(interface, stub_callback);
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
-    TEST_ASSERT_EQUAL_PTR(&data, impl->readCallbackParameter);
+    TEST_ASSERT_EQUAL_PTR(stub_callback.argument, impl->readCallback.argument);
 }
 
 void test_setWriteCallbackChangesMethod(void){
-  interface->setWriteCallback(interface, stub_callback, NULL);
+    interface->setWriteCallback(interface, stub_callback);
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
-    TEST_ASSERT_EQUAL_PTR(stub_callback, impl->writeCallback);
+    TEST_ASSERT_EQUAL_PTR(stub_callback.function, impl->writeCallback.function);
 }
 
 void test_setWriteCallbackParameter(void){
     int data = 2;
-  interface->setWriteCallback(interface, stub_callback, &data);
+    interface->setWriteCallback(interface, stub_callback);
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
-    TEST_ASSERT_EQUAL_PTR(&data, impl->writeCallbackParameter);
+    TEST_ASSERT_EQUAL_PTR(stub_callback.argument, impl->writeCallback.argument);
 }
 
 void test_configurePeripheralNotNull(void){
@@ -252,7 +251,7 @@ void test_configurePeripheralNotNull(void){
 
 void test_configurePeripheral(void){
     uint8_t spi_slave = 1;
-    Peripheral device = {&DDRB, spi_slave, &PORTB};
+    SPIPeripheral device = {&DDRB, spi_slave, &PORTB};
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
     interface->init(interface);
     interface->configurePeripheral(interface, &device);
@@ -270,7 +269,7 @@ void test_selectPeripheralNotNull(void){
 
 void test_selectPeripheral(void){
     uint8_t spi_slave = 1;
-    Peripheral device = {&DDRB, spi_slave, &PORTB};
+    SPIPeripheral device = {&DDRB, spi_slave, &PORTB};
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
     interface->init(interface);
     interface->configurePeripheral(interface, &device);
@@ -286,7 +285,7 @@ void test_deselectPeripheralNotNull(void){
 
 void test_deselectPeripheral(void){
     uint8_t spi_slave = 1;
-    Peripheral device = {&DDRB, spi_slave, &PORTB};
+    SPIPeripheral device = {&DDRB, spi_slave, &PORTB};
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
     interface->init(interface);
     interface->configurePeripheral(interface, &device);
@@ -387,28 +386,32 @@ void test_readCallbackClearedAfterCallback(void){
     interface->setCallbackClearFlags(interface,true, false);
     uint16_t value = 0;
     uint16_t *valuePTR = &value;
-    interface->setReadCallback(interface, (void *) readCallback, valuePTR);
+    PeripheralCallback callback = {.function = (void (*)(void*)) readCallback, .argument = &value};
+    interface->setReadCallback(interface, callback);
     interface->readNonBlocking(interface, buffer, length);
     for(uint16_t i = 0; i < length; ++i){
         *impl->spdr = buffer[i];
         impl->handleInterrupt();
     }
     TEST_ASSERT_EQUAL_UINT16(1337, *valuePTR);
-    TEST_ASSERT_NULL(impl->readCallback);
-    TEST_ASSERT_NULL(impl->readCallbackParameter);
+    TEST_ASSERT_NULL(impl->readCallback.function);
+    TEST_ASSERT_NULL(impl->readCallback.argument);
 }
 
 void test_writeCallback(){
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
     interface->init(interface);
     uint16_t value = 0;
-    uint16_t *valuePTR = &value;
-    interface->setWriteCallback(interface, (void *) writeCallback, valuePTR);
+    PeripheralCallback callback = {
+            .function = (void (*)(void *)) writeCallback,
+            .argument = &value,
+    };
+    interface->setWriteCallback(interface, callback);
     interface->writeNonBlocking(interface, buffer, length);
     for(uint16_t i = 0; i < length; ++i){
         impl->handleInterrupt();
     }
-    TEST_ASSERT_EQUAL_UINT16(123, *valuePTR);
+    TEST_ASSERT_EQUAL_UINT16(123, value);
 }
 
 
@@ -496,7 +499,7 @@ void test_writeNonBlockingTwiceGivesException(void){
             }Catch(ex){
 
     }
-    TEST_ASSERT_EQUAL_UINT8(SPI_BUSY_EXCEPTION, ex);
+    TEST_ASSERT_EQUAL_UINT8(PERIPHERAL_INTERFACE_BUSY_EXCEPTION, ex);
 }
 
 void test_readNonBlockingTwiceGivesException(void){
@@ -508,7 +511,7 @@ void test_readNonBlockingTwiceGivesException(void){
             }Catch(ex){
 
     }
-    TEST_ASSERT_EQUAL_UINT8(SPI_BUSY_EXCEPTION, ex);
+    TEST_ASSERT_EQUAL_UINT8(PERIPHERAL_INTERFACE_BUSY_EXCEPTION, ex);
 }
 
 void test_readAndWriteNonBlockingGivesException(void){
@@ -520,7 +523,7 @@ void test_readAndWriteNonBlockingGivesException(void){
             }Catch(ex){
 
     }
-    TEST_ASSERT_EQUAL_UINT8(SPI_BUSY_EXCEPTION, ex);
+    TEST_ASSERT_EQUAL_UINT8(PERIPHERAL_INTERFACE_BUSY_EXCEPTION, ex);
 }
 
 void test_writeAndreadNonBlockingGivesException(void){
@@ -532,7 +535,7 @@ void test_writeAndreadNonBlockingGivesException(void){
             }Catch(ex){
 
     }
-    TEST_ASSERT_EQUAL_UINT8(SPI_BUSY_EXCEPTION, ex);
+    TEST_ASSERT_EQUAL_UINT8(PERIPHERAL_INTERFACE_BUSY_EXCEPTION, ex);
 }
 
 
@@ -541,14 +544,17 @@ void test_readCallback(){
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
     interface->init(interface);
     uint16_t value = 0;
-    uint16_t *valuePTR = &value;
-    interface->setReadCallback(interface, (void *) readCallback, valuePTR);
+    PeripheralCallback callback = {
+            .function = (void (*) (void *)) readCallback,
+            .argument = &value
+    };
+    interface->setReadCallback(interface, callback);
     interface->readNonBlocking(interface, buffer, length);
     for(uint16_t i = 0; i < length; ++i){
         *impl->spdr = buffer[i];
         impl->handleInterrupt();
     }
-    TEST_ASSERT_EQUAL_UINT16(1337, *valuePTR);
+    TEST_ASSERT_EQUAL_UINT16(1337, value);
 }
 
 //These tests can only be run on SPI

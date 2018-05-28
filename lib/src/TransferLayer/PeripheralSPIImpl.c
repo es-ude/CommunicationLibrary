@@ -2,9 +2,8 @@
 // Created by Peter Zdankin on 01.04.18.
 //
 
-
 #include <stdbool.h>
-#include "lib/include/TransferLayer/PeripheralInterface.h"
+#include "lib/include/Peripheral.h"
 #include "lib/include/TransferLayer/PeripheralSPIImpl.h"
 #include "lib/include/TransferLayer/InterruptData.h"
 #include "CException.h"
@@ -17,18 +16,16 @@ struct InterruptData{
     bool busy;
 };
 
-struct Peripheral{
+typedef struct SPIPeripheral{
     volatile uint8_t *DDR;
     uint8_t PIN;
     volatile  uint8_t *PORT;
-};
+} SPIPeripheral;
 
 typedef struct PeripheralInterfaceImpl {
     PeripheralInterface interface;
     PeripheralCallback readCallback;
-    void *readCallbackParameter;
     PeripheralCallback writeCallback;
-    void *writeCallbackParameter;
 
     volatile uint8_t *ddr;
     volatile uint8_t *port;
@@ -40,7 +37,7 @@ typedef struct PeripheralInterfaceImpl {
     uint8_t f_osc;
     void (*handleInterrupt)(void);
     InterruptData interruptData;
-    Peripheral *device;
+    SPIPeripheral *device;
 } PeripheralInterfaceImpl;
 
 
@@ -54,8 +51,8 @@ static void writeBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t l
 static void readBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
 static void writeNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
 static void readNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
-static void setReadCallback(PeripheralInterface *self, PeripheralCallback callback, void *callback_parameter);
-static void setWriteCallback(PeripheralInterface *self, PeripheralCallback callback, void *callback_parameter);
+static void setReadCallback(PeripheralInterface *self, PeripheralCallback callback);
+static void setWriteCallback(PeripheralInterface *self, PeripheralCallback callback);
 static void setCallbackClearFlags(PeripheralInterface *self, bool clearReadCallbackOnCall, bool clearWriteCallbackOnCall);
 static void configurePeripheral(PeripheralInterface *self, Peripheral *device);
 static void selectPeripheral(PeripheralInterface *self, Peripheral *device);
@@ -83,8 +80,10 @@ PeripheralInterface * PeripheralInterface_create(TransferLayerConfig transferLay
     PIImpl->spdr = spiConfig.spdr;
     PIImpl->spsr = spiConfig.spsr;
     PIImpl->f_osc = spiConfig.sck_rate;
-    PIImpl->readCallback = NULL;
-    PIImpl->writeCallback = NULL;
+    PIImpl->readCallback.function = NULL;
+    PIImpl->readCallback.argument = NULL;
+    PIImpl->writeCallback.function = NULL;
+    PIImpl->writeCallback.argument = NULL;
 
 
     PIImpl->interface.init = init;
@@ -259,22 +258,22 @@ static bool spiBusy(PeripheralInterfaceImpl *self){
  * @param impl - The PeripheralInterface
  */
 static void readCallback(PeripheralInterfaceImpl *impl){
-    if (impl->readCallback != NULL) {
-        impl->readCallback(impl->readCallbackParameter);
+    if (impl->readCallback.function != NULL) {
+        impl->readCallback.function(impl->readCallback.argument);
     }
     if (impl->clearReadCallback){
-        impl->readCallback = NULL;
-        impl->readCallbackParameter = NULL;
+        impl->readCallback.function = NULL;
+        impl->readCallback.argument = NULL;
     }
 }
 
 static void writeCallback(PeripheralInterfaceImpl *impl){
-    if (impl->writeCallback != NULL) {
-        impl->writeCallback(impl->writeCallbackParameter);
+    if (impl->writeCallback.function != NULL) {
+        impl->writeCallback.function(impl->writeCallback.argument);
     }
     if(impl->clearWriteCallback){
-        impl->writeCallback = NULL;
-        impl->writeCallbackParameter = NULL;
+        impl->writeCallback.function = NULL;
+        impl->writeCallback.argument = NULL;
     }
 }
 
@@ -352,7 +351,7 @@ void writeNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t lengt
         setupNonBlocking(impl, buffer, length, writeInInterrupt);
         interfacePTR->handleInterrupt(); //Write First Byte
     }else{
-        Throw(SPI_BUSY_EXCEPTION);
+        Throw(PERIPHERAL_INTERFACE_BUSY_EXCEPTION);
     }
 }
 
@@ -371,7 +370,7 @@ void readNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length
         write(impl, 0x00); // Start transmission
     }
     else{
-        Throw(SPI_BUSY_EXCEPTION);
+        Throw(PERIPHERAL_INTERFACE_BUSY_EXCEPTION);
     }
 }
 
@@ -425,10 +424,9 @@ void destroy(PeripheralInterface *self){
  * @param callback - The function to be called
  * @param callback_parameter - The parameters to pass the function
  */
-void setReadCallback(PeripheralInterface *self, PeripheralCallback callback, void *callback_parameter){
+void setReadCallback(PeripheralInterface *self, PeripheralCallback callback){
     PeripheralInterfaceImpl *peripheralSPI = (PeripheralInterfaceImpl *)self;
     peripheralSPI->readCallback = callback;
-    peripheralSPI->readCallbackParameter = callback_parameter;
 }
 
 /**
@@ -437,10 +435,9 @@ void setReadCallback(PeripheralInterface *self, PeripheralCallback callback, voi
  * @param callback - The function to be called
  * @param callback_parameter - The parameters to pass the function
  */
-void setWriteCallback(PeripheralInterface *self, PeripheralCallback callback, void *callback_parameter){
+void setWriteCallback(PeripheralInterface *self, PeripheralCallback callback){
     PeripheralInterfaceImpl *peripheralSPI = (PeripheralInterfaceImpl *)self;
     peripheralSPI->writeCallback = callback;
-    peripheralSPI->writeCallbackParameter = callback_parameter;
 }
 
 /**
@@ -461,10 +458,11 @@ void setCallbackClearFlags(PeripheralInterface *self,bool clearReadCallbackOnCal
  * @param device - The device to become a slave
  */
 void configurePeripheral(PeripheralInterface *self, Peripheral *device){
+    SPIPeripheral *peripheral = (SPIPeripheral *) device;
     PeripheralInterfaceImpl *peripheralSPI = (PeripheralInterfaceImpl *)self;
     peripheralSPI->device = device;
-    set_bit(device->DDR, device->PIN);
-    set_bit(device->PORT, device->PIN);
+    set_bit(peripheral->DDR, peripheral->PIN);
+    set_bit(peripheral->PORT, peripheral->PIN);
 }
 
 /**
@@ -473,7 +471,8 @@ void configurePeripheral(PeripheralInterface *self, Peripheral *device){
  * @param device - The Device
  */
 void selectPeripheral(PeripheralInterface *self, Peripheral *device){
-    unset_bit(device->PORT, device->PIN);
+    SPIPeripheral *peripheral = (SPIPeripheral *) device;
+    unset_bit(peripheral->PORT, peripheral->PIN);
 }
 
 /**
@@ -482,7 +481,8 @@ void selectPeripheral(PeripheralInterface *self, Peripheral *device){
  * @param device - The Device
  */
 void deselectPeripheral(PeripheralInterface *self, Peripheral *device){
-    set_bit(device->PORT, device->PIN);
+  SPIPeripheral *peripheral = (SPIPeripheral *) device;
+  set_bit(peripheral->PORT, peripheral->PIN);
 }
 
 /**

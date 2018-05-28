@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "lib/include/TransferLayer/PeripheralInterface.h"
+#include "lib/include/Peripheral.h"
 #include "lib/include/RuntimeLibraryInterface.h"
 #include "lib/include/TransferLayer/PeripheralSPIImpl.h"
 #include "lib/include/platform/io.h"
