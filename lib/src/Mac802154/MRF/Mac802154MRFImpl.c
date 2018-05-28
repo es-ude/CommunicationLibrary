@@ -71,6 +71,7 @@ static void destroy(Mac802154 *self);
 static void setShortDestinationAddress(Mac802154 *self, uint16_t address);
 static void setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length);
 
+
 static void reset(Mrf *impl);
 static void setInitializationValuesFromDatasheet(MrfIo *impl);
 static void setInitializationValuesFromDatasheetOld(Mrf *impl);
