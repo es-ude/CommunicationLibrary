@@ -15,7 +15,7 @@ struct Mrf {
   Peripheral *device;
   void (*deallocate)(void *);
   void (*delay_microseconds)(double);
-  MrfState *state;
+  MrfState state;
 };
 
 

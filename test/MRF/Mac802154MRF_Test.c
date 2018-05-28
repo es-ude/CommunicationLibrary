@@ -46,6 +46,12 @@ void test_channelSelectionRegisterValueIsCalculatedCorrectly(void) {
 void test_initPerformsSetupLikeShownInDatasheet(void) {
   Mrf *impl = (Mrf *) mrf;
   setUpInitializationValues(&impl->io, &mrf_config);
+  MrfState_init_Expect(&impl->state);
+  MrfState_setPanId_Expect(&impl->state, mrf_config.pan_id);
+  MrfState_setShortSourceAddress_Expect(&impl->state, mrf_config.short_source_address);
+  uint64_t coordinators_address = 0;
+  MrfState_setExtendedDestinationAddress_Expect(&impl->state, coordinators_address);
+
   Mac802154_init(mrf, &mrf_config);
 }
 
@@ -57,6 +63,12 @@ void test_initWithDifferentConfig(void) {
   Mrf *impl = (Mrf *) mrf;
 
   setUpInitializationValues(&impl->io, &mrf_config);
+  MrfState_init_Expect(&impl->state);
+  MrfState_setPanId_Expect(&impl->state, mrf_config.pan_id);
+  MrfState_setShortSourceAddress_Expect(&impl->state, mrf_config.short_source_address);
+  uint64_t coordinators_address = 0;
+  MrfState_setExtendedDestinationAddress_Expect(&impl->state, coordinators_address);
+
   Mac802154_init(mrf, &mrf_config);
 }
 

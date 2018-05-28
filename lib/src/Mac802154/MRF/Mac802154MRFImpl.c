@@ -118,6 +118,12 @@ void init(Mac802154 *self, const Mac802154Config *config) {
   setShortSourceAddress(impl, &config->short_source_address);
   setExtendedSourceAddress(impl, &config->extended_source_address);
   setPanId(impl, &config->pan_id);
+
+  MrfState_init(&impl->state);
+  MrfState_setPanId(&impl->state, config->pan_id);
+  MrfState_setShortSourceAddress(&impl->state, config->short_source_address);
+  uint64_t coordinators_address = 0;
+  MrfState_setExtendedDestinationAddress(&impl->state, coordinators_address);
 }
 
 void setShortSourceAddress(Mrf *impl, const uint16_t *address) {
@@ -202,17 +208,18 @@ void destroy(Mac802154 *self){
 
 void setShortDestinationAddress(Mac802154 *self, uint16_t address) {
   Mrf *impl = (Mrf *) self;
+  MrfState_setShortDestinationAddress(&impl->state, address);
 }
 
 void setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length) {
   Mrf *impl = (Mrf *) self;
-  MrfState_setPayload(impl->state, payload, payload_length);
+  MrfState_setPayload(&impl->state, payload, payload_length);
 }
 
 void sendBlocking(Mac802154 *self) {
   Mrf *impl = (Mrf *) self;
-  MrfField current_field = MrfState_getFullHeaderField(impl->state);
+  MrfField current_field = MrfState_getFullHeaderField(&impl->state);
   MrfIo_writeBlockingToLongAddress(&impl->io, current_field.data, current_field.size, current_field.address);
-  current_field = MrfState_getPayloadField(impl->state);
+  current_field = MrfState_getPayloadField(&impl->state);
   MrfIo_writeBlockingToLongAddress(&impl->io, current_field.data, current_field.size, current_field.address);
 }

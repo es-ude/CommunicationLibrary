@@ -51,3 +51,21 @@ bool MrfState_nextField(MrfState *mrf) {
     return true;
   }
 }
+
+MrfField MrfState_getFullHeaderField(MrfState *mrf) {
+  MrfField field = {
+          .address = 0,
+          .data = MrfState_getFullHeaderData(mrf),
+          .size = MrfState_getFullHeaderLength(mrf),
+  };
+  return field;
+}
+
+MrfField MrfState_getPayloadField(MrfState *self) {
+  MrfField field = {
+          .data = MrfState_getPayload(self),
+          .size = MrfState_getPayloadLength(self),
+          .address = MrfState_getFullHeaderLength(self),
+  };
+  return field;
+}
