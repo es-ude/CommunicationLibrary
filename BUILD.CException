@@ -8,11 +8,20 @@ filegroup(
     srcs = ["lib/CException.h"],
 )
 
+config_setting(
+    name = "avr-config",
+    values = {
+        "cpu": "avr",
+    },
+)
+
 cc_library(
     name = "CException",
     srcs = [":CExceptionSrc"],
     hdrs = [":CExceptionHdr"],
-    defines = ["CEXCEPTION_T=unsigned\ char", "CEXCEPTION_NONE=0x00"],
+    copts = select({
+        ":avr-config": ["-mmcu=$(MCU)"],
+        "//conditions:default": []})  + ["-include stdint.h","-DCEXCEPTION_T=uint8_t", "-DCEXCEPTION_NONE=0x00"],
     strip_include_prefix = "lib/",
     visibility = ["//visibility:public"],
 )

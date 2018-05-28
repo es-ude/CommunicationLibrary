@@ -34,7 +34,7 @@ generate_a_unity_test_for_every_file(
         ],
     ),
     deps = [
-        "//lib:CommunicationModule",
+        "//lib:CommunicationLibrary",
         "//test/Mocks:MockLibrary",
         "@CException//:CException",
         "@CMock//:CMock",
@@ -64,10 +64,10 @@ unity_test(
 
 """
 We have every *_Test.c seperately build as an executable.
-This rule gathers a set of cc_test rules and let's the user
+This rule gathers a set of cc_test rules and let'peripheral the user
 execute each of them in a single bazel command.
 If no cc_test rules are specified it just gathers all
-cc_test rules in it's package.
+cc_test rules in it'peripheral package.
 So by running
     bazel test test:all
 you can run every test available.
