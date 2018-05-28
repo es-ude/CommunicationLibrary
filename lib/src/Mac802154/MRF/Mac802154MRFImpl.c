@@ -2,6 +2,9 @@
 #include "lib/include/Mac802154MRFImpl.h"
 #include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
 #include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
+#include "lib/src/Mac802154/MRF/MRFState.h"
+#include "lib/src/Mac802154/MRF/MrfIo.h"
+#include "lib/src/Mac802154/MRF/Mrf.h"
 
 /**
  * # Data Frame Header structure #
@@ -70,6 +73,7 @@ static void init(Mac802154 *self, const Mac802154Config *config);
 static void destroy(Mac802154 *self);
 static void setShortDestinationAddress(Mac802154 *self, uint16_t address);
 static void setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length);
+static void sendBlocking(Mac802154 *self);
 
 
 static void reset(Mrf *impl);
@@ -99,6 +103,7 @@ void setUpInterface(Mac802154 *interface) {
   interface->destroy = destroy;
   interface->setShortDestinationAddress = setShortDestinationAddress;
   interface->setPayload = setPayload;
+  interface->sendBlocking = sendBlocking;
 }
 
 void init(Mac802154 *self, const Mac802154Config *config) {
@@ -201,4 +206,9 @@ void setShortDestinationAddress(Mac802154 *self, uint16_t address) {
 
 void setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length) {
   Mrf *impl = (Mrf *) self;
+  MrfState_setPayload(impl->state, payload, payload_length);
+}
+
+void sendBlocking(Mac802154 *self) {
+
 }

@@ -9,6 +9,7 @@
 #include "lib/src/Mac802154/MRF/MockMRFState.h"
 #include "test/MRF/MockMac802154MRF_TestHelper.h"
 #include "lib/src/Mac802154/MRF/MockMrfIo.h"
+#include "lib/src/Mac802154/MRF/Mrf.h"
 
 MemoryManagement *inspected_memory;
 
@@ -94,7 +95,11 @@ void setUpInitializationValues(MrfIo *impl, const Mac802154Config *config) {
 void test_sendBlocking(void) {
   uint8_t payload[] = "hello, world!";
 
-  uint8_t payload_length = strlen((const char *) payload);
+  uint8_t payload_length = (uint8_t) strlen((const char *) payload);
+
+  MrfState_setPayload_Expect(NULL, payload, payload_length);
+  MrfState_setPayload_IgnoreArg_mrf();
   Mac802154_setPayload(mrf, payload, payload_length);
-//  Mac802154_send(mrf);
+
+  Mac802154_sendBlocking(mrf);
 }

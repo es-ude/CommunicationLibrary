@@ -50,27 +50,16 @@ struct Mac802154Config {
   Peripheral *device;
 };
 
-static inline void Mac802154_init(Mac802154 *hardware,
-                                  const Mac802154Config *config) {
-  hardware->init(hardware, config);
-}
+void Mac802154_init(Mac802154 *hardware,
+                                  const Mac802154Config *config);
 
+void Mac802154_sendBlocking(Mac802154 *hardware);
 
-static inline void Mac802154_send(Mac802154 *hardware) {
-  hardware->sendNonBlocking(hardware);
-}
+void Mac802154_destroy(Mac802154 *self);
 
-static inline void Mac802154_destroy(Mac802154 *self) {
-  self->destroy(self);
-}
+void Mac802154_setShortDestinationAddress(Mac802154 *self, uint16_t address);
 
-static inline void Mac802154_setShortDestinationAddress(Mac802154 *self, uint16_t address) {
-  self->setShortDestinationAddress(self, address);
-}
-
-static inline void Mac802154_setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length) {
-  self->setPayload(self, payload, payload_length);
-}
+void Mac802154_setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length);
 
 typedef struct FrameControlField802154 {
   unsigned frame_type : 3;

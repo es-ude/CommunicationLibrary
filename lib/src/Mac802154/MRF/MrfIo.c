@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "lib/src/Mac802154/MRF/MrfIo.h"
 #include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
 
