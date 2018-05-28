@@ -7,14 +7,6 @@ config_setting(
 )
 
 filegroup(
-    name = "CommunicationModuleSrc",
-    srcs = glob([
-        "src/*.c",
-        "src/*.h",
-    ]),
-)
-
-filegroup(
     name = "CommunicationModuleIncl",
     srcs = glob(["include/*.h"]),
 )
@@ -27,16 +19,6 @@ filegroup(
 filegroup(
     name = "PlatformSrc",
     srcs = glob(["src/platform/**/*.c"]),
-)
-
-filegroup(
-    name = "SPILayerIncl",
-    srcs = glob(["include/Peripheral/*.h"]),
-)
-
-filegroup(
-    name = "SPILayerSrc",
-    srcs = glob(["src/Peripheral/*.c"]),
 )
 
 filegroup(
@@ -58,22 +40,11 @@ filegroup(
     name = "TransferLayerIncl",
     srcs = glob(["include/TransferLayer/*.h"]),
 )
+
 filegroup(
     name = "TransferLayerSrc",
     srcs = glob(["src/TransferLayer/*.c"]),
 )
-
-filegroup(
-    name = "CommunicationLayerSrc",
-    srcs = glob(["src/communicationLayer/*.c"]),
-)
-
-filegroup(
-    name = "DepracatedHeaderFiles",
-    srcs = glob(["include/DEPRACATED/*.h"]),
-)
-
-
 
 """
 The select function allows to make the right hand option of a attribute
@@ -86,14 +57,23 @@ and $(MCU) is replaced by <mcu-name>
 
 cc_library(
     name = "CommunicationLibrary",
-    srcs = [":CommunicationModuleSrc",":SPILayerSrc", ":CommunicationLayerSrc",":TransferLayerSrc",":UartSrc", ":PlatformSrc"],
-    hdrs = [":CommunicationModuleIncl", ":PlatformDependencies", ":SPILayerIncl", ":CommunicationLayerIncl", ":DepracatedHeaderFiles", ":TransferLayerIncl",":UartIncl"],
+    srcs = [
+        ":PlatformSrc",
+        ":TransferLayerSrc",
+        ":UartSrc",
+    ],
+    hdrs = [
+        ":CommunicationModuleIncl",
+        ":PlatformDependencies",
+        ":TransferLayerIncl",
+        ":UartIncl",
+    ],
     copts = select({
         ":avr-config": ["-mmcu=$(MCU)"],
         "//conditions:default": [],
-        }),
+    }),
     visibility = [
-        "//visibility:public"
-        ],
+        "//visibility:public",
+    ],
     deps = ["@CException//:CException"],
-    )
+)

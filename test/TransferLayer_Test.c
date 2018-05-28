@@ -8,8 +8,7 @@
 #include "test/Mocks/MockRuntimeLibraryImpl.h"
 #include "lib/include/TransferLayer/PeripheralSPIImpl.h"
 #include "unity.h"
-#include "lib/include/platform/io.h"
-#include "lib/include/communicationLayer/InterruptData.h"
+#include "lib/include/TransferLayer/InterruptData.h"
 #include "CException.h"
 #include "lib/include/Exception.h"
 
@@ -116,7 +115,7 @@ void writeCallback(uint16_t *thingy){
 }
 
 
-void test(){
+void stub_callback(){
 
 }
 
@@ -222,27 +221,27 @@ void test_spiSPCR(void){
 
 
 void test_setReadCallbackChangesMethod(void){
-    interface->setReadCallback(interface,test, NULL);
+  interface->setReadCallback(interface, stub_callback, NULL);
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
-    TEST_ASSERT_EQUAL_PTR(test, impl->readCallback);
+    TEST_ASSERT_EQUAL_PTR(stub_callback, impl->readCallback);
 }
 
 void test_setReadCallbackParameter(void){
     int data = 2;
-    interface->setReadCallback(interface,test, &data);
+  interface->setReadCallback(interface, stub_callback, &data);
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
     TEST_ASSERT_EQUAL_PTR(&data, impl->readCallbackParameter);
 }
 
 void test_setWriteCallbackChangesMethod(void){
-    interface->setWriteCallback(interface,test, NULL);
+  interface->setWriteCallback(interface, stub_callback, NULL);
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
-    TEST_ASSERT_EQUAL_PTR(test, impl->writeCallback);
+    TEST_ASSERT_EQUAL_PTR(stub_callback, impl->writeCallback);
 }
 
 void test_setWriteCallbackParameter(void){
     int data = 2;
-    interface->setWriteCallback(interface,test, &data);
+  interface->setWriteCallback(interface, stub_callback, &data);
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
     TEST_ASSERT_EQUAL_PTR(&data, impl->writeCallbackParameter);
 }
@@ -451,6 +450,9 @@ void test_InterruptsDisabledAfterNonBlockingRead(void){
 }
 
 void test_nonBlockingReadSPDR(void){
+  // This test is ignored since it is currently not clear
+  // how to correctly unit test that behaviour.
+  TEST_IGNORE();
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
     interface->init(interface);
     interface->readNonBlocking(interface, receiveBuffer, length);
