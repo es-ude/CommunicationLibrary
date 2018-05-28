@@ -44,7 +44,7 @@ mock(
 mock(
     name = "MockMRFHelperFunctions",
     file = "//lib:src/Mac802154/MRF/MRFHelperFunctions.h",
-    deps = ["//lib:CommunicationModule"],
+    deps = ["//lib:CommunicationModuleLibForTest"],
 )
 
 """

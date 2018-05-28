@@ -81,7 +81,7 @@ unity_test(
     deps = [
         ":MockMac802154Test_Helper",
         ":MockPeripheralInterface",
-        "//lib:CommunicationModule",
+        "//lib:CommunicationModuleLibForTest",
         "@CException//:CException",
         "@CMock//:CMock",
     ],
