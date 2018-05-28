@@ -210,5 +210,9 @@ void setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length) 
 }
 
 void sendBlocking(Mac802154 *self) {
-
+  Mrf *impl = (Mrf *) self;
+  MrfField current_field = MrfState_getFullHeaderField(impl->state);
+  MrfIo_writeBlockingToLongAddress(&impl->io, current_field.data, current_field.size, current_field.address);
+  current_field = MrfState_getPayloadField(impl->state);
+  MrfIo_writeBlockingToLongAddress(&impl->io, current_field.data, current_field.size, current_field.address);
 }

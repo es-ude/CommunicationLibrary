@@ -44,6 +44,7 @@ void MrfState_setPanId(MrfState *mrf, uint16_t pan_id);
 void MrfState_setPayload(MrfState *mrf, const uint8_t *payload, uint8_t payload_length);
 const uint8_t *MrfState_getPayload(MrfState *mrf);
 uint8_t MrfState_getPayloadLength(MrfState *mrf);
+MrfField MrfState_getPayloadField(MrfState *mrf_state);
 void MrfState_setSequenceNumber(MrfState *mrf);
 void MrfState_disableSequenceNumber(MrfState *mrf);
 void MrfState_enableSequenceNumber(MrfState *mrf);
@@ -53,4 +54,5 @@ MrfField MrfState_getCurrentField(MrfState *mrf);
 uint8_t MrfState_getFullHeaderLength(MrfState *mrf);
 uint8_t MrfState_getCurrentFieldsOffset(MrfState *mrf);
 const uint8_t *MrfState_getCurrentFieldsData(MrfState *mrf);
+MrfField MrfState_getFullHeaderField(MrfState *mrf_state);
 #endif

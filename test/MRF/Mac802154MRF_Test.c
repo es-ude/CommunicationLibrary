@@ -99,7 +99,31 @@ void test_sendBlocking(void) {
 
   MrfState_setPayload_Expect(NULL, payload, payload_length);
   MrfState_setPayload_IgnoreArg_mrf();
+
   Mac802154_setPayload(mrf, payload, payload_length);
+
+  uint8_t fake_header_data[] = "123456789";
+  uint8_t fake_header_length = 9;
+  uint8_t fake_header_memory_address = 0;
+  MrfField full_header = {
+          .data = fake_header_data,
+          .size = fake_header_length,
+          .address = fake_header_memory_address,
+  };
+  MrfState_getFullHeaderField_ExpectAnyArgsAndReturn(full_header);
+
+  MrfField payload_field = {
+          .data = payload,
+          .size = payload_length,
+          .address = fake_header_length,
+  };
+  MrfState_getPayloadField_ExpectAnyArgsAndReturn(payload_field);
+
+  MrfIo_writeBlockingToLongAddress_Expect(NULL, full_header.data, full_header.size, full_header.address);
+  MrfIo_writeBlockingToLongAddress_IgnoreArg_mrf();
+
+  MrfIo_writeBlockingToLongAddress_Expect(NULL, payload_field.data, payload_field.size, payload_field.address);
+  MrfIo_writeBlockingToLongAddress_IgnoreArg_mrf();
 
   Mac802154_sendBlocking(mrf);
 }
