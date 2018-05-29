@@ -1,14 +1,18 @@
-cc_binary(
-  name = "PetersBin",
-  copts = ["-mmcu=$(MCU)"],
-  linkopts = ["-mmcu=$(MCU)"],
-  srcs = ["src/main.c"],
-  deps = ["//lib:CommunicationLibrary"])
+load("@AVR_Toolchain//:hex.bzl", "avr_minimal_copts", "generate_hex")
 
-load("@AVR_Toolchain//:hex.bzl", "generate_hex")
+cc_binary(
+    name = "WriteOneFrameBlocking",
+    srcs = ["src/write_one_frame_blocking.c"],
+    copts = avr_minimal_copts(),
+    linkopts = avr_minimal_copts(),
+    deps = [
+        "//lib:CommunicationModuleLibForTest",
+        "@CException//:CException",
+    ],
+)
 
 generate_hex(
-  name = "PetersBinHex",
-  input = "PetersBin",
-  mcu = "atmega328p"
+    name = "WriteOneFrameBlockingHex",
+    input = ":WriteOneFrameBlocking",
+    mcu = "atmega328p",
 )

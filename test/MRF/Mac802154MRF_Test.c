@@ -53,6 +53,8 @@ void test_initPerformsSetupLikeShownInDatasheet(void) {
   MrfState_setExtendedDestinationAddress_Expect(&impl->state, coordinators_address);
 
   Mac802154_init(mrf, &mrf_config);
+  TEST_ASSERT_EQUAL_PTR(impl->io.device, device);
+  TEST_ASSERT_EQUAL_PTR(impl->io.interface, interface);
 }
 
 void test_initWithDifferentConfig(void) {
@@ -105,8 +107,8 @@ void setUpInitializationValues(MrfIo *impl, const Mac802154Config *config) {
 }
 
 void test_sendBlocking(void) {
+  Mrf *impl = (Mrf *) mrf;
   uint8_t payload[] = "hello, world!";
-
   uint8_t payload_length = (uint8_t) strlen((const char *) payload);
 
   MrfState_setPayload_Expect(NULL, payload, payload_length);
@@ -136,6 +138,8 @@ void test_sendBlocking(void) {
 
   MrfIo_writeBlockingToLongAddress_Expect(NULL, payload_field.data, payload_field.size, payload_field.address);
   MrfIo_writeBlockingToLongAddress_IgnoreArg_mrf();
+
+  MrfIo_setControlRegister_Expect(&impl->io, mrf_register_tx_normal_fifo_control, 1);
 
   Mac802154_sendBlocking(mrf);
 }

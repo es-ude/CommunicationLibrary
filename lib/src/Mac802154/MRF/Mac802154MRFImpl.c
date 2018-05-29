@@ -74,21 +74,21 @@ static void destroy(Mac802154 *self);
 static void setShortDestinationAddress(Mac802154 *self, uint16_t address);
 static void setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length);
 static void sendBlocking(Mac802154 *self);
-
+static void setExtendedDestinationAddress(Mac802154 *self, uint64_t address);
+static void setShortSourceAddress(Mrf *impl, const uint16_t* address);
+static void setExtendedSourceAddress(Mrf *impl, const uint64_t *address);
+static void setPanId(Mrf *impl, const uint16_t *pan_id);
 
 static void reset(Mrf *impl);
 static void setInitializationValuesFromDatasheet(MrfIo *impl);
-static void setInitializationValuesFromDatasheetOld(Mrf *impl);
 static void setPrivateVariables(Mrf *impl, const Mac802154Config *config);
 static void setUpInterface(Mac802154 *interface);
-
 static void enableRXInterrupt(Mrf *impl);
 static void setChannel(Mrf *impl, uint8_t channel);
 static void setUpTransmitterPower(Mrf *impl);
 static void resetInternalRFStateMachine(Mrf *impl);
-static void setShortSourceAddress(Mrf *impl, const uint16_t* address);
-static void setExtendedSourceAddress(Mrf *impl, const uint64_t *address);
-static void setPanId(Mrf *impl, const uint16_t *pan_id);
+static void triggerSend(Mrf *impl);
+
 
 Mac802154 *Mac802154_createMRF(MemoryManagement *dynamic_memory, DelayFunction delay_microseconds) {
   Mrf *impl = dynamic_memory->allocate(sizeof(*impl));
@@ -103,6 +103,7 @@ void setUpInterface(Mac802154 *interface) {
   interface->destroy = destroy;
   interface->setShortDestinationAddress = setShortDestinationAddress;
   interface->setPayload = setPayload;
+  interface->setExtendedDestinationAddress = setExtendedDestinationAddress;
   interface->sendBlocking = sendBlocking;
 }
 
@@ -111,7 +112,6 @@ void init(Mac802154 *self, const Mac802154Config *config) {
   setPrivateVariables(impl, config);
   reset(impl);
   setInitializationValuesFromDatasheet(&impl->io);
-  setInitializationValuesFromDatasheetOld(impl);
   enableRXInterrupt(impl);
   setChannel(impl, config->channel);
   setUpTransmitterPower(impl);
@@ -146,8 +146,8 @@ void enableRXInterrupt(Mrf *impl) {
 }
 
 void setPrivateVariables(Mrf *impl, const Mac802154Config *config) {
-  impl->interface = config->interface;
-  impl->device = config->device;
+  impl->io.interface = config->interface;
+  impl->io.device = config->device;
 }
 
 void reset(Mrf *impl) {
@@ -179,10 +179,6 @@ void setInitializationValuesFromDatasheet(MrfIo *io) {
   MrfIo_setControlRegister(io, mrf_register_energy_detection_threshold_for_clear_channel_assessment, mrf_value_recommended_energy_detection_threshold);
   MrfIo_setControlRegister(io, mrf_register_base_band6, mrf_value_append_rssi_value_to_rxfifo);
 
-
-}
-
-void setInitializationValuesFromDatasheetOld(Mrf *impl) {
 
 }
 
@@ -222,4 +218,14 @@ void sendBlocking(Mac802154 *self) {
   MrfIo_writeBlockingToLongAddress(&impl->io, current_field.data, current_field.size, current_field.address);
   current_field = MrfState_getPayloadField(&impl->state);
   MrfIo_writeBlockingToLongAddress(&impl->io, current_field.data, current_field.size, current_field.address);
+  triggerSend(impl);
+}
+
+void setExtendedDestinationAddress(Mac802154 *self, uint64_t address) {
+  Mrf *impl = (Mrf *) self;
+  MrfState_setExtendedDestinationAddress(&impl->state, address);
+}
+
+void triggerSend(Mrf *impl) {
+  MrfIo_setControlRegister(&impl->io, mrf_register_tx_normal_fifo_control, 1);
 }

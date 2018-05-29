@@ -11,7 +11,7 @@ typedef struct Mac802154Config Mac802154Config;
 
 struct Mac802154 {
   void (*setShortDestinationAddress) (Mac802154 *self, uint16_t address);
-  void (*setExtendedDestinationAddress) (Mac802154 *self, uint8_t* address);
+  void (*setExtendedDestinationAddress) (Mac802154 *self, uint64_t address);
   void (*setPayload) (Mac802154 *self, const uint8_t* buffer, size_t size);
 
   void (*sendBlocking) (Mac802154 *self);
@@ -58,7 +58,7 @@ void Mac802154_sendBlocking(Mac802154 *hardware);
 void Mac802154_destroy(Mac802154 *self);
 
 void Mac802154_setShortDestinationAddress(Mac802154 *self, uint16_t address);
-
+void Mac802154_setExtendedDestinationAddress(Mac802154 *self, uint64_t address);
 void Mac802154_setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length);
 
 typedef struct FrameControlField802154 {

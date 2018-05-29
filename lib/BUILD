@@ -8,9 +8,12 @@ config_setting(
 
 filegroup(
     name = "CommunicationModuleSrc",
-    srcs = glob([
-        "src/**/*.c",
-    ]),
+    srcs = glob(
+        [
+            "src/**/*.c",
+        ],
+        exclude = ["src/platform/dummy/io.c"],
+    ),
 )
 
 filegroup(
@@ -49,13 +52,20 @@ cc_library(
     srcs = [
         ":CommunicationModuleSrc",
         ":PrivateHdrFiles",
-    ],
+    ] + select({
+        ":avr-config": ["src/platform/dummy/io.c"],
+        "//conditions:default": [],
+    }),
     hdrs = [":CommunicationModuleIncl"],
     copts = select({
-        ":avr-config": ["-mmcu=$(MCU)"],
+        ":avr-config": [
+            "-mmcu=$(MCU)",
+            "-O2",
+        ],
         "//conditions:default": [],
     }) + ["-Winline"],
     visibility = [
+        "//visibility:public",
     ],
     deps = ["@CException//:CException"],
 )
@@ -68,10 +78,14 @@ cc_library(
         ":PrivateHdrFiles",
     ],
     copts = select({
-        ":avr-config": ["-mmcu=$(MCU)"],
+        ":avr-config": [
+            "-mmcu=$(MCU)",
+            "-O2",
+        ],
         "//conditions:default": [],
     }) + ["-Winline"],
     visibility = [
+        "//app:__pkg__",
         "//test:__subpackages__",
     ],
     deps = ["@CException//:CException"],

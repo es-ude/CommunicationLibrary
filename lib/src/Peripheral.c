@@ -19,3 +19,7 @@ void PeripheralInterface_selectPeripheral(PeripheralInterface *self, Peripheral 
 void PeripheralInterface_deselectPeripheral(PeripheralInterface *self, Peripheral *device) {
   self->deselectPeripheral(self, device);
 }
+
+void PeripheralInterface_readBlocking(PeripheralInterface *self, uint8_t *destination_buffer, uint16_t length) {
+
+}

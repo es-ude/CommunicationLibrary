@@ -42,6 +42,12 @@ new_http_archive(
   strip_prefix = "CMock-master",
   )
 
+http_archive(
+    name = "AVR_Toolchain",
+    urls = ["https://github.com/glencoe/Bazel-AVR-Toolchain-Linux/archive/master.tar.gz"],
+    strip_prefix = "Bazel-AVR-Toolchain-Linux-master"
+)
+
 
 """
 From the Bazel documentation at https://docs.bazel.build/versions/master/build-ref.html#packages_targets :

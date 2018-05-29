@@ -42,7 +42,7 @@ struct PeripheralInterface {
 
 void PeripheralInterface_init(PeripheralInterface *self);
 
-uint8_t PeripheralInterface_read(PeripheralInterface *self);
+void PeripheralInterface_readBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
 
 void PeripheralInterface_writeBlocking(PeripheralInterface *self, const uint8_t *buffer, uint16_t size);
 

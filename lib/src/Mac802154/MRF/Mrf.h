@@ -11,8 +11,6 @@ typedef struct Mrf Mrf;
 struct Mrf {
   struct Mac802154 mac;
   MrfIo io;
-  PeripheralInterface *interface;
-  Peripheral *device;
   void (*deallocate)(void *);
   void (*delay_microseconds)(double);
   MrfState state;
