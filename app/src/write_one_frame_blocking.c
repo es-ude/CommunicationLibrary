@@ -80,6 +80,7 @@ void readFrame(struct SPIPeripheral *device) {
   PeripheralInterface_writeBlocking(interface, command, 2);
   uint8_t buffer[40];
   PeripheralInterface_readBlocking(interface, buffer, 40);
+  PeripheralInterface_deselectPeripheral(interface, device);
   USART_writeN(buffer, 40);
 
 }
