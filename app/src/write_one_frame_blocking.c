@@ -9,22 +9,25 @@
 #include "lib/include/Mac802154.h"
 #include "lib/include/Mac802154MRFImpl.h"
 #include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
+#include "lib/src/Mac802154/MRF/MRFState.h"
+#include "lib/src/Mac802154/MRF/Mrf.h"
 
 
 static uint8_t f_osc = f_osc_16;
 PeripheralInterface *interface;
 
-struct SPIPeripheral{
+typedef struct SPIPeripheral{
   volatile uint8_t *DDR;
   uint8_t PIN;
   volatile  uint8_t *PORT;
-};
+} SPIPeripheral;
 
-void readFrame(struct SPIPeripheral *peripheral);
+void printFramePayloadFromMrf(SPIPeripheral *device, uint8_t payload_length);
+void writeToTXMemory(Peripheral *device, const uint8_t *payload, uint8_t payload_length);
 
-void delay(double ms) {
+void delay_ten_times(double ms) {
   while (ms > 0) {
-    _delay_ms(1);
+    _delay_ms(10);
     ms--;
   }
 }
@@ -48,41 +51,38 @@ int main() {
 
   USART_writeN(buff,7);
 
-  MemoryManagement memoryManagement = {
-          .allocate = malloc,
-          .deallocate = free,
-  };
-  Mac802154 *mac = Mac802154_createMRF(&memoryManagement, delay);
-  Mac802154Config config = {
-          .interface = interface,
-          .device = &device,
-          .pan_id = 0xffff,
-          .short_source_address = 1234,
-          .channel = 11,
-          .extended_source_address = 1234,
-  };
-  Mac802154_init(mac, &config);
-  Mac802154_setPayload(mac, buff, 5);
-  Mac802154_setExtendedDestinationAddress(mac, 0xffffffffffffffff);
-  Mac802154_sendBlocking(mac);
-  readFrame(&device);
+  uint8_t *buffer = "Hello, World";
   while(1) {
-    _delay_ms(2000);
+    _delay_ms(500);
+    buffer[0]++;
     USART_writeN("sending\r\n", 9);
-    Mac802154_sendBlocking(mac);
+    writeToTXMemory(&device, "Hello, World!", 13);
+    _delay_ms(500);
+    printFramePayloadFromMrf(&device, 13);
   }
 }
 
-void readFrame(struct SPIPeripheral *device) {
+void printFramePayloadFromMrf(SPIPeripheral *device, uint8_t payload_length) {
 
+  uint8_t buffer[payload_length];
+  uint8_t command[2] = {0x80, 0};
   PeripheralInterface_selectPeripheral(interface, device);
-  uint8_t command[2] = {(uint8_t)(MRF_readLongCommand(0) >> 8), (uint8_t) MRF_readLongCommand(0)};
   PeripheralInterface_writeBlocking(interface, command, 2);
-  uint8_t buffer[40];
-  PeripheralInterface_readBlocking(interface, buffer, 40);
+  PeripheralInterface_readBlocking(interface, buffer, payload_length);
   PeripheralInterface_deselectPeripheral(interface, device);
-  USART_writeN(buffer, 40);
+  USART_writeN("payload: ", 9);
 
+  USART_writeN(buffer, payload_length);
+  USART_write('\n');
+  USART_write('\r');
+}
+
+void writeToTXMemory(Peripheral *device, const uint8_t *payload, uint8_t payload_length){
+  uint8_t write_command[] = {0x80, 0x10};
+  PeripheralInterface_selectPeripheral(interface, device);
+  PeripheralInterface_writeBlocking(interface, write_command, 2);
+  PeripheralInterface_writeBlocking(interface, payload, payload_length);
+  PeripheralInterface_deselectPeripheral(interface, device);
 }
 
 ISR(SPI_STC_vect){
