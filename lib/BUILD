@@ -22,6 +22,11 @@ filegroup(
 )
 
 filegroup(
+    name = "CommunicationModuleSrcForLocalBuild",
+    srcs = [":CommunicationModuleSrc"] + ["src/platform/dummy/io.c"],
+)
+
+filegroup(
     name = "CommunicationModuleIncl",
     srcs = glob(["include/**/*.h"]),
 )
@@ -50,11 +55,10 @@ and $(MCU) is replaced by <mcu-name>
 cc_library(
     name = "CommunicationModule",
     srcs = [
-        ":CommunicationModuleSrc",
         ":PrivateHdrFiles",
     ] + select({
-        ":avr-config": ["src/platform/dummy/io.c"],
-        "//conditions:default": [],
+        ":avr-config": [":CommunicationModuleSrc"],
+        "//conditions:default": [":CommunicationModuleSrcForLocalBuild"],
     }),
     hdrs = [":CommunicationModuleIncl"],
     copts = select({
@@ -72,7 +76,10 @@ cc_library(
 
 cc_library(
     name = "CommunicationModuleLibForTest",
-    srcs = [":CommunicationModuleSrc"],
+    srcs = select({
+        ":avr-config": [":CommunicationModuleSrc"],
+        "//conditions:default": [":CommunicationModuleSrcForLocalBuild"],
+    }),
     hdrs = [
         ":CommunicationModuleIncl",
         ":PrivateHdrFiles",
