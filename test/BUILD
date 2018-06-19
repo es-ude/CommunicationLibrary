@@ -23,10 +23,6 @@ for every file specified and  a cc_test (the bazel test entity for c/c++).
 generate_a_unity_test_for_every_file(
     file_list = glob(
         ["*_Test.c"],
-        exclude = [
-            "Mac802154MRF_Test.c",
-            "MRFSetAddress_Test.c",
-        ],
     ),
     deps = [
         "//lib:CommunicationModuleLibForTest",
@@ -34,17 +30,6 @@ generate_a_unity_test_for_every_file(
         "@CException//:CException",
         "@CMock//:CMock",
     ],
-)
-
-mock(
-    name = "MockPeripheralInterface",
-    file = "//lib:include/Peripheral.h",
-)
-
-mock(
-    name = "MockMRFHelperFunctions",
-    file = "//lib:src/Mac802154/MRF/MRFHelperFunctions.h",
-    deps = ["//lib:CommunicationModuleLibForTest"],
 )
 
 """
