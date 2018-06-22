@@ -16,3 +16,16 @@ generate_hex(
     input = ":WriteOneFrameBlocking",
     mcu = "atmega328p",
 )
+
+cc_binary(
+    name = "BlinkLED",
+    srcs = ["src/blink_led.c"],
+    copts = avr_minimal_copts(),
+    linkopts = avr_minimal_copts(),
+)
+
+generate_hex(
+    name = "BlinkLEDHex",
+    input = "BlinkLED",
+    mcu = "atmega32u4",
+)

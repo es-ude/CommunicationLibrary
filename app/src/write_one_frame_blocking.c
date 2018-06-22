@@ -2,9 +2,9 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdlib.h>
+#include <string.h>
 #include "lib/include/RuntimeLibraryInterface.h"
 #include "lib/include/Peripheral.h"
-#include "lib/include/usart/USART.h"
 #include "lib/include/TransferLayer/PeripheralSPIImpl.h"
 #include "lib/include/Mac802154.h"
 #include "lib/include/Mac802154MRFImpl.h"
@@ -13,7 +13,7 @@
 #include "lib/src/Mac802154/MRF/Mrf.h"
 
 
-static uint8_t f_osc = f_osc_16;
+static uint8_t f_osc = f_osc_128;
 PeripheralInterface *interface;
 
 typedef struct SPIPeripheral{
@@ -32,11 +32,25 @@ void delay_ten_times(double ms) {
   }
 }
 
+void blink_led(uint8_t times) {
+  while (times > 0) {
+    PORTC = 1 << 6;
+    delay_ten_times(50);
+    PORTC = 0;
+    times--;
+  }
+
+}
 
 int main() {
   uint8_t spi_slave = 1;
   struct SPIPeripheral device = {&DDRB, spi_slave, &PORTB};
   SPIConfig spiConfig = {&DDRB, &PORTB, &SPCR, &SPDR, &SPSR, f_osc};
+
+  //set up leds
+  DDRC = 1 << 6;
+
+  blink_led(3);
 
 
   TransferLayerConfig transferConfig = {malloc, free};
@@ -46,18 +60,13 @@ int main() {
   interface->init(interface);
   interface->configurePeripheral(interface, &device);
   uint16_t baud_rate = 9600;
-  USART_init(baud_rate);
   uint8_t buff[] = "Start\r\n";
-
-  USART_writeN(buff,7);
 
   uint8_t *buffer = "Hello, World";
   while(1) {
-    _delay_ms(500);
+    _delay_ms(1000);
     buffer[0]++;
-    USART_writeN("sending\r\n", 9);
     writeToTXMemory(&device, "Hello, World!", 13);
-    _delay_ms(500);
     printFramePayloadFromMrf(&device, 13);
   }
 }
@@ -70,11 +79,11 @@ void printFramePayloadFromMrf(SPIPeripheral *device, uint8_t payload_length) {
   PeripheralInterface_writeBlocking(interface, command, 2);
   PeripheralInterface_readBlocking(interface, buffer, payload_length);
   PeripheralInterface_deselectPeripheral(interface, device);
-  USART_writeN("payload: ", 9);
-
-  USART_writeN(buffer, payload_length);
-  USART_write('\n');
-  USART_write('\r');
+  if (strcmp("Hello, World!", buffer) == 0) {
+    blink_led(6);
+  } else {
+    blink_led(2);
+  }
 }
 
 void writeToTXMemory(Peripheral *device, const uint8_t *payload, uint8_t payload_length){
