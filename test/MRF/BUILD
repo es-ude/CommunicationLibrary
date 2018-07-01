@@ -21,7 +21,7 @@ generate_mocks_for_every_header(
         "//lib:src/Mac802154/MRF/MRFState.h",
         "//lib:src/Mac802154/MRF/MrfIo.h",
         "//lib:src/Mac802154/FrameHeader802154.h",
-        "//test:MRF/Mac802154MRF_TestHelper.h",
+        "Mac802154MRF_TestHelper.h",
     ],
     deps = ["//lib:CommunicationModuleLibForTest"],
 )
@@ -33,7 +33,7 @@ unity_test(
         "//lib:src/Mac802154/MRF/MRFState.h",
         "//lib:src/Mac802154/MRF/MrfIo.h",
         "//lib:include/Peripheral.h",
-        "//test:MRF/Mac802154MRF_TestHelper.h",
+        "Mac802154MRF_TestHelper.h",
     ],
     deps = [
         "//lib:CommunicationModuleLibForTest",
@@ -46,7 +46,7 @@ unity_test(
 unity_test(
     file_name = "MrfIo_Test.c",
     mocks = [
-        "//test:MRF/Mac802154MRF_TestHelper.h",
+        "MRF/Mac802154MRF_TestHelper.h",
         "//lib:include/Peripheral.h",
     ],
     deps = [

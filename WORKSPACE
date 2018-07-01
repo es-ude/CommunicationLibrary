@@ -49,6 +49,12 @@ http_archive(
     strip_prefix = "Bazel-AVR-Toolchain-Linux-master"
 )
 
+new_http_archive(
+    name = "LUFA",
+    urls = ["http://fourwalledcubicle.com/files/LUFA/LUFA-170418.zip"],
+    strip_prefix = "lufa-LUFA-170418",
+    build_file = "BUILD.LUFA",
+)
 
 """
 From the Bazel documentation at https://docs.bazel.build/versions/master/build-ref.html#packages_targets :
