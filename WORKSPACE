@@ -56,6 +56,11 @@ new_http_archive(
     build_file = "BUILD.LUFA",
 )
 
+#local_repository(
+#    name = "LUFA",
+#    path = "../lufa-LUFA-170418",
+#)
+
 """
 From the Bazel documentation at https://docs.bazel.build/versions/master/build-ref.html#packages_targets :
  The primary unit of code organization in a workspace is the package.

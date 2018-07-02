@@ -43,9 +43,16 @@ filegroup(
     srcs = ["Demos/Device/ClassDriver/VirtualSerial/Config/LUFAConfig.h"],
     )
 
+config_setting(
+    name = "avr-config",
+    values = {
+        "cpu": "avr",
+    },
+)
+
 LUFA_COPTS = [
-    "-IDemos/Device/ClassDriver/VirtualSerial/Config",
-    "-ILUFA/Drivers/USB/Core/AVR8",
+    "-Iexternal/LUFA/Demos/Device/ClassDriver/VirtualSerial/Config",
+    #    "-I./LUFA/Drivers/USB/Core/AVR8",
     "-pipe",
     "-gdwarf-2",
     "-g2",
@@ -58,7 +65,7 @@ LUFA_COPTS = [
     "-funsigned-bitfields",
     "-ffunction-sections",
     "-DARCH=ARCH_AVR8",
-    "-DF_CPU=8000000UL",
+    #    "-DF_CPU=8000000UL",
     "-mrelax",
     "-fno-jump-tables",
     "-x c",
@@ -66,7 +73,7 @@ LUFA_COPTS = [
     "-Wstrict-prototypes",
     "-std=gnu99",
     "-DUSE_LUFA_CONFIG_HEADER",
-    "-DBOARD=BOARD_USBKEY",
+    #    "-DBOARD=BOARD_USBKEY",
     "-DF_USB=8000000UL",
 ]
 
@@ -74,6 +81,11 @@ cc_library(
 	name = "LUFA_USB",
 	srcs = ["AVR8DriverSrcFiles"],
   hdrs = ["CommonHdrFiles", "Headers", "LufaConfig"],
-  copts = LUFA_COPTS,
+  copts = select({
+                  ":avr-config": ["-mmcu=$(MCU)"],
+                  "//conditions:default": []}) + LUFA_COPTS,
+  linkopts = select({
+                  ":avr-config": ["-mmcu=$(MCU)"],
+                  "//conditions:default": []}) + LUFA_COPTS,
   visibility = ["//visibility:public"]
   )
