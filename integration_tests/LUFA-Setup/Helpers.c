@@ -49,7 +49,7 @@ void setUpUsbSerial(void) {
 }
 
 void usbWriteString(const uint8_t *data) {
-  fputs(data, &USBSerialStream);
+  fputs((const char*)data, &USBSerialStream);
 }
 
 void periodicUsbTask(void) {

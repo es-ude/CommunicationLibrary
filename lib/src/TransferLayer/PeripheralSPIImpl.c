@@ -47,7 +47,7 @@ static PeripheralInterfaceImpl *interfacePTR;
 
 static void destroy(PeripheralInterface *self);
 static void init(PeripheralInterface *self);
-static void writeBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
+static void writeBlocking(PeripheralInterface *self, const uint8_t *buffer, uint16_t length);
 static void readBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
 static void writeNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
 static void readNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
@@ -383,7 +383,7 @@ void readNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length
  * @warning - Length shouldn't be bigger than the buffer
  */
 //TODO test this on real hardware
-void writeBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length) {
+void writeBlocking(PeripheralInterface *self, const uint8_t *buffer, uint16_t length) {
     PeripheralInterfaceImpl *peripheralSPI = (PeripheralInterfaceImpl *) self;
     for (uint16_t i = 0; i < length; ++i) {
         write(peripheralSPI, buffer[i]);

@@ -2,7 +2,6 @@
 #define UNITYOUTPUTIMPLEMENTATIONS_IO_H
 
 #include <stdint.h>
-#include <avr/io.h>
 
 #if defined (__AVR_ATmega328P__)
 #include "lib/include/platform/atmega328p/io.h"

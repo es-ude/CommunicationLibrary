@@ -1,5 +1,9 @@
 #include "lib/include/Peripheral.h"
 
+void PeripheralInterface_init(PeripheralInterface *self) {
+  self->init(self);
+}
+
 void PeripheralInterface_writeBlocking(PeripheralInterface *self, const uint8_t *buffer, uint16_t size) {
   self->writeBlocking(self, buffer, size);
 }

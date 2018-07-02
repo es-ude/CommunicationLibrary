@@ -27,6 +27,14 @@ LUFA_COPTS = [
     "-DF_USB=8000000UL",
 ]
 
+filegroup(
+    name = "LufaSetup",
+    srcs = glob([
+        "LUFA-Setup/*.c",
+        "LUFA-Setup/*.h",
+    ]),
+)
+
 cc_binary(
     name = "WriteOneFrameBlocking",
     srcs = ["src/write_one_frame_blocking.c"],
@@ -48,10 +56,8 @@ cc_binary(
     name = "WriteStringToVirtualSerial",
     srcs = [
         "src/WriteStringToVirtualSerial.c",
-    ] + glob([
-        "LUFA-Setup/*.h",
-        "LUFA-Setup/*.c",
-    ]),
+        ":LufaSetup",
+    ],
     copts = avr_minimal_copts() + LUFA_COPTS,
     linkopts = avr_minimal_copts() + LUFA_COPTS,
     deps = [
@@ -63,6 +69,21 @@ generate_hex(
     name = "WriteStringToVirtualSerialHex",
     input = ":WriteStringToVirtualSerial",
     mcu = "atmega32u4",
+)
+
+cc_binary(
+    name = "ReadMrfTxStabilizationRegister",
+    srcs = [
+        "src/ReadMrfTxStabilizationRegister.c",
+        ":LufaSetup",
+    ],
+    copts = avr_minimal_copts() + LUFA_COPTS,
+    linkopts = avr_minimal_copts() + LUFA_COPTS,
+    deps = [
+        "//lib:CommunicationModuleLibForTest",
+        "@CException//:CException",
+        "@LUFA//:LUFA_USB",
+    ],
 )
 
 cc_binary(
