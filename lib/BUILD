@@ -92,7 +92,7 @@ cc_library(
         "//conditions:default": [],
     }) + ["-Winline"],
     visibility = [
-        "//app:__pkg__",
+        "//integration_tests:__pkg__",
         "//test:__subpackages__",
     ],
     deps = ["@CException//:CException"],
