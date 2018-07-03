@@ -1,13 +1,18 @@
-//
-// Created by Peter Zdankin on 01.04.18.
-//
-
 #include <stdbool.h>
 #include "lib/include/Peripheral.h"
 #include "lib/include/TransferLayer/PeripheralSPIImpl.h"
 #include "lib/include/TransferLayer/InterruptData.h"
 #include "CException.h"
 #include "lib/include/Exception.h"
+
+/**
+ * \brief
+ * Assumptions:
+ * - MOSI, MISO, SCK, SS(slave select input) lines all reside on the same port.
+ * - we have three registers controlling the hardware spi implementation as described
+ *   in the datasheet of e.g. the atmega328p
+ *   - these registers behave the same across all our platforms
+ */
 
 struct InterruptData{
     uint8_t *buffer;
@@ -40,6 +45,14 @@ typedef struct PeripheralInterfaceImpl {
     SPIPeripheral *device;
 } PeripheralInterfaceImpl;
 
+struct NewPeripheralInterfaceImpl {
+  struct PeripheralInterface interface;
+  volatile uint8_t *spi_control_register;
+  volatile uint8_t *spi_status_register;
+  volatile uint8_t *spi_data_register;
+};
+typedef struct NewPeripheralInterfaceImpl* NewPeripheralInterfaceImpl;
+
 
 
 
@@ -66,6 +79,25 @@ void handleInterrupt(){
 }
 
 Deallocator (deallocator);
+
+size_t PeripheralInterfaceSPI_requiredSize(void){
+  return sizeof(struct NewPeripheralInterfaceImpl);
+}
+
+static void new_init(PeripheralInterface self);
+
+PeripheralInterface PeripheralInterfaceSPI_createNew(uint8_t * const memory, const SPIConfigNew *const spiConfig) {
+
+  NewPeripheralInterfaceImpl  impl = (NewPeripheralInterfaceImpl) memory;
+  impl->interface.init = new_init;
+  return (PeripheralInterface) impl;
+}
+
+static void new_init(PeripheralInterface self) {
+
+}
+
+
 
 /**
  * Create a PeripheralInterface, given a TransferlayerConfig and a SPIConfig
