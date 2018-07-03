@@ -27,6 +27,6 @@ typedef struct SPIConfig{
 
 
 
-PeripheralInterface * PeripheralInterface_create(TransferLayerConfig transferLayerConfig, SPIConfig spiConfig);
+PeripheralInterface PeripheralInterface_create(TransferLayerConfig transferLayerConfig, SPIConfig spiConfig);
 
 #endif //COMMUNICATIONMODULE_PERIPHERALINTERFACEIMPL_H

@@ -23,7 +23,7 @@ typedef struct SPIPeripheral{
 } SPIPeripheral;
 
 typedef struct PeripheralInterfaceImpl {
-    PeripheralInterface interface;
+    struct PeripheralInterface interface;
     PeripheralCallback readCallback;
     PeripheralCallback writeCallback;
 
@@ -45,19 +45,20 @@ typedef struct PeripheralInterfaceImpl {
 
 static PeripheralInterfaceImpl *interfacePTR;
 
-static void destroy(PeripheralInterface *self);
-static void init(PeripheralInterface *self);
-static void writeBlocking(PeripheralInterface *self, const uint8_t *buffer, uint16_t length);
-static void readBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
-static void writeNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
-static void readNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
-static void setReadCallback(PeripheralInterface *self, PeripheralCallback callback);
-static void setWriteCallback(PeripheralInterface *self, PeripheralCallback callback);
-static void setCallbackClearFlags(PeripheralInterface *self, bool clearReadCallbackOnCall, bool clearWriteCallbackOnCall);
-static void configurePeripheral(PeripheralInterface *self, Peripheral *device);
-static void selectPeripheral(PeripheralInterface *self, Peripheral *device);
-static void deselectPeripheral(PeripheralInterface *self, Peripheral *device);
-static bool isBusy(PeripheralInterface *self);
+static void destroy(PeripheralInterface self);
+static void init(PeripheralInterface self);
+static void setSPIClockRate(PeripheralInterface self);
+static void writeBlocking(PeripheralInterface self, const uint8_t *buffer, uint16_t length);
+static void readBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length);
+static void writeNonBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length);
+static void readNonBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length);
+static void setReadCallback(PeripheralInterface self, PeripheralCallback callback);
+static void setWriteCallback(PeripheralInterface self, PeripheralCallback callback);
+static void setCallbackClearFlags(PeripheralInterface self, bool clearReadCallbackOnCall, bool clearWriteCallbackOnCall);
+static void configurePeripheral(PeripheralInterface self, Peripheral *device);
+static void selectPeripheral(PeripheralInterface self, Peripheral *device);
+static void deselectPeripheral(PeripheralInterface self, Peripheral *device);
+static bool isBusy(PeripheralInterface self);
 static void handleInterrupt();
 
 void handleInterrupt(){
@@ -72,7 +73,7 @@ Deallocator (deallocator);
  * @param spiConfig - struct with &DDRB, &PORTB, &SPCR, &SPDR, &SPSR, and the SPI Speed f_osc
  * @return Pointer to PeripheralInterface
  */
-PeripheralInterface * PeripheralInterface_create(TransferLayerConfig transferLayerConfig, SPIConfig spiConfig){
+PeripheralInterface PeripheralInterface_create(TransferLayerConfig transferLayerConfig, SPIConfig spiConfig){
     PeripheralInterfaceImpl *PIImpl = transferLayerConfig.allocate(sizeof(PeripheralInterfaceImpl));
     PIImpl->ddr = spiConfig.ddr;
     PIImpl->port = spiConfig.port;
@@ -108,7 +109,7 @@ PeripheralInterface * PeripheralInterface_create(TransferLayerConfig transferLay
 
     deallocator = transferLayerConfig.deallocate;
 
-    return (PeripheralInterface *) PIImpl;
+    return (PeripheralInterface) PIImpl;
 }
 
 /**
@@ -210,7 +211,7 @@ static void disableInterrupts(PeripheralInterfaceImpl *self){
  * Initialize all necessary things to enable SPI
  * @param self - The PeripheralInterface
  */
-void init(PeripheralInterface * self){
+void init(PeripheralInterface self){
     PeripheralInterfaceImpl *peripheralImpl = (PeripheralInterfaceImpl *)self;
     set_ddr(peripheralImpl);
     set_spcr(peripheralImpl);
@@ -344,7 +345,7 @@ static void setupNonBlocking(PeripheralInterfaceImpl *impl, uint8_t *buffer, uin
  * @param length - The maximum transmission length
  * @warning - Length shouldn't be bigger than the buffer
  */
-void writeNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length){
+void writeNonBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length){
 
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)self;
     if(impl->interruptData.busy == false) {
@@ -363,7 +364,7 @@ void writeNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t lengt
  * @param length - Maximum length to read
  * @warning - Length shouldn't be bigger than the buffer
  */
-void readNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length){
+void readNonBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length){
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)self;
     if(impl->interruptData.busy == false) {
         setupNonBlocking(impl, buffer, length, readInInterrupt);
@@ -383,7 +384,7 @@ void readNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length
  * @warning - Length shouldn't be bigger than the buffer
  */
 //TODO test this on real hardware
-void writeBlocking(PeripheralInterface *self, const uint8_t *buffer, uint16_t length) {
+void writeBlocking(PeripheralInterface self, const uint8_t *buffer, uint16_t length) {
     PeripheralInterfaceImpl *peripheralSPI = (PeripheralInterfaceImpl *) self;
     for (uint16_t i = 0; i < length; ++i) {
         write(peripheralSPI, buffer[i]);
@@ -399,7 +400,7 @@ void writeBlocking(PeripheralInterface *self, const uint8_t *buffer, uint16_t le
  * @warning - Length shouldn't be bigger than the buffer
  */
 //TODO test this on real hardware
-void readBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length) {
+void readBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length) {
     PeripheralInterfaceImpl *peripheralSPI = (PeripheralInterfaceImpl *) self;
     for (uint16_t i = 0; i < length; ++i) {
         write(peripheralSPI, 0x00);
@@ -414,7 +415,7 @@ void readBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length) {
  * Free allocated memory
  * @param self - The PeripheralInterface
  */
-void destroy(PeripheralInterface *self){
+void destroy(PeripheralInterface self){
     deallocator(self);
 }
 
@@ -424,7 +425,7 @@ void destroy(PeripheralInterface *self){
  * @param callback - The function to be called
  * @param callback_parameter - The parameters to pass the function
  */
-void setReadCallback(PeripheralInterface *self, PeripheralCallback callback){
+void setReadCallback(PeripheralInterface self, PeripheralCallback callback){
     PeripheralInterfaceImpl *peripheralSPI = (PeripheralInterfaceImpl *)self;
     peripheralSPI->readCallback = callback;
 }
@@ -435,7 +436,7 @@ void setReadCallback(PeripheralInterface *self, PeripheralCallback callback){
  * @param callback - The function to be called
  * @param callback_parameter - The parameters to pass the function
  */
-void setWriteCallback(PeripheralInterface *self, PeripheralCallback callback){
+void setWriteCallback(PeripheralInterface self, PeripheralCallback callback){
     PeripheralInterfaceImpl *peripheralSPI = (PeripheralInterfaceImpl *)self;
     peripheralSPI->writeCallback = callback;
 }
@@ -446,7 +447,7 @@ void setWriteCallback(PeripheralInterface *self, PeripheralCallback callback){
  * @param clearReadCallbackOnCall - Clear ReadCallback after calling it?
  * @param clearWriteCallbackOnCall - Clear WriteCallback after calling it?
  */
-void setCallbackClearFlags(PeripheralInterface *self,bool clearReadCallbackOnCall, bool clearWriteCallbackOnCall){
+void setCallbackClearFlags(PeripheralInterface self,bool clearReadCallbackOnCall, bool clearWriteCallbackOnCall){
     PeripheralInterfaceImpl *peripheralSPI = (PeripheralInterfaceImpl *)self;
     peripheralSPI->clearReadCallback = clearReadCallbackOnCall;
     peripheralSPI->clearWriteCallback = clearWriteCallbackOnCall;
@@ -457,7 +458,7 @@ void setCallbackClearFlags(PeripheralInterface *self,bool clearReadCallbackOnCal
  * @param self - The PeripheralInterface
  * @param device - The device to become a slave
  */
-void configurePeripheral(PeripheralInterface *self, Peripheral *device){
+void configurePeripheral(PeripheralInterface self, Peripheral *device){
     SPIPeripheral *peripheral = (SPIPeripheral *) device;
     PeripheralInterfaceImpl *peripheralSPI = (PeripheralInterfaceImpl *)self;
     peripheralSPI->device = device;
@@ -470,7 +471,7 @@ void configurePeripheral(PeripheralInterface *self, Peripheral *device){
  * @param self - The PeripheralInterface
  * @param device - The Device
  */
-void selectPeripheral(PeripheralInterface *self, Peripheral *device){
+void selectPeripheral(PeripheralInterface self, Peripheral *device){
     SPIPeripheral *peripheral = (SPIPeripheral *) device;
     unset_bit(peripheral->PORT, peripheral->PIN);
 }
@@ -480,7 +481,7 @@ void selectPeripheral(PeripheralInterface *self, Peripheral *device){
  * @param self - The PeripheralInterface
  * @param device - The Device
  */
-void deselectPeripheral(PeripheralInterface *self, Peripheral *device){
+void deselectPeripheral(PeripheralInterface self, Peripheral *device){
   SPIPeripheral *peripheral = (SPIPeripheral *) device;
   set_bit(peripheral->PORT, peripheral->PIN);
 }
@@ -490,7 +491,7 @@ void deselectPeripheral(PeripheralInterface *self, Peripheral *device){
  * @param self - The PeripheralInterface
  * @return true if the device is busy
  */
-bool isBusy(PeripheralInterface *self){
+bool isBusy(PeripheralInterface self){
     PeripheralInterfaceImpl *peripheralSPI = (PeripheralInterfaceImpl *)self;
     return peripheralSPI->interruptData.busy;
 }

@@ -12,7 +12,7 @@
 #include "CException.h"
 #include "lib/include/Exception.h"
 
-static PeripheralInterface *interface;
+static PeripheralInterface interface;
 static MemoryManagement *dynamic_memory;
 
 struct InterruptData{
@@ -23,7 +23,7 @@ struct InterruptData{
 };
 
 typedef struct PeripheralInterfaceImpl {
-    PeripheralInterface interface;
+    struct PeripheralInterface interface;
     PeripheralCallback readCallback;
     PeripheralCallback writeCallback;
     volatile uint8_t *ddr;
