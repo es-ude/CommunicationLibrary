@@ -4,6 +4,7 @@
 #include "lib/include/TransferLayer/InterruptData.h"
 #include "CException.h"
 #include "lib/include/Exception.h"
+#include "lib/src/TransferLayer/SpiPinNumbers.h"
 
 /**
  * \brief
@@ -49,12 +50,10 @@ typedef struct PeripheralInterfaceImpl {
 
 struct NewPeripheralInterfaceImpl {
   struct PeripheralInterface interface;
-  volatile uint8_t *spi_control_register;
-  volatile uint8_t *spi_status_register;
-  volatile uint8_t *spi_data_register;
+  const SPIConfigNew *config;
 };
-typedef struct NewPeripheralInterfaceImpl *NewPeripheralInterfaceImpl;
 
+typedef struct NewPeripheralInterfaceImpl *NewPeripheralInterfaceImpl;
 
 static PeripheralInterfaceImpl *interfacePTR;
 
@@ -62,7 +61,10 @@ static void destroy(PeripheralInterface self);
 
 static void init(PeripheralInterface self);
 
-static void setSPIClockRate(PeripheralInterface self);
+static void initControlRegister(PeripheralInterface self, const SPIConfigNew *config);
+static void initStatusRegister(PeripheralInterface self, const SPIConfigNew *config);
+static void initIOLine(PeripheralInterface self);
+static void setUpDataOrder(PeripheralInterface self);
 
 static void writeBlocking(PeripheralInterface self, const uint8_t *buffer, uint16_t length);
 
@@ -76,8 +78,7 @@ static void setReadCallback(PeripheralInterface self, PeripheralCallback callbac
 
 static void setWriteCallback(PeripheralInterface self, PeripheralCallback callback);
 
-static void
-setCallbackClearFlags(PeripheralInterface self, bool clearReadCallbackOnCall, bool clearWriteCallbackOnCall);
+static void setCallbackClearFlags(PeripheralInterface self, bool clearReadCallbackOnCall, bool clearWriteCallbackOnCall);
 
 static void configurePeripheral(PeripheralInterface self, Peripheral *device);
 
@@ -88,6 +89,8 @@ static void deselectPeripheral(PeripheralInterface self, Peripheral *device);
 static bool isBusy(PeripheralInterface self);
 
 static void handleInterrupt();
+
+static void set_bit(volatile uint8_t *field, uint8_t bit_number);
 
 void handleInterrupt() {
   interfacePTR->handleInterrupt();
@@ -105,11 +108,14 @@ PeripheralInterface PeripheralInterfaceSPI_createNew(uint8_t *const memory, cons
 
   NewPeripheralInterfaceImpl impl = (NewPeripheralInterfaceImpl) memory;
   impl->interface.init = new_init;
+  impl->config = spiConfig;
   return (PeripheralInterface) impl;
 }
 
 static void new_init(PeripheralInterface self) {
-
+  NewPeripheralInterfaceImpl impl = (NewPeripheralInterfaceImpl) self;
+  set_bit(impl->config->control_register, spi_enable_bit);
+  set_bit(impl->config->control_register, spi_master_slave_select);
 }
 
 
@@ -234,6 +240,7 @@ static void set_spcr(PeripheralInterfaceImpl *self) {
       break;
     }
     default:
+      //TODO: raise exception here
       break;
   }
 
