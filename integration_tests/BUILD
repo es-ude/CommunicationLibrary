@@ -77,13 +77,20 @@ cc_binary(
         "src/ReadMrfTxStabilizationRegister.c",
         ":LufaSetup",
     ],
-    copts = avr_minimal_copts() + LUFA_COPTS,
-    linkopts = avr_minimal_copts() + LUFA_COPTS,
+    copts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
+    linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
+    nocopts = "-O2",
     deps = [
         "//lib:CommunicationModuleLibForTest",
         "@CException//:CException",
         "@LUFA//:LUFA_USB",
     ],
+)
+
+generate_hex(
+    name = "ReadMrfTxStabilizationRegisterHex",
+    input = ":ReadMrfTxStabilizationRegister",
+    mcu = "atmega32u4",
 )
 
 cc_binary(
