@@ -167,7 +167,7 @@ static void set_bit(volatile uint8_t *value, uint8_t pin){
  * @param value - Pointer to a 8 bit value
  * @param pin - The bit to set low
  */
-static void unset_bit(volatile uint8_t *value, uint8_t pin){
+static void clear_bit(volatile uint8_t *value, uint8_t pin){
     *(value) &= ~(1<<pin);
 }
 
@@ -178,7 +178,7 @@ static void unset_bit(volatile uint8_t *value, uint8_t pin){
  */
 static void set_ddr(PeripheralInterfaceImpl *self){
     set_bit(self->ddr, spi_mosi_pin);
-    unset_bit(self->ddr, spi_miso_pin);
+  clear_bit(self->ddr, spi_miso_pin);
     set_bit(self->ddr, spi_sck_pin);
     set_bit(self->ddr, spi_ss_pin);
     set_bit(self->port, spi_ss_pin);
@@ -190,26 +190,26 @@ static void set_ddr(PeripheralInterfaceImpl *self){
  */
 static void set_spcr(PeripheralInterfaceImpl *self){
     set_bit(self->spcr, spi_enable);                    //Bit 6
-    unset_bit(self->spcr, spi_data_order);              //Bit 5
+  clear_bit(self->spcr, spi_data_order);              //Bit 5
     set_bit(self->spcr, spi_master_slave_select);       //Bit 4
-    unset_bit(self->spcr, spi_clock_polarity);          //Bit 3
-    unset_bit(self->spcr, spi_clock_phase);             //Bit 2
+  clear_bit(self->spcr, spi_clock_polarity);          //Bit 3
+  clear_bit(self->spcr, spi_clock_phase);             //Bit 2
 
 
     //Last 2 bits are f_osc
     switch(self->f_osc){
         case f_osc_4: {
-            unset_bit(self->spcr, spi_clock_rate_select_0);
-            unset_bit(self->spcr, spi_clock_rate_select_1);
+          clear_bit(self->spcr, spi_clock_rate_select_0);
+          clear_bit(self->spcr, spi_clock_rate_select_1);
             break;
         }
         case f_osc_16: {
             set_bit(self->spcr, spi_clock_rate_select_0);
-            unset_bit(self->spcr, spi_clock_rate_select_1);
+          clear_bit(self->spcr, spi_clock_rate_select_1);
             break;
         }
         case f_osc_64: {
-            unset_bit(self->spcr, spi_clock_rate_select_0);
+          clear_bit(self->spcr, spi_clock_rate_select_0);
             set_bit(self->spcr, spi_clock_rate_select_1);
             break;
         }
@@ -236,7 +236,7 @@ static void enableInterrupts(PeripheralInterfaceImpl *self){
  * @param self - The PeripheralInterface
  */
 static void disableInterrupts(PeripheralInterfaceImpl *self){
-    unset_bit(self->spcr, spi_interrupt_enable);
+  clear_bit(self->spcr, spi_interrupt_enable);
 }
 
 /**
@@ -505,7 +505,7 @@ void configurePeripheral(PeripheralInterface self, Peripheral *device){
  */
 void selectPeripheral(PeripheralInterface self, Peripheral *device){
     SPIPeripheral *peripheral = (SPIPeripheral *) device;
-    unset_bit(peripheral->PORT, peripheral->PIN);
+  clear_bit(peripheral->PORT, peripheral->PIN);
 }
 
 /**
