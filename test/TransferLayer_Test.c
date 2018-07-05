@@ -254,7 +254,7 @@ void test_configurePeripheral(void){
     SPIPeripheral device = {&DDRB, spi_slave, &PORTB};
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
     interface->init(interface);
-    interface->configurePeripheral(interface, &device);
+  interface->configurePeripheral(&device);
     TEST_ASSERT_BIT_HIGH(spi_slave, DDRB);
     TEST_ASSERT_BIT_HIGH(spi_slave, PORTB);
     TEST_ASSERT_BIT_HIGH(spi_slave,*device.DDR);
@@ -272,7 +272,7 @@ void test_selectPeripheral(void){
     SPIPeripheral device = {&DDRB, spi_slave, &PORTB};
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
     interface->init(interface);
-    interface->configurePeripheral(interface, &device);
+  interface->configurePeripheral(&device);
     interface->selectPeripheral(interface, &device);
     TEST_ASSERT_BIT_LOW(spi_slave, PORTB);
     TEST_ASSERT_BIT_LOW(spi_slave,*device.PORT);
@@ -288,7 +288,7 @@ void test_deselectPeripheral(void){
     SPIPeripheral device = {&DDRB, spi_slave, &PORTB};
     PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
     interface->init(interface);
-    interface->configurePeripheral(interface, &device);
+  interface->configurePeripheral(&device);
     interface->selectPeripheral(interface, &device);
     interface->deselectPeripheral(interface, &device);
     TEST_ASSERT_BIT_HIGH(spi_slave, PORTB);

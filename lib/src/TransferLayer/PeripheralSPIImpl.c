@@ -51,6 +51,7 @@ typedef struct PeripheralInterfaceImpl {
 struct NewPeripheralInterfaceImpl {
   struct PeripheralInterface interface;
   const SPIConfigNew *config;
+  SPIPeripheralNew *current_peripheral;
 };
 
 typedef struct NewPeripheralInterfaceImpl *NewPeripheralInterfaceImpl;
@@ -62,6 +63,7 @@ static void destroy(PeripheralInterface self);
 static void init(PeripheralInterface self);
 
 static void writeBlocking(PeripheralInterface self, const uint8_t *buffer, uint16_t length);
+static void writeBlockingNew(PeripheralInterface self, const uint8_t *buffer, uint16_t length);
 
 static void readBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length);
 
@@ -76,8 +78,8 @@ static void setWriteCallback(PeripheralInterface self, PeripheralCallback callba
 static void setCallbackClearFlags(PeripheralInterface self, bool clearReadCallbackOnCall, bool clearWriteCallbackOnCall);
 static void setClockRateDividerBitValues(volatile uint8_t *control_register, uint8_t value);
 
-static void configurePeripheral(PeripheralInterface self, Peripheral *device);
-static void configurePeripheralNew(PeripheralInterface self, Peripheral *device);
+static void configurePeripheral(Peripheral *device);
+static void configurePeripheralNew(Peripheral *device);
 static void setClockRateDivider(NewPeripheralInterfaceImpl impl, uint8_t rate);
 static void setClockPolarity(volatile uint8_t *control_register, uint8_t polarity);
 static void setClockPhase(volatile uint8_t *control_register, uint8_t phase);
@@ -90,13 +92,18 @@ static void selectPeripheral(PeripheralInterface self, Peripheral *device);
 static void selectPeripheralNew(PeripheralInterface self, Peripheral *device);
 
 static void deselectPeripheral(PeripheralInterface self, Peripheral *device);
+static void deselectPeripheralNew(PeripheralInterface self, Peripheral *device);
 
 static bool isBusy(PeripheralInterface self);
 
 static void handleInterrupt();
 
+// returns true on success, false otherwise
+static bool tryToClaimInterfaceWithPeripheral(NewPeripheralInterfaceImpl, SPIPeripheralNew *);
+
 static void set_bit(volatile uint8_t *field, uint8_t bit_number);
 static void clear_bit(volatile uint8_t *field, uint8_t bit_number);
+static uint8_t get_bit(volatile uint8_t *field, uint8_t bit_number);
 
 void handleInterrupt() {
   interfacePTR->handleInterrupt();
@@ -110,14 +117,30 @@ size_t PeripheralInterfaceSPI_requiredSize(void) {
 
 static void new_init(PeripheralInterface self);
 
+static void releaseInterface(NewPeripheralInterfaceImpl impl);
+
+void setInterfaceFunctionPointers(PeripheralInterface self);
+
+void writeByteBlockingNew(PeripheralInterface self, uint8_t byte);
+
+void waitUntilByteTransmitted(NewPeripheralInterfaceImpl self);
+
 PeripheralInterface PeripheralInterfaceSPI_createNew(uint8_t *const memory, const SPIConfigNew *const spiConfig) {
   NewPeripheralInterfaceImpl impl = (NewPeripheralInterfaceImpl) memory;
-  impl->interface.init = new_init;
   impl->config = spiConfig;
-  impl->interface.configurePeripheral = configurePeripheralNew;
-  impl->interface.selectPeripheral = selectPeripheralNew;
+  impl->current_peripheral = NULL;
+  setInterfaceFunctionPointers(&impl->interface);
   return (PeripheralInterface) impl;
 }
+
+void setInterfaceFunctionPointers(PeripheralInterface self) {
+  self->init = new_init;
+  self->configurePeripheral = configurePeripheralNew;
+  self->selectPeripheral = selectPeripheralNew;
+  self->deselectPeripheral = deselectPeripheralNew;
+  self->writeBlocking = writeBlockingNew;
+}
+
 
 static void new_init(PeripheralInterface self) {
   NewPeripheralInterfaceImpl impl = (NewPeripheralInterfaceImpl) self;
@@ -125,22 +148,73 @@ static void new_init(PeripheralInterface self) {
   set_bit(impl->config->control_register, spi_master_slave_select);
 }
 
-static void configurePeripheralNew(PeripheralInterface self, Peripheral *device) {
+static void configurePeripheralNew(Peripheral *device) {
   SPIPeripheralNew *spi_chip = (SPIPeripheralNew *) device;
   set_bit(spi_chip->data_direction_register, spi_chip->select_chip_pin_number);
 }
 
-static void selectPeripheralNew(PeripheralInterface self, Peripheral *device) {
+void selectPeripheralNew(PeripheralInterface self, Peripheral *device) {
   SPIPeripheralNew *spi_chip = (SPIPeripheralNew *) device;
   NewPeripheralInterfaceImpl impl = (NewPeripheralInterfaceImpl) self;
   volatile uint8_t *control_register = impl->config->control_register;
-
-  setClockRateDivider(impl, spi_chip->clock_rate_divider);
-  setClockPolarity(control_register, spi_chip->clock_polarity);
-  setClockPhase(control_register, spi_chip->clock_phase);
-  setDataOrder(control_register, spi_chip->data_order);
+  bool claimed = tryToClaimInterfaceWithPeripheral(impl, spi_chip);
+  if (claimed) {
+    CEXCEPTION_T exception;
+    Try {
+          setClockRateDivider(impl, spi_chip->clock_rate_divider);
+          setClockPolarity(control_register, spi_chip->clock_polarity);
+          setClockPhase(control_register, spi_chip->clock_phase);
+          setDataOrder(control_register, spi_chip->data_order);
+        }
+    Catch(exception) {
+      releaseInterface(impl);
+      Throw(exception);
+    }
+  }
+  else {
+    Throw(PERIPHERAL_INTERFACE_BUSY_EXCEPTION);
+  }
 }
 
+
+void writeBlockingNew(PeripheralInterface self, const uint8_t *buffer, uint16_t length) {
+  for(;length > 0; length--) {
+    writeByteBlockingNew(self, *buffer++);
+  }
+}
+
+void writeByteBlockingNew(PeripheralInterface self, uint8_t byte) {
+  NewPeripheralInterfaceImpl impl = (NewPeripheralInterfaceImpl) self;
+  *impl->config->data_register = byte;
+  waitUntilByteTransmitted(impl);
+}
+
+void waitUntilByteTransmitted(NewPeripheralInterfaceImpl self) {
+  while (!get_bit(self->config->status_register, spi_interrupt_flag_bit)) {}
+}
+
+void releaseInterface(NewPeripheralInterfaceImpl impl) {
+  impl->current_peripheral = NULL;
+}
+
+static bool tryToClaimInterfaceWithPeripheral(NewPeripheralInterfaceImpl impl, SPIPeripheralNew *device) {
+  bool claimed = false;
+  if (impl->current_peripheral == NULL) {
+    claimed = true;
+    impl->current_peripheral = device;
+  }
+  return claimed;
+}
+
+static void deselectPeripheralNew(PeripheralInterface self, Peripheral *device) {
+  NewPeripheralInterfaceImpl impl = (NewPeripheralInterfaceImpl) self;
+  if (device == impl->current_peripheral) {
+    releaseInterface(impl);
+  }
+  else {
+    Throw(PERIPHERAL_INTERFACE_DESELECTED_WRONG_PERIPHERAL_EXCEPTION);
+  }
+}
 
 static void setClockRateDivider(NewPeripheralInterfaceImpl impl, uint8_t rate_divider) {
   volatile uint8_t *control_register = impl->config->control_register;
@@ -172,7 +246,7 @@ static void setClockRateDivider(NewPeripheralInterfaceImpl impl, uint8_t rate_di
       break;
 
     default:
-      Throw(PERIPHERAL_SELECT_ERROR);
+      Throw(PERIPHERAL_SELECT_EXCEPTION);
   }
 }
 
@@ -201,7 +275,7 @@ void setClockPolarity(volatile uint8_t *control_register, uint8_t polarity) {
       break;
 
     default:
-      Throw(PERIPHERAL_SELECT_ERROR);
+      Throw(PERIPHERAL_SELECT_EXCEPTION);
   }
 }
 
@@ -217,7 +291,7 @@ void setClockPhase(volatile uint8_t *control_register, uint8_t phase) {
       break;
 
     default:
-      Throw(PERIPHERAL_SELECT_ERROR);
+      Throw(PERIPHERAL_SELECT_EXCEPTION);
   }
 }
 
@@ -232,7 +306,7 @@ void setDataOrder(volatile uint8_t *control_register, uint8_t data_order) {
       clear_bit(control_register, data_order_bit);
 
     default:
-      Throw(PERIPHERAL_SELECT_ERROR);
+      Throw(PERIPHERAL_SELECT_EXCEPTION);
 
   }
 }
@@ -632,10 +706,8 @@ void setCallbackClearFlags(PeripheralInterface self, bool clearReadCallbackOnCal
  * @param self - The PeripheralInterface
  * @param device - The device to become a slave
  */
-void configurePeripheral(PeripheralInterface self, Peripheral *device) {
+void configurePeripheral(Peripheral *device) {
   SPIPeripheral *peripheral = (SPIPeripheral *) device;
-  PeripheralInterfaceImpl *peripheralSPI = (PeripheralInterfaceImpl *) self;
-  peripheralSPI->device = device;
   set_bit(peripheral->DDR, peripheral->PIN);
   set_bit(peripheral->PORT, peripheral->PIN);
 }
@@ -673,4 +745,8 @@ bool isBusy(PeripheralInterface self) {
 void setRegisterWithBitMask(volatile uint8_t *register_ptr, uint8_t bitmask, uint8_t value) {
   *register_ptr &= (bitmask & value);
   *register_ptr |= (bitmask & value);
+}
+
+uint8_t get_bit(volatile uint8_t *field, uint8_t bit_number) {
+  return (uint8_t) (*field && (1 << bit_number));
 }

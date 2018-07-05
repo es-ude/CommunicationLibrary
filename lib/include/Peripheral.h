@@ -32,7 +32,7 @@ struct PeripheralInterface {
   void (*setReadCallback)(PeripheralInterface self, PeripheralCallback callback);
   void (*setWriteCallback)(PeripheralInterface self, PeripheralCallback callback);
   void (*setCallbackClearFlags)(PeripheralInterface self, bool clearReadCallbackOnCall, bool clearWriteCallbackOnCall);
-  void (*configurePeripheral)(PeripheralInterface self, Peripheral *device);
+  void (*configurePeripheral)(Peripheral *device);
   void (*selectPeripheral)(PeripheralInterface self, Peripheral *device);
   void (*deselectPeripheral)(PeripheralInterface self, Peripheral *device);
   bool (*isBusy)(PeripheralInterface self);
@@ -41,6 +41,8 @@ struct PeripheralInterface {
 };
 
 void PeripheralInterface_init(PeripheralInterface self);
+
+void PeripheralInterface_configure(PeripheralInterface self);
 
 void PeripheralInterface_readBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length);
 

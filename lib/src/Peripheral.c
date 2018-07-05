@@ -4,6 +4,8 @@ void PeripheralInterface_init(PeripheralInterface self) {
   self->init(self);
 }
 
+
+
 void PeripheralInterface_writeBlocking(PeripheralInterface self, const uint8_t *buffer, uint16_t size) {
   self->writeBlocking(self, buffer, size);
 }
@@ -25,5 +27,5 @@ void PeripheralInterface_deselectPeripheral(PeripheralInterface self, Peripheral
 }
 
 void PeripheralInterface_readBlocking(PeripheralInterface self, uint8_t *destination_buffer, uint16_t length) {
-
+  return self->readBlocking(self, destination_buffer, length);
 }
