@@ -81,14 +81,6 @@ void EVENT_USB_Device_ConfigurationChanged(void)
   bool ConfigSuccess = true;
   uint8_t ff;
   ConfigSuccess &= CDC_Device_ConfigureEndpoints(&VirtualSerial_CDC_Interface);
-  // for (ff=0;ff<6;ff++)
-  // {
-  // 		MIDI_LED_ON();
-  // 		_delay_ms(25);
-  // 		MIDI_LED_OFF();
-  // 		_delay_ms(25);
-  // }
-
 }
 
 /** Event handler for the library USB Control Request reception event. */

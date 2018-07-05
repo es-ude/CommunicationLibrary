@@ -45,6 +45,7 @@ int main(void){
   usbWriteString("Start\n");
   periodicUsbTask();
   for(;;) {
+    _delay_ms(2000);
     byte = readByteFromShortAddressRegister(mrf_register_tx_stabilization);
     convertByteToString(byte, output);
     usbWriteString(output);

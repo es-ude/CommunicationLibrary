@@ -51,7 +51,6 @@ typedef struct SPIPeripheralNew {
   uint8_t data_order;
   uint8_t clock_polarity;
   uint8_t clock_phase;
-  uint8_t double_speed_enabled;
 } SPIPeripheralNew;
 
 typedef struct SPIConfigNew {

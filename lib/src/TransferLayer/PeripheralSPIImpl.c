@@ -61,11 +61,6 @@ static void destroy(PeripheralInterface self);
 
 static void init(PeripheralInterface self);
 
-static void initControlRegister(PeripheralInterface self, const SPIConfigNew *config);
-static void initStatusRegister(PeripheralInterface self, const SPIConfigNew *config);
-static void initIOLine(PeripheralInterface self);
-static void setUpDataOrder(PeripheralInterface self);
-
 static void writeBlocking(PeripheralInterface self, const uint8_t *buffer, uint16_t length);
 
 static void readBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length);
@@ -79,10 +74,20 @@ static void setReadCallback(PeripheralInterface self, PeripheralCallback callbac
 static void setWriteCallback(PeripheralInterface self, PeripheralCallback callback);
 
 static void setCallbackClearFlags(PeripheralInterface self, bool clearReadCallbackOnCall, bool clearWriteCallbackOnCall);
+static void setClockRateDividerBitValues(volatile uint8_t *control_register, uint8_t value);
 
 static void configurePeripheral(PeripheralInterface self, Peripheral *device);
+static void configurePeripheralNew(PeripheralInterface self, Peripheral *device);
+static void setClockRateDivider(NewPeripheralInterfaceImpl impl, uint8_t rate);
+static void setClockPolarity(volatile uint8_t *control_register, uint8_t polarity);
+static void setClockPhase(volatile uint8_t *control_register, uint8_t phase);
+static void setDataOrder(volatile uint8_t *control_register, uint8_t data_order);
+static void enableDoubleSpeed(volatile uint8_t *status_register);
+static void disableDoubleSpeed(volatile uint8_t *status_register);
+static void setRegisterWithBitMask(volatile uint8_t *register_ptr, uint8_t bit_mask, uint8_t value);
 
 static void selectPeripheral(PeripheralInterface self, Peripheral *device);
+static void selectPeripheralNew(PeripheralInterface self, Peripheral *device);
 
 static void deselectPeripheral(PeripheralInterface self, Peripheral *device);
 
@@ -91,6 +96,7 @@ static bool isBusy(PeripheralInterface self);
 static void handleInterrupt();
 
 static void set_bit(volatile uint8_t *field, uint8_t bit_number);
+static void clear_bit(volatile uint8_t *field, uint8_t bit_number);
 
 void handleInterrupt() {
   interfacePTR->handleInterrupt();
@@ -105,10 +111,11 @@ size_t PeripheralInterfaceSPI_requiredSize(void) {
 static void new_init(PeripheralInterface self);
 
 PeripheralInterface PeripheralInterfaceSPI_createNew(uint8_t *const memory, const SPIConfigNew *const spiConfig) {
-
   NewPeripheralInterfaceImpl impl = (NewPeripheralInterfaceImpl) memory;
   impl->interface.init = new_init;
   impl->config = spiConfig;
+  impl->interface.configurePeripheral = configurePeripheralNew;
+  impl->interface.selectPeripheral = selectPeripheralNew;
   return (PeripheralInterface) impl;
 }
 
@@ -118,6 +125,117 @@ static void new_init(PeripheralInterface self) {
   set_bit(impl->config->control_register, spi_master_slave_select);
 }
 
+static void configurePeripheralNew(PeripheralInterface self, Peripheral *device) {
+  SPIPeripheralNew *spi_chip = (SPIPeripheralNew *) device;
+  set_bit(spi_chip->data_direction_register, spi_chip->select_chip_pin_number);
+}
+
+static void selectPeripheralNew(PeripheralInterface self, Peripheral *device) {
+  SPIPeripheralNew *spi_chip = (SPIPeripheralNew *) device;
+  NewPeripheralInterfaceImpl impl = (NewPeripheralInterfaceImpl) self;
+  volatile uint8_t *control_register = impl->config->control_register;
+
+  setClockRateDivider(impl, spi_chip->clock_rate_divider);
+  setClockPolarity(control_register, spi_chip->clock_polarity);
+  setClockPhase(control_register, spi_chip->clock_phase);
+  setDataOrder(control_register, spi_chip->data_order);
+}
+
+
+static void setClockRateDivider(NewPeripheralInterfaceImpl impl, uint8_t rate_divider) {
+  volatile uint8_t *control_register = impl->config->control_register;
+  volatile uint8_t *status_register = impl->config->status_register;
+  switch(rate_divider) {
+
+    case SPI_CLOCK_RATE_DIVIDER_4:
+      setClockRateDividerBitValues(control_register, 0b00);
+      disableDoubleSpeed(status_register);
+      break;
+
+    case SPI_CLOCK_RATE_DIVIDER_16:
+      setClockRateDividerBitValues(control_register, 0b01);
+      disableDoubleSpeed(status_register);
+      break;
+
+    case SPI_CLOCK_RATE_DIVIDER_32:
+      setClockRateDividerBitValues(control_register, 0b01);
+      enableDoubleSpeed(status_register);
+
+    case SPI_CLOCK_RATE_DIVIDER_64:
+      setClockRateDividerBitValues(control_register, 0b10);
+      disableDoubleSpeed(status_register);
+      break;
+
+    case SPI_CLOCK_RATE_DIVIDER_128:
+      setClockRateDividerBitValues(control_register, 0b11);
+      disableDoubleSpeed(status_register);
+      break;
+
+    default:
+      Throw(PERIPHERAL_SELECT_ERROR);
+  }
+}
+
+void setClockRateDividerBitValues(volatile uint8_t *control_register, uint8_t values) {
+  uint8_t bit_mask = 0b11;
+  setRegisterWithBitMask(control_register, bit_mask, values);
+}
+
+void enableDoubleSpeed(volatile uint8_t *status_register) {
+  set_bit(status_register, double_spi_speed_bit);
+}
+
+void disableDoubleSpeed(volatile uint8_t *status_register) {
+  clear_bit(status_register, double_spi_speed_bit);
+}
+
+void setClockPolarity(volatile uint8_t *control_register, uint8_t polarity) {
+  switch (polarity) {
+
+    case SPI_CLOCK_POLARITY_LEADING_EDGE_FALLING:
+      set_bit(control_register, clock_polarity_bit);
+      break;
+
+    case SPI_CLOCK_POLARITY_LEADING_EDGE_RISING:
+      clear_bit(control_register, clock_polarity_bit);
+      break;
+
+    default:
+      Throw(PERIPHERAL_SELECT_ERROR);
+  }
+}
+
+void setClockPhase(volatile uint8_t *control_register, uint8_t phase) {
+  switch (phase) {
+
+    case SPI_CLOCK_PHASE_LEADING_EDGE_SAMPLE:
+      clear_bit(control_register, clock_phase_bit);
+      break;
+
+    case SPI_CLOCK_PHASE_LEADING_EDGE_SETUP:
+      set_bit(control_register, clock_phase_bit);
+      break;
+
+    default:
+      Throw(PERIPHERAL_SELECT_ERROR);
+  }
+}
+
+void setDataOrder(volatile uint8_t *control_register, uint8_t data_order) {
+  switch (data_order) {
+
+    case SPI_DATA_ORDER_LSB:
+      set_bit(control_register, data_order_bit);
+      break;
+
+    case SPI_DATA_ORDER_MSB:
+      clear_bit(control_register, data_order_bit);
+
+    default:
+      Throw(PERIPHERAL_SELECT_ERROR);
+
+  }
+}
 
 /**
  * Create a PeripheralInterface, given a TransferlayerConfig and a SPIConfig
@@ -550,4 +668,9 @@ void deselectPeripheral(PeripheralInterface self, Peripheral *device) {
 bool isBusy(PeripheralInterface self) {
   PeripheralInterfaceImpl *peripheralSPI = (PeripheralInterfaceImpl *) self;
   return peripheralSPI->interruptData.busy;
+}
+
+void setRegisterWithBitMask(volatile uint8_t *register_ptr, uint8_t bitmask, uint8_t value) {
+  *register_ptr &= (bitmask & value);
+  *register_ptr |= (bitmask & value);
 }
