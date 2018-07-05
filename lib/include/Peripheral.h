@@ -37,12 +37,12 @@ struct PeripheralInterface {
   void (*deselectPeripheral)(PeripheralInterface self, Peripheral *device);
   bool (*isBusy)(PeripheralInterface self);
   void (*destroy)(PeripheralInterface self);
-  void (*handleInterrupt)();
+  void (*handleInterrupt)(void);
 };
 
 void PeripheralInterface_init(PeripheralInterface self);
 
-void PeripheralInterface_configure(PeripheralInterface self);
+void PeripheralInterface_configurePeripheral(PeripheralInterface self, Peripheral *device);
 
 void PeripheralInterface_readBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length);
 

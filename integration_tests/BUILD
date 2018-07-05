@@ -77,7 +77,12 @@ cc_binary(
         "src/ReadMrfTxStabilizationRegister.c",
         ":LufaSetup",
     ],
-    copts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
+    copts = avr_minimal_copts() + LUFA_COPTS + [
+        "-Os",
+        "-include stdint.h",
+        "-DCEXCEPTION_T=uint8_t",
+        "-DCEXCEPTION_NONE=0x00",
+    ],
     linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
     nocopts = "-O2",
     deps = [
@@ -87,9 +92,35 @@ cc_binary(
     ],
 )
 
+cc_binary(
+    name = "SPITestWithouLib",
+    srcs = [
+        "src/SPITestWithoutLib.c",
+        ":LufaSetup",
+    ],
+    copts = avr_minimal_copts() + LUFA_COPTS + [
+        "-Os",
+        "-include stdint.h",
+        "-DCEXCEPTION_T=uint8_t",
+        "-DCEXCEPTION_NONE=0x00",
+    ],
+    linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
+    nocopts = "-O2",
+    deps = [
+        "@CException//:CException",
+        "@LUFA//:LUFA_USB",
+    ],
+)
+
 generate_hex(
     name = "ReadMrfTxStabilizationRegisterHex",
     input = ":ReadMrfTxStabilizationRegister",
+    mcu = "atmega32u4",
+)
+
+generate_hex(
+    name = "SPITestWithoutLibHex",
+    input = ":SPITestWithouLib",
     mcu = "atmega32u4",
 )
 

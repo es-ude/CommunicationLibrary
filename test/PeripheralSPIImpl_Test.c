@@ -5,7 +5,7 @@
 
 #define NUMBER_OF_REGISTERS 5
 static uint8_t registers[NUMBER_OF_REGISTERS];
-static SPIConfigNew config;
+static SPIConfig config;
 
 void setUp(void) {
   uint8_t *registers_local_copy = registers;
@@ -17,7 +17,6 @@ void setUp(void) {
   config.clock_pin = 0;
   config.miso_pin = 1;
   config.mosi_pin = 2;
-  config.slave_select_input_pin = 3;
   memset(registers, 0, NUMBER_OF_REGISTERS);
 }
 

@@ -4,7 +4,9 @@ void PeripheralInterface_init(PeripheralInterface self) {
   self->init(self);
 }
 
-
+void PeripheralInterface_configurePeripheral(PeripheralInterface self, Peripheral *device) {
+  self->configurePeripheral(device);
+}
 
 void PeripheralInterface_writeBlocking(PeripheralInterface self, const uint8_t *buffer, uint16_t size) {
   self->writeBlocking(self, buffer, size);

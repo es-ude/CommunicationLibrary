@@ -22,7 +22,7 @@ struct InterruptData{
     bool busy;
 };
 
-typedef struct PeripheralInterfaceImpl {
+typedef struct PeripheralInterfaceImplOld {
     struct PeripheralInterface interface;
     PeripheralCallback readCallback;
     PeripheralCallback writeCallback;
@@ -36,13 +36,13 @@ typedef struct PeripheralInterfaceImpl {
     uint8_t f_osc;
     void (*handleInterrupt)(void);
     InterruptData interruptData;
-} PeripheralInterfaceImpl;
+} PeripheralInterfaceImplOld;
 
-typedef struct SPIPeripheral{
+typedef struct SPIPeripheralOld{
     volatile uint8_t *DDR;
     uint8_t PIN;
     volatile  uint8_t *PORT;
-} SPIPeripheral;
+} SPIPeripheralOld;
 
 volatile uint8_t mySPCR = 0;
 volatile uint8_t mySPDR = 0;
@@ -83,7 +83,7 @@ void setUp(){
     SPIConfig spiConfig = {&DDRB, &PORTB, &SPCR, &SPDR, &SPSR, f_osc};
     TransferLayerConfig transferConfig = {dynamic_memory->allocate, dynamic_memory->deallocate};
     interface = PeripheralInterface_create(transferConfig, spiConfig);
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     impl->interruptData.busy = false;
     impl->interruptData.index = 0;
     impl->interruptData.buffer = NULL;
@@ -172,7 +172,7 @@ void test_ddr(void){
 }
 
 void test_spcr(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     TEST_ASSERT_EQUAL_INT(0, *(impl->spcr));
 }
 
@@ -199,7 +199,7 @@ void test_f_osc_128(void){
 }
 
 void test_spiDDR(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
 
     TEST_ASSERT_BIT_HIGH(spi_mosi_pin, *(impl->ddr));
@@ -207,7 +207,7 @@ void test_spiDDR(void){
 }
 
 void test_spiSPCR(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     TEST_ASSERT_BIT_HIGH(spi_enable, *(impl->spcr));
     TEST_ASSERT_BIT_HIGH(spi_master_slave_select, *(impl->spcr));
@@ -222,26 +222,26 @@ void test_spiSPCR(void){
 
 void test_setReadCallbackChangesMethod(void){
     interface->setReadCallback(interface, stub_callback);
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     TEST_ASSERT_EQUAL_PTR(stub_callback_function, impl->readCallback.function);
 }
 
 void test_setReadCallbackParameter(void){
     interface->setReadCallback(interface, stub_callback);
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     TEST_ASSERT_EQUAL_PTR(stub_callback.argument, impl->readCallback.argument);
 }
 
 void test_setWriteCallbackChangesMethod(void){
     interface->setWriteCallback(interface, stub_callback);
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     TEST_ASSERT_EQUAL_PTR(stub_callback.function, impl->writeCallback.function);
 }
 
 void test_setWriteCallbackParameter(void){
     int data = 2;
     interface->setWriteCallback(interface, stub_callback);
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     TEST_ASSERT_EQUAL_PTR(stub_callback.argument, impl->writeCallback.argument);
 }
 
@@ -251,8 +251,8 @@ void test_configurePeripheralNotNull(void){
 
 void test_configurePeripheral(void){
     uint8_t spi_slave = 1;
-    SPIPeripheral device = {&DDRB, spi_slave, &PORTB};
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    SPIPeripheralOld device = {&DDRB, spi_slave, &PORTB};
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
   interface->configurePeripheral(&device);
     TEST_ASSERT_BIT_HIGH(spi_slave, DDRB);
@@ -269,8 +269,8 @@ void test_selectPeripheralNotNull(void){
 
 void test_selectPeripheral(void){
     uint8_t spi_slave = 1;
-    SPIPeripheral device = {&DDRB, spi_slave, &PORTB};
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    SPIPeripheralOld device = {&DDRB, spi_slave, &PORTB};
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
   interface->configurePeripheral(&device);
     interface->selectPeripheral(interface, &device);
@@ -285,8 +285,8 @@ void test_deselectPeripheralNotNull(void){
 
 void test_deselectPeripheral(void){
     uint8_t spi_slave = 1;
-    SPIPeripheral device = {&DDRB, spi_slave, &PORTB};
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    SPIPeripheralOld device = {&DDRB, spi_slave, &PORTB};
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
   interface->configurePeripheral(&device);
     interface->selectPeripheral(interface, &device);
@@ -299,26 +299,26 @@ void test_deselectPeripheral(void){
 
 
 void test_isNotBusyAtBegin(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     TEST_ASSERT_FALSE(impl->interruptData.busy);
 }
 
 void test_isBusyAfterStartNonBlockingWrite(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     interface->writeNonBlocking(interface, buffer, length);
     TEST_ASSERT_TRUE(impl->interruptData.busy);
 }
 
 void test_handleInterruptNotNullAfterNonBlockingWrite(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     interface->writeNonBlocking(interface, buffer, length);
     TEST_ASSERT_NOT_NULL(impl->handleInterrupt);
 }
 
 void test_NotBusyAfterNonBlockingWrite(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     interface->writeNonBlocking(interface, buffer, length);
     for(uint16_t i = 0; i <= length; ++i){
@@ -329,7 +329,7 @@ void test_NotBusyAfterNonBlockingWrite(void){
 
 
 void test_interruptsEnabledAfterNonBlockingWrite(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     interface->writeNonBlocking(interface, buffer, length);
     TEST_ASSERT_BIT_HIGH(spi_interrupt_enable, *impl->spcr);
@@ -337,7 +337,7 @@ void test_interruptsEnabledAfterNonBlockingWrite(void){
 
 
 void test_interruptsDisabledAfterNonBlockingWrite(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     interface->writeNonBlocking(interface, buffer, length);
     for(uint16_t i = 0; i < length; ++i){
@@ -347,14 +347,14 @@ void test_interruptsDisabledAfterNonBlockingWrite(void){
 }
 
 void test_indexAfterNonBlockingWriteIs1(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     interface->writeNonBlocking(interface, buffer, length);
     TEST_ASSERT_EQUAL_UINT16(1,impl->interruptData.index); //Because first byte is transmitted
 }
 
 void test_spdrContainsMessageAfterEachWrite(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     interface->writeNonBlocking(interface, buffer, length);
     for(uint16_t i = 0; i < length; ++i){
@@ -364,7 +364,7 @@ void test_spdrContainsMessageAfterEachWrite(void){
 }
 
 void test_setReadAndWriteCallback(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     TEST_ASSERT_FALSE(impl->clearReadCallback);
     TEST_ASSERT_FALSE(impl->clearWriteCallback);
@@ -381,7 +381,7 @@ void test_setReadAndWriteCallback(void){
 
 
 void test_readCallbackClearedAfterCallback(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     interface->setCallbackClearFlags(interface,true, false);
     uint16_t value = 0;
@@ -399,7 +399,7 @@ void test_readCallbackClearedAfterCallback(void){
 }
 
 void test_writeCallback(){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     uint16_t value = 0;
     PeripheralCallback callback = {
@@ -416,13 +416,13 @@ void test_writeCallback(){
 
 
 void test_interruptsEnabledAfterNonBlockingRead(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     interface->readNonBlocking(interface, receiveBuffer, length);
     TEST_ASSERT_BIT_HIGH(spi_interrupt_enable, *impl->spcr);
 }
 void test_isBusyAfterStartNonBlockingRead(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     interface->readNonBlocking(interface, receiveBuffer, length);
     TEST_ASSERT_TRUE(impl->interruptData.busy);
@@ -430,7 +430,7 @@ void test_isBusyAfterStartNonBlockingRead(void){
 }
 
 void test_NotBusyAfterNonBlockingRead(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     interface->readNonBlocking(interface, receiveBuffer, length);
     for(uint16_t i = 0; i < length; ++i){
@@ -442,7 +442,7 @@ void test_NotBusyAfterNonBlockingRead(void){
 }
 
 void test_InterruptsDisabledAfterNonBlockingRead(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     interface->readNonBlocking(interface, receiveBuffer, length);
     for(uint16_t i = 0; i < length; ++i){
@@ -456,7 +456,7 @@ void test_nonBlockingReadSPDR(void){
   // This test is ignored since it is currently not clear
   // how to correctly unit test that behaviour.
   TEST_IGNORE();
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     interface->readNonBlocking(interface, receiveBuffer, length);
     for(uint16_t i = 0; i < length; ++i){
@@ -467,7 +467,7 @@ void test_nonBlockingReadSPDR(void){
 }
 
 void test_nonBlockingWriteInitializesAllValues(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     interface->writeNonBlocking(interface, buffer, length);
     TEST_ASSERT_NOT_NULL(impl->interruptData.buffer);
@@ -480,7 +480,7 @@ void test_nonBlockingWriteInitializesAllValues(void){
 }
 
 void test_nonBlockingReadReceiveBuffer(void){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     interface->readNonBlocking(interface, receiveBuffer, length);
     for(uint16_t i = 0; i < length; ++i){
@@ -541,7 +541,7 @@ void test_writeAndreadNonBlockingGivesException(void){
 
 
 void test_readCallback(){
-    PeripheralInterfaceImpl *impl = (PeripheralInterfaceImpl *)interface;
+    PeripheralInterfaceImplOld *impl = (PeripheralInterfaceImplOld *)interface;
     interface->init(interface);
     uint16_t value = 0;
     PeripheralCallback callback = {

@@ -16,13 +16,13 @@
 static uint8_t f_osc = f_osc_128;
 PeripheralInterface *interface;
 
-typedef struct SPIPeripheral{
+typedef struct SPIPeripheralOld{
   volatile uint8_t *DDR;
   uint8_t PIN;
   volatile  uint8_t *PORT;
-} SPIPeripheral;
+} SPIPeripheralOld;
 
-void printFramePayloadFromMrf(SPIPeripheral *device, uint8_t payload_length);
+void printFramePayloadFromMrf(SPIPeripheralOld *device, uint8_t payload_length);
 void writeToTXMemory(Peripheral *device, const uint8_t *payload, uint8_t payload_length);
 
 void delay_ten_times(double ms) {
@@ -44,7 +44,7 @@ void blink_led(uint8_t times) {
 
 int main() {
   uint8_t spi_slave = 1;
-  struct SPIPeripheral device = {&DDRB, spi_slave, &PORTB};
+  struct SPIPeripheralOld device = {&DDRB, spi_slave, &PORTB};
   SPIConfig spiConfig = {&DDRB, &PORTB, &SPCR, &SPDR, &SPSR, f_osc};
 
   //set up leds
@@ -71,7 +71,7 @@ int main() {
   }
 }
 
-void printFramePayloadFromMrf(SPIPeripheral *device, uint8_t payload_length) {
+void printFramePayloadFromMrf(SPIPeripheralOld *device, uint8_t payload_length) {
 
   uint8_t buffer[payload_length];
   uint8_t command[2] = {0x80, 0};

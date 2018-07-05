@@ -1,63 +1,62 @@
 #include <stdlib.h>
 #include <util/delay.h>
 #include "integration_tests/LUFA-Setup/Helpers.h"
-#include "lib/include/Peripheral.h"
 #include "lib/include/TransferLayer/PeripheralSPIImpl.h"
 #include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
 
-void setup(void);
+uint8_t* setup(void);
 uint8_t readByteFromShortAddressRegister(uint8_t register_address);
 void convertByteToString(uint8_t byte, uint8_t *string);
+void debug(const uint8_t *string);
 
-typedef struct SPIPeripheral{
-  volatile uint8_t *DDR;
-  uint8_t PIN;
-  volatile  uint8_t *PORT;
-} SPIPeripheral;
-
-SPIPeripheral peripheral = {
-        .DDR = &DDRB,
-        .PIN = 0,
-        .PORT = &PORTB,
+static SPIConfig spi_config = {
+        .data_register = &SPDR,
+        .clock_pin = PORTB1,
+        .miso_pin = PORTB3,
+        .mosi_pin = PORTB2,
+        .io_lines_data_direction_register = &DDRB,
+        .status_register = &SPSR,
+        .control_register = &SPCR,
 };
 
-SPIConfig spi_config = {
-        .ddr = &DDR_SPI,
-        .port = &PORTB,
-        .spcr = &SPCR,
-        .spdr = &SPDR,
-        .spsr = &SPSR,
-        .sck_rate = f_osc_16,
+static PeripheralSPI spi_chip = {
+        .data_register = &PORTB,
+        .data_direction_register = &DDRB,
+        .select_chip_pin_number = PORTB0,
+        .data_order = SPI_DATA_ORDER_MSB_FIRST,
+        .clock_polarity = SPI_CLOCK_POLARITY_LEADING_EDGE_RISING,
+        .clock_phase = SPI_CLOCK_PHASE_LEADING_EDGE_SAMPLE,
+        .idle_signal = SPI_IDLE_SIGNAL_LOW,
+        .clock_rate_divider = SPI_CLOCK_RATE_DIVIDER_64,
 };
 
-TransferLayerConfig transfer_layer_config = {
-        .allocate = malloc,
-        .deallocate = free,
-};
+static PeripheralInterface spi_interface;
 
-PeripheralInterface *spi_interface;
 
 int main(void){
   setup();
   char output[] = "0x00\n";
   uint8_t byte = 0xAB;
-  _delay_ms(2000);
   usbWriteString("Start\n");
   periodicUsbTask();
   for(;;) {
-    _delay_ms(2000);
     byte = readByteFromShortAddressRegister(mrf_register_tx_stabilization);
     convertByteToString(byte, output);
     usbWriteString(output);
+    _delay_ms(1000);
     periodicUsbTask();
   }
 }
 
-void setup(void) {
-  spi_interface = PeripheralInterface_create(transfer_layer_config, spi_config);
-  PeripheralInterface_init(spi_interface);
-  spi_interface->configurePeripheral(spi_interface, (Peripheral*)&peripheral);
+
+
+uint8_t* setup(void) {
   setUpUsbSerial();
+  _delay_ms(3000);
+  uint8_t *memory = malloc(PeripheralInterfaceSPI_requiredSize());
+  spi_interface = PeripheralInterfaceSPI_createNew(memory, &spi_config);
+  PeripheralInterface_init(spi_interface);
+  PeripheralInterface_configurePeripheral(spi_interface, &spi_chip);
 }
 
 uint8_t readByteFromShortAddressRegister(uint8_t register_address) {
@@ -65,10 +64,10 @@ uint8_t readByteFromShortAddressRegister(uint8_t register_address) {
   uint8_t command = register_address << 1;
   command &= bit_mask;
   uint8_t buffer = 0;
-  PeripheralInterface_selectPeripheral(spi_interface, &peripheral);
+  PeripheralInterface_selectPeripheral(spi_interface, &spi_chip);
   PeripheralInterface_writeBlocking(spi_interface, &command, 1);
   PeripheralInterface_readBlocking(spi_interface, &buffer, 1);
-  PeripheralInterface_deselectPeripheral(spi_interface, &peripheral);
+  PeripheralInterface_deselectPeripheral(spi_interface, &spi_chip);
   return buffer;
 }
 
@@ -86,4 +85,15 @@ void convertByteToString(uint8_t byte, uint8_t *string) {
   uint8_t lower_half = (uint8_t) (byte & 0x0F);
   string[2] = convertNumberToASCII(upper_half);
   string[3] = convertNumberToASCII(lower_half);
+}
+
+void debug(const uint8_t *string) {
+  usbWriteString(string);
+  periodicUsbTask();
+}
+
+void debugPrintHex(uint8_t byte) {
+  uint8_t string[] = "0x00\n";
+  convertByteToString(byte, string);
+  debug(string);
 }

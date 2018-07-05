@@ -48,7 +48,7 @@ static uint8_t *const usart_control_and_status_register_c = &usart_control_and_s
 extern uint8_t usart_data;
 static uint8_t *const usart_data_register = &usart_data;
 
-void resetDummyIO();
+void resetDummyIO(void);
 
 
 #endif 

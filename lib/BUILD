@@ -67,7 +67,12 @@ cc_library(
             "-O2",
         ],
         "//conditions:default": [],
-    }) + ["-Winline"],
+    }) + [
+        "-Winline",
+        "-include stdint.h",
+        "-DCEXCEPTION_T=uint8_t",
+        "-DCEXCEPTION_NONE=0x00",
+    ],
     visibility = [
         "//visibility:public",
     ],
@@ -90,7 +95,12 @@ cc_library(
             "-O2",
         ],
         "//conditions:default": [],
-    }) + ["-Winline"],
+    }) + [
+        "-Winline",
+        "-include stdint.h",
+        "-DCEXCEPTION_T=uint8_t",
+        "-DCEXCEPTION_NONE=0x00",
+    ],
     visibility = [
         "//integration_tests:__pkg__",
         "//test:__subpackages__",
