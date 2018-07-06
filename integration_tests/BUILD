@@ -93,21 +93,24 @@ cc_binary(
 )
 
 cc_binary(
-    name = "SPITestWithouLib",
+    name = "SPITestWithoutCommunicationModuleAndLufa",
     srcs = [
-        "src/SPITestWithoutLib.c",
+        "src/SPITestWithoutCommunicationModuleAndLufa.c",
+    ],
+    copts = avr_minimal_copts(),
+    linkopts = avr_minimal_copts(),
+)
+
+cc_binary(
+    name = "SPITestWithLufaOnly",
+    srcs = [
+        "src/SPITestWithLufaOnly.c",
         ":LufaSetup",
     ],
-    copts = avr_minimal_copts() + LUFA_COPTS + [
-        "-Os",
-        "-include stdint.h",
-        "-DCEXCEPTION_T=uint8_t",
-        "-DCEXCEPTION_NONE=0x00",
-    ],
+    copts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
     linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
     nocopts = "-O2",
     deps = [
-        "@CException//:CException",
         "@LUFA//:LUFA_USB",
     ],
 )
@@ -119,8 +122,14 @@ generate_hex(
 )
 
 generate_hex(
-    name = "SPITestWithoutLibHex",
-    input = ":SPITestWithouLib",
+    name = "SPITestWithoutCommunicationModuleAndLufaHex",
+    input = ":SPITestWithoutCommunicationModuleAndLufa",
+    mcu = "atmega32u4",
+)
+
+generate_hex(
+    name = "SPITestWithLufaOnlyHex",
+    input = ":SPITestWithLufaOnly",
     mcu = "atmega32u4",
 )
 

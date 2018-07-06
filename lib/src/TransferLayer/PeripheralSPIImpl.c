@@ -102,11 +102,15 @@ void setInterfaceFunctionPointers(PeripheralInterface self);
 void writeByteBlockingNew(NewPeripheralInterfaceImpl self, uint8_t byte);
 uint8_t readByteBlockingNew(NewPeripheralInterfaceImpl self);
 
-void waitUntilByteTransmitted(NewPeripheralInterfaceImpl self);
+void waitUntilByteTransmitted(volatile uint8_t *status_register);
 
 void activateSlaveSelectLine(PeripheralSPI *spi_chip);
 
 static void deactivateSlaveSelectLine(PeripheralSPI *spi_chip);
+
+static void setUpIOLines(const SPIConfig *config);
+
+static void setUpControlRegister(volatile uint8_t *control_register);
 
 PeripheralInterface PeripheralInterfaceSPI_createNew(uint8_t *const memory, const SPIConfig *const spiConfig) {
   NewPeripheralInterfaceImpl impl = (NewPeripheralInterfaceImpl) memory;
@@ -128,16 +132,31 @@ void setInterfaceFunctionPointers(PeripheralInterface self) {
 
 static void new_init(PeripheralInterface self) {
   NewPeripheralInterfaceImpl impl = (NewPeripheralInterfaceImpl) self;
-  set_bit(impl->config->control_register, spi_enable_bit);
-  set_bit(impl->config->control_register, master_slave_select_bit);
-  set_bit(impl->config->io_lines_data_direction_register, impl->config->mosi_pin);
-  clear_bit(impl->config->io_lines_data_direction_register, impl->config->miso_pin);
-  set_bit(impl->config->io_lines_data_direction_register, impl->config->clock_pin);
+  // Important: setup of the io lines has to happen before anything else
+  setUpIOLines(impl->config);
+  setUpControlRegister(impl->config->control_register);
+
   debug("initialized peripheral interface\n");
+}
+
+static void setUpControlRegister(volatile uint8_t *control_register) {
+  set_bit(control_register, spi_enable_bit);
+  set_bit(control_register, master_slave_select_bit);
+  debug("setup control spi registers\n");
+}
+
+static void setUpIOLines(const SPIConfig *config) {
+  set_bit(config->io_lines_data_direction_register, config->slave_select_pin);
+  set_bit(config->io_lines_data_register, config->slave_select_pin);
+  set_bit(config->io_lines_data_direction_register, config->mosi_pin);
+  clear_bit(config->io_lines_data_direction_register, config->miso_pin);
+  set_bit(config->io_lines_data_direction_register, config->clock_pin);
+  debug("set up peripheral io lines (this includes ss, miso, mosi, clock)\n");
 }
 
 static void configurePeripheralNew(Peripheral *device) {
   PeripheralSPI *spi_chip = (PeripheralSPI *) device;
+  set_bit(spi_chip->data_direction_register, spi_chip->select_chip_pin_number);
   if (spi_chip->idle_signal == SPI_IDLE_SIGNAL_HIGH){
     set_bit(spi_chip->data_register, spi_chip->select_chip_pin_number);
   }
@@ -147,7 +166,6 @@ static void configurePeripheralNew(Peripheral *device) {
   else {
     Throw(PERIPHERAL_CONFIGURATION_EXCEPTION);
   }
-  set_bit(spi_chip->data_direction_register, spi_chip->select_chip_pin_number);
   debug("configured peripheral\n");
 }
 
@@ -160,8 +178,9 @@ void selectPeripheralNew(PeripheralInterface self, Peripheral *device) {
     CEXCEPTION_T exception;
     Try {
           setClockRateDivider(impl, spi_chip->clock_rate_divider);
-          setClockPolarity(control_register, spi_chip->clock_polarity);
-          setClockPhase(control_register, spi_chip->clock_phase);
+          setSPIMode(control_register, spi_chip->spi_mode);
+//          setClockPhase(control_register, spi_chip->clock_phase);
+//          setClockPolarity(control_register, spi_chip->clock_polarity);
           setDataOrder(control_register, spi_chip->data_order);
           activateSlaveSelectLine(spi_chip);
         }
@@ -196,10 +215,8 @@ void writeBlockingNew(PeripheralInterface self, const uint8_t *buffer, uint16_t 
 }
 
 void writeByteBlockingNew(NewPeripheralInterfaceImpl self, uint8_t byte) {
-  *self->config->data_register = byte;
-  debug("write byte to ");
-  debugPrintHex((uint8_t)self->config->data_register);
-  waitUntilByteTransmitted(self);
+  *(self->config->data_register) = byte;
+  waitUntilByteTransmitted(self->config->status_register);
 }
 
 void readBlockingNew(PeripheralInterface self, uint8_t *buffer, uint16_t length) {
@@ -210,13 +227,11 @@ void readBlockingNew(PeripheralInterface self, uint8_t *buffer, uint16_t length)
 
 uint8_t readByteBlockingNew(NewPeripheralInterfaceImpl self) {
   writeByteBlockingNew(self, 0);
-  uint8_t byte = *self->config->data_register;
-  return byte;
+  return *self->config->data_register;
 }
 
-void waitUntilByteTransmitted(NewPeripheralInterfaceImpl self) {
-  while (!get_bit(self->config->status_register, spi_interrupt_flag_bit)) {}
-  debug("byte transmitted \n");
+void waitUntilByteTransmitted(volatile uint8_t *status_register) {
+  while (!(*status_register & (1 << spi_interrupt_flag_bit))) {}
 }
 
 void releaseInterface(NewPeripheralInterfaceImpl impl) {
@@ -301,6 +316,37 @@ void enableDoubleSpeed(volatile uint8_t *status_register) {
 
 void disableDoubleSpeed(volatile uint8_t *status_register) {
   clear_bit(status_register, double_spi_speed_bit);
+}
+
+void setSPIMode(volatile uint8_t *control_register, uint8_t spi_mode) {
+  void (*set_clock_polarity) (volatile uint8_t *, uint8_t);
+  void (*set_clock_phase) (volatile uint8_t *, uint8_t);
+  switch(spi_mode) {
+    case SPI_MODE_0:
+      set_clock_polarity = clear_bit;
+      set_clock_phase = clear_bit;
+      break;
+
+    case SPI_MODE_1:
+      set_clock_polarity = clear_bit;
+      set_clock_phase = set_bit;
+      break;
+
+    case SPI_MODE_2:
+      set_clock_polarity = set_bit;
+      set_clock_phase = clear_bit;
+      break;
+
+    case SPI_MODE_3:
+      set_clock_polarity = set_bit;
+      set_clock_phase = set_bit;
+      break;
+
+    default:
+      Throw(PERIPHERAL_SELECT_EXCEPTION);
+  }
+  set_clock_phase(control_register, clock_phase_bit);
+  set_clock_polarity(control_register, clock_polarity_bit);
 }
 
 void setClockPolarity(volatile uint8_t *control_register, uint8_t polarity) {
@@ -447,8 +493,7 @@ void init(PeripheralInterface self) {
 
 
 void setRegisterWithBitMask(volatile uint8_t *register_ptr, uint8_t bitmask, uint8_t value) {
-  *register_ptr &= (bitmask & value);
-  *register_ptr |= (bitmask & value);
+  *register_ptr = (~bitmask & *register_ptr) | (bitmask & value);
 }
 
 uint8_t get_bit(volatile uint8_t *field, uint8_t bit_number) {

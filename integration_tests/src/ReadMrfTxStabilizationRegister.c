@@ -14,7 +14,9 @@ static SPIConfig spi_config = {
         .clock_pin = PORTB1,
         .miso_pin = PORTB3,
         .mosi_pin = PORTB2,
+        .slave_select_pin = PORTB0,
         .io_lines_data_direction_register = &DDRB,
+        .io_lines_data_register = &PORTB,
         .status_register = &SPSR,
         .control_register = &SPCR,
 };
@@ -26,12 +28,19 @@ static PeripheralSPI spi_chip = {
         .data_order = SPI_DATA_ORDER_MSB_FIRST,
         .clock_polarity = SPI_CLOCK_POLARITY_LEADING_EDGE_RISING,
         .clock_phase = SPI_CLOCK_PHASE_LEADING_EDGE_SAMPLE,
-        .idle_signal = SPI_IDLE_SIGNAL_LOW,
-        .clock_rate_divider = SPI_CLOCK_RATE_DIVIDER_64,
+        .spi_mode = SPI_MODE_0,
+        .idle_signal = SPI_IDLE_SIGNAL_HIGH,
+        .clock_rate_divider = SPI_CLOCK_RATE_DIVIDER_16,
 };
 
 static PeripheralInterface spi_interface;
 
+uint8_t transfer(uint8_t byte) {
+  SPDR = byte;
+  while (!(SPSR & (1 << SPIF)))
+    ;
+  return SPDR;
+}
 
 int main(void){
   setup();
@@ -48,7 +57,13 @@ int main(void){
   }
 }
 
+void select(void) {
+  PORTB &= ~(_BV(PORTB0));
+}
 
+void deselect(void) {
+  PORTB |= _BV(PORTB0);
+}
 
 uint8_t* setup(void) {
   setUpUsbSerial();
@@ -60,9 +75,7 @@ uint8_t* setup(void) {
 }
 
 uint8_t readByteFromShortAddressRegister(uint8_t register_address) {
-  uint8_t bit_mask = 0b01111110;
   uint8_t command = register_address << 1;
-  command &= bit_mask;
   uint8_t buffer = 0;
   PeripheralInterface_selectPeripheral(spi_interface, &spi_chip);
   PeripheralInterface_writeBlocking(spi_interface, &command, 1);
