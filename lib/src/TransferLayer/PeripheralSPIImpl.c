@@ -99,9 +99,6 @@ static void releaseInterface(NewPeripheralInterfaceImpl impl);
 
 void setInterfaceFunctionPointers(PeripheralInterface self);
 
-void writeByteBlockingNew(NewPeripheralInterfaceImpl self, uint8_t byte);
-uint8_t readByteBlockingNew(NewPeripheralInterfaceImpl self);
-
 void waitUntilByteTransmitted(volatile uint8_t *status_register);
 
 void activateSlaveSelectLine(PeripheralSPI *spi_chip);
@@ -179,8 +176,8 @@ void selectPeripheralNew(PeripheralInterface self, Peripheral *device) {
     Try {
           setClockRateDivider(impl, spi_chip->clock_rate_divider);
           setSPIMode(control_register, spi_chip->spi_mode);
-//          setClockPhase(control_register, spi_chip->clock_phase);
-//          setClockPolarity(control_register, spi_chip->clock_polarity);
+          setClockPhase(control_register, spi_chip->clock_phase);
+          setClockPolarity(control_register, spi_chip->clock_polarity);
           setDataOrder(control_register, spi_chip->data_order);
           activateSlaveSelectLine(spi_chip);
         }
@@ -207,27 +204,22 @@ void activateSlaveSelectLine(PeripheralSPI *spi_chip) {
   }
 }
 
-
-void writeBlockingNew(PeripheralInterface self, const uint8_t *buffer, uint16_t length) {
-  for(;length > 0; length--) {
-    writeByteBlockingNew((NewPeripheralInterfaceImpl )self, *buffer++);
-  }
+uint8_t transfer(NewPeripheralInterfaceImpl self, uint8_t data) {
+  *self->config->data_register = data;
+  waitUntilByteTransmitted(self->config->status_register);
+  return *self->config->data_register;
 }
 
-void writeByteBlockingNew(NewPeripheralInterfaceImpl self, uint8_t byte) {
-  *(self->config->data_register) = byte;
-  waitUntilByteTransmitted(self->config->status_register);
+void writeBlockingNew(PeripheralInterface self, const uint8_t *buffer, uint16_t length) {
+  for(uint16_t i = 0; i < length; ++i) {
+    transfer((NewPeripheralInterfaceImpl )self, buffer[i]);
+  }
 }
 
 void readBlockingNew(PeripheralInterface self, uint8_t *buffer, uint16_t length) {
-  for(;length > 0; length--) {
-    *buffer++ = readByteBlockingNew((NewPeripheralInterfaceImpl) self);
+  for(uint16_t i=0; i < length; i++) {
+    buffer[i] = transfer((NewPeripheralInterfaceImpl) self, 0);
   }
-}
-
-uint8_t readByteBlockingNew(NewPeripheralInterfaceImpl self) {
-  writeByteBlockingNew(self, 0);
-  return *self->config->data_register;
 }
 
 void waitUntilByteTransmitted(volatile uint8_t *status_register) {
@@ -249,6 +241,7 @@ static bool tryToClaimInterfaceWithPeripheral(NewPeripheralInterfaceImpl impl, P
 
 static void deselectPeripheralNew(PeripheralInterface self, Peripheral *device) {
   NewPeripheralInterfaceImpl impl = (NewPeripheralInterfaceImpl) self;
+  debug("deselecting...");
   if (device == impl->current_peripheral) {
     deactivateSlaveSelectLine(impl->current_peripheral);
     releaseInterface(impl);

@@ -5,7 +5,7 @@
 static void setWriteLongCommand(MrfIo *mrf, uint16_t address);
 static void writeBlockingWithCommand(MrfIo *mrf, const uint8_t *payload, uint8_t size);
 static void setWriteShortCommand(MrfIo *mrf, uint8_t address);
-static void clearPeripheralWriteCallback(PeripheralInterface *interface);
+static void clearPeripheralWriteCallback(PeripheralInterface interface);
 static void clearMrfIoWriteCallback(MrfIo *mrf);
 static void callbackForDeselect(void *mrf);
 static void callbackForWritingData(void *mrf);
@@ -56,7 +56,7 @@ void clearMrfIoWriteCallback(MrfIo *mrf) {
   MrfIo_setWriteCallback(mrf, callback);
 }
 
-void clearPeripheralWriteCallback(PeripheralInterface *interface) {
+void clearPeripheralWriteCallback(PeripheralInterface interface) {
   PeripheralCallback callback = {
           .function = NULL,
           .argument = NULL,

@@ -36,19 +36,25 @@ filegroup(
 )
 
 cc_binary(
-    name = "WriteOneFrameBlocking",
-    srcs = ["src/write_one_frame_blocking.c"],
+    name = "SendOneFrameBlocking",
+    srcs = [
+        "src/SendOneFrameBlocking.c",
+        "src/config.c",
+        "src/config.h",
+        ":LufaSetup",
+    ],
     copts = avr_minimal_copts() + LUFA_COPTS,
-    linkopts = avr_minimal_copts(),
+    linkopts = avr_minimal_copts() + LUFA_COPTS,
     deps = [
         "//lib:CommunicationModuleLibForTest",
         "@CException//:CException",
+        "@LUFA//:LUFA_USB",
     ],
 )
 
 generate_hex(
-    name = "WriteOneFrameBlockingHex",
-    input = ":WriteOneFrameBlocking",
+    name = "SendOneFrameBlockingHex",
+    input = ":SendOneFrameBlocking",
     mcu = "atmega328p",
 )
 
@@ -93,6 +99,29 @@ cc_binary(
 )
 
 cc_binary(
+    name = "ReadMrfTxStabilizationRegister2",
+    srcs = [
+        "src/ReadMrfTxStabilizationRegister2.c",
+        "src/config.c",
+        "src/config.h",
+        ":LufaSetup",
+    ],
+    copts = avr_minimal_copts() + LUFA_COPTS + [
+        "-Os",
+        "-include stdint.h",
+        "-DCEXCEPTION_T=uint8_t",
+        "-DCEXCEPTION_NONE=0x00",
+    ],
+    linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
+    nocopts = "-O2",
+    deps = [
+        "//lib:CommunicationModuleLibForTest",
+        "@CException//:CException",
+        "@LUFA//:LUFA_USB",
+    ],
+)
+
+cc_binary(
     name = "SPITestWithoutCommunicationModuleAndLufa",
     srcs = [
         "src/SPITestWithoutCommunicationModuleAndLufa.c",
@@ -118,6 +147,12 @@ cc_binary(
 generate_hex(
     name = "ReadMrfTxStabilizationRegisterHex",
     input = ":ReadMrfTxStabilizationRegister",
+    mcu = "atmega32u4",
+)
+
+generate_hex(
+    name = "ReadMrfTxStabilizationRegisterHex2",
+    input = ":ReadMrfTxStabilizationRegister2",
     mcu = "atmega32u4",
 )
 

@@ -88,7 +88,7 @@ static void setChannel(Mrf *impl, uint8_t channel);
 static void setUpTransmitterPower(Mrf *impl);
 static void resetInternalRFStateMachine(Mrf *impl);
 static void triggerSend(Mrf *impl);
-
+extern void debug(uint8_t *string);
 
 Mac802154 *Mac802154_createMRF(MemoryManagement *dynamic_memory, DelayFunction delay_microseconds) {
   Mrf *impl = dynamic_memory->allocate(sizeof(*impl));
@@ -96,6 +96,18 @@ Mac802154 *Mac802154_createMRF(MemoryManagement *dynamic_memory, DelayFunction d
   impl->delay_microseconds = delay_microseconds;
   setUpInterface(&impl->mac);
   return (Mac802154*)impl;
+}
+
+size_t Mac802154MRF_requiredSize(void) {
+  return sizeof(struct Mrf);
+
+}
+
+void Mac802154MRF_create(uint8_t *memory, DelayFunction delay_microseconds) {
+  Mrf *impl = (Mrf *) memory;
+  impl->delay_microseconds = delay_microseconds;
+  impl->deallocate = NULL;
+  setUpInterface(&impl->mac);
 }
 
 void setUpInterface(Mac802154 *interface) {
@@ -110,16 +122,17 @@ void setUpInterface(Mac802154 *interface) {
 void init(Mac802154 *self, const Mac802154Config *config) {
   Mrf *impl = (Mrf *) self;
   setPrivateVariables(impl, config);
-  reset(impl);
-  setInitializationValuesFromDatasheet(&impl->io);
-  enableRXInterrupt(impl);
-  setChannel(impl, config->channel);
-  setUpTransmitterPower(impl);
-  setShortSourceAddress(impl, &config->short_source_address);
-  setExtendedSourceAddress(impl, &config->extended_source_address);
-  setPanId(impl, &config->pan_id);
+//  reset(impl);
+//  setInitializationValuesFromDatasheet(&impl->io);
+//  enableRXInterrupt(impl);
+//  setChannel(impl, config->channel);
+//  setUpTransmitterPower(impl);
+//  setShortSourceAddress(impl, &config->short_source_address);
+//  setExtendedSourceAddress(impl, &config->extended_source_address);
+//  setPanId(impl, &config->pan_id);
 
   MrfState_init(&impl->state);
+
   MrfState_setPanId(&impl->state, config->pan_id);
   MrfState_setShortSourceAddress(&impl->state, config->short_source_address);
   uint64_t coordinators_address = 0;
@@ -208,11 +221,14 @@ void setShortDestinationAddress(Mac802154 *self, uint16_t address) {
 }
 
 void setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length) {
+  debug("set payload\n");
+
   Mrf *impl = (Mrf *) self;
   MrfState_setPayload(&impl->state, payload, payload_length);
 }
 
 void sendBlocking(Mac802154 *self) {
+  debug("transmitting frame...\n");
   Mrf *impl = (Mrf *) self;
   MrfField current_field = MrfState_getFullHeaderField(&impl->state);
   MrfIo_writeBlockingToLongAddress(&impl->io, current_field.data, current_field.size, current_field.address);
@@ -223,9 +239,11 @@ void sendBlocking(Mac802154 *self) {
 
 void setExtendedDestinationAddress(Mac802154 *self, uint64_t address) {
   Mrf *impl = (Mrf *) self;
+  debug("set extended destination address\n");
   MrfState_setExtendedDestinationAddress(&impl->state, address);
 }
 
 void triggerSend(Mrf *impl) {
+  debug("trigger tx send\n");
   MrfIo_setControlRegister(&impl->io, mrf_register_tx_normal_fifo_control, 1);
 }

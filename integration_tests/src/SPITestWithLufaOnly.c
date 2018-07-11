@@ -4,6 +4,7 @@
 
 void setup(void);
 uint8_t readByteFromShortAddressRegister(uint8_t register_address);
+void writeByteToShortRegisterAddress(uint8_t register_address, uint8_t byte);
 void convertByteToString(uint8_t byte, uint8_t *string);
 void debug(const uint8_t *string);
 
@@ -36,6 +37,7 @@ int main(void){
   uint8_t byte = 0xAB;
   usbWriteString((uint8_t*)"Start\n");
   periodicUsbTask();
+  writeByteToShortRegisterAddress(0x2F, 0x55);
   for(;;) {
     byte = readByteFromShortAddressRegister(0x2E);
     convertByteToString(byte, output);
@@ -56,9 +58,18 @@ void setup(void) {
   DDRC = _BV(6);
 }
 
+void writeByteToShortRegisterAddress(uint8_t register_address, uint8_t byte) {
+  uint8_t command = register_address << 1 | 1;
+  select();
+  transfer(command);
+  transfer(byte);
+  deselect();
+}
+
 uint8_t readByteFromShortAddressRegister(uint8_t register_address) {
   uint8_t bit_mask = 0b01111110;
   uint8_t command = register_address << 1;
+  debugPrintHex(command);
   command &= bit_mask;
   select();
   write(command);

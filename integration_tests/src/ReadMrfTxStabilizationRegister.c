@@ -50,6 +50,7 @@ int main(void){
   periodicUsbTask();
   for(;;) {
     byte = readByteFromShortAddressRegister(mrf_register_tx_stabilization);
+
     convertByteToString(byte, output);
     usbWriteString(output);
     _delay_ms(1000);

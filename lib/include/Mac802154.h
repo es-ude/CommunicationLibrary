@@ -46,7 +46,7 @@ struct Mac802154Config {
   uint64_t extended_source_address;
   uint16_t pan_id;
   uint8_t channel;
-  PeripheralInterface *interface;
+  PeripheralInterface interface;
   Peripheral *device;
 };
 

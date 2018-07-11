@@ -52,11 +52,19 @@ int main(void) {
     PORTC ^= _BV(6);
     _delay_ms(500);
   }
-
+//  write(0x2E << 1 | 1);
+//  write(0x55);
   for(;;) {
-    write(0);
-    PORTC ^= _BV(6);
-    _delay_ms(1000);
+    write(0x2E << 1);
+    uint8_t byte = read();
+    if (byte == 0x75){
+      PORTC ^= _BV(6);
+      _delay_ms(100);
+    }
+    else {
+        PORTC ^= _BV(6);
+        _delay_ms(1000);
+      }
   }
 
 }

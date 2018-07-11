@@ -1,6 +1,8 @@
 #ifndef COMMUNICATIONMODULE_MAC802154_H
 #define COMMUNICATIONMODULE_MAC802154_H
 
+#include "lib/include/Mac802154.h"
+
 struct Mac802154 {
   void (*setShortDestinationAddress) (Mac802154 *self, uint16_t address);
   void (*setExtendedDestinationAddress) (Mac802154 *self, uint64_t address);

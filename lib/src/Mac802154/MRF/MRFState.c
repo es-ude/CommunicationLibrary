@@ -1,5 +1,7 @@
 #include "MRFState.h"
 
+extern void debug(uint8_t *string);
+
 void MrfState_init(MrfState *mrf) {
   FrameHeader802154_init(&mrf->header.frame_header);
   mrf->header.frame_header_length = FrameHeader802154_getHeaderSize(&mrf->header.frame_header);

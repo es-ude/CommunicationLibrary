@@ -27,5 +27,6 @@
  * written to the hardware again.
  */
 Mac802154 *Mac802154_createMRF(MemoryManagement *dynamic_memory, DelayFunction delay_microseconds);
-
+size_t Mac802154MRF_requiredSize(void);
+void Mac802154MRF_create(uint8_t *memory, DelayFunction delay_microseconds);
 #endif /* end of include guard */

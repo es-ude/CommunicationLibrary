@@ -37,7 +37,7 @@ struct MrfIoCallback {
 
 struct MrfIo {
   Peripheral *device;
-  PeripheralInterface *interface;
+  PeripheralInterface interface;
   uint8_t command[2];
   uint8_t command_size;
   uint8_t length;
