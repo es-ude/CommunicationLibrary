@@ -99,9 +99,9 @@ cc_binary(
 )
 
 cc_binary(
-    name = "ReadMrfTxStabilizationRegister2",
+    name = "ReadTxFifoMemory",
     srcs = [
-        "src/ReadMrfTxStabilizationRegister2.c",
+        "src/ReadTxFifoMemory.c",
         "src/config.c",
         "src/config.h",
         ":LufaSetup",
@@ -151,8 +151,8 @@ generate_hex(
 )
 
 generate_hex(
-    name = "ReadMrfTxStabilizationRegisterHex2",
-    input = ":ReadMrfTxStabilizationRegister2",
+    name = "ReadTxFifoMemoryHex",
+    input = ":ReadTxFifoMemory",
     mcu = "atmega32u4",
 )
 
