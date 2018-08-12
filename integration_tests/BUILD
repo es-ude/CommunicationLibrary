@@ -113,7 +113,6 @@ cc_binary(
         "-DCEXCEPTION_NONE=0x00",
     ],
     linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
-    nocopts = "-O2",
     deps = [
         "//lib:CommunicationModuleLibForTest",
         "@CException//:CException",

@@ -101,7 +101,7 @@ void setInterfaceFunctionPointers(PeripheralInterface self);
 
 void waitUntilByteTransmitted(volatile uint8_t *status_register);
 
-void activateSlaveSelectLine(PeripheralSPI *spi_chip);
+static void activateSlaveSelectLine(PeripheralSPI *spi_chip);
 
 static void deactivateSlaveSelectLine(PeripheralSPI *spi_chip);
 
@@ -154,15 +154,7 @@ static void setUpIOLines(const SPIConfig *config) {
 static void configurePeripheralNew(Peripheral *device) {
   PeripheralSPI *spi_chip = (PeripheralSPI *) device;
   set_bit(spi_chip->data_direction_register, spi_chip->select_chip_pin_number);
-  if (spi_chip->idle_signal == SPI_IDLE_SIGNAL_HIGH){
-    set_bit(spi_chip->data_register, spi_chip->select_chip_pin_number);
-  }
-  else if (spi_chip->idle_signal == SPI_IDLE_SIGNAL_LOW) {
-    clear_bit(spi_chip->data_register, spi_chip->select_chip_pin_number);
-  }
-  else {
-    Throw(PERIPHERAL_CONFIGURATION_EXCEPTION);
-  }
+  deactivateSlaveSelectLine(spi_chip);
   debug("configured peripheral\n");
 }
 
@@ -176,8 +168,6 @@ void selectPeripheralNew(PeripheralInterface self, Peripheral *device) {
     Try {
           setClockRateDivider(impl, spi_chip->clock_rate_divider);
           setSPIMode(control_register, spi_chip->spi_mode);
-          setClockPhase(control_register, spi_chip->clock_phase);
-          setClockPolarity(control_register, spi_chip->clock_polarity);
           setDataOrder(control_register, spi_chip->data_order);
           activateSlaveSelectLine(spi_chip);
         }
@@ -189,6 +179,7 @@ void selectPeripheralNew(PeripheralInterface self, Peripheral *device) {
   else {
     Throw(PERIPHERAL_INTERFACE_BUSY_EXCEPTION);
   }
+
   debug("selected peripheral\n");
 }
 
@@ -241,6 +232,7 @@ static bool tryToClaimInterfaceWithPeripheral(NewPeripheralInterfaceImpl impl, P
 
 static void deselectPeripheralNew(PeripheralInterface self, Peripheral *device) {
   NewPeripheralInterfaceImpl impl = (NewPeripheralInterfaceImpl) self;
+
   debug("deselecting...");
   if (device == impl->current_peripheral) {
     deactivateSlaveSelectLine(impl->current_peripheral);
@@ -383,6 +375,7 @@ void setDataOrder(volatile uint8_t *control_register, uint8_t data_order) {
 
     case SPI_DATA_ORDER_MSB_FIRST:
       clear_bit(control_register, data_order_bit);
+      break;
 
     default:
       Throw(PERIPHERAL_SELECT_EXCEPTION);

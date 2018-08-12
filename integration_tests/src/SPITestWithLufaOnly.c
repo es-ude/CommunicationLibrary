@@ -9,11 +9,11 @@ void convertByteToString(uint8_t byte, uint8_t *string);
 void debug(const uint8_t *string);
 
 void select(void) {
-  PORTB &= ~(_BV(PORTB0));
+  PORTB &= ~(_BV(PORTB4));
 }
 
 void deselect(void) {
-  PORTB |= _BV(PORTB0);
+  PORTB |= _BV(PORTB4);
 }
 
 uint8_t transfer(uint8_t byte) {
@@ -52,8 +52,8 @@ int main(void){
 void setup(void) {
   setUpUsbSerial();
   _delay_ms(3000);
-  DDRB = (_BV(PORTB0) | _BV(PORTB1) | _BV(PORTB2));
-  PORTB |= _BV(PORTB0);
+  DDRB = (_BV(PORTB0) | _BV(PORTB1) | _BV(PORTB2) | _BV(PORTB4));
+  PORTB |= _BV(PORTB0) | _BV(PORTB4);
   SPCR = (_BV(SPE) | _BV(MSTR) | _BV(SPR1));
   DDRC = _BV(6);
 }

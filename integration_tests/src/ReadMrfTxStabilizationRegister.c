@@ -35,12 +35,12 @@ static PeripheralSPI spi_chip = {
 
 static PeripheralInterface spi_interface;
 
-uint8_t transfer(uint8_t byte) {
-  SPDR = byte;
-  while (!(SPSR & (1 << SPIF)))
-    ;
-  return SPDR;
-}
+//uint8_t transfer(uint8_t byte) {
+//  SPDR = byte;
+//  while (!(SPSR & (1 << SPIF)))
+//    ;
+//  return SPDR;
+//}
 
 int main(void){
   setup();

@@ -18,14 +18,15 @@ void convertByteToString(uint8_t byte, uint8_t *string);
 
 void printTxMemory(void) {
   uint16_t address = 0;
-  uint8_t address_high = address >> 3;
+  uint8_t address_high = address >> 3 | 0x80;
   uint8_t address_low = address << 5;
   uint8_t read_tx_command[] = {address_high, address_low};
   PeripheralInterface_selectPeripheral(peripheral_interface, &mrf_spi_client);
   PeripheralInterface_writeBlocking(peripheral_interface, read_tx_command, 2);
   uint8_t buffer[32];
-  PeripheralInterface_readBlocking(peripheral_interface, buffer, 30);
+  PeripheralInterface_readBlocking(peripheral_interface, buffer, 15);
   PeripheralInterface_deselectPeripheral(peripheral_interface, &mrf_spi_client);
+  debug("content: ");
   debug(buffer);
   debug("\n");
 }
@@ -35,9 +36,9 @@ void writeTxMemory(void) {
   uint8_t address_high = (address >> 3) | 0x80;
   uint8_t address_low = (address << 5) | 0x10;
   uint8_t write_tx_command[] = {address_high, address_low};
+  uint8_t data[] = "hello, world!";
   PeripheralInterface_selectPeripheral(peripheral_interface, &mrf_spi_client);
   PeripheralInterface_writeBlocking(peripheral_interface, write_tx_command, 2);
-  uint8_t data[] = "hello, world!";
   PeripheralInterface_writeBlocking(peripheral_interface, data, strlen((char *) data)+1);
   PeripheralInterface_deselectPeripheral(peripheral_interface, &mrf_spi_client);
 }
@@ -59,7 +60,9 @@ int main(void){
   writeTxMemory();
   for(;;) {
     _delay_ms(1000);
-    printTxStabilizationRegister();
+//    writeTxMemory();
+    printTxMemory();
+//    printTxStabilizationRegister();
     periodicUsbTask();
   }
 }
