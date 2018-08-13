@@ -18,21 +18,22 @@ PeripheralInterface *interface;
 Mac802154 *mrf;
 Mac802154Config mrf_config;
 
+void debug(const uint8_t *message) {}
+
 void setUp(void) {
   inspected_memory = MemoryManagement_createMockImpl();
-
+  mrf = malloc(Mac802154MRF_requiredSize());
   mrf_config.interface = interface;
   mrf_config.device = device;
   mrf_config.pan_id = 0;
   mrf_config.extended_source_address = 0;
   mrf_config.short_source_address = 0;
   mrf_config.channel = 11;
-  mrf = Mac802154_createMRF(inspected_memory, fakeDelay);
+  Mac802154MRF_create((uint8_t *)mrf, fakeDelay);
 }
 
 void tearDown(void) {
-  Mac802154_destroy(mrf);
-  TEST_ASSERT_EQUAL(0, MockMemoryManagement_numberOfAllocatedObjects(inspected_memory));
+  free(mrf);
 }
 
 static void setUpInitializationValues(MrfIo *impl, const Mac802154Config *config);
@@ -77,13 +78,14 @@ void test_initWithDifferentConfig(void) {
 
 void setUpInitializationValues(MrfIo *impl, const Mac802154Config *config) {
   MrfIo_setControlRegister_Expect(impl, mrf_register_software_reset, mrf_value_full_software_reset);
-  MrfIo_setControlRegister_Expect(impl, mrf_register_power_amplifier_control2, (1 << mrf_bit_fifo_enable) | mrf_value_recommended_transmitter_on_time_before_beginning_a_packet);
+  MrfIo_setControlRegister_Expect(impl, mrf_register_power_amplifier_control2, mrf_fifo_enable | mrf_value_recommended_transmitter_on_time_before_beginning_a_packet);
   MrfIo_setControlRegister_Expect(impl, mrf_register_tx_stabilization, mrf_value_recommended_interframe_spacing);
   MrfIo_setControlRegister_Expect(impl, mrf_register_rf_control0, mrf_value_recommended_rf_optimize_control0);
   MrfIo_setControlRegister_Expect(impl, mrf_register_rf_control1, mrf_value_recommended_rf_optimize_control1);
   MrfIo_setControlRegister_Expect(impl, mrf_register_rf_control2, mrf_value_phase_locked_loop_enabled);
   MrfIo_setControlRegister_Expect(impl, mrf_register_rf_control6, mrf_value_enable_tx_filter | mrf_value_20MHz_clock_recovery_less_than_1ms);
   MrfIo_setControlRegister_Expect(impl, mrf_register_rf_control7, mrf_value_use_internal_100kHz_oscillator);
+  MrfIo_setControlRegister_Expect(impl, mrf_register_rf_control8, mrf_value_recommended_rf_control8);
   MrfIo_setControlRegister_Expect(impl, mrf_register_sleep_clock_control1, mrf_value_disable_deprecated_clkout_sleep_clock_feature | mrf_value_minimum_sleep_clock_divisor_for_internal_oscillator);
   MrfIo_setControlRegister_Expect(impl, mrf_register_base_band2, mrf_value_clear_channel_assessment_energy_detection_only);
   MrfIo_setControlRegister_Expect(impl, mrf_register_energy_detection_threshold_for_clear_channel_assessment, mrf_value_recommended_energy_detection_threshold);

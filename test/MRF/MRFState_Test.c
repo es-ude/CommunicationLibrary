@@ -6,6 +6,8 @@
 static const uint8_t frame802_header_length = 10;
 static MrfState mrf_state;
 
+void debug(const uint8_t *message) {}
+
 void setUp(void) {
   FrameHeader802154_init_Expect(&mrf_state.header.frame_header);
   FrameHeader802154_getHeaderSize_ExpectAndReturn(&mrf_state.header.frame_header,

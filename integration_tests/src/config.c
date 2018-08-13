@@ -31,7 +31,7 @@ static void setUpPeripheral(void) {
   PeripheralInterface_configurePeripheral(peripheral_interface, &mrf_spi_client);
 }
 
-static void delay_microseconds(double microseconds) {
+void delay_microseconds(double microseconds) {
   while (microseconds > 0){
     _delay_ms(1);
     microseconds--;

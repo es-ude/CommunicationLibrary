@@ -8,6 +8,7 @@ static void captureWriteCallback(PeripheralInterface *interface, PeripheralCallb
 
 static PeripheralCallback last_write_callback;
 
+void debug(const uint8_t *message) {}
 
 void test_writeBlockingToLongAddress(void) {
   MrfIo mrf;
@@ -17,8 +18,8 @@ void test_writeBlockingToLongAddress(void) {
   uint8_t command[2] = {MRF_writeLongCommandFirstByte(address),
                         MRF_writeLongCommandSecondByte(address)};
   PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
-  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, 1, command, 2, 2);
-  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, 1, payload, size, size);
+  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, command, 2, 2);
+  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, payload, size, size);
   PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
   MrfIo_writeBlockingToLongAddress(&mrf, payload, size, address);
 }
@@ -30,8 +31,8 @@ void test_writeBlockingToShortAddress(void) {
   uint8_t payload[size];
   uint8_t command[1] = {MRF_writeShortCommand(address)};
   PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
-  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, 1, command, 1, 1);
-  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, 1, payload, size, size);
+  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, command, 1, 1);
+  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, payload, size, size);
   PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
   MrfIo_writeBlockingToShortAddress(&mrf, payload, size, address);
 }
@@ -129,7 +130,7 @@ void captureWriteCallback(PeripheralInterface *interface, PeripheralCallback cal
    last_write_callback = callback;
 }
 
-void test_setAddressForShortAddress(void){
+void test_setShortAddress(void){
   MrfIo mrf;
   uint8_t command = MRF_writeShortCommand(mrf_register_software_reset);
   PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
@@ -137,10 +138,10 @@ void test_setAddressForShortAddress(void){
   uint8_t value = 0xAB;
   PeripheralInterface_writeBlocking_Expect(mrf.interface, &value, 1);
   PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
-  MrfIo_setControlRegister(&mrf, mrf_register_software_reset, 0xAB);
+  MrfIo_setControlRegister(&mrf, mrf_register_software_reset, value);
 }
 
-void test_setAddressForLongAddress(void) {
+void test_setLongAddress(void) {
   MrfIo mrf;
   uint8_t command[] = {
           MRF_writeLongCommandFirstByte(mrf_register_rf_control6),
@@ -148,7 +149,7 @@ void test_setAddressForLongAddress(void) {
   };
   uint8_t value;
   PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
-  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, 1, command, 2, 2);
+  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, command, 2, 2);
   PeripheralInterface_writeBlocking_Expect(mrf.interface, &value, 1);
   PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
   MrfIo_setControlRegister(&mrf, mrf_register_rf_control6, value);

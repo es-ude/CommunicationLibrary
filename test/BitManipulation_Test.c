@@ -1,6 +1,9 @@
+#include <memory.h>
 #include "unity.h"
 #include "lib/src/BitManipulation.h"
 #include "lib/include/Mac802154.h"
+
+void debug(const uint8_t *msg){}
 
 void checkByteValue(uint8_t field, uint8_t field_copy, uint8_t offset, uint8_t bitmask, uint8_t value) {
   BitManipulation_setByte(&field, bitmask, offset, value);
@@ -67,4 +70,16 @@ void test_getByte3(void) {
   uint8_t offset = 14;
   uint8_t expected = ADDRESSING_MODE_SHORT_ADDRESS;
   TEST_ASSERT_EQUAL_HEX8(expected, BitManipulation_getByte(field, bitmask, offset));
+}
+
+void test_fillArrayWith64BitLittleEndian(void) {
+  uint64_t value = 0x1234;
+  uint8_t array[8];
+  uint8_t expected[8];
+  memset(array, 0, 8);
+  memset(expected, 0, 8);
+  expected[0] = 0x34;
+  expected[1] = 0x12;
+  BitManipulation_fillByteArrayWith64BitLittleEndian(array, value);
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(expected, array, 8);
 }

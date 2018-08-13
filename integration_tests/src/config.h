@@ -10,5 +10,6 @@ PeripheralInterface peripheral_interface;
 
 void setup(void);
 void debug(uint8_t *string);
+void delay_microseconds(double microseconds);
 
 #endif //COMMUNICATIONMODULE_CONFIG_H

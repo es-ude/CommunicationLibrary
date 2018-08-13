@@ -132,14 +132,11 @@ static void new_init(PeripheralInterface self) {
   // Important: setup of the io lines has to happen before anything else
   setUpIOLines(impl->config);
   setUpControlRegister(impl->config->control_register);
-
-  debug("initialized peripheral interface\n");
 }
 
 static void setUpControlRegister(volatile uint8_t *control_register) {
   set_bit(control_register, spi_enable_bit);
   set_bit(control_register, master_slave_select_bit);
-  debug("setup control spi registers\n");
 }
 
 static void setUpIOLines(const SPIConfig *config) {
@@ -148,14 +145,12 @@ static void setUpIOLines(const SPIConfig *config) {
   set_bit(config->io_lines_data_direction_register, config->mosi_pin);
   clear_bit(config->io_lines_data_direction_register, config->miso_pin);
   set_bit(config->io_lines_data_direction_register, config->clock_pin);
-  debug("set up peripheral io lines (this includes ss, miso, mosi, clock)\n");
 }
 
 static void configurePeripheralNew(Peripheral *device) {
   PeripheralSPI *spi_chip = (PeripheralSPI *) device;
   set_bit(spi_chip->data_direction_register, spi_chip->select_chip_pin_number);
   deactivateSlaveSelectLine(spi_chip);
-  debug("configured peripheral\n");
 }
 
 void selectPeripheralNew(PeripheralInterface self, Peripheral *device) {
@@ -179,8 +174,6 @@ void selectPeripheralNew(PeripheralInterface self, Peripheral *device) {
   else {
     Throw(PERIPHERAL_INTERFACE_BUSY_EXCEPTION);
   }
-
-  debug("selected peripheral\n");
 }
 
 void activateSlaveSelectLine(PeripheralSPI *spi_chip) {
@@ -233,7 +226,6 @@ static bool tryToClaimInterfaceWithPeripheral(NewPeripheralInterfaceImpl impl, P
 static void deselectPeripheralNew(PeripheralInterface self, Peripheral *device) {
   NewPeripheralInterfaceImpl impl = (NewPeripheralInterfaceImpl) self;
 
-  debug("deselecting...");
   if (device == impl->current_peripheral) {
     deactivateSlaveSelectLine(impl->current_peripheral);
     releaseInterface(impl);
@@ -241,7 +233,6 @@ static void deselectPeripheralNew(PeripheralInterface self, Peripheral *device) 
   else {
     Throw(PERIPHERAL_INTERFACE_DESELECTED_WRONG_PERIPHERAL_EXCEPTION);
   }
-  debug("deselected peripheral\n");
 }
 
 static void deactivateSlaveSelectLine(PeripheralSPI *spi_chip) {

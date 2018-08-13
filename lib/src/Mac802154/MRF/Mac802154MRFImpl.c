@@ -90,14 +90,6 @@ static void resetInternalRFStateMachine(Mrf *impl);
 static void triggerSend(Mrf *impl);
 extern void debug(uint8_t *string);
 
-Mac802154 *Mac802154_createMRF(MemoryManagement *dynamic_memory, DelayFunction delay_microseconds) {
-  Mrf *impl = dynamic_memory->allocate(sizeof(*impl));
-  impl->deallocate = dynamic_memory->deallocate;
-  impl->delay_microseconds = delay_microseconds;
-  setUpInterface(&impl->mac);
-  return (Mac802154*)impl;
-}
-
 size_t Mac802154MRF_requiredSize(void) {
   return sizeof(struct Mrf);
 
@@ -122,14 +114,14 @@ void setUpInterface(Mac802154 *interface) {
 void init(Mac802154 *self, const Mac802154Config *config) {
   Mrf *impl = (Mrf *) self;
   setPrivateVariables(impl, config);
-//  reset(impl);
-//  setInitializationValuesFromDatasheet(&impl->io);
-//  enableRXInterrupt(impl);
-//  setChannel(impl, config->channel);
-//  setUpTransmitterPower(impl);
-//  setShortSourceAddress(impl, &config->short_source_address);
-//  setExtendedSourceAddress(impl, &config->extended_source_address);
-//  setPanId(impl, &config->pan_id);
+  reset(impl);
+  setInitializationValuesFromDatasheet(&impl->io);
+  enableRXInterrupt(impl);
+  setChannel(impl, config->channel);
+  setUpTransmitterPower(impl);
+  setShortSourceAddress(impl, &config->short_source_address);
+  setExtendedSourceAddress(impl, &config->extended_source_address);
+  setPanId(impl, &config->pan_id);
 
   MrfState_init(&impl->state);
 
@@ -171,7 +163,7 @@ void setInitializationValuesFromDatasheet(MrfIo *io) {
   MrfIo_setControlRegister(
           io,
           mrf_register_power_amplifier_control2,
-          (1 << mrf_bit_fifo_enable) | mrf_value_recommended_transmitter_on_time_before_beginning_a_packet
+          (1 << mrf_fifo_enable) | mrf_value_recommended_transmitter_on_time_before_beginning_a_packet
   );
   MrfIo_setControlRegister(io, mrf_register_tx_stabilization, mrf_value_recommended_interframe_spacing);
   MrfIo_setControlRegister(io, mrf_register_rf_control0, mrf_value_recommended_rf_optimize_control0);
@@ -183,6 +175,7 @@ void setInitializationValuesFromDatasheet(MrfIo *io) {
           mrf_value_enable_tx_filter | mrf_value_20MHz_clock_recovery_less_than_1ms
   );
   MrfIo_setControlRegister(io, mrf_register_rf_control7, mrf_value_use_internal_100kHz_oscillator);
+  MrfIo_setControlRegister(io, mrf_register_rf_control8, mrf_value_recommended_rf_control8);
   MrfIo_setControlRegister(
           io,
           mrf_register_sleep_clock_control1,

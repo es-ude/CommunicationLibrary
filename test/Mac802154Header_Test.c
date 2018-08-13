@@ -25,6 +25,8 @@ static const uint8_t pan_id_compression_bit = 6;
 static const uint8_t minimum_packet_size = 2;
 static const uint8_t fresh_header_size = 2 + 2 + 2 + 2;
 
+void debug(const uint8_t *msg){}
+
 void setUp(void) {
   FrameHeader802154_init(header);
 }
@@ -52,6 +54,8 @@ void test_controlFieldIsCorrectlyInitialized(void) {
           0b01000001,
           0b10101001
   };
+
+
 
   TEST_ASSERT_EQUAL_HEX8_ARRAY(default_control_field, header_data, 2);
 }
@@ -234,8 +238,8 @@ void test_setExtendedDestinationTwice(void) {
   uint64_t source_address = 0x1122;
   uint64_t new_destination_address = 0x5566778899AABBCC;
   uint8_t expected[16];
-  BitManipulation_fillByteArrayWith64BitBigEndian(expected, new_destination_address);
-  BitManipulation_fillByteArrayWith64BitBigEndian(expected+8, source_address);
+  BitManipulation_fillByteArrayWith64BitLittleEndian(expected, new_destination_address);
+  BitManipulation_fillByteArrayWith64BitLittleEndian(expected + 8, source_address);
   FrameHeader802154_setExtendedSourceAddress(header, source_address);
   FrameHeader802154_setExtendedDestinationAddress(header, new_destination_address);
   FrameHeader802154_setExtendedDestinationAddress(header, new_destination_address);
