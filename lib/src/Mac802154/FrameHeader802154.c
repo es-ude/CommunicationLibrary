@@ -94,12 +94,13 @@ static void moveDestinationAddress(FrameHeader802154 *Self, int8_t distance);
 
 void FrameHeader802154_init(FrameHeader802154 *self) {
   memset(self->data, 0, MAXIMUM_HEADER_SIZE);
-  FrameHeader802154_enableSequenceNumberSuppression(self);
   enablePanIdCompression(self);
   setDestinationAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
   setSourceAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
   setFrameType(self, FRAME_TYPE_DATA);
   setFrameVersion(self, FRAME_VERSION_2015);
+  enableAcknowledgementRequest(self);
+
 }
 
 const uint8_t *FrameHeader802154_getHeaderPtr(const FrameHeader802154 *self) {
@@ -307,7 +308,7 @@ void enableInformationElementPresent(FrameHeader802154 *self) {
 }
 
 uint8_t getDestinationAddressOffset(const FrameHeader802154 *self) {
-  uint8_t offset = control_field_size;
+  uint8_t offset = getPanIdOffset(self);
   offset += pan_id_size;
   return offset;
 }

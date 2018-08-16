@@ -1,3 +1,4 @@
+#include <string.h>
 #include "unity.h"
 #include "lib/src/Mac802154/FrameHeader802154.h"
 #include "CException.h"
@@ -38,8 +39,9 @@ void test_controlFieldIsCorrectlyInitialized(void) {
    * Frame Type => Data Frame
    * Security => disabled
    * Frame Pending => false
+   * Ack Request => true
    * PAN ID Compression => true
-   * Sequence Number suppression => true
+   * Sequence Number suppression => false
    * Information Element Present => false
    * Destination Addressing Mode => short (16bit)
    * Frame Version => 802.15.4-2015
@@ -51,8 +53,8 @@ void test_controlFieldIsCorrectlyInitialized(void) {
    * with the lsb.
    */
   uint8_t default_control_field[] = {
-          0b01000001,
-          0b10101001
+          0b01100001,
+          0b10101000
   };
 
 
@@ -73,10 +75,12 @@ void test_getSequenceNumberSizeWhenPresent(void) {
 }
 
 void test_getSequenceNumberSizeWhenNotPresent(void) {
+  FrameHeader802154_enableSequenceNumberSuppression(header);
   TEST_ASSERT_EQUAL_UINT8(0, FrameHeader802154_getSequenceNumberSize(header));
 }
 
-void test_getPanId(void) {
+void test_getPanIdWithoutSequenceNumber(void) {
+  FrameHeader802154_enableSequenceNumberSuppression(header);
   TEST_ASSERT_EQUAL_PTR(FrameHeader802154_getSequenceNumberPtr(header),
     FrameHeader802154_getPanIdPtr(header)
   );
@@ -96,14 +100,15 @@ void test_setPanIdSecond(void) {
   TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, FrameHeader802154_getPanIdPtr(header), 2);
 }
 
-void test_getSizeOfEmptyHeader(void) {
+void test_getSizeOfFreshHeader(void) {
   uint8_t short_source_address_size = 2;
   uint8_t short_destination_address_size = 2;
   uint8_t pan_id_size = 2;
   uint8_t control_field_size = 2;
+  uint8_t sequence_number_size = 1;
   uint8_t total_size = short_destination_address_size +
           short_source_address_size + pan_id_size +
-          control_field_size;
+          control_field_size + sequence_number_size;
   TEST_ASSERT_EQUAL(total_size, FrameHeader802154_getHeaderSize(header));
 }
 
@@ -246,19 +251,79 @@ void test_setExtendedDestinationTwice(void) {
   TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, FrameHeader802154_getDestinationAddressPtr(header), 16);
 }
 
-void test_setAllFields(void) {
-  FrameHeader802154_setExtendedDestinationAddress(header, ~0);
-  FrameHeader802154_setExtendedSourceAddress(header, ~0);
-  FrameHeader802154_setSequenceNumber(header, 1);
-  FrameHeader802154_setPanId(header, ~0);
+void checkForSetAllFields(uint8_t permutation[]) {
   uint8_t expected[19];
   for (uint8_t index = 0; index < 19; index++)
   {
     expected[index] = 0xff;
   }
   expected[0] = 1;
-  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, FrameHeader802154_getSequenceNumberPtr(header), 19);
+  char text[32];
+  sprintf(text, "failed on permutation {%d, %d, %d, %d}", permutation[0], permutation[1], permutation[2], permutation[3]);
+  TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE(expected, FrameHeader802154_getSequenceNumberPtr(header), 19, text);
 }
+
+
+void callFrameHeaderSetter(uint8_t function_id) {
+  switch (function_id) {
+    case 0:
+      FrameHeader802154_setSequenceNumber(header, 1);
+      break;
+    case 1:
+      FrameHeader802154_setPanId(header, ~0);
+      break;
+    case 2:
+      FrameHeader802154_setExtendedDestinationAddress(header, ~0);
+      break;
+    case 3:
+      FrameHeader802154_setShortDestinationAddress(header, ~0);
+      break;
+    default:
+      break;
+  }
+}
+
+//TODO: Test this function as well
+bool PermuteArray(uint8_t array[], uint8_t size) {
+  uint8_t left_index = 0;
+  while (left_index < size-1 && array[left_index] >= array[left_index+1]) {
+    left_index++;
+  }
+  if (left_index == size-1 && array[left_index] >= array[left_index+1]) return true;
+  uint8_t right_index = left_index+1;
+  while (right_index < size && array[left_index] >= array[right_index]) {
+    right_index++;
+  }
+  if (right_index < size && array[right_index] < array[left_index]) {
+    uint8_t temp = array[right_index];
+    array[right_index] = array[left_index];
+    array[left_index] = temp;
+
+    for (uint8_t i = left_index + 1; i < (size-left_index-1)/2; i++) {
+      temp = array[i];
+      array[i] = array[size+i-left_index-1];
+      array[size+i-left_index-1] = temp;
+    }
+  }
+  return false;
+
+}
+
+void runFrameHeaderSetterTest(uint8_t function_order[]) {
+  setUp();
+  for (uint8_t i = 0; i < 4; i++) {
+    callFrameHeaderSetter(function_order[i]);
+  }
+  checkForSetAllFields(function_order);
+}
+
+void test_setAllFields1(void) {
+  uint8_t function_id_array[4] = {0, 1, 2, 3};
+  do {
+    callFrameHeaderSetter(function_id_array);
+  } while (PermuteArray(function_id_array, 4));
+}
+
 
 void test_getSizeWhenMaximum(void) {
   FrameHeader802154_setExtendedSourceAddress(header, 0);
@@ -296,5 +361,5 @@ void test_panIdCompressionGetsEnabledWhenNecessary2(void) {
 
 void test_sizeOfHeaderForExtendedDestination(void) {
   FrameHeader802154_setExtendedSourceAddress(header, 0);
-  TEST_ASSERT_EQUAL_UINT8(14, FrameHeader802154_getHeaderSize(header));
+  TEST_ASSERT_EQUAL_UINT8(15, FrameHeader802154_getHeaderSize(header));
 }
