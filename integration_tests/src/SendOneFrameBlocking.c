@@ -1,12 +1,12 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
-#include <string.h>
 #include "integration_tests/src/config.h"
-#include "integration_tests/LUFA-Setup/Helpers.h"
-#include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
 #include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
-#include "lib/include/Mac802154MRFImpl.h"
+
+/*
+ * This test sends one frame to
+ */
 
 void debugPrintHex(uint8_t byte);
 
@@ -111,15 +111,22 @@ void printRegister(uint16_t address) {
 
 void sendToCoordinator(void) {
   uint8_t frame[] = {
+          // frame header length, frame length
           0x0F, 0x11,
-//          0x41, 0xAD,
-          0b01100001, 0b10001110, 0x01,
+          // frame header sequence number
+          0b01100001, 0b10001110,
+          // sequence number
+          0x01,
+          // 16 bit source address
           0x34, 0x12,
+          // 64 bit destination address
           0x9D, 0xA8,
           0x75, 0x41,
           0x00, 0xA2,
           0x13, 0x00,
+          // destination pan id
           0xAA, 0xBB,
+          // payload; just the string 'aa'
           0x61, 0x61,
   };
   uint8_t write_command[] = {0x80, 0x10};
