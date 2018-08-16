@@ -19,9 +19,7 @@ void Mac802154_setShortDestinationAddress(Mac802154 *self, uint16_t address) {
 }
 
 void Mac802154_setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length) {
-  debug("interface mac802154 set payload\n");
   self->setPayload(self, payload, payload_length);
-  debug("after set payload\n");
 }
 
 void Mac802154_setExtendedDestinationAddress(Mac802154 *self, uint64_t address) {

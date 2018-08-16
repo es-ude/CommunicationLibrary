@@ -143,6 +143,35 @@ cc_binary(
     ],
 )
 
+cc_binary(
+    name = "SendOneFrameBlocking",
+    srcs = [
+        "src/SendOneFrameBlocking.c",
+        "src/config.c",
+        "src/config.h",
+        ":LufaSetup",
+    ],
+    copts = avr_minimal_copts() + LUFA_COPTS + [
+        "-Os",
+        "-include stdint.h",
+        "-DCEXCEPTION_T=uint8_t",
+        "-DCEXCEPTION_NONE=0x00",
+    ],
+    linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
+    nocopts = "-O2",
+    deps = [
+        "//lib:CommunicationModuleLibForTest",
+        "@CException//:CException",
+        "@LUFA//:LUFA_USB",
+    ],
+)
+
+generate_hex(
+    name = "SendOneFrameBlockingHex",
+    input = ":SendOneFrameBlocking",
+    mcu = "atmega32u4",
+)
+
 generate_hex(
     name = "ReadMrfTxStabilizationRegisterHex",
     input = ":ReadMrfTxStabilizationRegister",

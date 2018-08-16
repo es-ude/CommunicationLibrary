@@ -214,14 +214,12 @@ void setShortDestinationAddress(Mac802154 *self, uint16_t address) {
 }
 
 void setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length) {
-  debug("set payload\n");
 
   Mrf *impl = (Mrf *) self;
   MrfState_setPayload(&impl->state, payload, payload_length);
 }
 
 void sendBlocking(Mac802154 *self) {
-  debug("transmitting frame...\n");
   Mrf *impl = (Mrf *) self;
   MrfField current_field = MrfState_getFullHeaderField(&impl->state);
   MrfIo_writeBlockingToLongAddress(&impl->io, current_field.data, current_field.size, current_field.address);
@@ -232,11 +230,9 @@ void sendBlocking(Mac802154 *self) {
 
 void setExtendedDestinationAddress(Mac802154 *self, uint64_t address) {
   Mrf *impl = (Mrf *) self;
-  debug("set extended destination address\n");
   MrfState_setExtendedDestinationAddress(&impl->state, address);
 }
 
 void triggerSend(Mrf *impl) {
-  debug("trigger tx send\n");
   MrfIo_setControlRegister(&impl->io, mrf_register_tx_normal_fifo_control, 1);
 }

@@ -42,7 +42,6 @@ struct MrfIo {
   uint8_t command_size;
   uint8_t length;
   const uint8_t *output_buffer;
-  uint8_t *input_buffer;
   MrfIoCallback callback;
 };
 

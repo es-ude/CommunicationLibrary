@@ -264,6 +264,83 @@ void checkForSetAllFields(uint8_t permutation[]) {
 }
 
 
+
+
+void swapBytes(uint8_t *first, uint8_t *second) {
+  uint8_t temp = *first;
+  *first = *second;
+  *second = temp;
+}
+
+static uint8_t findLeftIndexForPermutation(const uint8_t array[], uint8_t size) {
+  uint8_t left_index = size;
+  for (int8_t i = size-2; i != 0; i--){
+    if (array[i] < array[i+1]) {
+      left_index = i;
+      break;
+    }
+  }
+  return left_index;
+}
+
+static bool permutationIsDone(const uint8_t array[], uint8_t size) {
+  return findLeftIndexForPermutation(array, size) == size;
+}
+
+static uint8_t findRightIndexForPermutation(const uint8_t array[], uint8_t size, uint8_t left_index) {
+  uint8_t right_index = size;
+  for (int8_t i = size-1; i>= 0; i--) {
+    if (array[left_index] < array[i]) {
+      right_index = i;
+      break;
+    }
+  }
+  return right_index;
+}
+
+static void reverseArrayFromToEnd(uint8_t array[], uint8_t size, uint8_t from) {
+  for (int8_t i = 0; i < (size-from)/2; i++) {
+    swapBytes(array+from+i, array+size-1-i);
+  }
+}
+
+bool permute(uint8_t array[], uint8_t size) {
+  uint8_t left_index = findLeftIndexForPermutation(array, size);
+  if (left_index == size)
+    return false;
+  int8_t right_index = findRightIndexForPermutation(array, size, left_index);
+  swapBytes(array+left_index, array+right_index);
+  reverseArrayFromToEnd(array, size, left_index+1);
+  return true;
+}
+
+void test_arrayPermutationHelper1(void) {
+  uint8_t array[4] = {0,1,2,3};
+  uint8_t expected[4] = {0, 1, 3, 2};
+  permute(array, 4);
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, array, 4);
+}
+
+void test_arrayPermutationHelper2(void) {
+  uint8_t array[4] = {0,1,3,2};
+  uint8_t expected[4] = {0,2,1,3};
+  permute(array, 4);
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, array, 4);
+}
+
+void test_arrayPermutationHelper3(void) {
+  uint8_t array[4] = {0,2,1,3};
+  uint8_t expected[4] = {0, 2, 3, 1};
+  permute(array, 4);
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, array, 4);
+}
+
+void test_arrayPermutationHelper4(void) {
+  uint8_t array[4] = {3,2,1,0};
+  uint8_t expected[4] = {3,2,1,0};
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, array, 4);
+}
+
 void callFrameHeaderSetter(uint8_t function_id) {
   switch (function_id) {
     case 0:
@@ -276,37 +353,11 @@ void callFrameHeaderSetter(uint8_t function_id) {
       FrameHeader802154_setExtendedDestinationAddress(header, ~0);
       break;
     case 3:
-      FrameHeader802154_setShortDestinationAddress(header, ~0);
+      FrameHeader802154_setExtendedSourceAddress(header, ~0);
       break;
     default:
       break;
   }
-}
-
-//TODO: Test this function as well
-bool PermuteArray(uint8_t array[], uint8_t size) {
-  uint8_t left_index = 0;
-  while (left_index < size-1 && array[left_index] >= array[left_index+1]) {
-    left_index++;
-  }
-  if (left_index == size-1 && array[left_index] >= array[left_index+1]) return true;
-  uint8_t right_index = left_index+1;
-  while (right_index < size && array[left_index] >= array[right_index]) {
-    right_index++;
-  }
-  if (right_index < size && array[right_index] < array[left_index]) {
-    uint8_t temp = array[right_index];
-    array[right_index] = array[left_index];
-    array[left_index] = temp;
-
-    for (uint8_t i = left_index + 1; i < (size-left_index-1)/2; i++) {
-      temp = array[i];
-      array[i] = array[size+i-left_index-1];
-      array[size+i-left_index-1] = temp;
-    }
-  }
-  return false;
-
 }
 
 void runFrameHeaderSetterTest(uint8_t function_order[]) {
@@ -317,13 +368,12 @@ void runFrameHeaderSetterTest(uint8_t function_order[]) {
   checkForSetAllFields(function_order);
 }
 
-void test_setAllFields1(void) {
-  uint8_t function_id_array[4] = {0, 1, 2, 3};
+void test_setFrameInAnyOrder(void) {
+  uint8_t function_order[] = {0,1,2,3};
   do {
-    callFrameHeaderSetter(function_id_array);
-  } while (PermuteArray(function_id_array, 4));
+    runFrameHeaderSetterTest(function_order);
+  } while (permute(function_order, 4));
 }
-
 
 void test_getSizeWhenMaximum(void) {
   FrameHeader802154_setExtendedSourceAddress(header, 0);

@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <stdio.h>
 #include "lib/src/Mac802154/MRF/MrfIo.h"
 #include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
 
@@ -9,6 +10,7 @@ static void clearPeripheralWriteCallback(PeripheralInterface interface);
 static void clearMrfIoWriteCallback(MrfIo *mrf);
 static void callbackForDeselect(void *mrf);
 static void callbackForWritingData(void *mrf);
+extern void debug(const uint8_t *text);
 
 static bool isLongAddress(uint16_t address);
 
