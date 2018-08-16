@@ -14,28 +14,28 @@
  * +---+-----------------------------+
  * | 1 | Pan Id Compression          |
  * +---+-----------------------------+
- * | 1 | Acknowledgement Request     |
+ * | 1 | Acknowledgement Request     | // I could notice inconsistencies without acks
  * +---+-----------------------------+
  * | 0 | Frame Pending               |
  * +---+-----------------------------+
  * | 0 | Security Enabled            |
  * +---+-----------------------------+
  * | 0 |                             |
- * | 0 | Frame Type                  |
+ * | 0 | Frame Type - Data Frame     |
  * | 1 |                             |
  * +---+-----------------------------+
  * | 1 | Source Addressing Mode      |
  * | 0 | 16 bit                      |
  * +---+-----------------------------+
- * | 0 | Frame Version               |
- * | 0 | 2003                        |
+ * | 1 | Frame Version               |
+ * | 0 | 2015                        |
  * +---+-----------------------------+
  * | 1 | Destination Addressing      |
  * | 1 | Mode 64bit                  |
  * +---+-----------------------------+
  * | 0 | Information Element Present |
  * +---+-----------------------------+
- * | 0 | Sequence Number Suppression |
+ * | 0 | Sequence Number Suppression | // 2015 version feature, not supported by XbeeS2C
  * +---+-----------------------------+
  *
  * Note that the bit order shown is reversed from the
@@ -153,9 +153,9 @@ void sendToCoordinator(void) {
           // frame header length, frame length
           0x0F, 0x11,
           // frame header control section
-          0b01100001, 0b10001110,
+          0b01100001, 0b10101110,
           // sequence number
-          0x01,
+          0x00,
           // 16 bit source address
           0x34, 0x12,
           // 64 bit destination address
