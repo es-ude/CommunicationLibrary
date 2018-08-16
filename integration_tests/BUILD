@@ -36,9 +36,9 @@ filegroup(
 )
 
 cc_binary(
-    name = "SendOneFrameBlocking",
+    name = "SendOneFrameUsingPeripheralInterfaceOnly",
     srcs = [
-        "src/SendOneFrameBlocking.c",
+        "src/SendOneFrameUsingPeripheralInterfaceOnly.c",
         "src/config.c",
         "src/config.h",
         ":LufaSetup",
@@ -53,8 +53,8 @@ cc_binary(
 )
 
 generate_hex(
-    name = "SendOneFrameBlockingHex",
-    input = ":SendOneFrameBlocking",
+    name = "SendOneFrameUsingPeripheralInterfaceOnlyHex",
+    input = ":SendOneFrameUsingPeripheralInterfaceOnly",
     mcu = "atmega328p",
 )
 
