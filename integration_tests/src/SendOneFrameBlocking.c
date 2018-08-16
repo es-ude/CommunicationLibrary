@@ -5,8 +5,47 @@
 #include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
 
 /*
- * This test sends one frame to
- */
+ * This test sends one frame containing the payload 'aa'
+ * to an XBee with the address 0013A2004175A89D
+ * Setup of the MRF Chip is performed as shown in it's data sheet.
+ * The control bytes of the frame header are set as follows:
+ * +---+-----------------------------+
+ * | 0 | Reserved                    |
+ * +---+-----------------------------+
+ * | 1 | Pan Id Compression          |
+ * +---+-----------------------------+
+ * | 1 | Acknowledgement Request     |
+ * +---+-----------------------------+
+ * | 0 | Frame Pending               |
+ * +---+-----------------------------+
+ * | 0 | Security Enabled            |
+ * +---+-----------------------------+
+ * | 0 |                             |
+ * | 0 | Frame Type                  |
+ * | 1 |                             |
+ * +---+-----------------------------+
+ * | 1 | Source Addressing Mode      |
+ * | 0 | 16 bit                      |
+ * +---+-----------------------------+
+ * | 0 | Frame Version               |
+ * | 0 | 2003                        |
+ * +---+-----------------------------+
+ * | 1 | Destination Addressing      |
+ * | 1 | Mode 64bit                  |
+ * +---+-----------------------------+
+ * | 0 | Information Element Present |
+ * +---+-----------------------------+
+ * | 0 | Sequence Number Suppression |
+ * +---+-----------------------------+
+ *
+ * Note that the bit order shown is reversed from the
+ * order one can see in the ieee specs of 802.15.4
+ * We need to work with the least significant bit in
+ * last position here.
+ * The Pan Id, Destination and Source Addresses are
+ * represented in little endian.
+ * */
+
 
 void debugPrintHex(uint8_t byte);
 
@@ -113,7 +152,7 @@ void sendToCoordinator(void) {
   uint8_t frame[] = {
           // frame header length, frame length
           0x0F, 0x11,
-          // frame header sequence number
+          // frame header control section
           0b01100001, 0b10001110,
           // sequence number
           0x01,
