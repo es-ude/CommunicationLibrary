@@ -24,7 +24,7 @@ Mac802154 *mac802154 = NULL;
 
 Mac802154Config mac_config;
 
-static void setUpPeripheral(void) {
+void setUpPeripheral(void) {
   peripheral_interface = malloc(PeripheralInterfaceSPI_requiredSize());
   PeripheralInterfaceSPI_createNew((uint8_t *)peripheral_interface, &spi_config);
   PeripheralInterface_init(peripheral_interface);

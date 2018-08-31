@@ -9,6 +9,7 @@ PeripheralSPI mrf_spi_client;
 PeripheralInterface peripheral_interface;
 
 void setup(void);
+void setUpPeripheral(void);
 void debug(uint8_t *string);
 void delay_microseconds(double microseconds);
 
