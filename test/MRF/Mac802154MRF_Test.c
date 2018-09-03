@@ -14,7 +14,7 @@
 MemoryManagement *inspected_memory;
 
 Peripheral *device;
-PeripheralInterface *interface;
+PeripheralInterface interface;
 Mac802154 *mrf;
 Mac802154Config mrf_config;
 
@@ -149,4 +149,9 @@ void test_sendBlocking(void) {
   MrfIo_readControlRegister_IgnoreArg_mrf();
 
   Mac802154_sendBlocking(mrf);
+}
+
+void test_fetchMessage(void) {
+  uint8_t message_size = Mac802154_getReceivedMessageSize(mrf);
+
 }

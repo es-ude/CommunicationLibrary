@@ -13,6 +13,8 @@ struct Mac802154 {
   void (*init) (Mac802154 *self, const Mac802154Config *config);
   void (*destroy) (Mac802154 *self);
 
+  uint8_t (*getReceivedMessageSize) (Mac802154 *self);
+
   uint16_t (*getShortDestinationAddress) (Mac802154 *self);
   const uint8_t *(*getExtendedDestinationAddress) (Mac802154 *self);
   const uint8_t *(*getPayload) (Mac802154 *self);

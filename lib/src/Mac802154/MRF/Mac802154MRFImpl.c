@@ -1,4 +1,4 @@
-#include "lib/include/Mac802154.h"
+#include "lib/src/Mac802154/Mac802154.h"
 #include "lib/include/Mac802154MRFImpl.h"
 #include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
 #include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
@@ -78,6 +78,7 @@ static void setExtendedDestinationAddress(Mac802154 *self, uint64_t address);
 static void setShortSourceAddress(Mrf *impl, const uint16_t* address);
 static void setExtendedSourceAddress(Mrf *impl, const uint64_t *address);
 static void setPanId(Mrf *impl, const uint16_t *pan_id);
+static uint8_t getReceivedMessageSize(Mac802154 *self);
 
 static void reset(Mrf *impl);
 static void setInitializationValuesFromDatasheet(MrfIo *impl);
@@ -109,6 +110,7 @@ void setUpInterface(Mac802154 *interface) {
   interface->setPayload = setPayload;
   interface->setExtendedDestinationAddress = setExtendedDestinationAddress;
   interface->sendBlocking = sendBlocking;
+  interface->getReceivedMessageSize = getReceivedMessageSize;
 }
 
 void init(Mac802154 *self, const Mac802154Config *config) {
@@ -163,7 +165,7 @@ void setInitializationValuesFromDatasheet(MrfIo *io) {
   MrfIo_setControlRegister(
           io,
           mrf_register_power_amplifier_control2,
-          (1 << mrf_fifo_enable) | mrf_value_recommended_transmitter_on_time_before_beginning_a_packet
+          (uint8_t)((1 << mrf_fifo_enable) | mrf_value_recommended_transmitter_on_time_before_beginning_a_packet)
   );
   MrfIo_setControlRegister(io, mrf_register_tx_stabilization, mrf_value_recommended_interframe_spacing);
   MrfIo_setControlRegister(io, mrf_register_rf_control0, mrf_value_recommended_rf_optimize_control0);
@@ -216,7 +218,7 @@ void setShortDestinationAddress(Mac802154 *self, uint16_t address) {
 void setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length) {
 
   Mrf *impl = (Mrf *) self;
-  MrfState_setPayload(&impl->state, payload, payload_length);
+  MrfState_setPayload(&impl->state, payload, (uint8_t) payload_length);
 }
 
 void sendBlocking(Mac802154 *self) {
@@ -238,4 +240,8 @@ void setExtendedDestinationAddress(Mac802154 *self, uint64_t address) {
 
 void triggerSend(Mrf *impl) {
   MrfIo_setControlRegister(&impl->io, mrf_register_tx_normal_fifo_control, 1);
+}
+
+uint8_t getReceivedMessageSize(Mac802154 *self) {
+  Mrf *impl = (Mrf *) self;
 }

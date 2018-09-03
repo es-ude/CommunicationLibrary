@@ -1,4 +1,4 @@
-#include "lib/include/Mac802154.h"
+#include "lib/src/Mac802154/Mac802154.h"
 
 extern void debug(uint8_t *string);
 
@@ -24,4 +24,8 @@ void Mac802154_setPayload(Mac802154 *self, const uint8_t *payload, size_t payloa
 
 void Mac802154_setExtendedDestinationAddress(Mac802154 *self, uint64_t address) {
   self->setExtendedDestinationAddress(self, address);
+}
+
+uint8_t Mac802154_getReceivedMessageSize(Mac802154 *self) {
+  return self->getReceivedMessageSize(self);
 }

@@ -130,56 +130,53 @@ void captureWriteCallback(PeripheralInterface *interface, PeripheralCallback cal
    last_write_callback = callback;
 }
 
-void test_setShortAddress(void){
+void check_setControlRegister(uint16_t register_address, const uint8_t *command, uint8_t command_length) {
   MrfIo mrf;
-  uint8_t command = MRF_writeShortCommand(mrf_register_software_reset);
   PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
-  PeripheralInterface_writeBlocking_Expect(mrf.interface, &command, 1);
-  uint8_t value = 0xAB;
-  PeripheralInterface_writeBlocking_Expect(mrf.interface, &value, 1);
+  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, command, command_length, command_length);
+  uint8_t value;
+  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, &value, 1, 1);
   PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
-  MrfIo_setControlRegister(&mrf, mrf_register_software_reset, value);
+  MrfIo_setControlRegister(&mrf, register_address, value);
+}
+
+void test_setShortAddress(void){
+  uint8_t command = MRF_writeShortCommand(mrf_register_software_reset);
+  check_setControlRegister(mrf_register_software_reset, &command, 1);
 }
 
 void test_setLongAddress(void) {
-  MrfIo mrf;
   uint8_t command[] = {
           MRF_writeLongCommandFirstByte(mrf_register_rf_control6),
           MRF_writeLongCommandSecondByte(mrf_register_rf_control6),
   };
-  uint8_t value;
+  check_setControlRegister(mrf_register_rf_control6, command, 2);
+}
+
+void check_readAddressControlRegister(uint16_t register_address, const uint8_t *command, uint8_t command_length) {
+  MrfIo mrf;
   PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
-  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, command, 2, 2);
-  PeripheralInterface_writeBlocking_Expect(mrf.interface, &value, 1);
+  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, command, command_length, command_length);
+  uint8_t value = 0xAB;
+  PeripheralInterface_readBlocking_Expect(mrf.interface, &value, 1);
+  PeripheralInterface_readBlocking_IgnoreArg_buffer();
+  PeripheralInterface_readBlocking_ReturnThruPtr_buffer(&value);
   PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
-  MrfIo_setControlRegister(&mrf, mrf_register_rf_control6, value);
+  uint8_t expected = MrfIo_readControlRegister(&mrf, register_address);
+  TEST_ASSERT_EQUAL_HEX8(expected, value);
 }
 
 void test_readShortAddressControlRegister(void) {
-  MrfIo mrf;
   uint8_t command = MRF_readShortCommand(mrf_register_interrupt_status);
-  PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
-  PeripheralInterface_writeBlocking_Expect(mrf.interface, &command, 1);
-  uint8_t value = 0xAB;
-  PeripheralInterface_readBlocking_Expect(mrf.interface, &value, 1);
-  PeripheralInterface_readBlocking_IgnoreArg_buffer();
-  PeripheralInterface_readBlocking_ReturnThruPtr_buffer(&value);
-  PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
-  uint8_t expected = MrfIo_readControlRegister(&mrf, mrf_register_interrupt_status);
-  TEST_ASSERT_EQUAL_HEX8(expected, value);
+  check_readAddressControlRegister(mrf_register_interrupt_status, &command, 1);
 }
 
 void test_readLongAddressControlRegister(void) {
-  MrfIo mrf;
   uint8_t command[] = {MRF_readLongCommandFirstByte(mrf_register_rf_control6),
           MRF_readLongCommandSecondByte(mrf_register_rf_control6)};
-  PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
-  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, command, 2, 2);
-  uint8_t value = 0xAB;
-  PeripheralInterface_readBlocking_Expect(mrf.interface, &value, 1);
-  PeripheralInterface_readBlocking_IgnoreArg_buffer();
-  PeripheralInterface_readBlocking_ReturnThruPtr_buffer(&value);
-  PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
-  uint8_t expected = MrfIo_readControlRegister(&mrf, mrf_register_rf_control6);
-  TEST_ASSERT_EQUAL_HEX8(expected, value);
+  check_readAddressControlRegister(mrf_register_rf_control6, command, 2);
+}
+
+void test_readBlockingFromLongAddress(void) {
+
 }

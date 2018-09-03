@@ -1,7 +1,7 @@
 #ifndef COMMUNICATIONMODULE_MRF_H
 #define COMMUNICATIONMODULE_MRF_H
 
-#include "lib/include/Mac802154.h"
+#include "lib/src/Mac802154/Mac802154.h"
 #include "lib/include/RuntimeLibraryInterface.h"
 #include "lib/src/Mac802154/MRF/MrfIo.h"
 #include "lib/src/Mac802154/MRF/MRFState.h"
