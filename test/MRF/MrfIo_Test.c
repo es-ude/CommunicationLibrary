@@ -154,3 +154,32 @@ void test_setLongAddress(void) {
   PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
   MrfIo_setControlRegister(&mrf, mrf_register_rf_control6, value);
 }
+
+void test_readShortAddressControlRegister(void) {
+  MrfIo mrf;
+  uint8_t command = MRF_readShortCommand(mrf_register_interrupt_status);
+  PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
+  PeripheralInterface_writeBlocking_Expect(mrf.interface, &command, 1);
+  uint8_t value = 0xAB;
+  PeripheralInterface_readBlocking_Expect(mrf.interface, &value, 1);
+  PeripheralInterface_readBlocking_IgnoreArg_buffer();
+  PeripheralInterface_readBlocking_ReturnThruPtr_buffer(&value);
+  PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
+  uint8_t expected = MrfIo_readControlRegister(&mrf, mrf_register_interrupt_status);
+  TEST_ASSERT_EQUAL_HEX8(expected, value);
+}
+
+void test_readLongAddressControlRegister(void) {
+  MrfIo mrf;
+  uint8_t command[] = {MRF_readLongCommandFirstByte(mrf_register_rf_control6),
+          MRF_readLongCommandSecondByte(mrf_register_rf_control6)};
+  PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
+  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, command, 2, 2);
+  uint8_t value = 0xAB;
+  PeripheralInterface_readBlocking_Expect(mrf.interface, &value, 1);
+  PeripheralInterface_readBlocking_IgnoreArg_buffer();
+  PeripheralInterface_readBlocking_ReturnThruPtr_buffer(&value);
+  PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
+  uint8_t expected = MrfIo_readControlRegister(&mrf, mrf_register_rf_control6);
+  TEST_ASSERT_EQUAL_HEX8(expected, value);
+}

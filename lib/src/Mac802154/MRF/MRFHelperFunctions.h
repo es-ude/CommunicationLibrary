@@ -7,6 +7,18 @@ static inline uint16_t MRF_readLongCommand(uint16_t address) {
   return (uint16_t)(1 << 15 | address << 5);
 }
 
+static inline uint8_t MRF_readLongCommandFirstByte(uint16_t address) {
+  return (uint8_t) (MRF_readLongCommand(address) >> 8);
+}
+
+static inline uint8_t MRF_readLongCommandSecondByte(uint16_t address) {
+  return (uint8_t) (MRF_readLongCommand(address));
+}
+
+static inline uint8_t MRF_readShortCommand(uint8_t address) {
+  return (uint8_t)(address << 1);
+}
+
 static inline uint16_t MRF_writeLongCommand(uint16_t address) {
   return (uint16_t)(MRF_readLongCommand(address) | 1 << 4);
 }
