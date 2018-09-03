@@ -194,3 +194,21 @@ void test_readBlockingFromLongAddress(void) {
   MrfIo_readBlockingFromLongAddress(&mrf, mrf_rx_fifo_start, &buffer, 1);
   TEST_ASSERT_EQUAL_HEX8(expected_buffer, buffer);
 }
+
+void test_readBlockingFromLongAddress2(void) {
+  MrfIo mrf;
+  uint8_t buffer[3];
+  uint8_t expected_buffer[] = {0xC9, 0xAB, 0x14};
+  uint8_t command[] = {
+          MRF_readLongCommandFirstByte(mrf_rx_fifo_start),
+          MRF_readLongCommandSecondByte(mrf_rx_fifo_start),
+  };
+  PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
+  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, command, 2, 2);
+  PeripheralInterface_readBlocking_ExpectWithArray(mrf.interface, &buffer, 3, 3);
+  PeripheralInterface_readBlocking_ReturnThruPtr_buffer(&expected_buffer);
+  PeripheralInterface_readBlocking_IgnoreArg_buffer();
+  PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
+  MrfIo_readBlockingFromLongAddress(&mrf, mrf_rx_fifo_start, &buffer, 3);
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_buffer, buffer, 3);
+}

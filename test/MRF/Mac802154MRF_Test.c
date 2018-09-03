@@ -152,6 +152,13 @@ void test_sendBlocking(void) {
 }
 
 void test_fetchMessage(void) {
+  uint8_t expected_message_size = 0xAB;
+  MrfIo_readBlockingFromLongAddress_Expect(NULL, mrf_rx_fifo_start, &expected_message_size, 1);
+  MrfIo_readBlockingFromLongAddress_IgnoreArg_buffer();
+  MrfIo_readBlockingFromLongAddress_IgnoreArg_mrf();
+  MrfIo_readBlockingFromLongAddress_ReturnArrayThruPtr_buffer(&expected_message_size, 1);
+
   uint8_t message_size = Mac802154_getReceivedMessageSize(mrf);
+  TEST_ASSERT_EQUAL(expected_message_size, message_size);
 
 }

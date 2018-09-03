@@ -159,6 +159,6 @@ void MrfIo_readBlockingFromLongAddress(MrfIo *mrf, uint16_t register_address, ui
   };
   PeripheralInterface_selectPeripheral(mrf->interface, mrf->device);
   PeripheralInterface_writeBlocking(mrf->interface, command, 2);
-  PeripheralInterface_readBlocking(mrf->interface, buffer, 1);
+  PeripheralInterface_readBlocking(mrf->interface, buffer, length);
   PeripheralInterface_deselectPeripheral(mrf->interface, mrf->device);
 }

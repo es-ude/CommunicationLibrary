@@ -244,4 +244,7 @@ void triggerSend(Mrf *impl) {
 
 uint8_t getReceivedMessageSize(Mac802154 *self) {
   Mrf *impl = (Mrf *) self;
+  uint8_t size = 0;
+  MrfIo_readBlockingFromLongAddress(&impl->io, mrf_rx_fifo_start, &size, 1);
+  return size;
 }
