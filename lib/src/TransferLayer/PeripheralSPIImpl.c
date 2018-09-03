@@ -257,6 +257,11 @@ static void setClockRateDivider(NewPeripheralInterfaceImpl impl, uint8_t rate_di
       disableDoubleSpeed(status_register);
       break;
 
+    case SPI_CLOCK_RATE_DIVIDER_8:
+      setClockRateDividerBitValues(control_register, 0b00);
+      enableDoubleSpeed(status_register);
+      break;
+
     case SPI_CLOCK_RATE_DIVIDER_16:
       setClockRateDividerBitValues(control_register, 0b01);
       disableDoubleSpeed(status_register);
@@ -265,6 +270,7 @@ static void setClockRateDivider(NewPeripheralInterfaceImpl impl, uint8_t rate_di
     case SPI_CLOCK_RATE_DIVIDER_32:
       setClockRateDividerBitValues(control_register, 0b01);
       enableDoubleSpeed(status_register);
+      break;
 
     case SPI_CLOCK_RATE_DIVIDER_64:
       setClockRateDividerBitValues(control_register, 0b10);

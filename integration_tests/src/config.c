@@ -68,5 +68,5 @@ PeripheralSPI mrf_spi_client = {
         .data_order = SPI_DATA_ORDER_MSB_FIRST,
         .spi_mode = SPI_MODE_0,
         .idle_signal = SPI_IDLE_SIGNAL_HIGH,
-        .clock_rate_divider = SPI_CLOCK_RATE_DIVIDER_64,
+        .clock_rate_divider = SPI_CLOCK_RATE_DIVIDER_8,
 };

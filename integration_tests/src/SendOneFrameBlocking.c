@@ -22,11 +22,13 @@ int main(void) {
   Mac802154MRF_create(raw_memory, delay_microseconds);
   Mac802154 *mac = (Mac802154*) raw_memory;
   Mac802154_init(mac, &config);
-  uint8_t payload[64];
+  uint8_t payload[32];
   Mac802154_setExtendedDestinationAddress(mac, 0x0013A2004175A89D);
   uint16_t number = 0;
   while(true) {
     number++;
+    _delay_ms(2);
+    memset(payload, 32, 0);
     sprintf(payload, "%d\n", number);
     uint8_t payload_length = strlen(payload);
     Mac802154_setPayload(mac, payload, payload_length);

@@ -18,3 +18,4 @@ with open(sys.argv[1], 'r') as file:
     total_lines = last_number - first_number
     print("skipped: {}".format(float(skipped)/(total_lines)))
     print("wrong order or doubled: {}".format(float(doubles)/(total_lines)))
+    print("total lines: {}".format(total_lines))
