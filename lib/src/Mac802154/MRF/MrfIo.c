@@ -151,3 +151,14 @@ bool isLongAddress(uint16_t address){
   uint8_t last_short_control_register_address = 0x3F;
   return (address > last_short_control_register_address);
 }
+
+void MrfIo_readBlockingFromLongAddress(MrfIo *mrf, uint16_t register_address, uint8_t *buffer, uint8_t length) {
+  uint8_t command[] = {
+          MRF_readLongCommandFirstByte(register_address),
+          MRF_readLongCommandSecondByte(register_address),
+  };
+  PeripheralInterface_selectPeripheral(mrf->interface, mrf->device);
+  PeripheralInterface_writeBlocking(mrf->interface, command, 2);
+  PeripheralInterface_readBlocking(mrf->interface, buffer, 1);
+  PeripheralInterface_deselectPeripheral(mrf->interface, mrf->device);
+}

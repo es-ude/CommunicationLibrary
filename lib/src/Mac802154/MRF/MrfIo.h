@@ -26,7 +26,7 @@ void MrfIo_writeNonBlockingToShortAddress(MrfIo *mrf, const uint8_t *payload, ui
  */
 void MrfIo_setControlRegister(MrfIo *mrf, uint16_t register_address, uint8_t value);
 uint8_t MrfIo_readControlRegister(MrfIo *mrf, uint16_t register_address);
-void MrfIo_readBlockingFromLongAddress(MrfIo *mrf, uint16_t register_address, const uint8_t *payload, uint8_t size);
+void MrfIo_readBlockingFromLongAddress(MrfIo *mrf, uint16_t register_address, uint8_t *buffer, uint8_t size);
 void MrfIo_readNonBlockingFromLongAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size);
 void MrfIo_readBlockingFromShortAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size);
 void MrfIo_readNonBlockingFromShortAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size);
