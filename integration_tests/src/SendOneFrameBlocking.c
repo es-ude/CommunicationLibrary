@@ -27,7 +27,6 @@ int main(void) {
   uint16_t number = 0;
   while(true) {
     number++;
-    _delay_ms(2);
     memset(payload, 32, 0);
     sprintf(payload, "%d\n", number);
     uint8_t payload_length = strlen(payload);

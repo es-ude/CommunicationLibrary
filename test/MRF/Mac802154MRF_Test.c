@@ -143,5 +143,10 @@ void test_sendBlocking(void) {
 
   MrfIo_setControlRegister_Expect(&impl->io, mrf_register_tx_normal_fifo_control, 1);
 
+  MrfIo_readControlRegister_ExpectAndReturn(NULL, mrf_register_interrupt_status, 0);
+  MrfIo_readControlRegister_IgnoreArg_mrf();
+  MrfIo_readControlRegister_ExpectAndReturn(NULL, mrf_register_interrupt_status, 1);
+  MrfIo_readControlRegister_IgnoreArg_mrf();
+
   Mac802154_sendBlocking(mrf);
 }
