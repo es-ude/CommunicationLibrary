@@ -151,7 +151,7 @@ void test_sendBlocking(void) {
   Mac802154_sendBlocking(mrf);
 }
 
-void test_fetchMessage(void) {
+void test_getMessageSizeMessage(void) {
   uint8_t expected_message_size = 0xAB;
   MrfIo_readBlockingFromLongAddress_Expect(NULL, mrf_rx_fifo_start, &expected_message_size, 1);
   MrfIo_readBlockingFromLongAddress_IgnoreArg_buffer();
@@ -160,5 +160,22 @@ void test_fetchMessage(void) {
 
   uint8_t message_size = Mac802154_getReceivedMessageSize(mrf);
   TEST_ASSERT_EQUAL(expected_message_size, message_size);
+}
+
+void test_newMessageAvailable(void) {
+  uint8_t interrupt_register_value = 0;
+  uint8_t error_message[32];
+  for (uint16_t counter = 0; counter < 256; counter++) {
+    interrupt_register_value = (uint8_t) counter;
+    MrfIo_readControlRegister_ExpectAndReturn(NULL, mrf_register_interrupt_status, interrupt_register_value);
+    MrfIo_readControlRegister_IgnoreArg_mrf();
+    sprintf(error_message, "failed for value %d", interrupt_register_value);
+    if ((interrupt_register_value >> 3) & 1) {
+      TEST_ASSERT_TRUE_MESSAGE(Mac802154_newMessageAvailable(mrf), error_message);
+    }
+    else {
+      TEST_ASSERT_FALSE_MESSAGE(Mac802154_newMessageAvailable(mrf), error_message);
+    }
+  }
 
 }

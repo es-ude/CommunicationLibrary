@@ -29,3 +29,7 @@ void Mac802154_setExtendedDestinationAddress(Mac802154 *self, uint64_t address) 
 uint8_t Mac802154_getReceivedMessageSize(Mac802154 *self) {
   return self->getReceivedMessageSize(self);
 }
+
+bool Mac802154_newMessageAvailable(Mac802154 *self) {
+  return self->newMessageAvailable(self);
+}

@@ -42,6 +42,7 @@ void Mac802154_setShortDestinationAddress(Mac802154 *self, uint16_t address);
 void Mac802154_setExtendedDestinationAddress(Mac802154 *self, uint64_t address);
 void Mac802154_setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length);
 uint8_t Mac802154_getReceivedMessageSize(Mac802154 *self);
+bool Mac802154_newMessageAvailable(Mac802154 *self);
 
 typedef struct FrameControlField802154 {
   unsigned frame_type : 3;
