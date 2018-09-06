@@ -80,6 +80,7 @@ static void setExtendedSourceAddress(Mrf *impl, const uint64_t *address);
 static void setPanId(Mrf *impl, const uint16_t *pan_id);
 static uint8_t getReceivedMessageSize(Mac802154 *self);
 static bool newMessageAvailable(Mac802154 *self);
+static void fetchMessageBlocking(Mac802154 *self, uint8_t *buffer, uint8_t size);
 
 static void reset(Mrf *impl);
 static void setInitializationValuesFromDatasheet(MrfIo *impl);
@@ -113,6 +114,7 @@ void setUpInterface(Mac802154 *interface) {
   interface->sendBlocking = sendBlocking;
   interface->getReceivedMessageSize = getReceivedMessageSize;
   interface->newMessageAvailable = newMessageAvailable;
+  interface->fetchMessageBlocking = fetchMessageBlocking;
 }
 
 void init(Mac802154 *self, const Mac802154Config *config) {
@@ -253,5 +255,11 @@ uint8_t getReceivedMessageSize(Mac802154 *self) {
 
 bool newMessageAvailable(Mac802154 *self) {
   Mrf *impl = (Mrf *) self;
-  return ((MrfIo_readControlRegister(&impl->io, mrf_register_interrupt_status) >> 3) & 1) == 1;
+  uint8_t status_register_value = MrfIo_readControlRegister(&impl->io, mrf_register_interrupt_status);
+  return ((status_register_value >> 3) & 1) == 1;
+}
+
+void fetchMessageBlocking(Mac802154 *self, uint8_t *buffer, uint8_t size) {
+  Mrf *impl = (Mrf *) self;
+  MrfIo_readBlockingFromLongAddress(&impl->io, mrf_rx_fifo_start, buffer, size);
 }

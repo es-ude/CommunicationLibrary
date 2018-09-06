@@ -33,3 +33,7 @@ uint8_t Mac802154_getReceivedMessageSize(Mac802154 *self) {
 bool Mac802154_newMessageAvailable(Mac802154 *self) {
   return self->newMessageAvailable(self);
 }
+
+void Mac802154_fetchMessageBlocking(Mac802154 *self, uint8_t *buffer, uint8_t size) {
+  self->fetchMessageBlocking(self, buffer, size);
+}

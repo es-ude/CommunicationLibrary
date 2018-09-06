@@ -15,6 +15,7 @@ struct Mac802154 {
 
   uint8_t (*getReceivedMessageSize) (Mac802154 *self);
   bool (*newMessageAvailable) (Mac802154 *self);
+  void (*fetchMessageBlocking) (Mac802154 *self, uint8_t *buffer, uint8_t size);
 
   uint16_t (*getShortDestinationAddress) (Mac802154 *self);
   const uint8_t *(*getExtendedDestinationAddress) (Mac802154 *self);
