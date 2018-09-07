@@ -65,6 +65,10 @@ void test_initWithDifferentConfig(void) {
   mrf_config.pan_id = 0xABCD;
   Mrf *impl = (Mrf *) mrf;
 
+  uint8_t extended_source_address[8];
+  for (uint8_t i=0; i<8; i++) {
+    extended_source_address[i] = (uint8_t)(mrf_config.extended_source_address >> (8*(8-i)));
+  }
   setUpInitializationValues(&impl->io, &mrf_config);
   MrfState_init_Expect(&impl->state);
   MrfState_setPanId_Expect(&impl->state, mrf_config.pan_id);

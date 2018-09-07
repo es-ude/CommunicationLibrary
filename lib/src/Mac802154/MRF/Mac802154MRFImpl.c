@@ -138,17 +138,23 @@ void init(Mac802154 *self, const Mac802154Config *config) {
 }
 
 void setShortSourceAddress(Mrf *impl, const uint16_t *address) {
-  MrfIo_writeBlockingToShortAddress(&impl->io, (const uint8_t *) address,
+  uint8_t buffer[2] = {(uint8_t)(*address), (uint8_t)((*address) >> 8)};
+  MrfIo_writeBlockingToShortAddress(&impl->io, buffer,
                                   sizeof(uint16_t), mrf_register_short_address_low_byte);
 }
 
 void setExtendedSourceAddress(Mrf *impl, const uint64_t *address) {
-  MrfIo_writeBlockingToShortAddress(&impl->io, (const uint8_t *) address,
+  uint8_t buffer[8];
+  for (uint8_t i = 0; i < 8; i++) {
+    buffer[i] = (uint8_t) ((*address) >> (8*i));
+  }
+  MrfIo_writeBlockingToShortAddress(&impl->io, buffer,
                                   sizeof(uint64_t), mrf_register_extended_address0);
 }
 
 void setPanId(Mrf *impl, const uint16_t *pan_id) {
-  MrfIo_writeBlockingToShortAddress(&impl->io, (const uint8_t *) pan_id, sizeof(uint16_t), mrf_register_pan_id_low_byte);
+  uint8_t pan_id_array[] = {(uint8_t) (*pan_id), (uint8_t)((*pan_id) >> 8)};
+  MrfIo_writeBlockingToShortAddress(&impl->io, pan_id_array, sizeof(uint16_t), mrf_register_pan_id_low_byte);
 }
 
 void enableRXInterrupt(Mrf *impl) {
