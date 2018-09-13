@@ -27,13 +27,18 @@ void test_writeBlockingToLongAddress(void) {
 void test_writeBlockingToShortAddress(void) {
   MrfIo mrf;
   uint8_t size = 5;
-  uint8_t address = 15;
-  uint8_t payload[size];
-  uint8_t command[1] = {MRF_writeShortCommand(address)};
-  PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
-  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, command, 1, 1);
-  PeripheralInterface_writeBlocking_ExpectWithArray(mrf.interface, payload, size, size);
-  PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
+  uint8_t address = 1;
+  uint8_t payload[5] = {0,1,2,3,4};
+  uint8_t commands[size];
+  for (uint8_t i=0; i<size; i++) {
+    commands[i] = MRF_writeShortCommand(address+i);
+  }
+  for (uint8_t i=0; i<size; i++) {
+    PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
+    PeripheralInterface_writeBlocking_Expect(mrf.interface, commands+i, 1);
+    PeripheralInterface_writeBlocking_Expect(mrf.interface, payload+i, 1);
+    PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
+  }
   MrfIo_writeBlockingToShortAddress(&mrf, payload, size, address);
 }
 

@@ -4,9 +4,6 @@
 #include <string.h>
 #include "integration_tests/src/config.h"
 #include "lib/include/Mac802154MRFImpl.h"
-#include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
-#include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
-#include <stdio.h>
 
 int main(void) {
   setup();

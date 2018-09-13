@@ -1,4 +1,4 @@
-#include <stddef.h>
+
 #include <stdio.h>
 #include "lib/src/Mac802154/MRF/MrfIo.h"
 #include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
@@ -25,9 +25,25 @@ void setWriteLongCommand(MrfIo *mrf, uint16_t address) {
   mrf->command_size = 2;
 }
 
+/**
+* IMPORTANT:
+* The scheme for io operation with spi shown
+* in the datasheet is misleading. It is possible
+* to write/read a sequence of bytes after specifying
+* the starting point with the first control byte(s)
+* instead of addressing every byte explicitly. This
+* almost halves the necessary data for getting your packet
+* onto the mrf's tx memory. However this does not seem
+* to work for the short address memory. There you'll
+* have to precede every byte you want to transmit by
+* the corresponding control sequence.
+*
+*/
 void MrfIo_writeBlockingToShortAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size, uint8_t address) {
-  setWriteShortCommand(mrf, address);
-  writeBlockingWithCommand(mrf, payload, size);
+  for (uint8_t i=0; i<size; i++) {
+    setWriteShortCommand(mrf, address+i);
+    writeBlockingWithCommand(mrf, payload+i, 1);
+  }
 }
 
 void callbackForWritingData(void *arg) {

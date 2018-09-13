@@ -68,18 +68,6 @@
  * | 0/2/8            | Auxiliary Security Header |
  * | variable         | Header IEs                |
  *
- * IMPORTANT:
- * The scheme for io operation with spi shown
- * in the datasheet is misleading. It is possible
- * to write/read a sequence of bytes after specifying
- * the starting point with the first control byte(s)
- * instead of addressing every byte explicitly. This
- * almost halves the necessary data for getting your packet
- * onto the mrf's tx memory. However this does not seem
- * to work for the short address memory. There you'll
- * have to precede every byte you want to transmit by
- * the corresponding control sequence.
- *
  */
 
 static void init(Mac802154 *self, const Mac802154Config *config);
@@ -154,21 +142,21 @@ void init(Mac802154 *self, const Mac802154Config *config) {
 void setShortSourceAddress(Mrf *impl, const uint16_t *address) {
   uint8_t buffer[2] = {(uint8_t) (*address), (uint8_t) ((*address) >> 8)};
   MrfIo_writeBlockingToShortAddress(&impl->io, buffer,
-                                    1, mrf_register_short_address_low_byte);
-  MrfIo_setControlRegister(&impl->io, buffer[0], mrf_register_short_address_low_byte);
-  MrfIo_setControlRegister(&impl->io, buffer[1], mrf_register_short_address_high_byte);
+                                    2, mrf_register_short_address_low_byte);
 }
 
 void setExtendedSourceAddress(Mrf *impl, const uint64_t *address) {
+  uint8_t big_endian_address[8];
   for (uint8_t i = 0; i < 8; i++) {
-    MrfIo_setControlRegister(&impl->io, mrf_register_extended_address0+i, (uint8_t)((*address) >> (8*i)));
+
+    big_endian_address[i] = (uint8_t)((*address) >> (8*i));
   }
+  MrfIo_writeBlockingToShortAddress(&impl->io, big_endian_address, 8, mrf_register_extended_address0);
 }
 
 void setPanId(Mrf *impl, const uint16_t *pan_id) {
   uint8_t pan_id_array[] = {(uint8_t) (*pan_id), (uint8_t)((*pan_id) >> 8)};
-  MrfIo_setControlRegister(&impl->io, mrf_register_pan_id_low_byte, pan_id_array[0]);
-  MrfIo_setControlRegister(&impl->io, mrf_register_pan_id_high_byte, pan_id_array[1]);
+  MrfIo_writeBlockingToShortAddress(&impl->io, pan_id_array, 2, mrf_register_pan_id_low_byte);
 }
 
 void enableRXInterrupt(Mrf *impl) {
