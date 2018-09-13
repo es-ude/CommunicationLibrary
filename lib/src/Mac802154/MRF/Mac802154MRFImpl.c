@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "lib/src/Mac802154/Mac802154.h"
 #include "lib/include/Mac802154MRFImpl.h"
 #include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
@@ -67,6 +68,18 @@
  * | 0/2/8            | Auxiliary Security Header |
  * | variable         | Header IEs                |
  *
+ * IMPORTANT:
+ * The scheme for io operation with spi shown
+ * in the datasheet is misleading. It is possible
+ * to write/read a sequence of bytes after specifying
+ * the starting point with the first control byte(s)
+ * instead of addressing every byte explicitly. This
+ * almost halves the necessary data for getting your packet
+ * onto the mrf's tx memory. However this does not seem
+ * to work for the short address memory. There you'll
+ * have to precede every byte you want to transmit by
+ * the corresponding control sequence.
+ *
  */
 
 static void init(Mac802154 *self, const Mac802154Config *config);
@@ -92,6 +105,7 @@ static void setUpTransmitterPower(Mrf *impl);
 static void resetInternalRFStateMachine(Mrf *impl);
 static void triggerSend(Mrf *impl);
 extern void debug(uint8_t *string);
+static void setPromiscuousMode(Mrf *impl);
 
 size_t Mac802154MRF_requiredSize(void) {
   return sizeof(struct Mrf);
@@ -138,23 +152,23 @@ void init(Mac802154 *self, const Mac802154Config *config) {
 }
 
 void setShortSourceAddress(Mrf *impl, const uint16_t *address) {
-  uint8_t buffer[2] = {(uint8_t)(*address), (uint8_t)((*address) >> 8)};
+  uint8_t buffer[2] = {(uint8_t) (*address), (uint8_t) ((*address) >> 8)};
   MrfIo_writeBlockingToShortAddress(&impl->io, buffer,
-                                  sizeof(uint16_t), mrf_register_short_address_low_byte);
+                                    1, mrf_register_short_address_low_byte);
+  MrfIo_setControlRegister(&impl->io, buffer[0], mrf_register_short_address_low_byte);
+  MrfIo_setControlRegister(&impl->io, buffer[1], mrf_register_short_address_high_byte);
 }
 
 void setExtendedSourceAddress(Mrf *impl, const uint64_t *address) {
-  uint8_t buffer[8];
   for (uint8_t i = 0; i < 8; i++) {
-    buffer[i] = (uint8_t) ((*address) >> (8*i));
+    MrfIo_setControlRegister(&impl->io, mrf_register_extended_address0+i, (uint8_t)((*address) >> (8*i)));
   }
-  MrfIo_writeBlockingToShortAddress(&impl->io, buffer,
-                                  sizeof(uint64_t), mrf_register_extended_address0);
 }
 
 void setPanId(Mrf *impl, const uint16_t *pan_id) {
   uint8_t pan_id_array[] = {(uint8_t) (*pan_id), (uint8_t)((*pan_id) >> 8)};
-  MrfIo_writeBlockingToShortAddress(&impl->io, pan_id_array, sizeof(uint16_t), mrf_register_pan_id_low_byte);
+  MrfIo_setControlRegister(&impl->io, mrf_register_pan_id_low_byte, pan_id_array[0]);
+  MrfIo_setControlRegister(&impl->io, mrf_register_pan_id_high_byte, pan_id_array[1]);
 }
 
 void enableRXInterrupt(Mrf *impl) {
@@ -262,10 +276,29 @@ uint8_t getReceivedMessageSize(Mac802154 *self) {
 bool newMessageAvailable(Mac802154 *self) {
   Mrf *impl = (Mrf *) self;
   uint8_t status_register_value = MrfIo_readControlRegister(&impl->io, mrf_register_interrupt_status);
+//  char a[16];
+//  sprintf(a, "%d\n", status_register_value);
+//  debug(a);
   return ((status_register_value >> 3) & 1) == 1;
 }
 
 void fetchMessageBlocking(Mac802154 *self, uint8_t *buffer, uint8_t size) {
   Mrf *impl = (Mrf *) self;
   MrfIo_readBlockingFromLongAddress(&impl->io, mrf_rx_fifo_start, buffer, size);
+}
+
+/**
+ * accept all packages with correct crc
+ *
+ */
+void setPromiscuousMode(Mrf *impl) {
+  MrfIo_setControlRegister(&impl->io, 0x00, 1);
+}
+
+/**
+ * accept packages with good or bad crc
+ * @param impl
+ */
+void setErrorMode(Mrf *impl) {
+  MrfIo_setControlRegister(&impl->io, 0x00, 2);
 }
