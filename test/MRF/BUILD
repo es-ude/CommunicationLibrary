@@ -32,6 +32,7 @@ unity_test(
         "//lib:src/Mac802154/MRF/MRFHelperFunctions.h",
         "//lib:src/Mac802154/MRF/MRFState.h",
         "//lib:src/Mac802154/MRF/MrfIo.h",
+        "//lib:src/Mac802154/FrameHeader802154.h",
         "//lib:include/Peripheral.h",
         "//test/MRF:Mac802154MRF_TestHelper.h",
     ],

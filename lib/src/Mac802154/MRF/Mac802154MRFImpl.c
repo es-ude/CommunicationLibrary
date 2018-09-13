@@ -82,6 +82,10 @@ static void setPanId(Mrf *impl, const uint16_t *pan_id);
 static uint8_t getReceivedMessageSize(Mac802154 *self);
 static bool newMessageAvailable(Mac802154 *self);
 static void fetchMessageBlocking(Mac802154 *self, uint8_t *buffer, uint8_t size);
+static const uint8_t *getPacketPayload(const uint8_t *packet);
+static bool packetAddressIsShort(const uint8_t *packet);
+static bool packetAddressIsLong(const uint8_t *packet);
+static uint8_t getPacketSourceAddressSize(const uint8_t *packet);
 
 static void reset(Mrf *impl);
 static void setInitializationValuesFromDatasheet(MrfIo *impl);
@@ -114,9 +118,13 @@ void setUpInterface(Mac802154 *interface) {
   interface->setPayload = setPayload;
   interface->setExtendedDestinationAddress = setExtendedDestinationAddress;
   interface->sendBlocking = sendBlocking;
-  interface->getReceivedMessageSize = getReceivedMessageSize;
-  interface->newMessageAvailable = newMessageAvailable;
-  interface->fetchMessageBlocking = fetchMessageBlocking;
+  interface->getReceivedPacketSize = getReceivedMessageSize;
+  interface->newPacketAvailable = newMessageAvailable;
+  interface->fetchPacketBlocking = fetchMessageBlocking;
+  interface->getPacketPayload = getPacketPayload;
+  interface->packetAddressIsShort = packetAddressIsShort;
+  interface->packetAddressIsLong = packetAddressIsLong;
+  interface->getPacketSourceAddressSize = getPacketSourceAddressSize;
 }
 
 void init(Mac802154 *self, const Mac802154Config *config) {
@@ -227,6 +235,14 @@ void setShortDestinationAddress(Mac802154 *self, uint16_t address) {
   MrfState_setShortDestinationAddress(&impl->state, address);
 }
 
+void setShortDestinationAddressFromArray(Mac802154 *self, const uint8_t *address) {
+  Mrf *impl = (Mrf *) self;
+  uint16_t native_format_address = 0;
+  native_format_address += address[0];
+  native_format_address += (address[1] << 8);
+  MrfState_setShortDestinationAddress(&impl->state, native_format_address);
+}
+
 void setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length) {
 
   Mrf *impl = (Mrf *) self;
@@ -247,6 +263,15 @@ void sendBlocking(Mac802154 *self) {
 
 void setExtendedDestinationAddress(Mac802154 *self, uint64_t address) {
   Mrf *impl = (Mrf *) self;
+  MrfState_setExtendedDestinationAddress(&impl->state, address);
+}
+
+void setExtendedDestinationAddressFromArray(Mac802154 *self, const uint8_t *address) {
+  Mrf *impl = (Mrf *) self;
+  uint64_t native_format_address = 0;
+  for (uint8_t i=0; i < 8; i++) {
+    native_format_address += (address[i] << 8*i);
+  }
   MrfState_setExtendedDestinationAddress(&impl->state, address);
 }
 
@@ -289,4 +314,20 @@ void setPromiscuousMode(Mrf *impl) {
  */
 void setErrorMode(Mrf *impl) {
   MrfIo_setControlRegister(&impl->io, 0x00, 2);
+}
+
+const uint8_t *getPacketPayload(const uint8_t *packet) {
+  return packet + FrameHeader802154_getHeaderSize(packet+1);
+}
+
+bool packetAddressIsShort(const uint8_t *packet) {
+  return FrameHeader802154_getSourceAddressSize((FrameHeader802154*) (packet+1)) == 16;
+}
+
+bool packetAddressIsLong(const uint8_t *packet) {
+  return FrameHeader802154_getSourceAddressSize((FrameHeader802154*) (packet+1)) == 64;
+}
+
+uint8_t getPacketSourceAddressSize(const uint8_t *packet) {
+  return FrameHeader802154_getSourceAddressSize((FrameHeader802154 *)(packet+1));
 }

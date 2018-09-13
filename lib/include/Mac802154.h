@@ -39,11 +39,22 @@ void Mac802154_sendBlocking(Mac802154 *hardware);
 void Mac802154_destroy(Mac802154 *self);
 
 void Mac802154_setShortDestinationAddress(Mac802154 *self, uint16_t address);
+void Mac802154_setShortDestinationAddressFromArray(Mac802154 *self, const uint8_t *address);
+
+// sets address in big endian representation suitable for network transmission
 void Mac802154_setExtendedDestinationAddress(Mac802154 *self, uint64_t address);
+
+// use a one-to-one copy of the specified address as destination address
+void Mac802154_setExtendedDestinationAddressFromArray(Mac802154 *self, const uint8_t *address);
 void Mac802154_setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length);
-uint8_t Mac802154_getReceivedMessageSize(Mac802154 *self);
-bool Mac802154_newMessageAvailable(Mac802154 *self);
-void Mac802154_fetchMessageBlocking(Mac802154 *self, uint8_t *buffer, uint8_t size);
+uint8_t Mac802154_getReceivedPacketSize(Mac802154 *self);
+bool Mac802154_newPacketAvailable(Mac802154 *self);
+void Mac802154_fetchPacketBlocking(Mac802154 *self, uint8_t *buffer, uint8_t size);
+const uint8_t *Mac802154_getPacketPayload(Mac802154 *self, const uint8_t *packet);
+bool Mac802154_packetAddressIsShort(Mac802154 *self, const uint8_t *packet);
+bool Mac802154_packetAddressIsLong(Mac802154 *self, const uint8_t *packet);
+uint8_t Mac802154_getPacketSourceAddressSize(Mac802154 *self, const uint8_t *packet);
+const uint8_t *Mac802154_getPacketSourceAddress(Mac802154 *self, const uint8_t *packet);
 
 typedef struct FrameControlField802154 {
   unsigned frame_type : 3;

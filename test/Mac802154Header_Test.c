@@ -1,8 +1,5 @@
-#include <string.h>
 #include "unity.h"
 #include "lib/src/Mac802154/FrameHeader802154.h"
-#include "CException.h"
-#include "lib/include/Exception.h"
 #include "lib/src/BitManipulation.h"
 
 /**
@@ -412,4 +409,11 @@ void test_panIdCompressionGetsEnabledWhenNecessary2(void) {
 void test_sizeOfHeaderForExtendedDestination(void) {
   FrameHeader802154_setExtendedSourceAddress(header, 0);
   TEST_ASSERT_EQUAL_UINT8(15, FrameHeader802154_getHeaderSize(header));
+}
+
+void test_getSourceAddressPtr(void) {
+  FrameHeader802154_setShortSourceAddress(header, 0xAABB);
+  uint8_t *source_address = FrameHeader802154_getSourceAddressPtr(header);
+  uint8_t expected[] = {0xBB, 0xAA};
+  TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, source_address, 2);
 }

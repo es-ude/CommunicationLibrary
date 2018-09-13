@@ -10,6 +10,7 @@
 #include "test/MRF/MockMac802154MRF_TestHelper.h"
 #include "lib/src/Mac802154/MRF/MockMrfIo.h"
 #include "lib/src/Mac802154/MRF/Mrf.h"
+#include "test/MRF/_virtual_includes/MocklibsrcMac802154FrameHeader802154/lib/src/Mac802154/MockFrameHeader802154.h"
 
 MemoryManagement *inspected_memory;
 
@@ -162,7 +163,7 @@ void test_getMessageSizeMessage(void) {
   MrfIo_readBlockingFromLongAddress_IgnoreArg_mrf();
   MrfIo_readBlockingFromLongAddress_ReturnArrayThruPtr_buffer(&expected_message_size, 1);
 
-  uint8_t message_size = Mac802154_getReceivedMessageSize(mrf);
+  uint8_t message_size = Mac802154_getReceivedPacketSize(mrf);
   TEST_ASSERT_EQUAL(expected_message_size, message_size);
 }
 
@@ -177,7 +178,7 @@ void test_newMessageAvailable(void) {
 
     interrupt_register_value = (uint8_t) counter;
     MrfIo_readControlRegister_ExpectAndReturn(io, mrf_register_interrupt_status, interrupt_register_value);
-    bool result = Mac802154_newMessageAvailable(mrf);
+    bool result = Mac802154_newPacketAvailable(mrf);
 
     sprintf((char *)error_message, "failed for value %d", interrupt_register_value);
     if ((interrupt_register_value >> 3) & 1) {
@@ -197,6 +198,51 @@ void test_fetchMessageBlocking(void) {
 
   uint8_t message_buffer[16];
   memset(message_buffer, 0, 16);
-  Mac802154_fetchMessageBlocking(mrf, message_buffer, (uint8_t)strlen((char*)expected_message));
+  Mac802154_fetchPacketBlocking(mrf, message_buffer, (uint8_t) strlen((char *) expected_message));
   TEST_ASSERT_EQUAL_STRING(expected_message, message_buffer);
+}
+
+void test_getReceivedFramePayload(void) {
+  uint8_t *payload;
+  uint8_t *frame;
+  uint8_t header_size = 14;
+  FrameHeader802154_getHeaderSize_ExpectAndReturn(frame+1, header_size);
+  payload = Mac802154_getPacketPayload(mrf, frame);
+  TEST_ASSERT_EQUAL_PTR(frame+header_size, payload);
+}
+
+void test_packetAddressIsShort(void) {
+  uint8_t *packet;
+  FrameHeader802154_getSourceAddressSize_ExpectAndReturn((FrameHeader802154*)(packet+1), 16);
+  FrameHeader802154_getSourceAddressSize_ExpectAndReturn((FrameHeader802154*)(packet+1), 16);
+  TEST_ASSERT_TRUE(Mac802154_packetAddressIsShort(mrf, packet));
+  TEST_ASSERT_FALSE(Mac802154_packetAddressIsLong(mrf, packet));
+}
+
+void test_packetAddressIsExtended(void) {
+  uint8_t *packet;
+  FrameHeader802154_getSourceAddressSize_ExpectAndReturn((FrameHeader802154 *)(packet+1), 64);
+  FrameHeader802154_getSourceAddressSize_ExpectAndReturn((FrameHeader802154 *)(packet+1), 64);
+  TEST_ASSERT_TRUE(Mac802154_packetAddressIsLong(mrf, packet));
+  TEST_ASSERT_FALSE(Mac802154_packetAddressIsShort(mrf, packet));
+}
+
+void test_packetAddressIsNeither(void) {
+  uint8_t *packet;
+  FrameHeader802154_getSourceAddressSize_ExpectAndReturn((FrameHeader802154 *)(packet+1), 61);
+  FrameHeader802154_getSourceAddressSize_ExpectAndReturn((FrameHeader802154 *)(packet+1), 15);
+  TEST_ASSERT_FALSE(Mac802154_packetAddressIsLong(mrf, packet));
+  TEST_ASSERT_FALSE(Mac802154_packetAddressIsShort(mrf, packet));
+}
+
+void test_getPacketSourceAddressSize(void) {
+  uint8_t *packet;
+  FrameHeader802154_getSourceAddressSize_ExpectAndReturn((FrameHeader802154 *)(packet+1), 16);
+  TEST_ASSERT_EQUAL(16, Mac802154_getPacketSourceAddressSize(mrf, packet));
+}
+
+void test_getPacketSourceAddress(void) {
+  uint8_t *packet;
+  FrameHeader802154_getSourceAddressPtr_ExpectAndReturn((FrameHeader802154 *)(packet+1), packet+51);
+  TEST_ASSERT_EQUAL(packet+51, Mac802154_getPacketSourceAddress(mrf, packet));
 }

@@ -26,11 +26,11 @@ int main(void) {
   _delay_ms(500);
   while(true) {
     debug("wait for message\n");
-    while(!Mac802154_newMessageAvailable(mac)) {}
+    while(!Mac802154_newPacketAvailable(mac)) {}
     debug("Message\n");
-    uint8_t size = Mac802154_getReceivedMessageSize(mac);
+    uint8_t size = Mac802154_getReceivedPacketSize(mac);
     uint8_t payload[size];
-    Mac802154_fetchMessageBlocking(mac, payload, size);
+    Mac802154_fetchPacketBlocking(mac, payload, size);
     Mac802154_setPayload(mac, payload, size);
     Mac802154_sendBlocking(mac);
     payload[size-1] = 0;

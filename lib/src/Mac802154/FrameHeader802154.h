@@ -37,6 +37,7 @@ uint8_t FrameHeader802154_getSequenceNumberSize(const FrameHeader802154 *self);
 const uint8_t *FrameHeader802154_getSequenceNumberPtr(const FrameHeader802154 *self);
 const uint8_t *FrameHeader802154_getPanIdPtr(const FrameHeader802154 *self);
 const uint8_t *FrameHeader802154_getDestinationAddressPtr(const FrameHeader802154 *self);
+const uint8_t *FrameHeader802154_getSourceAddressPtr(const FrameHeader802154 *self);
 const uint8_t *FrameHeader802154_getHeaderPtr(const FrameHeader802154 *self);
 
 

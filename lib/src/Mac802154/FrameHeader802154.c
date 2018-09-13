@@ -365,3 +365,7 @@ void moveDestinationAddress(FrameHeader802154 *self, int8_t distance) {
   moveSourceAddress(self, distance);
   moveRight(address_ptr, 8, distance);
 }
+
+const uint8_t *FrameHeader802154_getSourceAddressPtr(const FrameHeader802154 *self) {
+    return self->data + getSourceAddressOffset(self);
+}
