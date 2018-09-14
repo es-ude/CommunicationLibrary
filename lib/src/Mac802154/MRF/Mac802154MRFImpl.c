@@ -86,6 +86,7 @@ static const uint8_t *getPacketPayload(const uint8_t *packet);
 static bool packetAddressIsShort(const uint8_t *packet);
 static bool packetAddressIsLong(const uint8_t *packet);
 static uint8_t getPacketSourceAddressSize(const uint8_t *packet);
+static const uint8_t *getPacketSourceAddress(const uint8_t *packet);
 
 static void reset(Mrf *impl);
 static void setInitializationValuesFromDatasheet(MrfIo *impl);
@@ -125,6 +126,7 @@ void setUpInterface(Mac802154 *interface) {
   interface->packetAddressIsShort = packetAddressIsShort;
   interface->packetAddressIsLong = packetAddressIsLong;
   interface->getPacketSourceAddressSize = getPacketSourceAddressSize;
+  interface->getPacketSourceAddress = getPacketSourceAddress;
 }
 
 void init(Mac802154 *self, const Mac802154Config *config) {
@@ -282,16 +284,14 @@ void triggerSend(Mrf *impl) {
 uint8_t getReceivedMessageSize(Mac802154 *self) {
   Mrf *impl = (Mrf *) self;
   uint8_t size = 0;
+  uint8_t frame_length_field_size = 1;
   MrfIo_readBlockingFromLongAddress(&impl->io, mrf_rx_fifo_start, &size, 1);
-  return size;
+  return size+frame_length_field_size;
 }
 
 bool newMessageAvailable(Mac802154 *self) {
   Mrf *impl = (Mrf *) self;
   uint8_t status_register_value = MrfIo_readControlRegister(&impl->io, mrf_register_interrupt_status);
-//  char a[16];
-//  sprintf(a, "%d\n", status_register_value);
-//  debug(a);
   return ((status_register_value >> 3) & 1) == 1;
 }
 
@@ -317,7 +317,9 @@ void setErrorMode(Mrf *impl) {
 }
 
 const uint8_t *getPacketPayload(const uint8_t *packet) {
-  return packet + FrameHeader802154_getHeaderSize(packet+1);
+  uint8_t frame_length_field_size = 1;
+  packet += frame_length_field_size;
+  return packet + FrameHeader802154_getHeaderSize(packet);
 }
 
 bool packetAddressIsShort(const uint8_t *packet) {
@@ -330,4 +332,8 @@ bool packetAddressIsLong(const uint8_t *packet) {
 
 uint8_t getPacketSourceAddressSize(const uint8_t *packet) {
   return FrameHeader802154_getSourceAddressSize((FrameHeader802154 *)(packet+1));
+}
+
+const uint8_t *getPacketSourceAddress(const uint8_t *packet) {
+  return FrameHeader802154_getSourceAddressPtr((FrameHeader802154 *)(packet+1));
 }

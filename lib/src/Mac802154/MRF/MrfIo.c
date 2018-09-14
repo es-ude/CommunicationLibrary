@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <stdint.h>
 #include "lib/src/Mac802154/MRF/MrfIo.h"
 #include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
 

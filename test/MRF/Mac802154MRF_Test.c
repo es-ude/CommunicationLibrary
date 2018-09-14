@@ -157,14 +157,16 @@ void test_sendBlocking(void) {
 }
 
 void test_getMessageSizeMessage(void) {
-  uint8_t expected_message_size = 0xAB;
-  MrfIo_readBlockingFromLongAddress_Expect(NULL, mrf_rx_fifo_start, &expected_message_size, 1);
+  uint8_t expected_frame_size = 0xAB;
+  uint8_t frame_length_field_size = 1;
+  uint8_t expected_packet_size = expected_frame_size + frame_length_field_size;
+  MrfIo_readBlockingFromLongAddress_Expect(NULL, mrf_rx_fifo_start, &expected_frame_size, 1);
   MrfIo_readBlockingFromLongAddress_IgnoreArg_buffer();
   MrfIo_readBlockingFromLongAddress_IgnoreArg_mrf();
-  MrfIo_readBlockingFromLongAddress_ReturnArrayThruPtr_buffer(&expected_message_size, 1);
+  MrfIo_readBlockingFromLongAddress_ReturnArrayThruPtr_buffer(&expected_frame_size, 1);
 
-  uint8_t message_size = Mac802154_getReceivedPacketSize(mrf);
-  TEST_ASSERT_EQUAL(expected_message_size, message_size);
+  uint8_t packet_size = Mac802154_getReceivedPacketSize(mrf);
+  TEST_ASSERT_EQUAL(expected_packet_size, packet_size);
 }
 
 void test_newMessageAvailable(void) {
@@ -204,11 +206,12 @@ void test_fetchMessageBlocking(void) {
 
 void test_getReceivedFramePayload(void) {
   uint8_t *payload;
-  uint8_t *frame;
   uint8_t header_size = 14;
-  FrameHeader802154_getHeaderSize_ExpectAndReturn(frame+1, header_size);
+  uint8_t frame_length_field_size = 1;
+  uint8_t *frame;
+  FrameHeader802154_getHeaderSize_ExpectAndReturn(frame+frame_length_field_size, header_size);
   payload = Mac802154_getPacketPayload(mrf, frame);
-  TEST_ASSERT_EQUAL_PTR(frame+header_size, payload);
+  TEST_ASSERT_EQUAL_PTR(frame+header_size+frame_length_field_size, payload);
 }
 
 void test_packetAddressIsShort(void) {
@@ -245,4 +248,14 @@ void test_getPacketSourceAddress(void) {
   uint8_t *packet;
   FrameHeader802154_getSourceAddressPtr_ExpectAndReturn((FrameHeader802154 *)(packet+1), packet+51);
   TEST_ASSERT_EQUAL(packet+51, Mac802154_getPacketSourceAddress(mrf, packet));
+}
+
+void test_getPacketPayloadSize(void) {
+  TEST_IGNORE();
+
+  uint8_t *packet;
+  uint8_t packet_size = 38;
+  packet[0] = packet_size;
+  uint8_t header_size = 17;
+  FrameHeader802154_getHeaderSize_ExpectAndReturn((FrameHeader802154 *)(packet + 1), header_size);
 }
