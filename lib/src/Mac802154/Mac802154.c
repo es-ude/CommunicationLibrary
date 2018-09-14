@@ -65,3 +65,7 @@ uint8_t Mac802154_getPacketSourceAddressSize(Mac802154 *self, const uint8_t *pac
 const uint8_t * Mac802154_getPacketSourceAddress(Mac802154 *self, const uint8_t *packet) {
   self->getPacketSourceAddress(packet);
 }
+
+uint8_t Mac802154_getPacketPayloadSize(Mac802154 *self, const uint8_t *packet) {
+  self->getPacketPayloadSize(packet);
+}

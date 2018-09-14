@@ -230,7 +230,7 @@ void test_packetAddressIsExtended(void) {
   TEST_ASSERT_FALSE(Mac802154_packetAddressIsShort(mrf, packet));
 }
 
-void test_packetAddressIsNeither(void) {
+void test_packetAddressIsNeitherExtendedNorShort(void) {
   uint8_t *packet;
   FrameHeader802154_getSourceAddressSize_ExpectAndReturn((FrameHeader802154 *)(packet+1), 61);
   FrameHeader802154_getSourceAddressSize_ExpectAndReturn((FrameHeader802154 *)(packet+1), 15);
@@ -241,21 +241,27 @@ void test_packetAddressIsNeither(void) {
 void test_getPacketSourceAddressSize(void) {
   uint8_t *packet;
   FrameHeader802154_getSourceAddressSize_ExpectAndReturn((FrameHeader802154 *)(packet+1), 16);
-  TEST_ASSERT_EQUAL(16, Mac802154_getPacketSourceAddressSize(mrf, packet));
+  TEST_ASSERT_EQUAL_UINT8(16, Mac802154_getPacketSourceAddressSize(mrf, packet));
 }
 
 void test_getPacketSourceAddress(void) {
   uint8_t *packet;
   FrameHeader802154_getSourceAddressPtr_ExpectAndReturn((FrameHeader802154 *)(packet+1), packet+51);
-  TEST_ASSERT_EQUAL(packet+51, Mac802154_getPacketSourceAddress(mrf, packet));
+  TEST_ASSERT_EQUAL_PTR(packet+51, Mac802154_getPacketSourceAddress(mrf, packet));
 }
 
 void test_getPacketPayloadSize(void) {
-  TEST_IGNORE();
-
-  uint8_t *packet;
-  uint8_t packet_size = 38;
-  packet[0] = packet_size;
+  uint8_t packet[32];
+  uint8_t frame_size = 38;
+  packet[0] = frame_size;
   uint8_t header_size = 17;
+  uint8_t link_quality_field_size = 1;
+  uint8_t rssi_field_size = 1;
+  uint8_t frame_check_sequence_size = 2;
+  uint8_t expected_size = frame_size - header_size
+                  - frame_check_sequence_size
+                  - rssi_field_size
+                  - link_quality_field_size;
   FrameHeader802154_getHeaderSize_ExpectAndReturn((FrameHeader802154 *)(packet + 1), header_size);
+  TEST_ASSERT_EQUAL_UINT8(expected_size, Mac802154_getPacketPayloadSize(mrf, packet));
 }

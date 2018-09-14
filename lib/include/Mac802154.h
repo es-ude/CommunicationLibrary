@@ -6,21 +6,27 @@
 #include <stdbool.h>
 #include "lib/include/Peripheral.h"
 
+/**
+ * This Module allows to send, receive and inspect 802154 packets.
+ * The way sending of new packets works is by setting internal fields.
+ * So instead of building a new frame as a seperate data structure,
+ * you only provide a pointer to the payload and use the other setters
+ * to configure the packet that can then be sent by calling the send(Non)Blocking
+ * function on the Mac802154 data type. While the payload needs to be present during
+ * the process of sending, other parameters like the destination address are copied
+ * to an internal data structure.
+ *
+ * The structure of received frames is implementation dependent, but the
+ * module provides functions to inspect the frames. This includes extracting
+ * the payload and source addresses. Corresponding functions include the
+ * word packet in their name.
+ * A packet in the context of this interface is all data that is created
+ * by the hardware in the process of receiving a 802154 frame. Therefore
+ * this might also include values like frame length or rssi.
+ */
+
 typedef struct Mac802154 Mac802154;
 typedef struct Mac802154Config Mac802154Config;
-
-enum {
-  FRAME_TYPE_BEACON = 0,
-  FRAME_TYPE_DATA = 1,
-  FRAME_TYPE_ACKNOWLEDGEMENT = 2,
-  FRAME_TYPE_MAC_COMMAND = 3,
-  ADDRESSING_MODE_NEITHER_PAN_NOR_ADDRESS_PRESENT = 0,
-  ADDRESSING_MODE_SHORT_ADDRESS = 0b10,
-  ADDRESSING_MODE_EXTENDED_ADDRESS = 0b11,
-  FRAME_VERSION_2015 = 0b10,
-  FRAME_VERSION_2003 = 0b00,
-  FRAME_VERSION_2006 = 0b01,
-};
 
 struct Mac802154Config {
   uint16_t short_source_address;
@@ -45,29 +51,72 @@ void Mac802154_setShortDestinationAddressFromArray(Mac802154 *self, const uint8_
 void Mac802154_setExtendedDestinationAddress(Mac802154 *self, uint64_t address);
 
 // use a one-to-one copy of the specified address as destination address
+// use this function to set a previously received source address as the new destination address
 void Mac802154_setExtendedDestinationAddressFromArray(Mac802154 *self, const uint8_t *address);
+
+// the payload needs to be alive in memory while transmission is running
 void Mac802154_setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length);
+
+/**
+ *
+ * @return size of all data available, this might also include additional information like rssi
+ */
 uint8_t Mac802154_getReceivedPacketSize(Mac802154 *self);
+
+/**
+ * check whether the hardware has received new data since the last call to this function
+ */
 bool Mac802154_newPacketAvailable(Mac802154 *self);
+
+/**
+ * Place all received data available from the hardware into the buffer.
+ * @param self
+ * @param buffer
+ * @param size This should be the value you got prior from Mac802154_getReceivedPacketSize(), generally
+ *             you're free to use a different one but the result will almost certainly lead to problems with the
+ *             inspection functions, that expect a complete frame.
+ */
 void Mac802154_fetchPacketBlocking(Mac802154 *self, uint8_t *buffer, uint8_t size);
+
+/**
+ *
+ * @param self
+ * @param packet
+ * @return A pointer to the start of the payload field
+ */
 const uint8_t *Mac802154_getPacketPayload(Mac802154 *self, const uint8_t *packet);
+uint8_t Mac802154_getPacketPayloadSize(Mac802154 *self, const uint8_t *packet);
+
+
 bool Mac802154_packetAddressIsShort(Mac802154 *self, const uint8_t *packet);
+
 bool Mac802154_packetAddressIsLong(Mac802154 *self, const uint8_t *packet);
+
+/**
+ * @return The size of the source address field in byte. This should be either 0, 2 or 8.
+ */
 uint8_t Mac802154_getPacketSourceAddressSize(Mac802154 *self, const uint8_t *packet);
+
+/**
+ * Use this together with Mac802154_getPacketSourceAddressSize() to retrieve the source address
+ * of a packet.
+ * @param self
+ * @param packet
+ * @return Pointer to the start of the source address field
+ */
 const uint8_t *Mac802154_getPacketSourceAddress(Mac802154 *self, const uint8_t *packet);
 
-typedef struct FrameControlField802154 {
-  unsigned frame_type : 3;
-  unsigned security_enabled : 1;
-  unsigned frame_pending : 1;
-  unsigned acknowledgment_request : 1;
-  unsigned information_element_present : 1;
-  unsigned pan_id_compression : 1;
-  unsigned reserved : 1;
-  unsigned sequence_number_suppression : 1;
-  unsigned destination_addressing_mode : 2;
-  unsigned frame_version : 2;
-  unsigned source_addressing_mode : 2;
-} FrameControlField802154;
+enum {
+  FRAME_TYPE_BEACON = 0,
+  FRAME_TYPE_DATA = 1,
+  FRAME_TYPE_ACKNOWLEDGEMENT = 2,
+  FRAME_TYPE_MAC_COMMAND = 3,
+  ADDRESSING_MODE_NEITHER_PAN_NOR_ADDRESS_PRESENT = 0,
+  ADDRESSING_MODE_SHORT_ADDRESS = 0b10,
+  ADDRESSING_MODE_EXTENDED_ADDRESS = 0b11,
+  FRAME_VERSION_2015 = 0b10,
+  FRAME_VERSION_2003 = 0b00,
+  FRAME_VERSION_2006 = 0b01,
+};
 
 #endif //COMMUNICATIONMODULE_NETWORKHARDWARE_H

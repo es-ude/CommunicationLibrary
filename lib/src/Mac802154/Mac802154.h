@@ -19,6 +19,7 @@ struct Mac802154 {
   bool (*newPacketAvailable) (Mac802154 *self);
   void (*fetchPacketBlocking) (Mac802154 *self, uint8_t *buffer, uint8_t size);
   const uint8_t *(*getPacketPayload) (const uint8_t *packet);
+  uint8_t (*getPacketPayloadSize) (const uint8_t *packet);
   bool (*packetAddressIsShort) (const uint8_t *packet);
   bool (*packetAddressIsLong) (const uint8_t *packet);
   uint8_t (*getPacketSourceAddressSize) (const uint8_t *packet);
