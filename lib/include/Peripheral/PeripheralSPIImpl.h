@@ -1,19 +1,9 @@
-//
-// Created by Peter Zdankin on 01.04.18.
-//
-
 #ifndef COMMUNICATIONMODULE_PERIPHERALINTERFACEIMPL_H
 #define COMMUNICATIONMODULE_PERIPHERALINTERFACEIMPL_H
 
 
 #include "lib/include/Peripheral.h"
 #include "lib/include/RuntimeLibraryInterface.h"
-#include "lib/include/platform/io.h"
-
-typedef struct TransferLayerConfig {
-    Allocator  allocate;
-    Deallocator deallocate;
-} TransferLayerConfig;
 
 enum {
   SPI_DATA_ORDER_MSB_FIRST,

@@ -55,11 +55,9 @@ and $(MCU) is replaced by <mcu-name>
 cc_library(
     name = "CommunicationModule",
     srcs = [
+        ":CommunicationModuleSrc",
         ":PrivateHdrFiles",
-    ] + select({
-        ":avr-config": [":CommunicationModuleSrc"],
-        "//conditions:default": [":CommunicationModuleSrcForLocalBuild"],
-    }),
+    ],
     hdrs = [":CommunicationModuleIncl"],
     copts = select({
         ":avr-config": [
@@ -81,10 +79,7 @@ cc_library(
 
 cc_library(
     name = "CommunicationModuleLibForTest",
-    srcs = select({
-        ":avr-config": [":CommunicationModuleSrc"],
-        "//conditions:default": [":CommunicationModuleSrcForLocalBuild"],
-    }),
+    srcs = [":CommunicationModuleSrc"],
     hdrs = [
         ":CommunicationModuleIncl",
         ":PrivateHdrFiles",

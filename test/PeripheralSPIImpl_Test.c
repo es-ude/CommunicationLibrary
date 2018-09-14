@@ -1,7 +1,7 @@
 #include "unity.h"
-#include "lib/include/TransferLayer/PeripheralSPIImpl.h"
+#include "lib/include/Peripheral/PeripheralSPIImpl.h"
 #include <memory.h>
-#include "lib/src/TransferLayer/SpiPinNumbers.h"
+#include "lib/src/Peripheral/SpiPinNumbers.h"
 
 #define NUMBER_OF_REGISTERS 5
 static uint8_t registers[NUMBER_OF_REGISTERS];
@@ -43,5 +43,5 @@ void test_initConfiguresInterfaceAsMaster(void) {
   PeripheralInterface interface = PeripheralInterfaceSPI_createNew(memory, &config);
   PeripheralInterface_init(interface);
 
-  TEST_ASSERT_BIT_HIGH(spi_master_slave_select, *config.control_register);
+  TEST_ASSERT_BIT_HIGH(master_slave_select_bit, *config.control_register);
 }
