@@ -55,7 +55,7 @@ bool Mac802154_packetAddressIsShort(Mac802154 *self, const uint8_t *packet) {
 }
 
 bool Mac802154_packetAddressIsLong(Mac802154 *self, const uint8_t *packet) {
-  return self->packetAddressIsLong(packet);
+  return self->packetAddressIsExtended(packet);
 }
 
 uint8_t Mac802154_getPacketSourceAddressSize(Mac802154 *self, const uint8_t *packet) {

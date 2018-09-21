@@ -27,7 +27,7 @@ void setUpInterface(Mac802154 *interface) {
   interface->getPacketPayload = getPacketPayload;
   interface->getPacketPayloadSize = getPacketPayloadSize;
   interface->packetAddressIsShort = packetAddressIsShort;
-  interface->packetAddressIsLong = packetAddressIsLong;
+  interface->packetAddressIsExtended = packetAddressIsLong;
   interface->getPacketSourceAddressSize = getPacketSourceAddressSize;
   interface->getPacketSourceAddress = getPacketSourceAddress;
 }
