@@ -18,7 +18,6 @@ int main(void) {
       }
 
     }
-    /* Must throw away unused bytes from the host, or it will lock up while waiting for the device */
 
     periodicUsbTask();
   }

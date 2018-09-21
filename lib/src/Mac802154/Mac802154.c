@@ -47,25 +47,25 @@ void Mac802154_fetchPacketBlocking(Mac802154 *self, uint8_t *buffer, uint8_t siz
 }
 
 const uint8_t *Mac802154_getPacketPayload(Mac802154 *self, const uint8_t *packet) {
-  self->getPacketPayload(packet);
+  return self->getPacketPayload(packet);
 }
 
 bool Mac802154_packetAddressIsShort(Mac802154 *self, const uint8_t *packet) {
-  self->packetAddressIsShort(packet);
+  return self->packetAddressIsShort(packet);
 }
 
 bool Mac802154_packetAddressIsLong(Mac802154 *self, const uint8_t *packet) {
-  self->packetAddressIsLong(packet);
+  return self->packetAddressIsLong(packet);
 }
 
 uint8_t Mac802154_getPacketSourceAddressSize(Mac802154 *self, const uint8_t *packet) {
-  self->getPacketSourceAddressSize(packet);
+  return self->getPacketSourceAddressSize(packet);
 }
 
 const uint8_t * Mac802154_getPacketSourceAddress(Mac802154 *self, const uint8_t *packet) {
-  self->getPacketSourceAddress(packet);
+  return self->getPacketSourceAddress(packet);
 }
 
 uint8_t Mac802154_getPacketPayloadSize(Mac802154 *self, const uint8_t *packet) {
-  self->getPacketPayloadSize(packet);
+  return self->getPacketPayloadSize(packet);
 }

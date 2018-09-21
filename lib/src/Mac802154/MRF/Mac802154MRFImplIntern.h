@@ -76,9 +76,11 @@
 static void init(Mac802154 *self, const Mac802154Config *config);
 static void destroy(Mac802154 *self);
 static void setShortDestinationAddress(Mac802154 *self, uint16_t address);
+static void setShortDestinationAddressFromArray(Mac802154 *self, const uint8_t *address);
 static void setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length);
 static void sendBlocking(Mac802154 *self);
 static void setExtendedDestinationAddress(Mac802154 *self, uint64_t address);
+static void setExtendedDestinationAddressFromArray(Mac802154 *self, const uint8_t *address);
 static void setShortSourceAddress(Mrf *impl, const uint16_t* address);
 static void setExtendedSourceAddress(Mrf *impl, const uint64_t *address);
 static void setPanId(Mrf *impl, const uint16_t *pan_id);

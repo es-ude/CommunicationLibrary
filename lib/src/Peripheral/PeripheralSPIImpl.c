@@ -243,30 +243,10 @@ void setDataOrder(volatile uint8_t *control_register, uint8_t data_order) {
   }
 }
 
-/**
- * Set a specified bit high
- *
- * uint8_t val = 0;
- * uint8_t *ptr = &val;
- * set_bit(ptr, 3);
- * TEST_ASSERT_EQUAL_UINT8(0b00001000, val);
- * @param value - Pointer to a 8 bit value
- * @param pin - The bit to set high
- */
 static void set_bit(volatile uint8_t *value, uint8_t pin) {
   *(value) |= (1 << pin);
 }
 
-/**
- * Set a specified bit low
- *
- * uint8_t val = 255;
- * uint8_t *ptr = &val;
- * unset_bit(ptr, 3);
- * TEST_ASSERT_EQUAL_UINT8(0b11110111, val);
- * @param value - Pointer to a 8 bit value
- * @param pin - The bit to set low
- */
 static void clear_bit(volatile uint8_t *value, uint8_t pin) {
   *(value) &= ~(1 << pin);
 }

@@ -255,13 +255,9 @@ void test_getPacketPayloadSize(void) {
   uint8_t frame_size = 38;
   packet[0] = frame_size;
   uint8_t header_size = 17;
-  uint8_t link_quality_field_size = 1;
-  uint8_t rssi_field_size = 1;
   uint8_t frame_check_sequence_size = 2;
   uint8_t expected_size = frame_size - header_size
-                  - frame_check_sequence_size
-                  - rssi_field_size
-                  - link_quality_field_size;
+                  - frame_check_sequence_size;
   FrameHeader802154_getHeaderSize_ExpectAndReturn((FrameHeader802154 *)(packet + 1), header_size);
   TEST_ASSERT_EQUAL_UINT8(expected_size, Mac802154_getPacketPayloadSize(mrf, packet));
 }

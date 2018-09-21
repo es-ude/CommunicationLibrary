@@ -25,6 +25,8 @@ LUFA_COPTS = [
     "-DUSE_LUFA_CONFIG_HEADER",
     "-DBOARD=BOARD_USBKEY",
     "-DF_USB=8000000UL",
+    "-MMD",
+    "-MP",
 ]
 
 filegroup(
@@ -137,7 +139,6 @@ cc_binary(
     ],
     copts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
     linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
-    nocopts = "-O2",
     deps = [
         "@LUFA//:LUFA_USB",
     ],
@@ -172,7 +173,6 @@ cc_binary(
         "src/EchoMessageBlocking.c",
         "src/config.c",
         "src/config.h",
-        ":LufaSetup",
     ],
     copts = avr_minimal_copts() + LUFA_COPTS + [
         "-Os",
@@ -180,12 +180,14 @@ cc_binary(
         "-DCEXCEPTION_T=uint8_t",
         "-DCEXCEPTION_NONE=0x00",
     ],
-    linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
-    nocopts = "-O2",
+    linkopts = avr_minimal_copts() + LUFA_COPTS + [
+        "-Os",
+        "-Xlinker --gc-sections",
+    ],
     deps = [
-        "//lib:CommunicationModuleLibForTest",
+        "//lib:CommunicationModule",
         "@CException//:CException",
-        "@LUFA//:LUFA_USB",
+        #        "@LUFA//:LUFA_USB",
     ],
 )
 

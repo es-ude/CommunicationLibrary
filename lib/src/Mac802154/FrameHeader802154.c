@@ -185,8 +185,7 @@ void FrameHeader802154_setShortDestinationAddress(FrameHeader802154 *self, uint1
   }
   uint8_t *destination_address_ptr = self->data + getDestinationAddressOffset(self);
   enablePanIdCompression(self);
-  destination_address_ptr[0] = (uint8_t) address;
-  destination_address_ptr[1] = (uint8_t) (address >> 8);
+  BitManipulation_fillByteArrayWith16BitBigEndian(destination_address_ptr, address);
   setDestinationAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
 }
 

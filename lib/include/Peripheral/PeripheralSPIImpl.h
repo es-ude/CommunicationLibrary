@@ -52,6 +52,11 @@ typedef struct SPIConfig {
 
 
 size_t PeripheralInterfaceSPI_requiredSize(void);
+
+/**
+ * The SPIConfig struct handed over to this function needs be alive as long as you
+ * are using this PeripheralInterface.
+ */
 PeripheralInterface PeripheralInterfaceSPI_createNew(uint8_t * const memory, const SPIConfig * const spiConfig);
 
 #endif //COMMUNICATIONMODULE_PERIPHERALINTERFACEIMPL_H

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <util/delay.h>
 #include "integration_tests/LUFA-Setup/Helpers.h"
-#include "lib/include/TransferLayer/PeripheralSPIImpl.h"
+#include "lib/include/Peripheral/PeripheralSPIImpl.h"
 #include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
 
 uint8_t* setup(void);

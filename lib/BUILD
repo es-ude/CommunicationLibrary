@@ -62,7 +62,7 @@ cc_library(
     copts = select({
         ":avr-config": [
             "-mmcu=$(MCU)",
-            "-O2",
+            "-Os",
         ],
         "//conditions:default": [],
     }) + [
@@ -87,7 +87,13 @@ cc_library(
     copts = select({
         ":avr-config": [
             "-mmcu=$(MCU)",
-            "-O2",
+            "-Os",
+            "-fshort-enums",
+            "-x c",
+            "-funsigned-char",
+            "-ffunction-sections",
+            "-fdata-sections",
+            "-Xlinker --gc-sections",
         ],
         "//conditions:default": [],
     }) + [

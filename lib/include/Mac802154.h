@@ -37,6 +37,12 @@ struct Mac802154Config {
   Peripheral *device;
 };
 
+/**
+ * This sets up internal fields and initializes hardware
+ * if necessary. PeripheralInterface and Peripheral handed over
+ * in the config are expected to be set up already. The Mac802154Config
+ * struct can be safely removed after the function returned.
+ */
 void Mac802154_init(Mac802154 *hardware,
                                   const Mac802154Config *config);
 

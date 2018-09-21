@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <util/delay.h>
 #include <string.h>
-#include "lib/include/TransferLayer/PeripheralSPIImpl.h"
+#include "lib/include/Peripheral/PeripheralSPIImpl.h"
 #include "integration_tests/src/config.h"
 #include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
 #include "integration_tests/LUFA-Setup/Helpers.h"
@@ -51,7 +51,8 @@ void printTxStabilizationRegister(void) {
 }
 
 int main(void){
-  setup();
+  setUpPeripheral();
+  setUpUsbSerial();
   uint8_t byte = 0xAB;
   periodicUsbTask();
   _delay_ms(2000);

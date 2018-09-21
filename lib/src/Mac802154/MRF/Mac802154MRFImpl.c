@@ -16,8 +16,10 @@ void setUpInterface(Mac802154 *interface) {
   interface->init = init;
   interface->destroy = destroy;
   interface->setShortDestinationAddress = setShortDestinationAddress;
+  interface->setShortDestinationAddressFromArray = setShortDestinationAddressFromArray;
   interface->setPayload = setPayload;
   interface->setExtendedDestinationAddress = setExtendedDestinationAddress;
+  interface->setExtendedDestinationAddressFromArray = setExtendedDestinationAddressFromArray;
   interface->sendBlocking = sendBlocking;
   interface->getReceivedPacketSize = getReceivedMessageSize;
   interface->newPacketAvailable = newMessageAvailable;
@@ -226,9 +228,7 @@ uint8_t getPacketPayloadSize(const uint8_t *packet) {
   uint8_t header_size = FrameHeader802154_getHeaderSize((FrameHeader802154 *)(packet+1));
   uint8_t payload_size = packet_size
                          - header_size
-                         - frame_check_sequence_size
-                         - rssi_field_size
-                         - link_quality_field_size;
+                         - frame_check_sequence_size;
   return payload_size;
 }
 

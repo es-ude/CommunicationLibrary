@@ -13,18 +13,6 @@ typedef struct PeripheralCallback {
   void *argument;
 } PeripheralCallback;
 
-/**
- * Datei mit ISR sollte dann wie folgt aussehen:
- *
- * PeripheralInterface *interface; // das interface zu dem der ISR gehoert, muss vom User gesetzt werden
- *
- * ISR(vect) {
- *   interface->handleInterrupt(interface);
- * }
- */
-
-
-
 void PeripheralInterface_init(PeripheralInterface self);
 
 void PeripheralInterface_configurePeripheral(PeripheralInterface self, Peripheral *device);
@@ -40,8 +28,6 @@ void PeripheralInterface_setWriteCallback(PeripheralInterface self, PeripheralCa
 void PeripheralInterface_selectPeripheral(PeripheralInterface self, Peripheral *device);
 
 void PeripheralInterface_deselectPeripheral(PeripheralInterface self, Peripheral *device);
-
-void PeripheralInterface_destroy(PeripheralInterface self);
 
 
 #endif /* PERIPHERALINTERFACE_H */

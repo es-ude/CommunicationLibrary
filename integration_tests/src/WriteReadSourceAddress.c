@@ -4,6 +4,7 @@
 #include "integration_tests/src/config.h"
 #include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
 #include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
+#include "integration_tests/LUFA-Setup/Helpers.h"
 #include <stdio.h>
 
 /**
@@ -21,7 +22,7 @@ void doEachIOByteWise(void);
 void doEachIOAsByteString(void);
 
 int main(void) {
-  setup();
+  setUpUsbSerial();
   setUpPeripheral();
 
   _delay_ms(1000);

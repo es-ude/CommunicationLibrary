@@ -3,6 +3,7 @@
 #include <avr/interrupt.h>
 #include "integration_tests/src/config.h"
 #include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
+#include "integration_tests/LUFA-Setup/Helpers.h"
 
 /*
  * This test sends one frame containing the payload 'aa'
@@ -182,7 +183,8 @@ void sendToCoordinator(void) {
   PeripheralInterface_deselectPeripheral(peripheral_interface, &mrf_spi_client);
 }
 int main(void) {
-  setup();
+  setUpPeripheral();
+  setUpUsbSerial();
   initMrf();
 
   _delay_ms(1000);

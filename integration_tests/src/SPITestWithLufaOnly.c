@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <stdint.h>
 #include <util/delay.h>
 #include "integration_tests/LUFA-Setup/Helpers.h"
 
@@ -7,6 +7,7 @@ uint8_t readByteFromShortAddressRegister(uint8_t register_address);
 void writeByteToShortRegisterAddress(uint8_t register_address, uint8_t byte);
 void convertByteToString(uint8_t byte, uint8_t *string);
 void debug(const uint8_t *string);
+void debugPrintHex(uint8_t byte);
 
 void select(void) {
   PORTB &= ~(_BV(PORTB4));

@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "Helpers.h"
 
 /*
@@ -52,6 +53,10 @@ void usbWriteString(const uint8_t *data) {
   fputs((const char*)data, &USBSerialStream);
   fflush(&USBSerialStream);
   periodicUsbTask();
+}
+
+void debug(const uint8_t *data) {
+  usbWriteString(data);
 }
 
 void periodicUsbTask(void) {
