@@ -32,8 +32,6 @@ typedef struct PeripheralSPI {
   uint8_t select_chip_pin_number;
   uint8_t clock_rate_divider;
   uint8_t data_order;
-  uint8_t clock_polarity;
-  uint8_t clock_phase;
   uint8_t idle_signal;
   uint8_t spi_mode;
 } PeripheralSPI;

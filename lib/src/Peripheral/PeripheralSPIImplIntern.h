@@ -48,6 +48,8 @@ static void setDataOrder(volatile uint8_t *control_register, uint8_t data_order)
 static void enableDoubleSpeed(volatile uint8_t *status_register);
 static void disableDoubleSpeed(volatile uint8_t *status_register);
 static void setRegisterWithBitMask(volatile uint8_t *register_ptr, uint8_t bit_mask, uint8_t value);
+static void setupMaster(PeripheralInterfaceImpl impl);
+static void tearDownMaster(PeripheralInterfaceImpl impl);
 
 static void selectPeripheral(PeripheralInterface self, Peripheral *device);
 
