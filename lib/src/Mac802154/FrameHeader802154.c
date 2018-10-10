@@ -1,4 +1,3 @@
-#include <string.h>
 #include "lib/src/BitManipulation.h"
 #include "lib/include/Mac802154.h"
 #include "lib/src/Mac802154/FrameHeader802154.h"
@@ -93,7 +92,9 @@ static void movePanId(FrameHeader802154 *self, int8_t distance);
 static void moveDestinationAddress(FrameHeader802154 *Self, int8_t distance);
 
 void FrameHeader802154_init(FrameHeader802154 *self) {
-  memset(self->data, 0, MAXIMUM_HEADER_SIZE);
+  for (uint8_t i = 0; i < MAXIMUM_HEADER_SIZE; i++) {
+    self->data[i] = 0;
+  }
   enablePanIdCompression(self);
   setDestinationAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
   setSourceAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
@@ -159,7 +160,7 @@ void FrameHeader802154_setExtendedSourceAddress(FrameHeader802154 *self, uint64_
 
 void FrameHeader802154_setShortSourceAddress(FrameHeader802154 *self, uint16_t address) {
   uint8_t *source_address = self->data + getSourceAddressOffset(self);
-  BitManipulation_fillByteArrayWith16BitBigEndian(source_address, address);
+  BitManipulation_fillByteArrayWith16BitLittleEndian(source_address, address);
   enablePanIdCompression(self);
   setSourceAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
 }
@@ -185,7 +186,7 @@ void FrameHeader802154_setShortDestinationAddress(FrameHeader802154 *self, uint1
   }
   uint8_t *destination_address_ptr = self->data + getDestinationAddressOffset(self);
   enablePanIdCompression(self);
-  BitManipulation_fillByteArrayWith16BitBigEndian(destination_address_ptr, address);
+  BitManipulation_fillByteArrayWith16BitLittleEndian(destination_address_ptr, address);
   setDestinationAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
 }
 
@@ -234,76 +235,78 @@ static bool destinationAddressIsPresent(const FrameHeader802154 *self) {
 
 
 uint8_t getSourceAddressingMode(const FrameHeader802154 *self) {
-  return BitManipulation_getByte(self->data, source_addressing_mode_bitmask, source_addressing_mode_offset);
+  return BitManipulation_getByteOnArray(self->data, source_addressing_mode_bitmask, source_addressing_mode_offset);
 }
 
 void enablePanIdCompression(FrameHeader802154 *self) {
-  BitManipulation_setBit(self->data, pan_id_compression_offset);
+  BitManipulation_setBitOnArray(self->data, pan_id_compression_offset);
 }
 
 void disablePanIdCompression(FrameHeader802154 *self) {
-  BitManipulation_clearBit(self->data, pan_id_compression_offset);
+  BitManipulation_clearBitOnArray(self->data, pan_id_compression_offset);
 }
 
 bool panIdCompressionIsEnabled(const FrameHeader802154 *self) {
-  return BitManipulation_bitIsSet(self->data, pan_id_compression_offset);
+  return BitManipulation_bitIsSetOnArray(self->data, pan_id_compression_offset);
 }
 
 void FrameHeader802154_enableSequenceNumberSuppression(FrameHeader802154 *self) {
-  BitManipulation_setBit(self->data, sequence_number_suppression_offset);
+  BitManipulation_setBitOnArray(self->data, sequence_number_suppression_offset);
 }
 
 void FrameHeader802154_disableSequenceNumberSuppression(FrameHeader802154 *self) {
-  BitManipulation_clearBit(self->data, sequence_number_suppression_offset);
+  BitManipulation_clearBitOnArray(self->data, sequence_number_suppression_offset);
 }
 
 bool sequenceNumberIsPresent(const FrameHeader802154 *self) {
-  return !BitManipulation_bitIsSet(self->data, sequence_number_suppression_offset);
+  return !BitManipulation_bitIsSetOnArray(self->data, sequence_number_suppression_offset);
 }
 
 void setFrameType(FrameHeader802154 *self, uint8_t frame_type) {
-  BitManipulation_setByte(self->data, frame_type_bitmask, 0, frame_type);
+  BitManipulation_setByteOnArray(self->data, frame_type_bitmask, 0, frame_type);
 }
 
 void setDestinationAddressingMode(FrameHeader802154 *self, uint8_t mode) {
-  BitManipulation_setByte(self->data, destination_addressing_mode_bitmask, destination_addressing_mode_offset, mode);
+  BitManipulation_setByteOnArray(self->data, destination_addressing_mode_bitmask, destination_addressing_mode_offset,
+                                 mode);
 }
 
 uint8_t getDestinationAddressingMode(const FrameHeader802154 *self) {
-  return BitManipulation_getByte(self->data, destination_addressing_mode_bitmask, destination_addressing_mode_offset);
+  return BitManipulation_getByteOnArray(self->data, destination_addressing_mode_bitmask,
+                                        destination_addressing_mode_offset);
 }
 
 void setFrameVersion(FrameHeader802154 *self, uint8_t version) {
-  BitManipulation_setByte(self->data, frame_version_bitmask, frame_version_offset, version);
+  BitManipulation_setByteOnArray(self->data, frame_version_bitmask, frame_version_offset, version);
 }
 
 void setSourceAddressingMode(FrameHeader802154 *self, uint8_t mode) {
-  BitManipulation_setByte(self->data, source_addressing_mode_bitmask, source_addressing_mode_offset, mode);
+  BitManipulation_setByteOnArray(self->data, source_addressing_mode_bitmask, source_addressing_mode_offset, mode);
 }
 
 
 void enableSecurity(FrameHeader802154 *self){
-  BitManipulation_setBit(self->data, security_enabled_offset);
+  BitManipulation_setBitOnArray(self->data, security_enabled_offset);
 }
 
 void disableSecurity(FrameHeader802154 *self) {
-  BitManipulation_clearBit(self->data, security_enabled_offset);
+  BitManipulation_clearBitOnArray(self->data, security_enabled_offset);
 }
 
 void enableFramePending(FrameHeader802154 *self) {
-  BitManipulation_setBit(self->data, frame_pending_offset);
+  BitManipulation_setBitOnArray(self->data, frame_pending_offset);
 }
 
 void disableFramePending(FrameHeader802154 *self) {
-  BitManipulation_clearBit(self->data, frame_pending_offset);
+  BitManipulation_clearBitOnArray(self->data, frame_pending_offset);
 }
 
 void enableAcknowledgementRequest(FrameHeader802154 *self){
-  BitManipulation_setBit(self->data, acknowledgement_request_offset);
+  BitManipulation_setBitOnArray(self->data, acknowledgement_request_offset);
 }
 
 void enableInformationElementPresent(FrameHeader802154 *self) {
-  BitManipulation_setBit(self->data, information_element_present_offset);
+  BitManipulation_setBitOnArray(self->data, information_element_present_offset);
 }
 
 uint8_t getDestinationAddressOffset(const FrameHeader802154 *self) {

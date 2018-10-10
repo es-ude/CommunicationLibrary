@@ -43,7 +43,7 @@ static void setClockRateDividerBitValues(volatile uint8_t *control_register, uin
 
 static void configurePeripheralNew(Peripheral *device);
 static void setClockRateDivider(PeripheralInterfaceImpl impl, uint8_t rate);
-
+static void setSPIMode(volatile uint8_t *control_register, uint8_t mode);
 static void setDataOrder(volatile uint8_t *control_register, uint8_t data_order);
 static void enableDoubleSpeed(volatile uint8_t *status_register);
 static void disableDoubleSpeed(volatile uint8_t *status_register);
@@ -64,9 +64,9 @@ static void init(PeripheralInterface self);
 
 static void releaseInterface(PeripheralInterfaceImpl impl);
 
-void setInterfaceFunctionPointers(PeripheralInterface self);
+static void setInterfaceFunctionPointers(PeripheralInterface self);
 
-void waitUntilByteTransmitted(volatile uint8_t *status_register);
+static void waitUntilByteTransmitted(volatile uint8_t *status_register);
 
 static void activateSlaveSelectLine(PeripheralSPI *spi_chip);
 
@@ -75,5 +75,5 @@ static void deactivateSlaveSelectLine(PeripheralSPI *spi_chip);
 static void setUpIOLines(const SPIConfig *config);
 
 static void setUpControlRegister(volatile uint8_t *control_register);
-
+static uint8_t transfer(PeripheralInterfaceImpl self, uint8_t byte);
 #endif //COMMUNICATIONMODULE_PERIPHERALSPIIMPLINTERN_H

@@ -6,7 +6,7 @@
 void debug(const uint8_t *msg){}
 
 void checkByteValue(uint8_t field, uint8_t field_copy, uint8_t offset, uint8_t bitmask, uint8_t value) {
-  BitManipulation_setByte(&field, bitmask, offset, value);
+  BitManipulation_setByteOnArray(&field, bitmask, offset, value);
   TEST_ASSERT_BITS(bitmask << offset, value << offset, field);
   TEST_ASSERT_BITS(~(bitmask << offset), field_copy, field);
 }
@@ -43,7 +43,7 @@ void test_getByte(void) {
   uint8_t expected_value = 0b111;
   uint8_t bitmask = 0b111;
   uint8_t offset = 4;
-  TEST_ASSERT_EQUAL_HEX8(expected_value, BitManipulation_getByte(&field, bitmask, offset));
+  TEST_ASSERT_EQUAL_HEX8(expected_value, BitManipulation_getByteOnArray(&field, bitmask, offset));
 }
 
 void test_setByteSpanningTwoArrayIndices(void) {
@@ -52,7 +52,7 @@ void test_setByteSpanningTwoArrayIndices(void) {
   uint8_t bitmask = 0xFF;
   uint8_t offset = 4;
   uint8_t value = 0xFF;
-  BitManipulation_setByte(field, bitmask, offset, value);
+  BitManipulation_setByteOnArray(field, bitmask, offset, value);
   TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, field, 2);
 }
 
@@ -61,7 +61,7 @@ void test_getByteSpanningTwoArrayIndices(void) {
   uint8_t bitmask = 0xFF;
   uint8_t offset = 4;
   uint8_t expected = 0xFF;
-  TEST_ASSERT_EQUAL_HEX8(expected, BitManipulation_getByte(field, bitmask, offset));
+  TEST_ASSERT_EQUAL_HEX8(expected, BitManipulation_getByteOnArray(field, bitmask, offset));
 }
 
 void test_getByte3(void) {
@@ -69,7 +69,7 @@ void test_getByte3(void) {
   uint8_t bitmask = 0b11;
   uint8_t offset = 14;
   uint8_t expected = ADDRESSING_MODE_SHORT_ADDRESS;
-  TEST_ASSERT_EQUAL_HEX8(expected, BitManipulation_getByte(field, bitmask, offset));
+  TEST_ASSERT_EQUAL_HEX8(expected, BitManipulation_getByteOnArray(field, bitmask, offset));
 }
 
 void test_fillArrayWith64BitLittleEndian(void) {

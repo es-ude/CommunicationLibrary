@@ -24,9 +24,10 @@ void setUpPeripheral(void) {
   PeripheralInterface_configurePeripheral(peripheral_interface, &mrf_spi_client);
 }
 
-void delay_microseconds(double microseconds) {
+// look at the avr headers again, there are functions for this
+void delay_microseconds(uint16_t microseconds) {
   while (microseconds > 0){
-    _delay_ms(1);
+    _delay_us(1);
     microseconds--;
   }
 }

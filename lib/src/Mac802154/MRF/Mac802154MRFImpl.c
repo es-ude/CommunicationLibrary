@@ -149,7 +149,6 @@ void setShortDestinationAddressFromArray(Mac802154 *self, const uint8_t *address
 }
 
 void setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length) {
-
   Mrf *impl = (Mrf *) self;
   MrfState_setPayload(&impl->state, payload, (uint8_t) payload_length);
 }

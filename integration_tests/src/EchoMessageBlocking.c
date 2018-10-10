@@ -6,6 +6,7 @@
 
 int main(void) {
   setUpPeripheral();
+
   Mac802154Config config = {
           .interface = peripheral_interface,
           .channel = 12,

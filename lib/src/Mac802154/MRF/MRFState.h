@@ -33,8 +33,11 @@ typedef struct MrfState {
   uint8_t state;
   MrfHeader header;
   const uint8_t *payload;
-  uint8_t payload_length;
 } MrfState;
+
+enum {
+  MRF_STATE_DESTINATION_ADDRESS_CHANGED = 1,
+};
 
 void MrfState_init(MrfState *mrf_state);
 void MrfState_setExtendedDestinationAddress(MrfState *mrf, uint64_t address);

@@ -7,6 +7,9 @@
 static void setWriteLongCommand(MrfIo *mrf, uint16_t address);
 static void writeBlockingWithCommand(MrfIo *mrf, const uint8_t *payload, uint8_t size);
 static void setWriteShortCommand(MrfIo *mrf, uint8_t address);
+static void setWriteLongCommand(MrfIo *mrf, uint16_t address);
+static void setReadShortCommand(MrfIo *mrf, uint8_t address);
+static void setReadLongCommand(MrfIo *mrf, uint16_t address);
 static void clearPeripheralWriteCallback(PeripheralInterface interface);
 static void clearMrfIoWriteCallback(MrfIo *mrf);
 static void callbackForDeselect(void *mrf);
@@ -47,6 +50,23 @@ void MrfIo_writeBlockingToShortAddress(MrfIo *mrf, const uint8_t *payload, uint8
   }
 }
 
+void setWriteShortCommand(MrfIo *mrf, uint8_t address) {
+  mrf->command_size = 1;
+  mrf->command[0] = MRF_writeShortCommand(address);
+}
+
+void setReadLongCommand(MrfIo *mrf, uint16_t address) {
+  mrf->command_size = 2;
+  mrf->command[0] = MRF_readLongCommandFirstByte(address);
+  mrf->command[1] = MRF_readLongCommandSecondByte(address);
+}
+
+void setReadShortCommand(MrfIo *mrf, uint8_t address) {
+  mrf->command_size = 1;
+  mrf->command[0] = MRF_readShortCommand(address);
+}
+
+
 void callbackForWritingData(void *arg) {
   MrfIo *mrf = (MrfIo *) arg;
   PeripheralCallback callback = {
@@ -85,8 +105,7 @@ void clearPeripheralWriteCallback(PeripheralInterface interface) {
 
 void MrfIo_writeNonBlockingToShortAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size, uint8_t address) {
   PeripheralInterface_selectPeripheral(mrf->interface, mrf->device);
-  mrf->command[0] = MRF_writeShortCommand(address);
-  mrf->command_size = 1;
+  setWriteShortCommand(mrf, address);
   mrf->output_buffer = payload;
   mrf->length = size;
   PeripheralCallback callback = {
@@ -98,9 +117,7 @@ void MrfIo_writeNonBlockingToShortAddress(MrfIo *mrf, const uint8_t *payload, ui
 }
 
 void MrfIo_writeNonBlockingToLongAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size, uint16_t address) {
-  mrf->command_size = 2;
-  mrf->command[0] = MRF_writeLongCommandFirstByte(address);
-  mrf->command[1] = MRF_writeLongCommandSecondByte(address);
+  setWriteLongCommand(mrf, address);
   mrf->output_buffer = payload;
   mrf->length = size;
   PeripheralInterface_selectPeripheral(mrf->interface, mrf->device);
@@ -112,10 +129,6 @@ void MrfIo_writeNonBlockingToLongAddress(MrfIo *mrf, const uint8_t *payload, uin
   PeripheralInterface_writeNonBlocking(mrf->interface, mrf->command, mrf->command_size);
 }
 
-void setWriteShortCommand(MrfIo *mrf, uint8_t address) {
-  mrf->command_size = 1;
-  mrf->command[0] = MRF_writeShortCommand(address);
-}
 
 void writeBlockingWithCommand(MrfIo *mrf, const uint8_t *payload, uint8_t size) {
   PeripheralInterface_selectPeripheral(mrf->interface, mrf->device);
@@ -124,43 +137,36 @@ void writeBlockingWithCommand(MrfIo *mrf, const uint8_t *payload, uint8_t size) 
   PeripheralInterface_deselectPeripheral(mrf->interface, mrf->device);
 }
 
+void readBlockingWithCommand(MrfIo *mrf, uint8_t *payload, uint8_t size) {
+  PeripheralInterface_selectPeripheral(mrf->interface, mrf->device);
+  PeripheralInterface_writeBlocking(mrf->interface, mrf->command, mrf->command_size);
+  PeripheralInterface_readBlocking(mrf->interface, payload, size);
+  PeripheralInterface_deselectPeripheral(mrf->interface, mrf->device);
+}
+
 void MrfIo_setWriteCallback(MrfIo *mrf, MrfIoCallback callback) {
   mrf->callback = callback;
 }
 
 void MrfIo_setControlRegister(MrfIo *mrf, uint16_t address, uint8_t value) {
-  PeripheralInterface_selectPeripheral(mrf->interface, mrf->device);
-
   if (isLongAddress(address)) {
-    uint8_t command[] = {
-            MRF_writeLongCommandFirstByte(address),
-            MRF_writeLongCommandSecondByte(address),
-    };
-    PeripheralInterface_writeBlocking(mrf->interface, command, 2);
-
-  } else {
-    uint8_t command = MRF_writeShortCommand((uint8_t) address);
-    PeripheralInterface_writeBlocking(mrf->interface, &command, 1);
+    setWriteLongCommand(mrf, address);
   }
-  PeripheralInterface_writeBlocking(mrf->interface, &value, 1);
-  PeripheralInterface_deselectPeripheral(mrf->interface, mrf->device);
+  else {
+    setWriteShortCommand(mrf, address);
+  }
+  writeBlockingWithCommand(mrf, &value, 1);
 }
 
 uint8_t MrfIo_readControlRegister(MrfIo *mrf, uint16_t address) {
-  PeripheralInterface_selectPeripheral(mrf->interface, mrf->device);
   if (isLongAddress(address)) {
-    uint8_t command[] = {
-            MRF_readLongCommandFirstByte(address),
-            MRF_readLongCommandSecondByte(address),
-    };
-    PeripheralInterface_writeBlocking(mrf->interface, command, 2);
-  } else {
-    uint8_t command = MRF_readShortCommand((uint8_t) address);
-    PeripheralInterface_writeBlocking(mrf->interface, &command, 1);
+    setReadLongCommand(mrf, address);
+  }
+  else {
+    setReadShortCommand(mrf, (uint8_t )address);
   }
   uint8_t value = 0;
-  PeripheralInterface_readBlocking(mrf->interface, &value, 1);
-  PeripheralInterface_deselectPeripheral(mrf->interface, mrf->device);
+  readBlockingWithCommand(mrf, &value, 1);
   return value;
 }
 
@@ -170,12 +176,6 @@ bool isLongAddress(uint16_t address){
 }
 
 void MrfIo_readBlockingFromLongAddress(MrfIo *mrf, uint16_t register_address, uint8_t *buffer, uint8_t length) {
-  uint8_t command[] = {
-          MRF_readLongCommandFirstByte(register_address),
-          MRF_readLongCommandSecondByte(register_address),
-  };
-  PeripheralInterface_selectPeripheral(mrf->interface, mrf->device);
-  PeripheralInterface_writeBlocking(mrf->interface, command, 2);
-  PeripheralInterface_readBlocking(mrf->interface, buffer, length);
-  PeripheralInterface_deselectPeripheral(mrf->interface, mrf->device);
+  setReadLongCommand(mrf, register_address);
+  readBlockingWithCommand(mrf, buffer, length);
 }

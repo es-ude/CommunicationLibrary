@@ -7,6 +7,7 @@
 #include "lib/include/Peripheral.h"
 
 /**
+ * \file
  * This Module allows to send, receive and inspect 802154 packets.
  * The way sending of new packets works is by setting internal fields.
  * So instead of building a new frame as a seperate data structure,
@@ -23,6 +24,90 @@
  * A packet in the context of this interface is all data that is created
  * by the hardware in the process of receiving a 802154 frame. Therefore
  * this might also include values like frame length or rssi.
+ *
+ *
+ * OPTION 1:
+ * The following example illustrates how packet reception with interrupts
+ * could be implemented.
+ * ```
+ *
+ * Mac802154 *mac;
+ *
+ * uint8_t *buffer_for_last_packet;
+ *
+ * void saveMessage(void)
+ * {
+ *      uint8_t last_packet_size = Mac802154_getLastPacketSize(mac);
+ *      buffer_for_last_packet = malloc(last_packet_size);
+ *      Mac802154_fetchPacketNonBlocking(buffer_for_last_packet, last_packet_size);
+ * }
+ *
+ * void macInterruptSetup(void)
+ * {
+ *      Mac802154_setTriggerFetchPacketCallback(mac, saveMessage);
+ *      Mac802154_setFetchPacketCompletionCallback(mac, someOtherFunction);
+ * }
+ *
+ * ISR(interrupt_triggered_by_your_hardware)
+ * {
+ *      Mac802154_handleInterrupt(mac);
+ * }
+ * ```
+ *
+ * OPTION2:
+ * ```
+ * Mac802154 *mac;
+ * uint8_t *next_packet_buffer;
+ * uint8_t *current_packet_buffer;
+ * bool new_packet = false;
+ *
+ * void macInterruptSetup(void)
+ * {
+ *      next_packet_buffer = malloc(MAX_PACKET_SIZE);
+ *      Mac802154_setPacketBuffer(mac, next_packet_buffer);
+ *      Mac802154_setFetchPacketCompletionCallback(mac, packetReceptionCompletionCallback);
+ * }
+ *
+ * void packetReceptionCompletionCallback(void)
+ * {
+ *      if (!new_packet)
+ *      {
+ *          new_packet = true;
+ *          current_packet_buffer = next_packet_buffer;
+ *          next_packet_buffer = malloc(MAX_PACKET_SIZE);
+ *          Max802154_setPacketBuffer(mac, next_packet_buffer);
+ *      }
+ * }
+ *
+ * ISR(interrupt_triggered_by_your_hardware)
+ * {
+ *      Mac802154_handleInterrupt(mac);
+ * }
+ * ```
+ *
+ * OPTION3:
+ * ```
+ * Mac802154 *mac;
+ * uint8_t *packet_buffer;
+ *
+ * void *provideMemory(size_t size)
+ * {
+ *      packet_buffer = malloc(size);
+ *      return packet_buffer;
+ * }
+ *
+ * void interruptSetup(void)
+ * {
+ *      Mac802154_setPacketMemoryAllocator(mac, provideMemory);
+ *      Mac802154_setFetchPacketCompletionCallback(mac, someOtherFunction);
+ * }
+ *
+ * ISR(interrupt_triggered_by_your_hardware)
+ * {
+ *      Mac802154_handleInterrupt(mac);
+ * }
+
+ * ```
  */
 
 typedef struct Mac802154 Mac802154;
@@ -43,25 +128,32 @@ struct Mac802154Config {
  * in the config are expected to be set up already. The Mac802154Config
  * struct can be safely removed after the function returned.
  */
-void Mac802154_init(Mac802154 *hardware,
-                                  const Mac802154Config *config);
+void Mac802154_init(Mac802154 *hardware, const Mac802154Config *config);
 
 void Mac802154_sendBlocking(Mac802154 *hardware);
 
 void Mac802154_destroy(Mac802154 *self);
 
 void Mac802154_setShortDestinationAddress(Mac802154 *self, uint16_t address);
+
+
 void Mac802154_setShortDestinationAddressFromArray(Mac802154 *self, const uint8_t *address);
 
-// sets address in big endian representation suitable for network transmission
+/**
+ * sets address in big endian representation suitable for network transmission
+*/
 void Mac802154_setExtendedDestinationAddress(Mac802154 *self, uint64_t address);
 
-// use a one-to-one copy of the specified address as destination address
-// use this function to set a previously received source address as the new destination address
+/**
+ * use a one-to-one copy of the specified address as destination address
+* use this function to set a previously received source address as the new destination address
+*/
 void Mac802154_setExtendedDestinationAddressFromArray(Mac802154 *self, const uint8_t *address);
 
-// the payload needs to be alive in memory while transmission is running
-void Mac802154_setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length);
+/**
+ * the payload needs to be alive in memory while transmission is running
+*/
+ void Mac802154_setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length);
 
 /**
  *

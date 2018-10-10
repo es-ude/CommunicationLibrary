@@ -1,4 +1,6 @@
 #include "lib/src/Peripheral/PeripheralSPIImplIntern.h"
+#include "lib/src/BitManipulation.h"
+
 
 size_t PeripheralInterfaceSPI_requiredSize(void) {
   return sizeof(struct PeripheralInterfaceImpl);
@@ -30,21 +32,21 @@ static void init(PeripheralInterface self) {
 }
 
 static void setUpControlRegister(volatile uint8_t *control_register) {
-  set_bit(control_register, spi_enable_bit);
-  set_bit(control_register, master_slave_select_bit);
+  BitManipulation_setBit(control_register, spi_enable_bit);
+  BitManipulation_setBit(control_register, master_slave_select_bit);
 }
 
 static void setUpIOLines(const SPIConfig *config) {
-  set_bit(config->io_lines_data_direction_register, config->slave_select_pin);
-  set_bit(config->io_lines_data_register, config->slave_select_pin);
-  set_bit(config->io_lines_data_direction_register, config->mosi_pin);
-  clear_bit(config->io_lines_data_direction_register, config->miso_pin);
-  set_bit(config->io_lines_data_direction_register, config->clock_pin);
+  BitManipulation_setBit(config->io_lines_data_direction_register, config->slave_select_pin);
+  BitManipulation_setBit(config->io_lines_data_register, config->slave_select_pin);
+  BitManipulation_setBit(config->io_lines_data_direction_register, config->mosi_pin);
+  BitManipulation_clearBit(config->io_lines_data_direction_register, config->miso_pin);
+  BitManipulation_setBit(config->io_lines_data_direction_register, config->clock_pin);
 }
 
 static void configurePeripheralNew(Peripheral *device) {
   PeripheralSPI *spi_chip = (PeripheralSPI *) device;
-  set_bit(spi_chip->data_direction_register, spi_chip->select_chip_pin_number);
+  BitManipulation_setBit(spi_chip->data_direction_register, spi_chip->select_chip_pin_number);
   deactivateSlaveSelectLine(spi_chip);
 }
 
@@ -73,10 +75,10 @@ void selectPeripheral(PeripheralInterface self, Peripheral *device) {
 
 void activateSlaveSelectLine(PeripheralSPI *spi_chip) {
   if (spi_chip->idle_signal == SPI_IDLE_SIGNAL_LOW) {
-    set_bit(spi_chip->data_register, spi_chip->select_chip_pin_number);
+    BitManipulation_setBit(spi_chip->data_register, spi_chip->select_chip_pin_number);
   }
   else if (spi_chip->idle_signal == SPI_IDLE_SIGNAL_HIGH) {
-    clear_bit(spi_chip->data_register, spi_chip->select_chip_pin_number);
+    BitManipulation_clearBit(spi_chip->data_register, spi_chip->select_chip_pin_number);
   }
   else {
     Throw(PERIPHERAL_SELECT_EXCEPTION);
@@ -132,10 +134,10 @@ static void deselectPeripheral(PeripheralInterface self, Peripheral *device) {
 
 static void deactivateSlaveSelectLine(PeripheralSPI *spi_chip) {
   if (spi_chip->idle_signal == SPI_IDLE_SIGNAL_LOW) {
-    clear_bit(spi_chip->data_register, spi_chip->select_chip_pin_number);
+    BitManipulation_clearBit(spi_chip->data_register, spi_chip->select_chip_pin_number);
   }
   else if (spi_chip->idle_signal == SPI_IDLE_SIGNAL_HIGH) {
-    set_bit(spi_chip->data_register, spi_chip->select_chip_pin_number);
+    BitManipulation_setBit(spi_chip->data_register, spi_chip->select_chip_pin_number);
   }
   else {
     Throw(PERIPHERAL_SELECT_EXCEPTION);
@@ -184,15 +186,15 @@ static void setClockRateDivider(PeripheralInterfaceImpl impl, uint8_t rate_divid
 
 void setClockRateDividerBitValues(volatile uint8_t *control_register, uint8_t values) {
   uint8_t bit_mask = 0b11;
-  setRegisterWithBitMask(control_register, bit_mask, values);
+  BitManipulation_setByte(control_register, bit_mask, values);
 }
 
 void enableDoubleSpeed(volatile uint8_t *status_register) {
-  set_bit(status_register, double_spi_speed_bit);
+  BitManipulation_setBit(status_register, double_spi_speed_bit);
 }
 
 void disableDoubleSpeed(volatile uint8_t *status_register) {
-  clear_bit(status_register, double_spi_speed_bit);
+  BitManipulation_clearBit(status_register, double_spi_speed_bit);
 }
 
 void setSPIMode(volatile uint8_t *control_register, uint8_t spi_mode) {
@@ -200,23 +202,23 @@ void setSPIMode(volatile uint8_t *control_register, uint8_t spi_mode) {
   void (*set_clock_phase) (volatile uint8_t *, uint8_t);
   switch(spi_mode) {
     case SPI_MODE_0:
-      set_clock_polarity = clear_bit;
-      set_clock_phase = clear_bit;
+      set_clock_polarity = BitManipulation_clearBit;
+      set_clock_phase = BitManipulation_clearBit;
       break;
 
     case SPI_MODE_1:
-      set_clock_polarity = clear_bit;
-      set_clock_phase = set_bit;
+      set_clock_polarity = BitManipulation_clearBit;
+      set_clock_phase = BitManipulation_setBit;
       break;
 
     case SPI_MODE_2:
-      set_clock_polarity = set_bit;
-      set_clock_phase = clear_bit;
+      set_clock_polarity = BitManipulation_setBit;
+      set_clock_phase = BitManipulation_clearBit;
       break;
 
     case SPI_MODE_3:
-      set_clock_polarity = set_bit;
-      set_clock_phase = set_bit;
+      set_clock_polarity = BitManipulation_setBit;
+      set_clock_phase = BitManipulation_setBit;
       break;
 
     default:
@@ -230,11 +232,11 @@ void setDataOrder(volatile uint8_t *control_register, uint8_t data_order) {
   switch (data_order) {
 
     case SPI_DATA_ORDER_LSB_FIRST:
-      set_bit(control_register, data_order_bit);
+      BitManipulation_setBit(control_register, data_order_bit);
       break;
 
     case SPI_DATA_ORDER_MSB_FIRST:
-      clear_bit(control_register, data_order_bit);
+      BitManipulation_clearBit(control_register, data_order_bit);
       break;
 
     default:
@@ -242,16 +244,3 @@ void setDataOrder(volatile uint8_t *control_register, uint8_t data_order) {
 
   }
 }
-
-static void set_bit(volatile uint8_t *value, uint8_t pin) {
-  *(value) |= (1 << pin);
-}
-
-static void clear_bit(volatile uint8_t *value, uint8_t pin) {
-  *(value) &= ~(1 << pin);
-}
-
-void setRegisterWithBitMask(volatile uint8_t *register_ptr, uint8_t bitmask, uint8_t value) {
-  *register_ptr = (~bitmask & *register_ptr) | (bitmask & value);
-}
-

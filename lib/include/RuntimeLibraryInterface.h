@@ -11,6 +11,6 @@ typedef struct MemoryManagement {
   Deallocator deallocate;
 } MemoryManagement;
 
-typedef void (*DelayFunction) (double amount);
+typedef void (*DelayFunction) (uint16_t amount);
 
 #endif /* RUNTIMELIBRARYINTERFACE_H */

@@ -145,12 +145,12 @@ void check_setControlRegister(uint16_t register_address, const uint8_t *command,
   MrfIo_setControlRegister(&mrf, register_address, value);
 }
 
-void test_setShortAddress(void){
+void test_setShortAddressRegisterValue(void){
   uint8_t command = MRF_writeShortCommand(mrf_register_software_reset);
   check_setControlRegister(mrf_register_software_reset, &command, 1);
 }
 
-void test_setLongAddress(void) {
+void test_setLongAddressRegisterValue(void) {
   uint8_t command[] = {
           MRF_writeLongCommandFirstByte(mrf_register_rf_control6),
           MRF_writeLongCommandSecondByte(mrf_register_rf_control6),
