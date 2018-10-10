@@ -2,9 +2,11 @@
 #include "lib/src/BitManipulation.h"
 
 
+
 size_t PeripheralInterfaceSPI_requiredSize(void) {
   return sizeof(struct PeripheralInterfaceImpl);
 }
+
 
 PeripheralInterface PeripheralInterfaceSPI_createNew(uint8_t *const memory, const SPIConfig *const spiConfig) {
   PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) memory;
@@ -13,6 +15,7 @@ PeripheralInterface PeripheralInterfaceSPI_createNew(uint8_t *const memory, cons
   setInterfaceFunctionPointers(&impl->interface);
   return (PeripheralInterface) impl;
 }
+
 
 void setInterfaceFunctionPointers(PeripheralInterface self) {
   self->init = init;
@@ -25,16 +28,15 @@ void setInterfaceFunctionPointers(PeripheralInterface self) {
 
 
 static void init(PeripheralInterface self) {
-  PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) self;
-  // Important: setup of the io lines has to happen before anything else
-  setUpIOLines(impl->config);
-  setUpControlRegister(impl->config->control_register);
+
 }
+
 
 static void setUpControlRegister(volatile uint8_t *control_register) {
   BitManipulation_setBit(control_register, spi_enable_bit);
   BitManipulation_setBit(control_register, master_slave_select_bit);
 }
+
 
 static void setUpIOLines(const SPIConfig *config) {
   BitManipulation_setBit(config->io_lines_data_direction_register, config->slave_select_pin);
@@ -44,20 +46,24 @@ static void setUpIOLines(const SPIConfig *config) {
   BitManipulation_setBit(config->io_lines_data_direction_register, config->clock_pin);
 }
 
+
 static void configurePeripheralNew(Peripheral *device) {
   PeripheralSPI *spi_chip = (PeripheralSPI *) device;
   BitManipulation_setBit(spi_chip->data_direction_register, spi_chip->select_chip_pin_number);
   deactivateSlaveSelectLine(spi_chip);
 }
 
+
 void selectPeripheral(PeripheralInterface self, Peripheral *device) {
-  PeripheralSPI *spi_chip = (PeripheralSPI *) device;
   PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) self;
+  PeripheralSPI *spi_chip = (PeripheralSPI *) device;
   volatile uint8_t *control_register = impl->config->control_register;
+
   bool claimed = tryToClaimInterfaceWithPeripheral(impl, spi_chip);
   if (claimed) {
     CEXCEPTION_T exception;
     Try {
+          setupMaster(impl);
           setClockRateDivider(impl, spi_chip->clock_rate_divider);
           setSPIMode(control_register, spi_chip->spi_mode);
           setDataOrder(control_register, spi_chip->data_order);
@@ -65,6 +71,7 @@ void selectPeripheral(PeripheralInterface self, Peripheral *device) {
         }
     Catch(exception) {
       releaseInterface(impl);
+      tearDownMaster(impl);
       Throw(exception);
     }
   }
@@ -72,6 +79,13 @@ void selectPeripheral(PeripheralInterface self, Peripheral *device) {
     Throw(PERIPHERAL_INTERFACE_BUSY_EXCEPTION);
   }
 }
+
+static void setupMaster(PeripheralInterfaceImpl self) {
+  // Important: setup of the io lines has to happen before anything else
+  setUpIOLines(self->config);
+  setUpControlRegister(self->config->control_register);
+}
+
 
 void activateSlaveSelectLine(PeripheralSPI *spi_chip) {
   if (spi_chip->idle_signal == SPI_IDLE_SIGNAL_LOW) {
@@ -108,6 +122,7 @@ void waitUntilByteTransmitted(volatile uint8_t *status_register) {
 }
 
 void releaseInterface(PeripheralInterfaceImpl impl) {
+  deactivateSlaveSelectLine(impl->current_peripheral);
   impl->current_peripheral = NULL;
 }
 
@@ -126,10 +141,15 @@ static void deselectPeripheral(PeripheralInterface self, Peripheral *device) {
   if (device == impl->current_peripheral) {
     deactivateSlaveSelectLine(impl->current_peripheral);
     releaseInterface(impl);
+    tearDownMaster(impl);
   }
   else {
     Throw(PERIPHERAL_INTERFACE_DESELECTED_WRONG_PERIPHERAL_EXCEPTION);
   }
+}
+
+static void tearDownMaster(PeripheralInterfaceImpl self) {
+  *self->config->control_register = 0;
 }
 
 static void deactivateSlaveSelectLine(PeripheralSPI *spi_chip) {
@@ -200,7 +220,9 @@ void disableDoubleSpeed(volatile uint8_t *status_register) {
 void setSPIMode(volatile uint8_t *control_register, uint8_t spi_mode) {
   void (*set_clock_polarity) (volatile uint8_t *, uint8_t);
   void (*set_clock_phase) (volatile uint8_t *, uint8_t);
+
   switch(spi_mode) {
+
     case SPI_MODE_0:
       set_clock_polarity = BitManipulation_clearBit;
       set_clock_phase = BitManipulation_clearBit;
