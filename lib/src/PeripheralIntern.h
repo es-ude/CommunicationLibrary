@@ -5,19 +5,24 @@
 
 struct PeripheralInterface {
   void (*init)(PeripheralInterface self);
-  void (*writeNonBlocking)(PeripheralInterface self, uint8_t *buffer, uint16_t length);
-  void (*readNonBlocking)(PeripheralInterface self, uint8_t *buffer, uint16_t length);
+
   void (*writeBlocking)(PeripheralInterface self, const uint8_t *buffer, uint16_t length);
-  void (*readBlocking)(PeripheralInterface self, uint8_t *buffer, uint16_t length);
-  void (*setReadCallback)(PeripheralInterface self, PeripheralCallback callback);
+  void (*writeNonBlocking)(PeripheralInterface self, const uint8_t *buffer, uint16_t length);
   void (*setWriteCallback)(PeripheralInterface self, PeripheralCallback callback);
-  void (*setCallbackClearFlags)(PeripheralInterface self, bool clearReadCallbackOnCall, bool clearWriteCallbackOnCall);
+  void (*resetWriteCallback) (PeripheralInterface self);
+
+  void (*readBlocking)(PeripheralInterface self, uint8_t *buffer, uint16_t length);
+  void (*readNonBlocking) (PeripheralInterface self, uint8_t *buffer, uint16_t length);
+  void (*setReadCallback) (PeripheralInterface self, PeripheralCallback callback);
+  void (*resetReadCallback) (PeripheralInterface self);
+
   void (*configurePeripheral)(Peripheral *device);
   void (*selectPeripheral)(PeripheralInterface self, Peripheral *device);
   void (*deselectPeripheral)(PeripheralInterface self, Peripheral *device);
-  bool (*isBusy)(PeripheralInterface self);
-  void (*destroy)(PeripheralInterface self);
-  void (*handleInterrupt)(void);
+
+  void (*handleWriteInterrupt)(PeripheralInterface self);
+  void (*handleReadInterrupt) (PeripheralInterface self);
+
 };
 
 #endif //COMMUNICATIONMODULE_PERIPHERALINTERN_H

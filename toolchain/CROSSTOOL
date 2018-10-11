@@ -1,4 +1,4 @@
-# This file uses the proto buffer format defined by google.
+# This file uses the proto output_buffer format defined by google.
 #   For now it contains a minimal setup for compiling with
 #   avr-gcc on a linux platform. You might have to adjust
 #   the toolpath values to point to the executables provided by

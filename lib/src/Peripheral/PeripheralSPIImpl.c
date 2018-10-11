@@ -3,15 +3,18 @@
 
 
 
-size_t PeripheralInterfaceSPI_requiredSize(void) {
+size_t PeripheralInterfaceSPI_getADTSize(void) {
   return sizeof(struct PeripheralInterfaceImpl);
 }
 
+static void emptyFunction(void *a) {}
 
 PeripheralInterface PeripheralInterfaceSPI_createNew(uint8_t *const memory, const SPIConfig *const spiConfig) {
   PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) memory;
   impl->config = spiConfig;
   impl->current_peripheral = NULL;
+  resetWriteCallback((PeripheralInterface )impl);
+  resetReadCallback((PeripheralInterface) impl);
   setInterfaceFunctionPointers(&impl->interface);
   return (PeripheralInterface) impl;
 }
@@ -22,8 +25,17 @@ void setInterfaceFunctionPointers(PeripheralInterface self) {
   self->configurePeripheral = configurePeripheralNew;
   self->selectPeripheral = selectPeripheral;
   self->deselectPeripheral = deselectPeripheral;
+
   self->writeBlocking = writeBlocking;
+  self->writeNonBlocking = writeNonBlocking;
+  self->setWriteCallback = setWriteCallback;
+  self->resetWriteCallback = resetWriteCallback;
+  self->handleWriteInterrupt = handleWriteInterrupt;
+
   self->readBlocking = readBlocking;
+  self->readNonBlocking = readNonBlocking;
+  self->setReadCallback = setReadCallback;
+  self->handleReadInterrupt = handleReadInterrupt;
 }
 
 
@@ -31,6 +43,49 @@ static void init(PeripheralInterface self) {
 
 }
 
+void
+writeNonBlocking(PeripheralInterface self, const uint8_t *buffer, uint16_t size)
+{
+  PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) self;
+  if (impl->interrupt_data.output_buffer_length > 0)
+  {
+    Throw(PERIPHERAL_INTERFACE_BUSY_EXCEPTION);
+  }
+  impl->interrupt_data.output_buffer = buffer;
+  impl->interrupt_data.output_buffer_length = size;
+  handleWriteInterrupt(self);
+}
+
+void
+handleWriteInterrupt(PeripheralInterface self)
+{
+  PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) self;
+  if (impl->interrupt_data.output_buffer_length > 0)
+  {
+    writeByteNonBlocking(impl, *impl->interrupt_data.output_buffer);
+    impl->interrupt_data.output_buffer++;
+    impl->interrupt_data.output_buffer_length--;
+  }
+  else
+  {
+    impl->interrupt_data.write_callback.function(impl->interrupt_data.write_callback.argument);
+  }
+}
+
+void
+setWriteCallback(PeripheralInterface self, PeripheralCallback callback)
+{
+  PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) self;
+  impl->interrupt_data.write_callback = callback;
+}
+
+void
+resetWriteCallback(PeripheralInterface self)
+{
+  PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) self;
+  impl->interrupt_data.write_callback.argument = NULL;
+  impl->interrupt_data.write_callback.function = emptyFunction;
+}
 
 static void setUpControlRegister(volatile uint8_t *control_register) {
   BitManipulation_setBit(control_register, spi_enable_bit);
@@ -105,6 +160,15 @@ uint8_t transfer(PeripheralInterfaceImpl self, uint8_t data) {
   return *self->config->data_register;
 }
 
+uint8_t readByteNonBlocking(PeripheralInterfaceImpl self)
+{
+  return *self->config->data_register;
+}
+
+void writeByteNonBlocking(PeripheralInterfaceImpl self, uint8_t data) {
+  *self->config->data_register = data;
+}
+
 void writeBlocking(PeripheralInterface self, const uint8_t *buffer, uint16_t length) {
   for(uint16_t i = 0; i < length; ++i) {
     transfer((PeripheralInterfaceImpl )self, buffer[i]);
@@ -114,6 +178,43 @@ void writeBlocking(PeripheralInterface self, const uint8_t *buffer, uint16_t len
 void readBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length) {
   for(uint16_t i=0; i < length; i++) {
     buffer[i] = transfer((PeripheralInterfaceImpl) self, 0);
+  }
+}
+
+void
+readNonBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length)
+{
+  PeripheralInterfaceImpl impl = (PeripheralInterface) self;
+  impl->interrupt_data.input_buffer = buffer;
+  impl->interrupt_data.input_buffer_length = length;
+  writeByteNonBlocking((PeripheralInterfaceImpl) self, 0);
+}
+
+void
+setReadCallback(PeripheralInterface self, PeripheralCallback callback)
+{
+  PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) self;
+  impl->interrupt_data.read_callback = callback;
+}
+
+void
+resetReadCallback(PeripheralInterface self)
+{
+  PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) self;
+  impl->interrupt_data.read_callback.function = emptyFunction;
+  impl->interrupt_data.read_callback.argument = NULL;
+}
+
+void
+handleReadInterrupt(PeripheralInterface self)
+{
+  PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) self;
+  *impl->interrupt_data.input_buffer = *impl->config->data_register;
+  *impl->interrupt_data.input_buffer++;
+  impl->interrupt_data.input_buffer_length--;
+  if (impl->interrupt_data.input_buffer_length == 0)
+  {
+    impl->interrupt_data.read_callback.function(impl->interrupt_data.read_callback.argument);
   }
 }
 
@@ -263,6 +364,6 @@ void setDataOrder(volatile uint8_t *control_register, uint8_t data_order) {
 
     default:
       Throw(PERIPHERAL_SELECT_EXCEPTION);
-
   }
 }
+

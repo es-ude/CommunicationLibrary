@@ -18,7 +18,7 @@ static SPIConfig spi_config = {
 PeripheralInterface peripheral_interface = NULL;
 
 void setUpPeripheral(void) {
-  peripheral_interface = malloc(PeripheralInterfaceSPI_requiredSize());
+  peripheral_interface = malloc(PeripheralInterfaceSPI_getADTSize());
   PeripheralInterfaceSPI_createNew((uint8_t *)peripheral_interface, &spi_config);
   PeripheralInterface_init(peripheral_interface);
   PeripheralInterface_configurePeripheral(peripheral_interface, &mrf_spi_client);

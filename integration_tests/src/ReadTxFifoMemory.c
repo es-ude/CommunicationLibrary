@@ -8,7 +8,7 @@
 
 
 /*
- * Current Bug is about the read write buffer. Reading/Writing one Byte
+ * Current Bug is about the read write output_buffer. Reading/Writing one Byte
  * works fine, where as reading/writing multiple bytes doesn't and yields
  * just 0s on reads from the first time on.
  * Current test setup leads to alternating output of 0x00 and 0x75.

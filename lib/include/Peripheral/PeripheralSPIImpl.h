@@ -49,7 +49,7 @@ typedef struct SPIConfig {
 } SPIConfig;
 
 
-size_t PeripheralInterfaceSPI_requiredSize(void);
+size_t PeripheralInterfaceSPI_getADTSize(void);
 
 /**
  * The SPIConfig struct handed over to this function needs be alive as long as you

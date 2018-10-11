@@ -69,7 +69,7 @@ void deselect(void) {
 uint8_t* setup(void) {
   setUpUsbSerial();
   _delay_ms(3000);
-  uint8_t *memory = malloc(PeripheralInterfaceSPI_requiredSize());
+  uint8_t *memory = malloc(PeripheralInterfaceSPI_getADTSize());
   spi_interface = PeripheralInterfaceSPI_createNew(memory, &spi_config);
   PeripheralInterface_init(spi_interface);
   PeripheralInterface_configurePeripheral(spi_interface, &spi_chip);

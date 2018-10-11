@@ -18,16 +18,19 @@
  */
 
 struct InterruptData {
-  uint8_t *buffer;
-  uint16_t length;
-  uint16_t index;
-  bool busy;
+  const uint8_t *output_buffer;
+  uint8_t *input_buffer;
+  uint16_t output_buffer_length;
+  uint16_t input_buffer_length;
+  PeripheralCallback write_callback;
+  PeripheralCallback read_callback;
 };
 
 struct PeripheralInterfaceImpl {
   struct PeripheralInterface interface;
   const SPIConfig *config;
   PeripheralSPI *current_peripheral;
+  InterruptData interrupt_data;
 };
 
 extern void debug(const uint8_t *string);
@@ -36,8 +39,16 @@ extern void debugPrintHex(uint8_t byte);
 typedef struct PeripheralInterfaceImpl *PeripheralInterfaceImpl;
 
 static void writeBlocking(PeripheralInterface self, const uint8_t *buffer, uint16_t length);
+static void writeNonBlocking(PeripheralInterface self, const uint8_t *buffer, uint16_t length);
+static void setWriteCallback(PeripheralInterface self, PeripheralCallback callback);
+static void resetWriteCallback(PeripheralInterface self);
+static void handleWriteInterrupt(PeripheralInterface self);
 
 static void readBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length);
+static void readNonBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length);
+static void setReadCallback(PeripheralInterface self, PeripheralCallback callback);
+static void resetReadCallback(PeripheralInterface self);
+static void handleReadInterrupt(PeripheralInterface self);
 
 static void setClockRateDividerBitValues(volatile uint8_t *control_register, uint8_t value);
 
@@ -47,7 +58,7 @@ static void setSPIMode(volatile uint8_t *control_register, uint8_t mode);
 static void setDataOrder(volatile uint8_t *control_register, uint8_t data_order);
 static void enableDoubleSpeed(volatile uint8_t *status_register);
 static void disableDoubleSpeed(volatile uint8_t *status_register);
-static void setRegisterWithBitMask(volatile uint8_t *register_ptr, uint8_t bit_mask, uint8_t value);
+
 static void setupMaster(PeripheralInterfaceImpl impl);
 static void tearDownMaster(PeripheralInterfaceImpl impl);
 
@@ -57,10 +68,6 @@ static void deselectPeripheral(PeripheralInterface self, Peripheral *device);
 
 // returns true on success, false otherwise
 static bool tryToClaimInterfaceWithPeripheral(PeripheralInterfaceImpl, PeripheralSPI *);
-
-static void set_bit(volatile uint8_t *field, uint8_t bit_number);
-static void clear_bit(volatile uint8_t *field, uint8_t bit_number);
-
 
 static void init(PeripheralInterface self);
 
@@ -78,4 +85,5 @@ static void setUpIOLines(const SPIConfig *config);
 
 static void setUpControlRegister(volatile uint8_t *control_register);
 static uint8_t transfer(PeripheralInterfaceImpl self, uint8_t byte);
+static void writeByteNonBlocking(PeripheralInterfaceImpl self, uint8_t byte);
 #endif //COMMUNICATIONMODULE_PERIPHERALSPIIMPLINTERN_H

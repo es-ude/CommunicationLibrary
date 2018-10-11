@@ -51,8 +51,8 @@ After the above intialization using the library should then be as easy as:
     
     // receive a message
     Message message;
-    uint8_t buffer[256];
-    message.payload = buffer;
+    uint8_t output_buffer[256];
+    message.payload = output_buffer;
     message.payload_length = 256;
     comm->receiveMessage(&message); // runs non-blocking
 
