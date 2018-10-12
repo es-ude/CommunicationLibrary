@@ -1,18 +1,15 @@
 #include <string.h>
 #include <stdlib.h>
-#include "lib/include/Mac802154MRFImpl.h"
-#include "test/Mocks/RuntimeLibraryImplMock.h"
-#include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
+#include "include/Mac802154MRFImpl.h"
+#include "src/Mac802154/MRF/MRFInternalConstants.h"
 
 #include "unity.h"
-#include "lib/src/Mac802154/MRF/MockMRFHelperFunctions.h"
-#include "lib/src/Mac802154/MRF/MockMRFState.h"
+#include "src/Mac802154/MRF/MockMRFHelperFunctions.h"
+#include "src/Mac802154/MRF/MockMRFState.h"
 #include "test/MRF/MockMac802154MRF_TestHelper.h"
-#include "lib/src/Mac802154/MRF/MockMrfIo.h"
-#include "lib/src/Mac802154/MRF/Mrf.h"
+#include "src/Mac802154/MRF/MockMrfIo.h"
+#include "src/Mac802154/MRF/Mrf.h"
 #include "test/MRF/_virtual_includes/MocklibsrcMac802154FrameHeader802154/lib/src/Mac802154/MockFrameHeader802154.h"
-
-MemoryManagement *inspected_memory;
 
 Peripheral *device;
 PeripheralInterface interface;
@@ -22,7 +19,6 @@ Mac802154Config mrf_config;
 void debug(const uint8_t *message) {}
 
 void setUp(void) {
-  inspected_memory = MemoryManagement_createMockImpl();
   mrf = malloc(Mac802154MRF_requiredSize());
   mrf_config.interface = interface;
   mrf_config.device = device;

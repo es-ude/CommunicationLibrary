@@ -26,7 +26,6 @@ generate_a_unity_test_for_every_file(
     ),
     deps = [
         "//:CommunicationModuleLibForTest",
-        "//test/Mocks:MockLibrary",
         "@CException//:CException",
         "@CMock//:CMock",
     ],

@@ -38,7 +38,6 @@ unity_test(
     ],
     deps = [
         "//:CommunicationModuleLibForTest",
-        "//test/Mocks:MockLibrary",
         "@CException//:CException",
         "@CMock//:CMock",
     ],
