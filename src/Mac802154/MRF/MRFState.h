@@ -1,7 +1,7 @@
 #ifndef COMMUNICATIONMODULE_MRFSTATE_H
 #define COMMUNICATIONMODULE_MRFSTATE_H
 
-#include "lib/src/Mac802154/FrameHeader802154.h"
+#include "src/Mac802154/FrameHeader802154.h"
 
 /**
  * This module manages the data, that needs to be

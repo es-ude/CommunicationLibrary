@@ -2,13 +2,13 @@
 #define COMMUNICATIONMODULE_MAC802154MRFIMPLINTERN_H
 
 #include <stdio.h>
-#include "lib/src/Mac802154/Mac802154.h"
-#include "lib/include/Mac802154MRFImpl.h"
-#include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
-#include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
-#include "lib/src/Mac802154/MRF/MRFState.h"
-#include "lib/src/Mac802154/MRF/MrfIo.h"
-#include "lib/src/Mac802154/MRF/Mrf.h"
+#include "src/Mac802154/Mac802154.h"
+#include "include/Mac802154MRFImpl.h"
+#include "src/Mac802154/MRF/MRFInternalConstants.h"
+#include "src/Mac802154/MRF/MRFHelperFunctions.h"
+#include "src/Mac802154/MRF/MRFState.h"
+#include "src/Mac802154/MRF/MrfIo.h"
+#include "src/Mac802154/MRF/Mrf.h"
 
 /**
  * # Data Frame Header structure #

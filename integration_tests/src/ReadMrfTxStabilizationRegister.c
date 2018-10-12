@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <util/delay.h>
 #include "integration_tests/LUFA-Setup/Helpers.h"
-#include "lib/include/Peripheral/PeripheralSPIImpl.h"
-#include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
+#include "include/Peripheral/PeripheralSPIImpl.h"
+#include "src/Mac802154/MRF/MRFInternalConstants.h"
 
 uint8_t* setup(void);
 uint8_t readByteFromShortAddressRegister(uint8_t register_address);

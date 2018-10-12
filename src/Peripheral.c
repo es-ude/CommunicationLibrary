@@ -1,4 +1,4 @@
-#include "lib/src/PeripheralIntern.h"
+#include "src/PeripheralIntern.h"
 
 void PeripheralInterface_init(PeripheralInterface self) {
   self->init(self);

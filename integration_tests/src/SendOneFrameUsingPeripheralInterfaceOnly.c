@@ -2,7 +2,7 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include "integration_tests/src/config.h"
-#include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
+#include "src/Mac802154/MRF/MRFInternalConstants.h"
 #include "integration_tests/LUFA-Setup/Helpers.h"
 
 /*

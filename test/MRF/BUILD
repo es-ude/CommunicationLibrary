@@ -16,28 +16,28 @@ load(
 
 generate_mocks_for_every_header(
     file_list = [
-        "//lib:src/Mac802154/MRF/MRFHelperFunctions.h",
-        "//lib:include/Peripheral.h",
+        "//:src/Mac802154/MRF/MRFHelperFunctions.h",
+        "//:include/Peripheral.h",
         "//test/MRF:Mac802154MRF_TestHelper.h",
-        "//lib:src/Mac802154/MRF/MRFState.h",
-        "//lib:src/Mac802154/MRF/MrfIo.h",
-        "//lib:src/Mac802154/FrameHeader802154.h",
+        "//:src/Mac802154/MRF/MRFState.h",
+        "//:src/Mac802154/MRF/MrfIo.h",
+        "//:src/Mac802154/FrameHeader802154.h",
     ],
-    deps = ["//lib:CommunicationModuleLibForTest"],
+    deps = ["//:CommunicationModuleLibForTest"],
 )
 
 unity_test(
     file_name = "Mac802154MRF_Test.c",
     mocks = [
-        "//lib:src/Mac802154/MRF/MRFHelperFunctions.h",
-        "//lib:src/Mac802154/MRF/MRFState.h",
-        "//lib:src/Mac802154/MRF/MrfIo.h",
-        "//lib:src/Mac802154/FrameHeader802154.h",
-        "//lib:include/Peripheral.h",
+        "//:src/Mac802154/MRF/MRFHelperFunctions.h",
+        "//:src/Mac802154/MRF/MRFState.h",
+        "//:src/Mac802154/MRF/MrfIo.h",
+        "//:src/Mac802154/FrameHeader802154.h",
+        "//:include/Peripheral.h",
         "//test/MRF:Mac802154MRF_TestHelper.h",
     ],
     deps = [
-        "//lib:CommunicationModuleLibForTest",
+        "//:CommunicationModuleLibForTest",
         "//test/Mocks:MockLibrary",
         "@CException//:CException",
         "@CMock//:CMock",
@@ -48,10 +48,10 @@ unity_test(
     file_name = "MrfIo_Test.c",
     mocks = [
         "//test/MRF:Mac802154MRF_TestHelper.h",
-        "//lib:include/Peripheral.h",
+        "//:include/Peripheral.h",
     ],
     deps = [
-        "//lib:CommunicationModuleLibForTest",
+        "//:CommunicationModuleLibForTest",
         "@CException//:CException",
         "@CMock//:CMock",
     ],
@@ -60,11 +60,11 @@ unity_test(
 unity_test(
     file_name = "MRFState_Test.c",
     mocks = [
-        "//lib:src/Mac802154/FrameHeader802154.h",
-        "//lib:include/Peripheral.h",
+        "//:src/Mac802154/FrameHeader802154.h",
+        "//:include/Peripheral.h",
     ],
     deps = [
-        "//lib:CommunicationModuleLibForTest",
+        "//:CommunicationModuleLibForTest",
         "@CException//:CException",
         "@CMock//:CMock",
     ],

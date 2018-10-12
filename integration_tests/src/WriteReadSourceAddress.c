@@ -2,8 +2,8 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include "integration_tests/src/config.h"
-#include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
-#include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
+#include "src/Mac802154/MRF/MRFInternalConstants.h"
+#include "src/Mac802154/MRF/MRFHelperFunctions.h"
 #include "integration_tests/LUFA-Setup/Helpers.h"
 #include <stdio.h>
 

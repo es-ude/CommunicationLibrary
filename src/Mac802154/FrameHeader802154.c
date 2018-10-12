@@ -1,6 +1,6 @@
-#include "lib/src/BitManipulation.h"
-#include "lib/include/Mac802154.h"
-#include "lib/src/Mac802154/FrameHeader802154.h"
+#include "src/BitManipulation.h"
+#include "include/Mac802154.h"
+#include "src/Mac802154/FrameHeader802154.h"
 
 
 /**

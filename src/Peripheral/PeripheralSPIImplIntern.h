@@ -2,11 +2,11 @@
 #define COMMUNICATIONMODULE_PERIPHERALSPIIMPLINTERN_H
 
 #include <stdbool.h>
-#include "lib/src/PeripheralIntern.h"
-#include "lib/include/Peripheral/PeripheralSPIImpl.h"
+#include "src/PeripheralIntern.h"
+#include "include/Peripheral/PeripheralSPIImpl.h"
 #include "CException.h"
-#include "lib/include/Exception.h"
-#include "lib/src/Peripheral/SpiPinNumbers.h"
+#include "include/Exception.h"
+#include "src/Peripheral/SpiPinNumbers.h"
 
 /**
  * \brief

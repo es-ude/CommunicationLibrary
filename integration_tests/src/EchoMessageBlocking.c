@@ -2,7 +2,7 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include "integration_tests/src/config.h"
-#include "lib/include/Mac802154MRFImpl.h"
+#include "include/Mac802154MRFImpl.h"
 
 int main(void) {
   setUpPeripheral();

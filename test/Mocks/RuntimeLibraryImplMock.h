@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "lib/include/RuntimeLibraryInterface.h"
+#include "include/RuntimeLibraryInterface.h"
 
 typedef struct MockAllocateConfig {
   size_t size_allocated;

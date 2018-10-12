@@ -1,7 +1,7 @@
 #ifndef COMMUNICATIONMODULE_PERIPHERALINTERN_H
 #define COMMUNICATIONMODULE_PERIPHERALINTERN_H
 
-#include "lib/include/Peripheral.h"
+#include "include/Peripheral.h"
 
 struct PeripheralInterface {
   void (*init)(PeripheralInterface self);

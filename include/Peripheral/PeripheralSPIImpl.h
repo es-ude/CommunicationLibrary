@@ -2,8 +2,8 @@
 #define COMMUNICATIONMODULE_PERIPHERALINTERFACEIMPL_H
 
 
-#include "lib/include/Peripheral.h"
-#include "lib/include/RuntimeLibraryInterface.h"
+#include "include/Peripheral.h"
+#include "include/RuntimeLibraryInterface.h"
 
 enum {
   SPI_DATA_ORDER_MSB_FIRST,

@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "lib/include/Peripheral.h"
+#include "include/Peripheral.h"
 
 /**
  * \file

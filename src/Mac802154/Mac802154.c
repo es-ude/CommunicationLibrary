@@ -1,4 +1,4 @@
-#include "lib/src/Mac802154/Mac802154.h"
+#include "src/Mac802154/Mac802154.h"
 
 extern void debug(uint8_t *string);
 

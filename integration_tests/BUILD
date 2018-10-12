@@ -48,7 +48,7 @@ cc_binary(
     copts = avr_minimal_copts() + LUFA_COPTS,
     linkopts = avr_minimal_copts() + LUFA_COPTS,
     deps = [
-        "//lib:CommunicationModuleLibForTest",
+        "//:CommunicationModuleLibForTest",
         "@CException//:CException",
         "@LUFA//:LUFA_USB",
     ],
@@ -94,7 +94,7 @@ cc_binary(
     linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
     nocopts = "-O2",
     deps = [
-        "//lib:CommunicationModuleLibForTest",
+        "//:CommunicationModuleLibForTest",
         "@CException//:CException",
         "@LUFA//:LUFA_USB",
     ],
@@ -116,7 +116,7 @@ cc_binary(
     ],
     linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
     deps = [
-        "//lib:CommunicationModuleLibForTest",
+        "//:CommunicationModuleLibForTest",
         "@CException//:CException",
         "@LUFA//:LUFA_USB",
     ],
@@ -161,7 +161,7 @@ cc_binary(
     linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
     nocopts = "-O2",
     deps = [
-        "//lib:CommunicationModuleLibForTest",
+        "//:CommunicationModuleLibForTest",
         "@CException//:CException",
         "@LUFA//:LUFA_USB",
     ],
@@ -185,7 +185,7 @@ cc_binary(
         "-Xlinker --gc-sections",
     ],
     deps = [
-        "//lib:CommunicationModule",
+        "//:CommunicationModule",
         "@CException//:CException",
         #        "@LUFA//:LUFA_USB",
     ],
@@ -208,7 +208,7 @@ cc_binary(
     linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
     nocopts = "-O2",
     deps = [
-        "//lib:CommunicationModuleLibForTest",
+        "//:CommunicationModuleLibForTest",
         "@CException//:CException",
         "@LUFA//:LUFA_USB",
     ],
