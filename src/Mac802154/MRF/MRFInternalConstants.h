@@ -3,7 +3,6 @@
 #define COMMUNICATIONMODULE_NETWORKHARDWAREMRFIMPL_H
 
 #include "include/Peripheral.h"
-#include "include/RuntimeLibraryInterface.h"
 
 static const uint8_t mrf_register_power_amplifier_control2 = 0x18;
 static const uint8_t mrf_register_software_reset = 0x2A;

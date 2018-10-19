@@ -10,6 +10,7 @@
 #include "src/Mac802154/MRF/MockMrfIo.h"
 #include "src/Mac802154/MRF/Mrf.h"
 #include "test/MRF/_virtual_includes/MocklibsrcMac802154FrameHeader802154/lib/src/Mac802154/MockFrameHeader802154.h"
+#include "Mac802154MRFImplIntern.h"
 
 Peripheral *device;
 PeripheralInterface interface;
@@ -42,7 +43,7 @@ void test_channelSelectionRegisterValueIsCalculatedCorrectly(void) {
 }
 
 void test_initPerformsSetupLikeShownInDatasheet(void) {
-  Mrf *impl = (Mrf *) mrf;
+  struct Mrf *impl = (struct Mrf *) mrf;
   setUpInitializationValues(&impl->io, &mrf_config);
   MrfState_init_Expect(&impl->state);
   MrfState_setPanId_Expect(&impl->state, mrf_config.pan_id);
@@ -60,7 +61,7 @@ void test_initWithDifferentConfig(void) {
   mrf_config.short_source_address = 0xFFAB;
   mrf_config.channel = 22;
   mrf_config.pan_id = 0xABCD;
-  Mrf *impl = (Mrf *) mrf;
+  struct Mrf *impl = (struct Mrf *) mrf;
 
   uint8_t extended_source_address[8];
   for (uint8_t i=0; i<8; i++) {
@@ -110,7 +111,7 @@ void setUpInitializationValues(MrfIo *impl, const Mac802154Config *config) {
 }
 
 void test_sendBlocking(void) {
-  Mrf *impl = (Mrf *) mrf;
+  struct Mrf *impl = (struct Mrf *) mrf;
   uint8_t payload[] = "hello, world!";
   uint8_t payload_length = (uint8_t) strlen((const char *) payload);
 
@@ -169,7 +170,7 @@ void test_newMessageAvailable(void) {
   uint8_t interrupt_register_value = 0;
   uint8_t error_message[32];
 
-  MrfIo *io = &((Mrf*) mrf)->io;
+  MrfIo *io = &((struct Mrf *) mrf)->io;
   // counting up to 255 seems to provoke problems with cmock
   // more than 227 calls to for the mock function don't seem possible
   for (uint16_t counter = 0; counter < 220; counter++) {

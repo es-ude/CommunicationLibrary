@@ -2,6 +2,7 @@
 #define COMMUNICATIONMODULE_MRFSTATE_H
 
 #include "src/Mac802154/FrameHeader802154.h"
+#include "src/Mac802154/MRF/MrfField.h"
 
 /**
  * This module manages the data, that needs to be
@@ -15,6 +16,14 @@
  * getNextField(). The module yields all data
  * that needs to be updated on the mrf due to
  * field changes.
+ *
+ * It is important to understand the term header is associated
+ * with different things in this context.
+ * First there is the mac header for 802.15.4 (FrameHeader802154) that is defined
+ * exactly as in the 802.15.4 specification. Additionally
+ * there is the MrfHeader below, that includes the FrameHeader802154 as well
+ * as two preceding bytes telling the Mrf chip how long the total frame and
+ * the frame header are.
  */
 
 typedef struct MrfHeader {
@@ -23,12 +32,6 @@ typedef struct MrfHeader {
   FrameHeader802154 frame_header;
 } MrfHeader;
 
-typedef struct MrfField {
-  uint8_t size;
-  uint16_t address;
-  const uint8_t *data;
-} MrfField;
-
 typedef struct MrfState {
   uint8_t state;
   MrfHeader header;
@@ -36,7 +39,12 @@ typedef struct MrfState {
 } MrfState;
 
 enum {
-  MRF_STATE_DESTINATION_ADDRESS_CHANGED = 1,
+  MRF_STATE_HEADER_LENGTH_CHANGED       = 1,
+  MRF_STATE_FRAME_LENGTH_CHANGED        = 1 << 1,
+  MRF_STATE_FRAME_CONTROL_FIELD_CHANGED = 1 << 2,
+  MRF_STATE_PAN_ID_CHANGED              = 1 << 3,
+  MRF_STATE_DESTINATION_ADDRESS_CHANGED = 1 << 4,
+  MRF_STATE_PAYLOAD_CHANGED             = 1 << 6,
 };
 
 void MrfState_init(MrfState *mrf_state);
@@ -52,10 +60,10 @@ void MrfState_setSequenceNumber(MrfState *mrf);
 void MrfState_disableSequenceNumber(MrfState *mrf);
 void MrfState_enableSequenceNumber(MrfState *mrf);
 const uint8_t *MrfState_getFullHeaderData(MrfState *mrf);
-bool MrfState_nextField(MrfState *mrf);
+bool MrfState_moveIteratorToNextField(MrfState *mrf);
+
 MrfField MrfState_getCurrentField(MrfState *mrf);
 uint8_t MrfState_getFullHeaderLength(MrfState *mrf);
-uint8_t MrfState_getCurrentFieldsOffset(MrfState *mrf);
-const uint8_t *MrfState_getCurrentFieldsData(MrfState *mrf);
+
 MrfField MrfState_getFullHeaderField(MrfState *mrf_state);
 #endif

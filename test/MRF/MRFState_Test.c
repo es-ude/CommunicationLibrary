@@ -1,7 +1,7 @@
 #include <string.h>
 #include "unity.h"
-#include "lib/src/Mac802154/MockFrameHeader802154.h"
-#include "lib/src/Mac802154/MRF/MRFState.h"
+#include "src/Mac802154/MockFrameHeader802154.h"
+#include "src/Mac802154/MRF/MRFState.h"
 
 static const uint8_t frame802_header_length = 10;
 static MrfState mrf_state;
@@ -31,19 +31,6 @@ void test_getFullSize(void) {
 
 void test_getFullSize2(void) {
   TEST_ASSERT_EQUAL_UINT8(frame802_header_length + 2, MrfState_getFullHeaderLength(&mrf_state));
-}
-
-void test_noNextField(void) {
-  TEST_ASSERT_FALSE(MrfState_nextField(&mrf_state));
-}
-
-void test_nextFieldAfterChangingShortDestinationAddress(void) {
-  FrameHeader802154_setShortDestinationAddress_Ignore();
-  FrameHeader802154_getHeaderSize_ExpectAndReturn(&mrf_state.header.frame_header, 13);
-
-  MrfState_setShortDestinationAddress(&mrf_state, 0);
-  TEST_ASSERT_TRUE(MrfState_nextField(&mrf_state));
-  TEST_ASSERT_FALSE(MrfState_nextField(&mrf_state));
 }
 
 void test_getFullHeaderData(void) {
@@ -113,7 +100,9 @@ void test_getPayload(void) {
   TEST_ASSERT_EQUAL_PTR(payload, MrfState_getPayload(&mrf_state));
 }
 
-void test_getPayloadLength(void) {
+void
+test_getPayloadLength(void)
+{
   uint8_t payload[] = "forthoseabouttorock";
   uint8_t payload_length = (uint8_t) strlen((const char*) payload);
   FrameHeader802154_getHeaderSize_IgnoreAndReturn(10);
@@ -121,7 +110,9 @@ void test_getPayloadLength(void) {
   TEST_ASSERT_EQUAL_UINT8(payload_length, MrfState_getPayloadLength(&mrf_state));
 }
 
-void test_settingShortAndThenExtendedDestinationAddressResultsInCorrectSizeChange(void) {
+void
+test_settingShortAndThenExtendedDestinationAddressResultsInCorrectSizeChange(void)
+{
   uint8_t payload[] = "some random string";
   uint8_t payload_length = (uint8_t) strlen((const char *) payload);
   uint8_t size_difference = 15;
@@ -129,5 +120,41 @@ void test_settingShortAndThenExtendedDestinationAddressResultsInCorrectSizeChang
   FrameHeader802154_setExtendedDestinationAddress_Expect(&mrf_state.header.frame_header, 0);
   MrfState_setExtendedDestinationAddress(&mrf_state, 0);
   TEST_ASSERT_EQUAL_UINT8(frame802_header_length + size_difference + 2, MrfState_getFullHeaderLength(&mrf_state));
+}
 
+void
+test_gettingFirstFieldAfterChangingDestinationAddressYieldsCompleteFrameHeader(void)
+{
+
+  MrfField expected = {
+      .address = 0,
+      .length = 77,
+      .data = MrfState_getFullHeaderData(&mrf_state),
+  };
+  FrameHeader802154_setShortDestinationAddress_Ignore();
+  FrameHeader802154_getHeaderSize_ExpectAnyArgsAndReturn(expected.length-2);
+  MrfState_setShortDestinationAddress(&mrf_state, 5);
+  TEST_ASSERT_EQUAL_UINT8(expected.address, MrfState_getCurrentField(&mrf_state).address);
+  TEST_ASSERT_EQUAL_UINT8(expected.length, MrfState_getCurrentField(&mrf_state).length);
+  TEST_ASSERT_EQUAL_PTR(expected.data, MrfState_getCurrentField(&mrf_state).data);
+}
+
+void
+test_onlyOneFieldToGetAfterChangingDestinationAddress(void)
+{
+  FrameHeader802154_setShortDestinationAddress_Ignore();
+  FrameHeader802154_getHeaderSize_IgnoreAndReturn(15);
+  uint8_t expected;
+  MrfState_setShortDestinationAddress(&mrf_state, 5);
+  MrfState_moveIteratorToNextField(&mrf_state);
+  TEST_ASSERT_FALSE(MrfState_moveIteratorToNextField(&mrf_state));
+}
+
+void
+test_twoNewFieldsAfterChangingPayload(void)
+{
+  uint8_t payload[] = "mimimi";
+  MrfState_setPayload(&mrf_state, payload, (uint8_t)strlen(payload));
+  MrfState_moveIteratorToNextField(&mrf_state);
+  TEST_ASSERT_TRUE(MrfState_moveIteratorToNextField(&mrf_state))
 }

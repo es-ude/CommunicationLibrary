@@ -83,8 +83,6 @@ static void setDestinationAddressingMode(FrameHeader802154 *self, uint8_t mode);
 static uint8_t getSourceAddressingMode(const FrameHeader802154 *self);
 static uint8_t getDestinationAddressingMode(const FrameHeader802154 *self);
 static uint8_t getAddressSize(uint8_t addressing_mode);
-static uint8_t getDestinationAddressOffset(const FrameHeader802154 *self);
-static uint8_t getSourceAddressOffset(const FrameHeader802154 *self);
 static uint8_t getPanIdOffset(const FrameHeader802154 *self);
 
 static void moveSourceAddress(FrameHeader802154 *self, int8_t distance);
@@ -149,7 +147,7 @@ uint8_t FrameHeader802154_getHeaderSize(FrameHeader802154 *self) {
 }
 
 void FrameHeader802154_setExtendedSourceAddress(FrameHeader802154 *self, uint64_t address) {
-  uint8_t *source_address = self->data + getSourceAddressOffset(self);
+  uint8_t *source_address = self->data + FrameHeader802154_getSourceAddressOffset(self);
   BitManipulation_fillByteArrayWith64BitLittleEndian(source_address, address);
   if (getDestinationAddressingMode(self) == ADDRESSING_MODE_EXTENDED_ADDRESS)
   {
@@ -159,14 +157,14 @@ void FrameHeader802154_setExtendedSourceAddress(FrameHeader802154 *self, uint64_
 }
 
 void FrameHeader802154_setShortSourceAddress(FrameHeader802154 *self, uint16_t address) {
-  uint8_t *source_address = self->data + getSourceAddressOffset(self);
+  uint8_t *source_address = self->data + FrameHeader802154_getSourceAddressOffset(self);
   BitManipulation_fillByteArrayWith16BitLittleEndian(source_address, address);
   enablePanIdCompression(self);
   setSourceAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
 }
 
 void FrameHeader802154_setExtendedDestinationAddress(FrameHeader802154 *self, uint64_t address) {
-  uint8_t *destination_address_ptr = self->data + getDestinationAddressOffset(self);
+  uint8_t *destination_address_ptr = self->data + FrameHeader802154_getDestinationAddressOffset(self);
   if (getDestinationAddressingMode(self) == ADDRESSING_MODE_SHORT_ADDRESS)
   {
     moveSourceAddress(self, getAddressSize(ADDRESSING_MODE_EXTENDED_ADDRESS) - getAddressSize(ADDRESSING_MODE_SHORT_ADDRESS));
@@ -184,7 +182,7 @@ void FrameHeader802154_setShortDestinationAddress(FrameHeader802154 *self, uint1
   {
     moveSourceAddress(self, getAddressSize(ADDRESSING_MODE_SHORT_ADDRESS) - getAddressSize(ADDRESSING_MODE_EXTENDED_ADDRESS));
   }
-  uint8_t *destination_address_ptr = self->data + getDestinationAddressOffset(self);
+  uint8_t *destination_address_ptr = self->data + FrameHeader802154_getDestinationAddressOffset(self);
   enablePanIdCompression(self);
   BitManipulation_fillByteArrayWith16BitLittleEndian(destination_address_ptr, address);
   setDestinationAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
@@ -204,7 +202,7 @@ uint8_t FrameHeader802154_getPanIdSize(const FrameHeader802154 *self) {
 }
 
 const uint8_t *FrameHeader802154_getDestinationAddressPtr(const FrameHeader802154 *self) {
-  return self->data + getDestinationAddressOffset(self);
+  return self->data + FrameHeader802154_getDestinationAddressOffset(self);
 }
 
 uint8_t getAddressSize(uint8_t addressing_mode) {
@@ -309,14 +307,14 @@ void enableInformationElementPresent(FrameHeader802154 *self) {
   BitManipulation_setBitOnArray(self->data, information_element_present_offset);
 }
 
-uint8_t getDestinationAddressOffset(const FrameHeader802154 *self) {
+uint8_t FrameHeader802154_getDestinationAddressOffset(const FrameHeader802154 *self) {
   uint8_t offset = getPanIdOffset(self);
   offset += pan_id_size;
   return offset;
 }
 
-uint8_t getSourceAddressOffset(const FrameHeader802154 *self) {
-  uint8_t offset = getDestinationAddressOffset(self);
+uint8_t FrameHeader802154_getSourceAddressOffset(const FrameHeader802154 *self) {
+  uint8_t offset = FrameHeader802154_getDestinationAddressOffset(self);
   offset += FrameHeader802154_getDestinationAddressSize(self);
   return offset;
 }
@@ -345,7 +343,7 @@ void moveRight(uint8_t *source, uint8_t number_of_elements, uint8_t distance) {
 }
 
 void moveSourceAddress(FrameHeader802154 *self, int8_t distance) {
-  uint8_t *source_address_ptr = self->data + getSourceAddressOffset(self);
+  uint8_t *source_address_ptr = self->data + FrameHeader802154_getSourceAddressOffset(self);
   uint8_t size = getAddressSize(getSourceAddressingMode(self));
   if(distance > 0)
   {
@@ -363,11 +361,11 @@ void movePanId(FrameHeader802154 *self, int8_t distance) {
 }
 
 void moveDestinationAddress(FrameHeader802154 *self, int8_t distance) {
-  uint8_t *address_ptr = self->data + getDestinationAddressOffset(self);
+  uint8_t *address_ptr = self->data + FrameHeader802154_getDestinationAddressOffset(self);
   moveSourceAddress(self, distance);
   moveRight(address_ptr, 8, distance);
 }
 
 const uint8_t *FrameHeader802154_getSourceAddressPtr(const FrameHeader802154 *self) {
-    return self->data + getSourceAddressOffset(self);
+    return self->data + FrameHeader802154_getSourceAddressOffset(self);
 }

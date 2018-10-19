@@ -85,4 +85,35 @@ static void BitManipulation_setByte(volatile uint8_t *byte_ptr, uint8_t bitmask,
   *byte_ptr = (~bitmask & *byte_ptr) | (bitmask & value);
 }
 
+static uint8_t
+BitManipulation_getFirstSetBitsOffsetFromByte(uint8_t byte)
+{
+  uint8_t offset = 8;
+  uint8_t index = 0;
+  while (index < 7 & offset == 8)
+  {
+    if (byte >> index & 1)
+    {
+      offset = index;
+    }
+  }
+  return offset;
+}
+
+static uint8_t
+BitManipulation_getLengthOfContinuousSetBitsFromByte(uint8_t byte)
+{
+  bool set_bit = false;
+  while (!set_bit)
+  {
+    set_bit = (byte >> 1) & 1 == 1;
+  }
+  uint8_t length = 0;
+  while (set_bit)
+  {
+    set_bit = (byte >> 1) & 1 == 1;
+    length++;
+  }
+  return length;
+}
 #endif //COMMUNICATIONMODULE_BITMANIPULATION_H

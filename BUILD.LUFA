@@ -52,7 +52,6 @@ config_setting(
 
 LUFA_COPTS = [
     "-Iexternal/LUFA/Demos/Device/ClassDriver/VirtualSerial/Config",
-    #    "-I./LUFA/Drivers/USB/Core/AVR8",
     "-pipe",
     "-gdwarf-2",
     "-g2",
@@ -65,7 +64,6 @@ LUFA_COPTS = [
     "-funsigned-bitfields",
     "-ffunction-sections",
     "-DARCH=ARCH_AVR8",
-    #    "-DF_CPU=8000000UL",
     "-mrelax",
     "-fno-jump-tables",
     "-x c",
@@ -73,7 +71,6 @@ LUFA_COPTS = [
     "-Wstrict-prototypes",
     "-std=gnu99",
     "-DUSE_LUFA_CONFIG_HEADER",
-    #    "-DBOARD=BOARD_USBKEY",
     "-DF_USB=8000000UL",
 ]
 

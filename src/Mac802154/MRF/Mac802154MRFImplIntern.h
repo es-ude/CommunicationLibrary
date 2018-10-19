@@ -8,7 +8,6 @@
 #include "src/Mac802154/MRF/MRFHelperFunctions.h"
 #include "src/Mac802154/MRF/MRFState.h"
 #include "src/Mac802154/MRF/MrfIo.h"
-#include "src/Mac802154/MRF/Mrf.h"
 
 /**
  * # Data Frame Header structure #
@@ -73,6 +72,15 @@
  *
  */
 
+typedef struct Mrf Mrf;
+struct Mrf {
+  struct Mac802154 mac;
+  MrfIo io;
+  void (*deallocate)(void *);
+  void (*delay_microseconds)(double);
+  MrfState state;
+};
+
 static void init(Mac802154 *self, const Mac802154Config *config);
 static void destroy(Mac802154 *self);
 static void setShortDestinationAddress(Mac802154 *self, uint16_t address);
@@ -110,5 +118,7 @@ static const uint8_t frame_length_field_size = 1;
 static const uint8_t rssi_field_size = 1;
 static const uint8_t frame_check_sequence_size = 2;
 static const uint8_t link_quality_field_size = 1;
+
+
 
 #endif //COMMUNICATIONMODULE_MAC802154MRFIMPLINTERN_H_H

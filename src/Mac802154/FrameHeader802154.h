@@ -34,6 +34,10 @@ uint8_t FrameHeader802154_getDestinationAddressSize(const FrameHeader802154 *sel
 uint8_t FrameHeader802154_getPanIdSize(const FrameHeader802154 *self);
 uint8_t FrameHeader802154_getSequenceNumberSize(const FrameHeader802154 *self);
 
+uint8_t FrameHeader802154_getDestinationAddressOffset(const FrameHeader802154 *self);
+uint8_t FrameHeader802154_getSourceAddressOffset(const FrameHeader802154 *self);
+
+
 const uint8_t *FrameHeader802154_getSequenceNumberPtr(const FrameHeader802154 *self);
 const uint8_t *FrameHeader802154_getPanIdPtr(const FrameHeader802154 *self);
 const uint8_t *FrameHeader802154_getDestinationAddressPtr(const FrameHeader802154 *self);

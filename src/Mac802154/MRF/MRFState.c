@@ -6,6 +6,7 @@ void MrfState_init(MrfState *mrf) {
   FrameHeader802154_init(&mrf->header.frame_header);
   mrf->header.frame_header_length = FrameHeader802154_getHeaderSize(&mrf->header.frame_header);
   mrf->header.frame_length = mrf->header.frame_header_length;
+  mrf->state = 0;
 }
 
 void MrfState_setShortDestinationAddress(MrfState *mrf, uint16_t address) {
@@ -27,49 +28,83 @@ void MrfState_setShortSourceAddress(MrfState *mrf, uint16_t address) {
 void MrfState_setPayload(MrfState *mrf, const uint8_t *payload, uint8_t payload_length){
   mrf->header.frame_length = payload_length + mrf->header.frame_header_length;
   mrf->payload = payload;
+  mrf->state |= MRF_STATE_FRAME_LENGTH_CHANGED | MRF_STATE_PAYLOAD_CHANGED;
 }
 
 uint8_t MrfState_getPayloadLength(MrfState *mrf) {
   return mrf->header.frame_length - mrf->header.frame_header_length;
 }
 
-void MrfState_setPanId(MrfState *mrf, uint16_t pan_id) {
+void
+MrfState_setPanId(MrfState *mrf, uint16_t pan_id)
+{
   FrameHeader802154_setPanId(&mrf->header.frame_header, pan_id);
 }
 
-uint8_t MrfState_getFullHeaderLength(MrfState *mrf) {
+uint8_t
+MrfState_getFullHeaderLength(MrfState *mrf)
+{
   return mrf->header.frame_header_length + 2;
 }
 
-const uint8_t *MrfState_getFullHeaderData(MrfState *mrf) {
+const uint8_t *
+MrfState_getFullHeaderData(MrfState *mrf)
+{
   return (uint8_t *) &mrf->header;
 }
 
-const uint8_t *MrfState_getPayload(MrfState *mrf) {
+const uint8_t *
+MrfState_getPayload(MrfState *mrf)
+{
   return mrf->payload;
 }
 
-bool MrfState_nextField(MrfState *mrf) {
-  if (mrf->state != 0)
+bool
+MrfState_moveIteratorToNextField(MrfState *mrf)
+{
+  if (mrf->state & MRF_STATE_FRAME_LENGTH_CHANGED)
   {
-    mrf->state = 0;
+    mrf->state &= ~(MRF_STATE_FRAME_LENGTH_CHANGED);
     return true;
+  }
+  else if (mrf->state & MRF_STATE_PAYLOAD_CHANGED)
+  {
+    mrf->state &= ~(MRF_STATE_PAYLOAD_CHANGED);
+    return true;
+  }
+  else
+  {
+    return false;
   }
 }
 
-MrfField MrfState_getFullHeaderField(MrfState *mrf) {
+MrfField
+MrfState_getCurrentField(MrfState *mrf)
+{
+  MrfField field;
+  field.length = MrfState_getFullHeaderLength(mrf);
+  field.data = (uint8_t *) &mrf->header;
+  field.address = 0;
+  return field;
+}
+
+MrfField
+MrfState_getFullHeaderField(MrfState *mrf)
+{
   MrfField field = {
           .address = 0,
           .data = MrfState_getFullHeaderData(mrf),
-          .size = MrfState_getFullHeaderLength(mrf),
+          .length = MrfState_getFullHeaderLength(mrf),
   };
   return field;
 }
 
-MrfField MrfState_getPayloadField(MrfState *self) {
+MrfField
+MrfState_getPayloadField(MrfState *self)
+{
   MrfField field = {
           .data = MrfState_getPayload(self),
-          .size = MrfState_getPayloadLength(self),
+          .length = MrfState_getPayloadLength(self),
           .address = MrfState_getFullHeaderLength(self),
   };
   return field;

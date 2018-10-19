@@ -3,7 +3,7 @@
 
 
 #include "include/Peripheral.h"
-#include "include/RuntimeLibraryInterface.h"
+#include <stddef.h>
 
 enum {
   SPI_DATA_ORDER_MSB_FIRST,
