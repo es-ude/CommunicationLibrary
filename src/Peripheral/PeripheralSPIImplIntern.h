@@ -20,10 +20,10 @@
 struct InterruptData {
   const uint8_t *output_buffer;
   uint8_t *input_buffer;
-  uint16_t output_buffer_length;
-  uint16_t input_buffer_length;
-  PeripheralCallback write_callback;
-  PeripheralCallback read_callback;
+  size_t output_buffer_length;
+  size_t input_buffer_length;
+  PeripheralInterface_Callback write_callback;
+  PeripheralInterface_Callback read_callback;
 };
 
 struct PeripheralInterfaceImpl {
@@ -39,14 +39,14 @@ extern void debugPrintHex(uint8_t byte);
 typedef struct PeripheralInterfaceImpl *PeripheralInterfaceImpl;
 
 static void writeBlocking(PeripheralInterface self, const uint8_t *buffer, uint16_t length);
-static void writeNonBlocking(PeripheralInterface self, const uint8_t *buffer, uint16_t length);
-static void setWriteCallback(PeripheralInterface self, PeripheralCallback callback);
+static void writeNonBlocking(PeripheralInterface self, PeripheralInterface_NonBlockingWriteContext context);
+static void setWriteCallback(PeripheralInterface self, PeripheralInterface_Callback callback);
 static void resetWriteCallback(PeripheralInterface self);
 static void handleWriteInterrupt(PeripheralInterface self);
 
 static void readBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length);
 static void readNonBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length);
-static void setReadCallback(PeripheralInterface self, PeripheralCallback callback);
+static void setReadCallback(PeripheralInterface self, PeripheralInterface_Callback callback);
 static void resetReadCallback(PeripheralInterface self);
 static void handleReadInterrupt(PeripheralInterface self);
 

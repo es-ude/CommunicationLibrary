@@ -4,9 +4,9 @@
 #include "src/Mac802154/MRF/MRFHelperFunctions.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 
-static void captureWriteCallback(PeripheralInterface *interface, PeripheralCallback callback, int number_of_calls);
+static void captureWriteCallback(PeripheralInterface *interface, PeripheralInterface_Callback callback, int number_of_calls);
 
-static PeripheralCallback last_write_callback;
+static PeripheralInterface_Callback last_write_callback;
 
 void debug(const uint8_t *message) {}
 
@@ -131,7 +131,7 @@ void test_writeNonBlockingToLongAddressTwoTimesUsingCallback(void) {
   TEST_ASSERT_TRUE(write_callback_called);
 }
 
-void captureWriteCallback(PeripheralInterface *interface, PeripheralCallback callback, int number_of_calls) {
+void captureWriteCallback(PeripheralInterface *interface, PeripheralInterface_Callback callback, int number_of_calls) {
    last_write_callback = callback;
 }
 

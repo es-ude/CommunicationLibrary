@@ -7,13 +7,11 @@ struct PeripheralInterface {
   void (*init)(PeripheralInterface self);
 
   void (*writeBlocking)(PeripheralInterface self, const uint8_t *buffer, uint16_t length);
-  void (*writeNonBlocking)(PeripheralInterface self, const uint8_t *buffer, uint16_t length);
-  void (*setWriteCallback)(PeripheralInterface self, PeripheralCallback callback);
-  void (*resetWriteCallback) (PeripheralInterface self);
+  void (*writeNonBlocking)(PeripheralInterface self, PeripheralInterface_NonBlockingWriteContext context);
 
   void (*readBlocking)(PeripheralInterface self, uint8_t *buffer, uint16_t length);
   void (*readNonBlocking) (PeripheralInterface self, uint8_t *buffer, uint16_t length);
-  void (*setReadCallback) (PeripheralInterface self, PeripheralCallback callback);
+  void (*setReadCallback) (PeripheralInterface self, PeripheralInterface_Callback callback);
   void (*resetReadCallback) (PeripheralInterface self);
 
   void (*configurePeripheral)(Peripheral *device);

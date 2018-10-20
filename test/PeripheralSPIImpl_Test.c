@@ -23,6 +23,20 @@ static PeripheralInterface interface = NULL;
 
 static bool callback_called = false;
 
+static PeripheralInterface_NonBlockingWriteContext
+createNonBlockingWriteContextWithoutCallback(uint8_t *data, size_t length)
+{
+  PeripheralInterface_NonBlockingWriteContext context = {
+      .output_buffer = data,
+      .length = length,
+      .callback = {
+          .function = NULL,
+          .argument = NULL,
+      },
+  };
+  return context;
+}
+
 static void
 stubCallback(void *arg)
 {
@@ -53,16 +67,6 @@ tearDown(void)
 {
   free(interface);
 }
-
-/**
- * TestCheckList of minimum functionality:
- * - configures the clock divider correctly
- * - configures the io line correctly
- * - configures io pin for peripheral
- * - writes correct pin for peripheral select
- * - writes correct pin for peripheral deselect
- *
- */
 
 void test_selectSetsSPIEnableBit(void) {
   CEXCEPTION_T e;
@@ -120,7 +124,15 @@ test_nonBlockingWriteTransfersFirstByte(void)
   PeripheralInterface_selectPeripheral(interface, &peripheral);
 
   uint8_t data[] = "hello";
-  PeripheralInterface_writeNonBlocking(interface, data, 5);
+  PeripheralInterface_NonBlockingWriteContext context = {
+      .length = 5,
+      .callback = {
+          .argument = NULL,
+          .function = NULL,
+      },
+      .output_buffer = data,
+  };
+  PeripheralInterface_writeNonBlocking(interface, context);
   TEST_ASSERT_EQUAL_UINT8('h', *config.data_register);
 }
 
@@ -130,8 +142,15 @@ test_handleWriteInterruptTransmitsSecondByte(void)
   PeripheralInterface_selectPeripheral(interface, &peripheral);
 
   uint8_t data[] = "abcde";
-
-  PeripheralInterface_writeNonBlocking(interface, data, 5);
+  PeripheralInterface_NonBlockingWriteContext context = {
+      .length = 5,
+      .output_buffer = data,
+      .callback = {
+          .argument = NULL,
+          .function = NULL,
+      },
+  };
+  PeripheralInterface_writeNonBlocking(interface, context);
   PeripheralInterface_handleWriteInterrupt(interface);
 
   TEST_ASSERT_EQUAL_UINT8('b', *config.data_register);
@@ -145,7 +164,16 @@ test_handleWriteInterruptTransmitsThirdByte(void)
 
   uint8_t data[] = "fghij";
 
-  PeripheralInterface_writeNonBlocking(interface, data, 5);
+  PeripheralInterface_NonBlockingWriteContext context = {
+      .length = 5,
+      .output_buffer = data,
+      .callback = {
+          .argument = NULL,
+          .function = NULL,
+      },
+  };
+
+  PeripheralInterface_writeNonBlocking(interface, context);
   PeripheralInterface_handleWriteInterrupt(interface);
   PeripheralInterface_handleWriteInterrupt(interface);
 
@@ -160,7 +188,16 @@ test_callHandleWriteInterruptTooManyTimes(void)
 
   uint8_t data[] = "fghij__";
 
-  PeripheralInterface_writeNonBlocking(interface, data, 5);
+  PeripheralInterface_NonBlockingWriteContext context = {
+      .length = 5,
+      .output_buffer = data,
+      .callback = {
+          .argument = NULL,
+          .function = NULL,
+      },
+  };
+
+  PeripheralInterface_writeNonBlocking(interface, context);
   for (uint8_t i = 0; i < 5; i++) {
     PeripheralInterface_handleWriteInterrupt(interface);
   }
@@ -174,13 +211,13 @@ test_callWriteNonBlockingWhileInterfaceIsBusy(void)
   PeripheralInterface_selectPeripheral(interface, &peripheral);
 
   uint8_t data[] = "fghij__";
-
-  PeripheralInterface_writeNonBlocking(interface, data, 5);
+  PeripheralInterface_NonBlockingWriteContext context = createNonBlockingWriteContextWithoutCallback(data, 5);
+  PeripheralInterface_writeNonBlocking(interface, context);
 
   CEXCEPTION_T e = 0;
   Try
       {
-        PeripheralInterface_writeNonBlocking(interface, data, 5);
+        PeripheralInterface_writeNonBlocking(interface, context);
       }
       Catch(e)
   {
@@ -197,12 +234,16 @@ test_callWriteNonBlockingWithCallback(void)
 
   uint8_t data[] = "fghij__";
   uint8_t arg = 13;
-  PeripheralCallback callback = {
+  PeripheralInterface_Callback callback = {
           .function = stubCallback,
           .argument = &arg,
   };
-  PeripheralInterface_setWriteCallback(interface, callback);
-  PeripheralInterface_writeNonBlocking(interface, data, 1);
+  PeripheralInterface_NonBlockingWriteContext context = {
+      .output_buffer = data,
+      .length = 1,
+      .callback = callback
+  };
+  PeripheralInterface_writeNonBlocking(interface, context);
   PeripheralInterface_handleWriteInterrupt(interface);
   TEST_ASSERT_TRUE(callback_called);
 }
@@ -230,7 +271,7 @@ test_readNonBlockingWithCallback(void)
   uint8_t buffer = 'a';
   uint8_t arg = 13;
   PeripheralInterface_readNonBlocking(interface, &buffer, 1);
-  PeripheralCallback callback = {
+  PeripheralInterface_Callback callback = {
           .function = stubCallback,
           .argument = &arg,
   };
@@ -263,7 +304,7 @@ test_callBackIsOnlyTriggeredOnReadCompletion(void)
 
   uint8_t buffer[8];
   uint8_t arg = 13;
-  PeripheralCallback callback = {
+  PeripheralInterface_Callback callback = {
           .function = stubCallback,
           .argument = &arg,
   };

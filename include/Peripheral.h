@@ -3,15 +3,30 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 typedef void Peripheral;
 typedef struct PeripheralInterface* PeripheralInterface;
 typedef struct InterruptData InterruptData;
 
-typedef struct PeripheralCallback {
+typedef struct PeripheralInterface_Callback {
   void (*function) (void *);
   void *argument;
-} PeripheralCallback;
+} PeripheralInterface_Callback;
+
+typedef struct PeripheralInterface_NonBlockingWriteContext
+{
+  PeripheralInterface_Callback callback;
+  const uint8_t *output_buffer;
+  size_t length;
+} PeripheralInterface_NonBlockingWriteContext;
+
+typedef struct PeripheralInterface_NonBlockingReadContext
+{
+  PeripheralInterface_Callback callback;
+  uint8_t *input_buffer;
+  size_t length;
+} PeripheralInterface_NonBlockingReadContext;
 
 void
 PeripheralInterface_init(PeripheralInterface self);
@@ -26,15 +41,7 @@ PeripheralInterface_writeBlocking(PeripheralInterface self,
 
 void
 PeripheralInterface_writeNonBlocking(PeripheralInterface self,
-                                     const uint8_t *buffer,
-                                     uint16_t size);
-
-void
-PeripheralInterface_setWriteCallback(PeripheralInterface self,
-                                     PeripheralCallback write_callback);
-
-void
-PeripheralInterface_resetWriteCallback(PeripheralInterface self);
+                                     PeripheralInterface_NonBlockingWriteContext context);
 
 void
 PeripheralInterface_readBlocking(PeripheralInterface self,
@@ -48,7 +55,7 @@ PeripheralInterface_readNonBlocking(PeripheralInterface self,
 
 void
 PeripheralInterface_setReadCallback(PeripheralInterface self,
-                                    PeripheralCallback callback);
+                                    PeripheralInterface_Callback callback);
 
 void
 PeripheralInterface_resetReadCallback(PeripheralInterface self);

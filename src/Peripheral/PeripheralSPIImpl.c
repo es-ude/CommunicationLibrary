@@ -28,8 +28,6 @@ void setInterfaceFunctionPointers(PeripheralInterface self) {
 
   self->writeBlocking = writeBlocking;
   self->writeNonBlocking = writeNonBlocking;
-  self->setWriteCallback = setWriteCallback;
-  self->resetWriteCallback = resetWriteCallback;
   self->handleWriteInterrupt = handleWriteInterrupt;
 
   self->readBlocking = readBlocking;
@@ -44,15 +42,17 @@ static void init(PeripheralInterface self) {
 }
 
 void
-writeNonBlocking(PeripheralInterface self, const uint8_t *buffer, uint16_t size)
+writeNonBlocking(PeripheralInterface self,
+                 PeripheralInterface_NonBlockingWriteContext context)
 {
   PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) self;
+  setWriteCallback (self, context.callback);
   if (impl->interrupt_data.output_buffer_length > 0)
   {
     Throw(PERIPHERAL_INTERFACE_BUSY_EXCEPTION);
   }
-  impl->interrupt_data.output_buffer = buffer;
-  impl->interrupt_data.output_buffer_length = size;
+  impl->interrupt_data.output_buffer = context.output_buffer;
+  impl->interrupt_data.output_buffer_length = context.length;
   handleWriteInterrupt(self);
 }
 
@@ -73,9 +73,13 @@ handleWriteInterrupt(PeripheralInterface self)
 }
 
 void
-setWriteCallback(PeripheralInterface self, PeripheralCallback callback)
+setWriteCallback(PeripheralInterface self, PeripheralInterface_Callback callback)
 {
   PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) self;
+  if (callback.function == NULL)
+    {
+      callback.function = emptyFunction;
+    }
   impl->interrupt_data.write_callback = callback;
 }
 
@@ -191,7 +195,7 @@ readNonBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length)
 }
 
 void
-setReadCallback(PeripheralInterface self, PeripheralCallback callback)
+setReadCallback(PeripheralInterface self, PeripheralInterface_Callback callback)
 {
   PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) self;
   impl->interrupt_data.read_callback = callback;
