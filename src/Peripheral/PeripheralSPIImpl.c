@@ -11,7 +11,7 @@ static void emptyFunction(void *a) {}
 
 PeripheralInterface PeripheralInterfaceSPI_createNew(uint8_t *const memory, const SPIConfig *const spiConfig) {
   PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) memory;
-  impl->config = spiConfig;
+  impl->config = *spiConfig;
   impl->current_peripheral = NULL;
   resetWriteCallback((PeripheralInterface )impl);
   resetReadCallback((PeripheralInterface) impl);
@@ -112,7 +112,7 @@ static void configurePeripheralNew(Peripheral *device) {
 void selectPeripheral(PeripheralInterface self, Peripheral *device) {
   PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) self;
   PeripheralSPI *spi_chip = (PeripheralSPI *) device;
-  volatile uint8_t *control_register = impl->config->control_register;
+  volatile uint8_t *control_register = impl->config.control_register;
 
   bool claimed = tryToClaimInterfaceWithPeripheral(impl, spi_chip);
   if (claimed) {
@@ -137,8 +137,8 @@ void selectPeripheral(PeripheralInterface self, Peripheral *device) {
 
 static void setupMaster(PeripheralInterfaceImpl self) {
   // Important: setup of the io lines has to happen before anything else
-  setUpIOLines(self->config);
-  setUpControlRegister(self->config->control_register);
+  setUpIOLines(&self->config);
+  setUpControlRegister(self->config.control_register);
 }
 
 
@@ -155,18 +155,18 @@ void activateSlaveSelectLine(PeripheralSPI *spi_chip) {
 }
 
 uint8_t transfer(PeripheralInterfaceImpl self, uint8_t data) {
-  *self->config->data_register = data;
-  waitUntilByteTransmitted(self->config->status_register);
-  return *self->config->data_register;
+  *self->config.data_register = data;
+  waitUntilByteTransmitted(self->config.status_register);
+  return *self->config.data_register;
 }
 
 uint8_t readByteNonBlocking(PeripheralInterfaceImpl self)
 {
-  return *self->config->data_register;
+  return *self->config.data_register;
 }
 
 void writeByteNonBlocking(PeripheralInterfaceImpl self, uint8_t data) {
-  *self->config->data_register = data;
+  *self->config.data_register = data;
 }
 
 void writeBlocking(PeripheralInterface self, const uint8_t *buffer, uint16_t length) {
@@ -209,7 +209,7 @@ void
 handleReadInterrupt(PeripheralInterface self)
 {
   PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) self;
-  *impl->interrupt_data.input_buffer = *impl->config->data_register;
+  *impl->interrupt_data.input_buffer = *impl->config.data_register;
   *impl->interrupt_data.input_buffer++;
   impl->interrupt_data.input_buffer_length--;
   if (impl->interrupt_data.input_buffer_length == 0)
@@ -250,7 +250,7 @@ static void deselectPeripheral(PeripheralInterface self, Peripheral *device) {
 }
 
 static void tearDownMaster(PeripheralInterfaceImpl self) {
-  *self->config->control_register = 0;
+  *self->config.control_register = 0;
 }
 
 static void deactivateSlaveSelectLine(PeripheralSPI *spi_chip) {
@@ -266,8 +266,8 @@ static void deactivateSlaveSelectLine(PeripheralSPI *spi_chip) {
 }
 
 static void setClockRateDivider(PeripheralInterfaceImpl impl, uint8_t rate_divider) {
-  volatile uint8_t *control_register = impl->config->control_register;
-  volatile uint8_t *status_register = impl->config->status_register;
+  volatile uint8_t *control_register = impl->config.control_register;
+  volatile uint8_t *status_register = impl->config.status_register;
   switch(rate_divider) {
 
     case SPI_CLOCK_RATE_DIVIDER_4:

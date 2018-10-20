@@ -1,8 +1,8 @@
 #include "unity.h"
-#include "lib/src/Mac802154/MRF/MrfIo.h"
-#include "lib/include/MockPeripheral.h"
-#include "lib/src/Mac802154/MRF/MRFHelperFunctions.h"
-#include "lib/src/Mac802154/MRF/MRFInternalConstants.h"
+#include "src/Mac802154/MRF/MrfIo.h"
+#include "include/MockPeripheral.h"
+#include "src/Mac802154/MRF/MRFHelperFunctions.h"
+#include "src/Mac802154/MRF/MRFInternalConstants.h"
 
 static void captureWriteCallback(PeripheralInterface *interface, PeripheralCallback callback, int number_of_calls);
 

@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdint.h>
 #include "src/Mac802154/MRF/MrfIo.h"

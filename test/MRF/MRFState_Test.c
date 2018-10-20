@@ -122,6 +122,17 @@ test_settingShortAndThenExtendedDestinationAddressResultsInCorrectSizeChange(voi
   TEST_ASSERT_EQUAL_UINT8(frame802_header_length + size_difference + 2, MrfState_getFullHeaderLength(&mrf_state));
 }
 
+
+#define TEST_ASSERT_EQUAL_MRF_FIELD(expected_param___, actual_param___) \
+  {\
+    MrfField expected___ = expected_param___;\
+    MrfField actual___ = actual_param___;\
+    TEST_ASSERT_EQUAL_PTR_MESSAGE(expected___.data, actual___.data, "MrfField member data differs");\
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE(expected___.length, actual___.length, "MrfField member length differs");\
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE(expected___.address, actual___.address, "MrfField member address differs");\
+  }
+
+
 void
 test_gettingFirstFieldAfterChangingDestinationAddressYieldsCompleteFrameHeader(void)
 {
@@ -134,9 +145,7 @@ test_gettingFirstFieldAfterChangingDestinationAddressYieldsCompleteFrameHeader(v
   FrameHeader802154_setShortDestinationAddress_Ignore();
   FrameHeader802154_getHeaderSize_ExpectAnyArgsAndReturn(expected.length-2);
   MrfState_setShortDestinationAddress(&mrf_state, 5);
-  TEST_ASSERT_EQUAL_UINT8(expected.address, MrfState_getCurrentField(&mrf_state).address);
-  TEST_ASSERT_EQUAL_UINT8(expected.length, MrfState_getCurrentField(&mrf_state).length);
-  TEST_ASSERT_EQUAL_PTR(expected.data, MrfState_getCurrentField(&mrf_state).data);
+  TEST_ASSERT_EQUAL_MRF_FIELD(expected, MrfState_getCurrentField(&mrf_state));
 }
 
 void
@@ -144,10 +153,37 @@ test_onlyOneFieldToGetAfterChangingDestinationAddress(void)
 {
   FrameHeader802154_setShortDestinationAddress_Ignore();
   FrameHeader802154_getHeaderSize_IgnoreAndReturn(15);
-  uint8_t expected;
   MrfState_setShortDestinationAddress(&mrf_state, 5);
   MrfState_moveIteratorToNextField(&mrf_state);
   TEST_ASSERT_FALSE(MrfState_moveIteratorToNextField(&mrf_state));
+}
+
+
+void
+checkFirstFieldAfterChangingHeaderFieldYieldsCompleteFrameHeader(void (*field_setting_function) (void))
+{
+  MrfField expected;
+  expected.address = 0;
+  expected.data = MrfState_getFullHeaderData(&mrf_state);
+  FrameHeader802154_setShortDestinationAddress_Ignore();
+  FrameHeader802154_setExtendedDestinationAddress_Ignore();
+  FrameHeader802154_setPanId_Ignore();
+  FrameHeader802154_setSequenceNumber_Ignore();
+  FrameHeader802154_getHeaderSize_ExpectAnyArgsAndReturn(expected.length-2);
+  field_setting_function();
+  TEST_ASSERT_EQUAL_MRF_FIELD(expected, MrfState_getCurrentField(&mrf_state));
+}
+
+void
+setDestinationAddress(void)
+{
+  MrfState_setShortDestinationAddress(&mrf_state, 55);
+}
+
+void
+test_one(void)
+{
+  checkFirstFieldAfterChangingHeaderFieldYieldsCompleteFrameHeader(setDestinationAddress);
 }
 
 void

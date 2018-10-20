@@ -28,7 +28,7 @@ struct InterruptData {
 
 struct PeripheralInterfaceImpl {
   struct PeripheralInterface interface;
-  const SPIConfig *config;
+  SPIConfig config;
   PeripheralSPI *current_peripheral;
   InterruptData interrupt_data;
 };
