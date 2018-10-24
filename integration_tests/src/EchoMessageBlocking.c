@@ -16,7 +16,7 @@ int main(void) {
           .device = &mrf_spi_client,
   };
   _delay_ms(1000);
-  uint8_t raw_memory[Mac802154MRF_requiredSize()];
+  uint8_t raw_memory[Mac802154MRF_getADTSize ()];
   Mac802154MRF_create(raw_memory, delay_microseconds);
   Mac802154 *mac = (Mac802154*) raw_memory;
   Mac802154_init(mac, &config);

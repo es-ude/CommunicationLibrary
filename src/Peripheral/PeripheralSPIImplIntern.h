@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include "src/PeripheralIntern.h"
-#include "include/Peripheral/PeripheralSPIImpl.h"
+#include "include/PeripheralSPIImpl.h"
 #include "CException.h"
 #include "include/Exception.h"
 #include "src/Peripheral/SpiPinNumbers.h"
@@ -29,7 +29,7 @@ struct InterruptData {
 struct PeripheralInterfaceImpl {
   struct PeripheralInterface interface;
   SPIConfig config;
-  PeripheralSPI *current_peripheral;
+  SPISlave *current_peripheral;
   InterruptData interrupt_data;
 };
 
@@ -52,7 +52,7 @@ static void handleReadInterrupt(PeripheralInterface self);
 
 static void setClockRateDividerBitValues(volatile uint8_t *control_register, uint8_t value);
 
-static void configurePeripheralNew(Peripheral *device);
+static void configurePeripheral (Peripheral *device);
 static void setClockRateDivider(PeripheralInterfaceImpl impl, uint8_t rate);
 static void setSPIMode(volatile uint8_t *control_register, uint8_t mode);
 static void setDataOrder(volatile uint8_t *control_register, uint8_t data_order);
@@ -67,7 +67,7 @@ static void selectPeripheral(PeripheralInterface self, Peripheral *device);
 static void deselectPeripheral(PeripheralInterface self, Peripheral *device);
 
 // returns true on success, false otherwise
-static bool tryToClaimInterfaceWithPeripheral(PeripheralInterfaceImpl, PeripheralSPI *);
+static bool tryToClaimInterfaceWithPeripheral(PeripheralInterfaceImpl, SPISlave *);
 
 static void init(PeripheralInterface self);
 
@@ -77,9 +77,9 @@ static void setInterfaceFunctionPointers(PeripheralInterface self);
 
 static void waitUntilByteTransmitted(volatile uint8_t *status_register);
 
-static void activateSlaveSelectLine(PeripheralSPI *spi_chip);
+static void activateSlaveSelectLine(SPISlave *spi_chip);
 
-static void deactivateSlaveSelectLine(PeripheralSPI *spi_chip);
+static void deactivateSlaveSelectLine(SPISlave *spi_chip);
 
 static void setUpIOLines(const SPIConfig *config);
 

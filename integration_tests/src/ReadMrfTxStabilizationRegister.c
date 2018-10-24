@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <util/delay.h>
 #include "integration_tests/LUFA-Setup/Helpers.h"
-#include "include/Peripheral/PeripheralSPIImpl.h"
+#include "include/PeripheralSPIImpl.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 
 uint8_t* setup(void);
@@ -21,13 +21,11 @@ static SPIConfig spi_config = {
         .control_register = &SPCR,
 };
 
-static PeripheralSPI spi_chip = {
+static SPISlave spi_chip = {
         .data_register = &PORTB,
         .data_direction_register = &DDRB,
-        .select_chip_pin_number = PORTB0,
+        .slave_select_pin_number = PORTB0,
         .data_order = SPI_DATA_ORDER_MSB_FIRST,
-        .clock_polarity = SPI_CLOCK_POLARITY_LEADING_EDGE_RISING,
-        .clock_phase = SPI_CLOCK_PHASE_LEADING_EDGE_SAMPLE,
         .spi_mode = SPI_MODE_0,
         .idle_signal = SPI_IDLE_SIGNAL_HIGH,
         .clock_rate_divider = SPI_CLOCK_RATE_DIVIDER_16,
@@ -71,8 +69,6 @@ uint8_t* setup(void) {
   _delay_ms(3000);
   uint8_t *memory = malloc(PeripheralInterfaceSPI_getADTSize());
   spi_interface = PeripheralInterfaceSPI_createNew(memory, &spi_config);
-  PeripheralInterface_init(spi_interface);
-  PeripheralInterface_configurePeripheral(spi_interface, &spi_chip);
 }
 
 uint8_t readByteFromShortAddressRegister(uint8_t register_address) {

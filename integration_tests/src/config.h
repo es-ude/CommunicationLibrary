@@ -2,10 +2,10 @@
 #define COMMUNICATIONMODULE_CONFIG_H
 
 #include "include/Mac802154.h"
-#include "include/Peripheral/PeripheralSPIImpl.h"
+#include "include/PeripheralSPIImpl.h"
 
 Mac802154 *mac802154;
-PeripheralSPI mrf_spi_client;
+SPISlave mrf_spi_client;
 PeripheralInterface peripheral_interface;
 
 void setup(void);

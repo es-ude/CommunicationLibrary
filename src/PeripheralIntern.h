@@ -14,7 +14,6 @@ struct PeripheralInterface {
   void (*setReadCallback) (PeripheralInterface self, PeripheralInterface_Callback callback);
   void (*resetReadCallback) (PeripheralInterface self);
 
-  void (*configurePeripheral)(Peripheral *device);
   void (*selectPeripheral)(PeripheralInterface self, Peripheral *device);
   void (*deselectPeripheral)(PeripheralInterface self, Peripheral *device);
 

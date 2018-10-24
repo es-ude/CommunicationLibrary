@@ -21,8 +21,6 @@ PeripheralInterface PeripheralInterfaceSPI_createNew(uint8_t *const memory, cons
 
 
 void setInterfaceFunctionPointers(PeripheralInterface self) {
-  self->init = init;
-  self->configurePeripheral = configurePeripheralNew;
   self->selectPeripheral = selectPeripheral;
   self->deselectPeripheral = deselectPeripheral;
 
@@ -34,11 +32,6 @@ void setInterfaceFunctionPointers(PeripheralInterface self) {
   self->readNonBlocking = readNonBlocking;
   self->setReadCallback = setReadCallback;
   self->handleReadInterrupt = handleReadInterrupt;
-}
-
-
-static void init(PeripheralInterface self) {
-
 }
 
 void
@@ -106,22 +99,23 @@ static void setUpIOLines(const SPIConfig *config) {
 }
 
 
-static void configurePeripheralNew(Peripheral *device) {
-  PeripheralSPI *spi_chip = (PeripheralSPI *) device;
-  BitManipulation_setBit(spi_chip->data_direction_register, spi_chip->select_chip_pin_number);
+static void configurePeripheral (Peripheral *device) {
+  SPISlave *spi_chip = (SPISlave *) device;
+  BitManipulation_setBit(spi_chip->data_direction_register, spi_chip->slave_select_pin_number);
   deactivateSlaveSelectLine(spi_chip);
 }
 
 
 void selectPeripheral(PeripheralInterface self, Peripheral *device) {
   PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) self;
-  PeripheralSPI *spi_chip = (PeripheralSPI *) device;
+  SPISlave *spi_chip = (SPISlave *) device;
   volatile uint8_t *control_register = impl->config.control_register;
 
   bool claimed = tryToClaimInterfaceWithPeripheral(impl, spi_chip);
   if (claimed) {
     CEXCEPTION_T exception;
     Try {
+          configurePeripheral (device);
           setupMaster(impl);
           setClockRateDivider(impl, spi_chip->clock_rate_divider);
           setSPIMode(control_register, spi_chip->spi_mode);
@@ -146,12 +140,12 @@ static void setupMaster(PeripheralInterfaceImpl self) {
 }
 
 
-void activateSlaveSelectLine(PeripheralSPI *spi_chip) {
+void activateSlaveSelectLine(SPISlave *spi_chip) {
   if (spi_chip->idle_signal == SPI_IDLE_SIGNAL_LOW) {
-    BitManipulation_setBit(spi_chip->data_register, spi_chip->select_chip_pin_number);
+    BitManipulation_setBit(spi_chip->data_register, spi_chip->slave_select_pin_number);
   }
   else if (spi_chip->idle_signal == SPI_IDLE_SIGNAL_HIGH) {
-    BitManipulation_clearBit(spi_chip->data_register, spi_chip->select_chip_pin_number);
+    BitManipulation_clearBit(spi_chip->data_register, spi_chip->slave_select_pin_number);
   }
   else {
     Throw(PERIPHERAL_SELECT_EXCEPTION);
@@ -231,7 +225,7 @@ void releaseInterface(PeripheralInterfaceImpl impl) {
   impl->current_peripheral = NULL;
 }
 
-static bool tryToClaimInterfaceWithPeripheral(PeripheralInterfaceImpl impl, PeripheralSPI *device) {
+static bool tryToClaimInterfaceWithPeripheral(PeripheralInterfaceImpl impl, SPISlave *device) {
   bool claimed = false;
   if (impl->current_peripheral == NULL) {
     claimed = true;
@@ -257,12 +251,12 @@ static void tearDownMaster(PeripheralInterfaceImpl self) {
   *self->config.control_register = 0;
 }
 
-static void deactivateSlaveSelectLine(PeripheralSPI *spi_chip) {
+static void deactivateSlaveSelectLine(SPISlave *spi_chip) {
   if (spi_chip->idle_signal == SPI_IDLE_SIGNAL_LOW) {
-    BitManipulation_clearBit(spi_chip->data_register, spi_chip->select_chip_pin_number);
+    BitManipulation_clearBit(spi_chip->data_register, spi_chip->slave_select_pin_number);
   }
   else if (spi_chip->idle_signal == SPI_IDLE_SIGNAL_HIGH) {
-    BitManipulation_setBit(spi_chip->data_register, spi_chip->select_chip_pin_number);
+    BitManipulation_setBit(spi_chip->data_register, spi_chip->slave_select_pin_number);
   }
   else {
     Throw(PERIPHERAL_SELECT_EXCEPTION);

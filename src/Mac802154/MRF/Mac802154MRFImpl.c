@@ -1,6 +1,6 @@
 #include "src/Mac802154/MRF/Mac802154MRFImplIntern.h"
 
-size_t Mac802154MRF_requiredSize(void) {
+size_t Mac802154MRF_getADTSize (void) {
   return sizeof(struct Mrf);
 
 }

@@ -1,93 +1,35 @@
+# CommunicationModule
+The CommunicationModule is a library aimed at 8bit-avr microcontrollers.
+The intent is to offer software support for several 802.15.4 based network chips like [MRF24J40MA](https://www.microchip.com/wwwproducts/en/MRF24J40MA)
+or the [XBee](https://www.digi.com/products/xbee-rf-solutions/2-4-ghz-modules/xbee-802-15-4#productsupport).
+To allow interaction with these chips a drivers for the respective peripheral interface (USART, SPI) are included.
 
-# Table of Contents
+## Dependencies
+The library comes with very few but essential dependencies.
+To use the precompiled library you'll need
+1. avr-gcc
+2. [CException](https://github.com/ThrowTheSwitch/CException)
 
-1.  [Communication Module](#orge040061)
-    1.  [Software Layers of the Communication Module](#org71282c4)
-    2.  [UserAPI](#org66484ae)
-        1.  [Example of an SPI Interface](#orgf479570)
+To build our library you'll have to install [Bazel](https://bazel.build) and
+create the CROSSTOOLS file to enable usage of avr-gcc. For more information on this
+see this [confluence article](http://confluence.es.uni-due.de:8090/pages/viewpage.action?pageId=23953429) .
 
+## How to use the library
+The library follows a strict separation of interfaces and implementation.
+Several different implementations of each interface may be in use at the same time
+(however keep in mind not to use the same physical ressource more than once).
+All implementation is hidden behind abstract data types. To start using a module
+you have to create the corresponding structs. To give users as much control over their memory usage as possible,
+every implementation offers two functions
 
+1. size_t InterfaceNameImplementationName_getADTSize(void);
+2. InterfaceName InterfaceName_create(InterfaceName ptr_to_memory, OptionalConfigParameters parameters);
 
-<a id="orge040061"></a>
+The create function usually also initializes the implementation, so that after
+calling it you can start using the implementation.
+For details about functions offered by the interfaces see their doxygen documentation
+or take a look at their header files.
 
-# Communication Module
-
-
-<a id="org71282c4"></a>
-
-## Software Layers of the Communication Module
-
-I propose the following Layers:
-
--   **UserAPI** (sendNonBlocking, receive, initialize necessary data structures)
--   **Mac802154** (Mrf vs XBee)
--   **Peripheral** (Usart vs SPI)
-
-For now we expose the interfaces using abstract datatypes.
-This allows us to build a "configuration tree" any way
-we need depending on the used hardware, which also enables us to use
-multiple hardware setups in parallel.
-The Tree could be created like so:
-
-    Peripheral *peripheral = Peripheral_createSPI();
-    Mac802154 *hardware = Mac802154_createMRF(peripheral);
-    CommunicationModule *comm = CommunicationModule_create(hardware);
-    
-    runYourUserCode(comm);
-
-
-<a id="org66484ae"></a>
-
-## UserAPI
-
-After the above intialization using the library should then be as easy as:
-
-    // sending a message
-    Message message;
-    message.destination.address._16bit = 42;
-    message.payload = "this is payload";
-    message.payload_length = strlen(message.payload);
-    comm->sendMessage(&message); // runs non-blocking
-    
-    // receive a message
-    Message message;
-    uint8_t output_buffer[256];
-    message.payload = output_buffer;
-    message.payload_length = 256;
-    comm->receiveMessage(&message); // runs non-blocking
-
-Isn't everything else (e.g. setting a pan id) initialization and would 
-go into the init functions as well?
-
-
-<a id="orgf479570"></a>
-
-### Example of an SPI Interface
-
-For setup of the SPI Interface let's do something like this
-
-	typedef struct SPIConfig{
-    	volatile uint8_t *ddr;
-    	volatile uint8_t *port;
-    	volatile uint8_t *spcr;
-    	volatile uint8_t *spdr;
-    	volatile uint8_t *spsr;
-    	enum sck_rate sck_rate;
-    	Allocator allocate;
-    	Deallocator deallocate;
-    	InterruptData *interruptData;
-	} SPIConfig;
-
-Then for initialization of SPI do something like
-
-
-    static PeripheralInterface *spi;
-    static MemoryManagement *dynamic_memory;
-	void setUp(){
-		dynamic_memory = MemoryManagement_createMockImpl();
-    	InterruptData *interruptData = dynamic_memory->allocate(sizeof(InterruptData));
-    	SPIConfig config = {&DDRB, &PORTB, &SPCR, &SPDR, &SPSR, f_osc, dynamic_memory->allocate, dynamic_memory->deallocate, interruptData};
-    	spi = SPI_createSPI(config);
-    }
-
-
+### Exceptions
+Instead of passing and handling error codes in long if-else statements, we use
+the CException library. However currently it is only partially used.

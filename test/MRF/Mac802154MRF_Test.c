@@ -20,7 +20,7 @@ Mac802154Config mrf_config;
 void debug(const uint8_t *message) {}
 
 void setUp(void) {
-  mrf = malloc(Mac802154MRF_requiredSize());
+  mrf = malloc(Mac802154MRF_getADTSize ());
   mrf_config.interface = interface;
   mrf_config.device = device;
   mrf_config.pan_id = 0;
