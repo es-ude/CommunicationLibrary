@@ -244,5 +244,15 @@ uint8_t getPacketSourceAddressSize(const uint8_t *packet) {
 }
 
 const uint8_t *getPacketSourceAddress(const uint8_t *packet) {
+  uint64_t address = 0;
+  const uint8_t *address_ptr = FrameHeader802154_getSourceAddressPtr((FrameHeader802154 *)(packet + 1));
+  if (packetAddressIsLong(packet))
+    {
+      address = convert64BitFromNetworkToHostByteOrder(*address_ptr);
+    }
+  else
+    {
+      address = convert16BitFromNetworkToHostByteOrder(*address_ptr);
+    }
   return FrameHeader802154_getSourceAddressPtr((FrameHeader802154 *)(packet+1));
 }

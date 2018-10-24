@@ -23,7 +23,7 @@ struct Mac802154 {
   bool (*packetAddressIsShort) (const uint8_t *packet);
   bool (*packetAddressIsExtended) (const uint8_t *packet);
   uint8_t (*getPacketSourceAddressSize) (const uint8_t *packet);
-  const uint8_t *(*getPacketSourceAddress) (const uint8_t *packet);
+  const uint64_t (*getPacketSourceAddress) (const uint8_t *packet);
 
   uint16_t (*getShortDestinationAddress) (Mac802154 *self);
   const uint8_t *(*getExtendedDestinationAddress) (Mac802154 *self);

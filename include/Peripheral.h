@@ -7,6 +7,7 @@
 #include "include/Callback.h"
 
 /*!
+ * \file Peripheral.h
  * The PeripheralInterface provides a software interface
  * for different peripheral interface drivers (USART, SPI).
  * The following example illustrates writing a string

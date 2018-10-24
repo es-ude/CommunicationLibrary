@@ -6,6 +6,18 @@
 #include <stdbool.h>
 #include "include/Peripheral.h"
 
+/*!
+ *  The Mac802154 ADT is used to send/receive/analyze
+ *  802.15.4 packages. For performance and interoperability
+ *  reasons the way message sending works is a little bit
+ *  unintuitive. To prepare a message for sending you
+ *  use several setter functions to set things like
+ *  the destination address or the payload seperately.
+ *  Once you are happy with your message setup, you can
+ *  send the frame using the Mac802154_sendBlocking() function.
+ *
+ */
+
 typedef struct Mac802154 Mac802154;
 typedef struct Mac802154Config Mac802154Config;
 
@@ -34,16 +46,26 @@ void Mac802154_setShortDestinationAddress (Mac802154 *self, uint16_t address);
 
 void Mac802154_setShortDestinationAddressFromArray (Mac802154 *self, const uint8_t *address);
 
+void Mac802154_useExtendedSourceAddress(Mac802154 *self);
+
+void Mac802154_useShortSourceAddress(Mac802154 *self);
+
+uint8_t Mac802154_getSourceAddressSize(Mac802154 *self);
+
+void Mac802154_setSequenceNumber(Mac802154 *self, uint8_t number);
+
+void Mac802154_disableSequenceNumber(Mac802154 *self);
+
+void Mac802154_disableAcknowledgements(Mac802154 *self);
+
+void Mac802154_enableAcknowledgements(Mac802154 *self);
+
+
+
 /**
  * sets address in big endian representation suitable for network transmission
 */
 void Mac802154_setExtendedDestinationAddress (Mac802154 *self, uint64_t address);
-
-/**
- * use a one-to-one copy of the specified address as destination address
-* use this function to set a previously received source address as the new destination address
-*/
-void Mac802154_setExtendedDestinationAddressFromArray (Mac802154 *self, const uint8_t *address);
 
 /**
  * the payload needs to be alive in memory while transmission is running
@@ -84,19 +106,7 @@ bool Mac802154_packetAddressIsShort (Mac802154 *self, const uint8_t *packet);
 
 bool Mac802154_packetAddressIsLong (Mac802154 *self, const uint8_t *packet);
 
-/**
- * @return The size of the source address field in byte. This should be either 0, 2 or 8.
- */
-uint8_t Mac802154_getPacketSourceAddressSize (Mac802154 *self, const uint8_t *packet);
-
-/**
- * Use this together with Mac802154_getPacketSourceAddressSize() to retrieve the source address
- * of a packet.
- * @param self
- * @param packet
- * @return Pointer to the start of the source address field
- */
-const uint8_t *Mac802154_getPacketSourceAddress (Mac802154 *self, const uint8_t *packet);
+uint64_t Mac802154_getPacketSourceAddress (Mac802154 *self, const uint8_t *packet);
 
 enum {
   FRAME_TYPE_BEACON = 0,

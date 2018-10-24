@@ -30,10 +30,6 @@ void Mac802154_setExtendedDestinationAddress(Mac802154 *self, uint64_t address) 
   self->setExtendedDestinationAddress(self, address);
 }
 
-void Mac802154_setExtendedDestinationAddressFromArray(Mac802154 *self, const uint8_t *address) {
-  self->setExtendedDestinationAddressFromArray(self, address);
-}
-
 uint8_t Mac802154_getReceivedPacketSize(Mac802154 *self) {
   return self->getReceivedPacketSize(self);
 }
@@ -62,7 +58,7 @@ uint8_t Mac802154_getPacketSourceAddressSize(Mac802154 *self, const uint8_t *pac
   return self->getPacketSourceAddressSize(packet);
 }
 
-const uint8_t * Mac802154_getPacketSourceAddress(Mac802154 *self, const uint8_t *packet) {
+const uint64_t Mac802154_getPacketSourceAddress(Mac802154 *self, const uint8_t *packet) {
   return self->getPacketSourceAddress(packet);
 }
 
