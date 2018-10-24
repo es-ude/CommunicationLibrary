@@ -10,14 +10,13 @@
 
 typedef struct MrfIo MrfIo;
 typedef struct MrfIoCallback MrfIoCallback;
-
+typedef struct  MrfIo_NonBlockingWriteContext MrfIo_NonBlockingWriteContext;
 
 
 void MrfIo_writeBlockingToLongAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size, uint16_t address);
 void MrfIo_writeBlockingToShortAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size, uint8_t address);
-void MrfIo_writeNonBlockingToLongAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size, uint16_t address);
-void MrfIo_setWriteCallback(MrfIo *mrf, MrfIoCallback callback);
-void MrfIo_writeNonBlockingToShortAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size, uint8_t address);
+void MrfIo_writeNonBlockingToLongAddress(MrfIo *mrf, MrfIo_NonBlockingWriteContext context);
+void MrfIo_writeNonBlockingToShortAddress(MrfIo *mrf, MrfIo_NonBlockingWriteContext context);
 
 /**
  * Evaluates the register address to determine if it belongs to the short or long address space of
@@ -36,6 +35,14 @@ void MrfIo_readNonBlockingFromShortAddress(MrfIo *mrf, const uint8_t *payload, u
 struct MrfIoCallback {
   void (*function) (void *arg);
   void *argument;
+};
+
+struct MrfIo_NonBlockingWriteContext
+{
+  MrfIoCallback callback;
+  const uint8_t *output_buffer;
+  uint8_t length;
+  uint16_t address;
 };
 
 struct MrfIo {
