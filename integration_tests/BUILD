@@ -177,6 +177,8 @@ cc_binary(
     copts = avr_minimal_copts() + LUFA_COPTS + [
         "-Os",
         "-include stdint.h",
+        "-fdata-sections",
+        "-ffunction-sections",
         "-DCEXCEPTION_T=uint8_t",
         "-DCEXCEPTION_NONE=0x00",
     ],

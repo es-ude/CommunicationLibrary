@@ -4,6 +4,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+static bool BitManipulation_platformIsBigEndian(void) {
+  uint16_t value = 1;
+  uint8_t *ptr = (uint8_t*) &value;
+  return ptr[0] == 1;
+}
+
 /**
  *
  * @param field pointer to a byte array
@@ -57,20 +63,80 @@ static bool BitManipulation_bitIsSetOnArray(volatile const uint8_t *field, uint8
   return ((field[byte_index] >> local_offset) & 1) == 1;
 }
 
-static void BitManipulation_fillByteArrayWith64BitLittleEndian(volatile uint8_t *array, uint64_t value) {
-  for (uint8_t index = 0; index < 8; index++)
-  {
-    *array = (uint8_t) (value >> index * 8);
-    array++;
-  }
+static void
+BitManipulation_fillByteArrayWith64BitBigEndian(volatile uint8_t *array, uint64_t value)
+{
+  uint8_t *value_ptr = (uint8_t *) &value;
+  if (BitManipulation_platformIsBigEndian())
+    {
+      for (uint8_t i=8; i > 0; i--)
+        {
+          array[i-1] = value_ptr[i-1];
+        }
+    }
+  else
+    {
+      for (uint8_t i=8; i > 0; i--)
+        {
+          array[i-1] = value_ptr[8-(i-1)];
+        }
+    }
 }
 
-static void BitManipulation_fillByteArrayWith16BitLittleEndian(volatile uint8_t *array, uint16_t value) {
-  for (uint8_t index = 0; index < 2; index++)
-  {
-    *array = (uint8_t) (value >> index * 8);
-    array++;
-  }
+static void
+BitManipulation_fillByteArrayWith16BitBigEndian(volatile uint8_t *array, uint16_t value)
+{
+  uint8_t *value_ptr = (uint8_t *) &value;
+  if (BitManipulation_platformIsBigEndian())
+    {
+      for (uint8_t i = 2; i > 0; i--)
+        {
+          array[i - 1] = value_ptr[i - 1];
+        }
+    }
+  else
+    {
+      for (uint8_t i = 2; i > 0; i--)
+        {
+          array[i - 1] = value_ptr[8 - (i - 1)];
+        }
+    }
+}
+
+static uint16_t BitManipulation_get16BitFromBigEndianByteArray(volatile const uint8_t *array) {
+  uint16_t value;
+  uint8_t *value_ptr = (uint8_t *) &value;
+  if (BitManipulation_platformIsBigEndian())
+    {
+      value_ptr[0] = array[0];
+      value_ptr[1] = array[1];
+    }
+  else
+    {
+      value_ptr[0] = array[1];
+      value_ptr[1] = array[0];
+    }
+  return value;
+}
+
+static uint64_t BitManipulation_get64BitFromBigEndianByteArray(volatile const uint8_t *array) {
+  uint64_t value;
+  uint8_t *value_ptr = (uint8_t *) &value;
+  if (BitManipulation_platformIsBigEndian())
+    {
+      for (uint8_t i = 8; i > 0; i--)
+        {
+          value_ptr[i - 1] = array[i - 1];
+        }
+    }
+  else
+    {
+      for (uint8_t i = 8; i > 0; i--)
+        {
+          value_ptr[i - 1] = array[8 - (i - 1)];
+        }
+    }
+  return value;
 }
 
 static void BitManipulation_clearBit(volatile uint8_t *byte_ptr, uint8_t offset) {
@@ -85,12 +151,14 @@ static void BitManipulation_setByte(volatile uint8_t *byte_ptr, uint8_t bitmask,
   *byte_ptr = (~bitmask & *byte_ptr) | (bitmask & value);
 }
 
+
+
 static uint8_t
 BitManipulation_getFirstSetBitsOffsetFromByte(uint8_t byte)
 {
   uint8_t offset = 8;
   uint8_t index = 0;
-  while (index < 7 & offset == 8)
+  while (index < 7 && offset == 8)
   {
     if (byte >> index & 1)
     {
@@ -106,12 +174,12 @@ BitManipulation_getLengthOfContinuousSetBitsFromByte(uint8_t byte)
   bool set_bit = false;
   while (!set_bit)
   {
-    set_bit = (byte >> 1) & 1 == 1;
+    set_bit = ((byte >> 1) & 1) == 1;
   }
   uint8_t length = 0;
   while (set_bit)
   {
-    set_bit = (byte >> 1) & 1 == 1;
+    set_bit = ((byte >> 1) & 1) == 1;
     length++;
   }
   return length;

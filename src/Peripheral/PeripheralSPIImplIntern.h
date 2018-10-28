@@ -17,6 +17,8 @@
  *   - these registers behave the same across all our platforms
  */
 
+typedef struct InterruptData InterruptData;
+
 struct InterruptData {
   const uint8_t *output_buffer;
   uint8_t *input_buffer;
@@ -68,8 +70,6 @@ static void deselectPeripheral(PeripheralInterface self, Peripheral *device);
 
 // returns true on success, false otherwise
 static bool tryToClaimInterfaceWithPeripheral(PeripheralInterfaceImpl, SPISlave *);
-
-static void init(PeripheralInterface self);
 
 static void releaseInterface(PeripheralInterfaceImpl impl);
 

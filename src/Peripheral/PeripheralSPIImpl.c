@@ -91,11 +91,10 @@ static void setUpControlRegister(volatile uint8_t *control_register) {
 
 
 static void setUpIOLines(const SPIConfig *config) {
-  BitManipulation_setBit(config->io_lines_data_direction_register, config->slave_select_pin);
-  BitManipulation_setBit(config->io_lines_data_register, config->slave_select_pin);
-  BitManipulation_setBit(config->io_lines_data_direction_register, config->mosi_pin);
-  BitManipulation_clearBit(config->io_lines_data_direction_register, config->miso_pin);
-  BitManipulation_setBit(config->io_lines_data_direction_register, config->clock_pin);
+  *config->io_lines_data_direction_register |= config->slave_select_pin |
+                                              config->miso_pin |
+                                              config->clock_pin;
+  *config->io_lines_data_register |= config->miso_pin;
 }
 
 
@@ -182,10 +181,10 @@ void readBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length) {
 void
 readNonBlocking(PeripheralInterface self, uint8_t *buffer, uint16_t length)
 {
-  PeripheralInterfaceImpl impl = (PeripheralInterface) self;
+  PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) self;
   impl->interrupt_data.input_buffer = buffer;
   impl->interrupt_data.input_buffer_length = length;
-  writeByteNonBlocking((PeripheralInterfaceImpl) self, 0);
+  writeByteNonBlocking(impl, 0);
 }
 
 void
@@ -208,7 +207,7 @@ handleReadInterrupt(PeripheralInterface self)
 {
   PeripheralInterfaceImpl impl = (PeripheralInterfaceImpl) self;
   *impl->interrupt_data.input_buffer = *impl->config.data_register;
-  *impl->interrupt_data.input_buffer++;
+  impl->interrupt_data.input_buffer++;
   impl->interrupt_data.input_buffer_length--;
   if (impl->interrupt_data.input_buffer_length == 0)
   {

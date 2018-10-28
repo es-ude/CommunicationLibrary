@@ -1,6 +1,6 @@
 #ifndef COMMUNICATIONMODULE_TESTHELPER_H
 #define COMMUNICATIONMODULE_TESTHELPER_H
 
-void fakeDelay(double interval);
+void fakeDelay(uint16_t interval);
 
 #endif //COMMUNICATIONMODULE_TESTHELPER_H

@@ -10,7 +10,7 @@ struct MrfField
 {
   uint16_t address;
   const uint8_t *data;
-  size_t length;
+  uint8_t length;
 };
 
 #endif //COMMUNICATIONMODULE_MRFFIELD_H

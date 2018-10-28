@@ -51,14 +51,16 @@ void MrfState_init(MrfState *mrf_state);
 void MrfState_setExtendedDestinationAddress(MrfState *mrf, uint64_t address);
 void MrfState_setShortDestinationAddress(MrfState *mrf, uint16_t address);
 void MrfState_setShortSourceAddress(MrfState *mrf, uint16_t address);
+void MrfState_setExtendedSourceAddress(MrfState *mrf, uint64_t address);
 void MrfState_setPanId(MrfState *mrf, uint16_t pan_id);
-void MrfState_setPayload(MrfState *mrf, const uint8_t *payload, uint8_t payload_length);
+void MrfState_setPayload(MrfState *mrf, const char *payload, uint8_t payload_length);
 const uint8_t *MrfState_getPayload(MrfState *mrf);
 uint8_t MrfState_getPayloadLength(MrfState *mrf);
 MrfField MrfState_getPayloadField(MrfState *mrf_state);
 void MrfState_setSequenceNumber(MrfState *mrf);
 void MrfState_disableSequenceNumber(MrfState *mrf);
 void MrfState_enableSequenceNumber(MrfState *mrf);
+void MrfState_enableAcknowledgement(MrfState *mrf);
 const uint8_t *MrfState_getFullHeaderData(MrfState *mrf);
 bool MrfState_moveIteratorToNextField(MrfState *mrf);
 

@@ -2,27 +2,19 @@
 
 extern void debug(uint8_t *string);
 
-void Mac802154_init(Mac802154 *self, const Mac802154Config *config) {
-  self->init(self, config);
+void Mac802154_reconfigure(Mac802154 *self, const Mac802154Config *config) {
+  self->reconfigure(self, config);
 }
 
 void Mac802154_sendBlocking(Mac802154 *self) {
   self->sendBlocking(self);
 }
 
-void Mac802154_destroy(Mac802154 *self) {
-  self->destroy(self);
-}
-
 void Mac802154_setShortDestinationAddress(Mac802154 *self, uint16_t address) {
   self->setShortDestinationAddress(self, address);
 }
 
-void Mac802154_setShortDestinationAddressFromArray(Mac802154 *self, const uint8_t *address) {
-  self->setShortDestinationAddressFromArray(self, address);
-}
-
-void Mac802154_setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length) {
+void Mac802154_setPayload(Mac802154 *self, const char *payload, size_t payload_length) {
   self->setPayload(self, payload, payload_length);
 }
 
@@ -42,7 +34,7 @@ void Mac802154_fetchPacketBlocking(Mac802154 *self, uint8_t *buffer, uint8_t siz
   self->fetchPacketBlocking(self, buffer, size);
 }
 
-const uint8_t *Mac802154_getPacketPayload(Mac802154 *self, const uint8_t *packet) {
+const char * Mac802154_getPacketPayload(Mac802154 *self, const uint8_t *packet) {
   return self->getPacketPayload(packet);
 }
 
@@ -58,10 +50,41 @@ uint8_t Mac802154_getPacketSourceAddressSize(Mac802154 *self, const uint8_t *pac
   return self->getPacketSourceAddressSize(packet);
 }
 
-const uint64_t Mac802154_getPacketSourceAddress(Mac802154 *self, const uint8_t *packet) {
-  return self->getPacketSourceAddress(packet);
+uint64_t Mac802154_getPacketExtendedSourceAddress(const Mac802154 *self, const uint8_t *packet) {
+  return self->getPacketExtendedSourceAddress(packet);
 }
+
+uint16_t
+Mac802154_getPacketShortSourceAddress(const Mac802154 *self, const uint8_t *packet)
+{
+  return self->getPacketShortSourceAddress(packet);
+}
+
 
 uint8_t Mac802154_getPacketPayloadSize(Mac802154 *self, const uint8_t *packet) {
   return self->getPacketPayloadSize(packet);
+}
+
+void
+Mac802154_enablePromiscuousMode(Mac802154 *self)
+{
+  self->enablePromiscuousMode(self);
+}
+
+void
+Mac802154_disablePromiscuousMode(Mac802154 *self)
+{
+  self->disablePromiscuousMode(self);
+}
+
+void
+Mac802154_useExtendedSourceAddress(Mac802154 *self)
+{
+  self->useExtendedSourceAddress(self);
+}
+
+void
+Mac802154_useShortSourceAddress(Mac802154 *self)
+{
+  self->useShortSourceAddress(self);
 }

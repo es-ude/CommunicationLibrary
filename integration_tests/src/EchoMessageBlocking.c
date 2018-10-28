@@ -19,7 +19,7 @@ int main(void) {
   uint8_t raw_memory[Mac802154MRF_getADTSize ()];
   Mac802154MRF_create(raw_memory, delay_microseconds);
   Mac802154 *mac = (Mac802154*) raw_memory;
-  Mac802154_init(mac, &config);
+  Mac802154_reconfigure(mac, &config);
   _delay_ms(500);
   while(true) {
     while(!Mac802154_newPacketAvailable(mac)) {}
@@ -27,11 +27,11 @@ int main(void) {
     uint8_t packet[size];
     Mac802154_fetchPacketBlocking(mac, packet, size);
 
-    Mac802154_setShortDestinationAddressFromArray(mac, Mac802154_getPacketSourceAddress(mac, packet));
+    Mac802154_setShortDestinationAddressFromArray(mac, Mac802154_getPacketExtendedSourceAddress(mac, packet));
 
     Mac802154_setPayload(mac, packet, size);
     Mac802154_sendBlocking(mac);
-    Mac802154_setPayload(mac, Mac802154_getPacketSourceAddress(mac, packet), Mac802154_getPacketSourceAddressSize(mac, packet));
+    Mac802154_setPayload(mac, Mac802154_getPacketExtendedSourceAddress(mac, packet), Mac802154_getPacketSourceAddressSize(mac, packet));
     Mac802154_sendBlocking(mac);
     Mac802154_setPayload(mac, Mac802154_getPacketPayload(mac, packet), Mac802154_getPacketPayloadSize(mac, packet));
     Mac802154_sendBlocking(mac);

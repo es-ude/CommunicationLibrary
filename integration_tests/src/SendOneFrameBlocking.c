@@ -21,7 +21,7 @@ int main(void) {
   uint8_t raw_memory[Mac802154MRF_getADTSize ()];
   Mac802154MRF_create(raw_memory, delay_microseconds);
   Mac802154 *mac = (Mac802154*) raw_memory;
-  Mac802154_init(mac, &config);
+  Mac802154_reconfigure(mac, &config);
   uint8_t payload[32];
   Mac802154_setExtendedDestinationAddress(mac, 0x0013A2004175A89D);
   uint16_t number = 0;

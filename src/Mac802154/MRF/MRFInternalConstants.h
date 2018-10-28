@@ -4,6 +4,7 @@
 
 #include "include/Peripheral.h"
 
+static const uint8_t mrf_register_receive_mac_control = 0x00;
 static const uint8_t mrf_register_power_amplifier_control2 = 0x18;
 static const uint8_t mrf_register_software_reset = 0x2A;
 static const uint8_t mrf_register_tx_stabilization = 0x2E;

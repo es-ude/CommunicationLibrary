@@ -62,17 +62,40 @@ PeripheralInterface_readNonBlocking(PeripheralInterface self,
                                     uint8_t *buffer,
                                     uint16_t size);
 
+/**
+ * Runs the necessary setup steps to allow data transfers
+ * to the specified peripheral device. Make sure the
+ * specified peripheral matches the implementation used,
+ * otherwise behaviour is undefined. Additionally
+ * this locks the PeripheralInterface ADT for exclusive
+ * access.
+ */
 void
 PeripheralInterface_selectPeripheral(PeripheralInterface self,
                                      Peripheral *device);
 
+/**
+ * Unlocks the PeripheralInterface ADT and performs clean
+ * up steps where necessary, e.g. disabling slave select
+ * lines for SPI.
+ */
 void
 PeripheralInterface_deselectPeripheral(PeripheralInterface self,
                                        Peripheral *device);
 
+/**
+ * Use this function inside the interrupt service routine,
+ * triggering when a write operation was completed, to allow
+ * for non blocking write operations.
+ */
 void
 PeripheralInterface_handleWriteInterrupt(PeripheralInterface self);
 
+/**
+ * Use this function inside the interrupt service routine,
+ * triggering when a read operation was completed, to allow
+ * for non blocking read operations.
+ */
 void
 PeripheralInterface_handleReadInterrupt(PeripheralInterface self);
 

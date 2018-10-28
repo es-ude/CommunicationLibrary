@@ -260,6 +260,7 @@ test_readNonBlockingTransmitsFirstByte(void)
 void
 test_readNonBlockingWithCallback(void)
 {
+  TEST_IGNORE();
   PeripheralInterface_selectPeripheral(interface, &peripheral);
 
   *config.data_register = 'l';

@@ -21,13 +21,21 @@ void MrfState_setExtendedDestinationAddress(MrfState *mrf, uint64_t address) {
 }
 
 void MrfState_setShortSourceAddress(MrfState *mrf, uint16_t address) {
-  mrf->header.frame_header_length = FrameHeader802154_getHeaderSize(&mrf->header.frame_header);
   FrameHeader802154_setShortSourceAddress(&mrf->header.frame_header, address);
+  mrf->header.frame_header_length = FrameHeader802154_getHeaderSize(&mrf->header.frame_header);
 }
 
-void MrfState_setPayload(MrfState *mrf, const uint8_t *payload, uint8_t payload_length){
+void
+MrfState_setExtendedSourceAddress(MrfState *mrf, uint64_t address)
+{
+  FrameHeader802154_setExtendedSourceAddress(&mrf->header.frame_header, address);
+  mrf->header.frame_header_length = FrameHeader802154_getHeaderSize(&mrf->header.frame_header);
+
+}
+
+void MrfState_setPayload(MrfState *mrf, const char *payload, uint8_t payload_length){
   mrf->header.frame_length = payload_length + mrf->header.frame_header_length;
-  mrf->payload = payload;
+  mrf->payload = (uint8_t *) payload;
   mrf->state |= MRF_STATE_FRAME_LENGTH_CHANGED | MRF_STATE_PAYLOAD_CHANGED;
 }
 
@@ -44,7 +52,7 @@ MrfState_setPanId(MrfState *mrf, uint16_t pan_id)
 uint8_t
 MrfState_getFullHeaderLength(MrfState *mrf)
 {
-  return mrf->header.frame_header_length + 2;
+  return (uint8_t) (mrf->header.frame_header_length + 2);
 }
 
 const uint8_t *
@@ -108,4 +116,10 @@ MrfState_getPayloadField(MrfState *self)
           .address = MrfState_getFullHeaderLength(self),
   };
   return field;
+}
+
+void
+MrfState_enableAcknowledgement(MrfState *self)
+{
+  FrameHeader802154_enableAcknowledgementRequest(&self->header.frame_header);
 }

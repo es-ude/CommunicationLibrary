@@ -12,10 +12,13 @@ void FrameHeader802154_init(FrameHeader802154 *self);
 
 void FrameHeader802154_enableSequenceNumberSuppression(FrameHeader802154 *self);
 void FrameHeader802154_disableSequenceNumberSuppression(FrameHeader802154 *self);
+void FrameHeader802154_enableAcknowledgementRequest(FrameHeader802154 *self);
+void FrameHeader802154_disableAcknowledgementRequest(FrameHeader802154 *self);
 void FrameHeader802154_setShortDestinationAddress(FrameHeader802154 *self, uint16_t address);
 void FrameHeader802154_setExtendedDestinationAddress(FrameHeader802154 *self, uint64_t address);
 void FrameHeader802154_setShortSourceAddress(FrameHeader802154 *self, uint16_t address);
 void FrameHeader802154_setExtendedSourceAddress(FrameHeader802154 *self, uint64_t address);
+
 /**
  * The pan id is always interpreted as the destination pan id, this leads to
  * some invalid configurations being possible, trying to set up an invalid configuration

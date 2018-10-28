@@ -1,7 +1,7 @@
 #include <memory.h>
 #include "unity.h"
-#include "lib/src/BitManipulation.h"
-#include "lib/include/Mac802154.h"
+#include "src/BitManipulation.h"
+#include "include/Mac802154.h"
 
 void debug(const uint8_t *msg){}
 
@@ -72,7 +72,7 @@ void test_getByte3(void) {
   TEST_ASSERT_EQUAL_HEX8(expected, BitManipulation_getByteOnArray(field, bitmask, offset));
 }
 
-void test_fillArrayWith64BitLittleEndian(void) {
+void test_fillArrayWith64BitBigEndian(void) {
   uint64_t value = 0x1234;
   uint8_t array[8];
   uint8_t expected[8];
@@ -80,6 +80,30 @@ void test_fillArrayWith64BitLittleEndian(void) {
   memset(expected, 0, 8);
   expected[0] = 0x34;
   expected[1] = 0x12;
-  BitManipulation_fillByteArrayWith64BitLittleEndian(array, value);
+  BitManipulation_fillByteArrayWith64BitBigEndian(array, value);
   TEST_ASSERT_EQUAL_UINT8_ARRAY(expected, array, 8);
+}
+
+void test_get16BitIntegerFromBigEndianArray(void) {
+  uint16_t expected = 0x1122;
+  uint8_t array[2] = {0x22, 0x11};
+  uint16_t actual = BitManipulation_get16BitFromBigEndianByteArray(array);
+  TEST_ASSERT_EQUAL_HEX16(expected, actual);
+
+  expected = 0x6655;
+  array[0] = 0x55;
+  array[1] = 0x66;
+  actual = BitManipulation_get16BitFromBigEndianByteArray(array);
+  TEST_ASSERT_EQUAL_HEX16(expected, actual);
+}
+
+void test_get64BitIntegerFromBigEndianArray(void) {
+  uint64_t expected = 0x1122334455667788;
+  uint8_t array[8] = {
+      0x88, 0x77, 0x66,
+      0x55, 0x44, 0x33,
+      0x22, 0x11, 0x00,
+  };
+  uint64_t actual = BitManipulation_get64BitFromBigEndianByteArray(array);
+  TEST_ASSERT_EQUAL_HEX64(expected, actual);
 }

@@ -70,6 +70,11 @@ cc_library(
         "-include stdint.h",
         "-DCEXCEPTION_T=uint8_t",
         "-DCEXCEPTION_NONE=0x00",
+        "-funsigned-char",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-Xlinker --gc-sections",
+        "-fshort-enums",
     ],
     visibility = [
         "//visibility:public",

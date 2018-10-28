@@ -66,6 +66,7 @@ static bool destinationAddressIsPresent(const FrameHeader802154 *self);
 static bool sequenceNumberIsPresent(const FrameHeader802154 *self);
 static bool panIdIsPresent(const FrameHeader802154 *self);
 static bool panIdCompressionIsEnabled(const FrameHeader802154 *self);
+static bool acknowledgmentIsEnabled(const FrameHeader802154 *self);
 
 static void setFrameType(FrameHeader802154 *self, uint8_t frame_type);
 static void setFrameVersion(FrameHeader802154 *self, uint8_t frame_type);
@@ -75,7 +76,6 @@ static void enableSecurity(FrameHeader802154 *self);
 static void disableSecurity(FrameHeader802154 *self);
 static void enableFramePending(FrameHeader802154 *self);
 static void disableFramePending(FrameHeader802154 *self);
-static void enableAcknowledgementRequest(FrameHeader802154 *self);
 static void disableAcknowledgementRequest(FrameHeader802154 *self);
 static void setSourceAddressingMode(FrameHeader802154 *self, uint8_t mode);
 static void setDestinationAddressingMode(FrameHeader802154 *self, uint8_t mode);
@@ -98,7 +98,7 @@ void FrameHeader802154_init(FrameHeader802154 *self) {
   setSourceAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
   setFrameType(self, FRAME_TYPE_DATA);
   setFrameVersion(self, FRAME_VERSION_2015);
-  enableAcknowledgementRequest(self);
+  FrameHeader802154_enableAcknowledgementRequest(self);
 
 }
 
@@ -148,7 +148,7 @@ uint8_t FrameHeader802154_getHeaderSize(FrameHeader802154 *self) {
 
 void FrameHeader802154_setExtendedSourceAddress(FrameHeader802154 *self, uint64_t address) {
   uint8_t *source_address = self->data + FrameHeader802154_getSourceAddressOffset(self);
-  BitManipulation_fillByteArrayWith64BitLittleEndian(source_address, address);
+  BitManipulation_fillByteArrayWith64BitBigEndian(source_address, address);
   if (getDestinationAddressingMode(self) == ADDRESSING_MODE_EXTENDED_ADDRESS)
   {
     disablePanIdCompression(self);
@@ -158,7 +158,7 @@ void FrameHeader802154_setExtendedSourceAddress(FrameHeader802154 *self, uint64_
 
 void FrameHeader802154_setShortSourceAddress(FrameHeader802154 *self, uint16_t address) {
   uint8_t *source_address = self->data + FrameHeader802154_getSourceAddressOffset(self);
-  BitManipulation_fillByteArrayWith16BitLittleEndian(source_address, address);
+  BitManipulation_fillByteArrayWith16BitBigEndian(source_address, address);
   enablePanIdCompression(self);
   setSourceAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
 }
@@ -173,7 +173,7 @@ void FrameHeader802154_setExtendedDestinationAddress(FrameHeader802154 *self, ui
   {
     disablePanIdCompression(self);
   }
-  BitManipulation_fillByteArrayWith64BitLittleEndian(destination_address_ptr, address);
+  BitManipulation_fillByteArrayWith64BitBigEndian(destination_address_ptr, address);
   setDestinationAddressingMode(self, ADDRESSING_MODE_EXTENDED_ADDRESS);
 }
 
@@ -184,7 +184,7 @@ void FrameHeader802154_setShortDestinationAddress(FrameHeader802154 *self, uint1
   }
   uint8_t *destination_address_ptr = self->data + FrameHeader802154_getDestinationAddressOffset(self);
   enablePanIdCompression(self);
-  BitManipulation_fillByteArrayWith16BitLittleEndian(destination_address_ptr, address);
+  BitManipulation_fillByteArrayWith16BitBigEndian(destination_address_ptr, address);
   setDestinationAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
 }
 
@@ -299,7 +299,7 @@ void disableFramePending(FrameHeader802154 *self) {
   BitManipulation_clearBitOnArray(self->data, frame_pending_offset);
 }
 
-void enableAcknowledgementRequest(FrameHeader802154 *self){
+void FrameHeader802154_enableAcknowledgementRequest(FrameHeader802154 *self){
   BitManipulation_setBitOnArray(self->data, acknowledgement_request_offset);
 }
 

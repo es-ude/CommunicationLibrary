@@ -60,13 +60,13 @@ void test_controlFieldIsCorrectlyInitialized(void) {
 }
 
 void test_setSequenceNumber(void) {
-  uint8_t number;
+  uint8_t number = 23;
   FrameHeader802154_setSequenceNumber(header, number);
   TEST_ASSERT_EQUAL_UINT8(number, *FrameHeader802154_getSequenceNumberPtr(header));
 }
 
 void test_getSequenceNumberSizeWhenPresent(void) {
-  uint8_t number;
+  uint8_t number = 234;
   FrameHeader802154_setSequenceNumber(header, number);
   TEST_ASSERT_EQUAL_UINT8(1, FrameHeader802154_getSequenceNumberSize(header));
 }
@@ -240,8 +240,8 @@ void test_setExtendedDestinationTwice(void) {
   uint64_t source_address = 0x1122;
   uint64_t new_destination_address = 0x5566778899AABBCC;
   uint8_t expected[16];
-  BitManipulation_fillByteArrayWith64BitLittleEndian(expected, new_destination_address);
-  BitManipulation_fillByteArrayWith64BitLittleEndian(expected + 8, source_address);
+  BitManipulation_fillByteArrayWith64BitBigEndian(expected, new_destination_address);
+  BitManipulation_fillByteArrayWith64BitBigEndian(expected + 8, source_address);
   FrameHeader802154_setExtendedSourceAddress(header, source_address);
   FrameHeader802154_setExtendedDestinationAddress(header, new_destination_address);
   FrameHeader802154_setExtendedDestinationAddress(header, new_destination_address);
@@ -427,4 +427,10 @@ void test_getSourceAddressPtr2(void) {
           0x6C, 0x61, 0xAF, 0x82,
   };
   uint8_t expected_source_address[] = {0x00, 0x00};
+}
+
+void
+test_enableAcknowledgement(void)
+{
+
 }

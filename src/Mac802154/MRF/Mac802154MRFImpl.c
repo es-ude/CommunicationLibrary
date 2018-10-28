@@ -1,25 +1,24 @@
 #include "src/Mac802154/MRF/Mac802154MRFImplIntern.h"
+#include "src/BitManipulation.h"
 
 size_t Mac802154MRF_getADTSize (void) {
   return sizeof(struct Mrf);
 
 }
 
-void Mac802154MRF_create(uint8_t *memory, DelayFunction delay_microseconds) {
+void Mac802154MRF_create(uint8_t *memory, DelayFunction delay_microseconds)
+{
   Mrf *impl = (Mrf *) memory;
   impl->delay_microseconds = delay_microseconds;
-  impl->deallocate = NULL;
   setUpInterface(&impl->mac);
+  impl->config = NULL;
 }
 
 void setUpInterface(Mac802154 *interface) {
-  interface->init = init;
-  interface->destroy = destroy;
+  interface->reconfigure = reconfigure;
   interface->setShortDestinationAddress = setShortDestinationAddress;
-  interface->setShortDestinationAddressFromArray = setShortDestinationAddressFromArray;
   interface->setPayload = setPayload;
   interface->setExtendedDestinationAddress = setExtendedDestinationAddress;
-  interface->setExtendedDestinationAddressFromArray = setExtendedDestinationAddressFromArray;
   interface->sendBlocking = sendBlocking;
   interface->getReceivedPacketSize = getReceivedMessageSize;
   interface->newPacketAvailable = newMessageAvailable;
@@ -29,11 +28,17 @@ void setUpInterface(Mac802154 *interface) {
   interface->packetAddressIsShort = packetAddressIsShort;
   interface->packetAddressIsExtended = packetAddressIsLong;
   interface->getPacketSourceAddressSize = getPacketSourceAddressSize;
-  interface->getPacketSourceAddress = getPacketSourceAddress;
+  interface->getPacketExtendedSourceAddress = getPacketExtendedSourceAddress;
+  interface->getPacketShortSourceAddress = getPacketShortSourceAddress;
+  interface->enablePromiscuousMode = enablePromiscuousMode;
+  interface->disablePromiscuousMode = disablePromiscuousMode;
+  interface->useExtendedSourceAddress = useExtendedSourceAddress;
+  interface->useShortSourceAddress = useShortSourceAddress;
 }
 
-void init(Mac802154 *self, const Mac802154Config *config) {
+void reconfigure(Mac802154 *self, const Mac802154Config *config) {
   Mrf *impl = (Mrf *) self;
+  impl->config = config;
   setPrivateVariables(impl, config);
   reset(impl);
   setInitializationValuesFromDatasheet(&impl->io);
@@ -130,25 +135,12 @@ void resetInternalRFStateMachine(Mrf *impl) {
   impl->delay_microseconds(mrf_value_delay_interval_after_state_machine_reset);
 }
 
-void destroy(Mac802154 *self){
-  Mrf *impl = (Mrf*) self;
-  impl->deallocate(impl);
-}
-
 void setShortDestinationAddress(Mac802154 *self, uint16_t address) {
   Mrf *impl = (Mrf *) self;
   MrfState_setShortDestinationAddress(&impl->state, address);
 }
 
-void setShortDestinationAddressFromArray(Mac802154 *self, const uint8_t *address) {
-  Mrf *impl = (Mrf *) self;
-  uint16_t native_format_address = 0;
-  native_format_address += address[0];
-  native_format_address += (address[1] << 8);
-  MrfState_setShortDestinationAddress(&impl->state, native_format_address);
-}
-
-void setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length) {
+void setPayload(Mac802154 *self, const char *payload, size_t payload_length) {
   Mrf *impl = (Mrf *) self;
   MrfState_setPayload(&impl->state, payload, (uint8_t) payload_length);
 }
@@ -167,15 +159,6 @@ void sendBlocking(Mac802154 *self) {
 
 void setExtendedDestinationAddress(Mac802154 *self, uint64_t address) {
   Mrf *impl = (Mrf *) self;
-  MrfState_setExtendedDestinationAddress(&impl->state, address);
-}
-
-void setExtendedDestinationAddressFromArray(Mac802154 *self, const uint8_t *address) {
-  Mrf *impl = (Mrf *) self;
-  uint64_t native_format_address = 0;
-  for (uint8_t i=0; i < 8; i++) {
-    native_format_address += (address[i] << 8*i);
-  }
   MrfState_setExtendedDestinationAddress(&impl->state, address);
 }
 
@@ -205,8 +188,18 @@ void fetchMessageBlocking(Mac802154 *self, uint8_t *buffer, uint8_t size) {
  * accept all packages with correct crc
  *
  */
-void setPromiscuousMode(Mrf *impl) {
-  MrfIo_setControlRegister(&impl->io, 0x00, 1);
+void
+enablePromiscuousMode(Mac802154 *self)
+{
+  Mrf *impl = (Mrf *)self;
+  MrfIo_setControlRegister(&impl->io, mrf_register_receive_mac_control, 1);
+}
+
+void
+disablePromiscuousMode(Mac802154 *self)
+{
+  Mrf *impl = (Mrf *) self;
+  MrfIo_setControlRegister(&impl->io, mrf_register_receive_mac_control, 0);
 }
 
 /**
@@ -217,9 +210,9 @@ void setErrorMode(Mrf *impl) {
   MrfIo_setControlRegister(&impl->io, 0x00, 2);
 }
 
-const uint8_t *getPacketPayload(const uint8_t *packet) {
+const char * getPacketPayload(const uint8_t *packet) {
   packet += frame_length_field_size;
-  return packet + FrameHeader802154_getHeaderSize(packet);
+  return (char *)packet + FrameHeader802154_getHeaderSize((FrameHeader802154 *)packet);
 }
 
 uint8_t getPacketPayloadSize(const uint8_t *packet) {
@@ -243,16 +236,42 @@ uint8_t getPacketSourceAddressSize(const uint8_t *packet) {
   return FrameHeader802154_getSourceAddressSize((FrameHeader802154 *)(packet+1));
 }
 
-const uint8_t *getPacketSourceAddress(const uint8_t *packet) {
+uint64_t getPacketExtendedSourceAddress(const uint8_t *packet) {
   uint64_t address = 0;
   const uint8_t *address_ptr = FrameHeader802154_getSourceAddressPtr((FrameHeader802154 *)(packet + 1));
   if (packetAddressIsLong(packet))
     {
-      address = convert64BitFromNetworkToHostByteOrder(*address_ptr);
+      address = BitManipulation_get64BitFromBigEndianByteArray(address_ptr);
     }
   else
     {
-      address = convert16BitFromNetworkToHostByteOrder(*address_ptr);
+      address = BitManipulation_get16BitFromBigEndianByteArray(address_ptr);
     }
-  return FrameHeader802154_getSourceAddressPtr((FrameHeader802154 *)(packet+1));
+  return address;
+}
+
+uint16_t
+getPacketShortSourceAddress(const uint8_t *packet)
+{
+  uint16_t address = 0;
+  const uint8_t *address_ptr = FrameHeader802154_getSourceAddressPtr((FrameHeader802154 *) (packet + 1));
+  if (packetAddressIsShort(packet))
+    {
+      address = BitManipulation_get16BitFromBigEndianByteArray(address_ptr);
+    }
+  return address;
+}
+
+void
+useExtendedSourceAddress(Mac802154 *self)
+{
+  Mrf *impl = (Mrf *)self;
+  MrfState_setExtendedSourceAddress(&impl->state, impl->config->extended_source_address);
+}
+
+void
+useShortSourceAddress(Mac802154 *self)
+{
+  Mrf *impl = (Mrf *) self;
+  MrfState_setShortSourceAddress(&impl->state, impl->config->short_source_address);
 }

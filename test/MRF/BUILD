@@ -15,6 +15,7 @@ load(
 )
 
 generate_mocks_for_every_header(
+    enforce_strict_ordering = True,
     file_list = [
         "//:src/Mac802154/MRF/MRFHelperFunctions.h",
         "//:include/Peripheral.h",
@@ -27,6 +28,13 @@ generate_mocks_for_every_header(
 )
 
 unity_test(
+    copts = [
+        "-Wno-unused-function",
+        "-Werror=return-type",
+        "-Werror=discarded-qualifiers",
+        "-Wno-error=incompatible-pointer-types",
+        "-funsigned-char",
+    ],
     file_name = "Mac802154MRF_Test.c",
     mocks = [
         "//:src/Mac802154/MRF/MRFHelperFunctions.h",

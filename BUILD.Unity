@@ -31,7 +31,9 @@ cc_library (
         name = "Unity",
         srcs = ["src/unity.c",  "src/unity_internals.h"],
         hdrs = ["src/unity.h", "src/unity_internals.h"], # exported headers
-        copts = ["-DUNITY_INCLUDE_DOUBLE"],
+        copts = ["-DUNITY_INCLUDE_DOUBLE",
+                 "-funsigned-char",
+            ],
         strip_include_prefix = "src",
         visibility = ["//visibility:public"],
         )
