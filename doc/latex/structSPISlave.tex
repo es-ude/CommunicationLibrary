@@ -1,0 +1,76 @@
+\hypertarget{structSPISlave}{}\section{S\+P\+I\+Slave Struct Reference}
+\label{structSPISlave}\index{S\+P\+I\+Slave@{S\+P\+I\+Slave}}
+
+
+{\ttfamily \#include $<$Peripheral\+S\+P\+I\+Impl.\+h$>$}
+
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+volatile uint8\+\_\+t $\ast$ \mbox{\hyperlink{structSPISlave_abf7a375633e77b232e1cbb12a0eb002d}{data\+\_\+direction\+\_\+register}}
+\item 
+volatile uint8\+\_\+t $\ast$ \mbox{\hyperlink{structSPISlave_abbc4e8f0ccaa89da51ca0e4ff24ad7e9}{data\+\_\+register}}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structSPISlave_a7cf55825192923f25fa0d288e9c29491}{slave\+\_\+select\+\_\+pin\+\_\+number}}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structSPISlave_a39b25a1f7290f19f47870690f0ec3cef}{clock\+\_\+rate\+\_\+divider}}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structSPISlave_ae7de4403de0e6393e4f2a8a34b98c845}{data\+\_\+order}}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structSPISlave_a8dd52992c7350335723d6d7dfbca5bab}{idle\+\_\+signal}}
+\item 
+uint8\+\_\+t \mbox{\hyperlink{structSPISlave_a0099538d21ea9158d57f8e825ffa8e22}{spi\+\_\+mode}}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Software representation of the spi slave connected to the hosts spi hardware interface 
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{structSPISlave_a39b25a1f7290f19f47870690f0ec3cef}\label{structSPISlave_a39b25a1f7290f19f47870690f0ec3cef}} 
+\index{S\+P\+I\+Slave@{S\+P\+I\+Slave}!clock\+\_\+rate\+\_\+divider@{clock\+\_\+rate\+\_\+divider}}
+\index{clock\+\_\+rate\+\_\+divider@{clock\+\_\+rate\+\_\+divider}!S\+P\+I\+Slave@{S\+P\+I\+Slave}}
+\subsubsection{\texorpdfstring{clock\+\_\+rate\+\_\+divider}{clock\_rate\_divider}}
+{\footnotesize\ttfamily uint8\+\_\+t S\+P\+I\+Slave\+::clock\+\_\+rate\+\_\+divider}
+
+use this to divide the microcontrollers clock rate to match the spi clock rate supported by the slave \mbox{\Hypertarget{structSPISlave_abf7a375633e77b232e1cbb12a0eb002d}\label{structSPISlave_abf7a375633e77b232e1cbb12a0eb002d}} 
+\index{S\+P\+I\+Slave@{S\+P\+I\+Slave}!data\+\_\+direction\+\_\+register@{data\+\_\+direction\+\_\+register}}
+\index{data\+\_\+direction\+\_\+register@{data\+\_\+direction\+\_\+register}!S\+P\+I\+Slave@{S\+P\+I\+Slave}}
+\subsubsection{\texorpdfstring{data\+\_\+direction\+\_\+register}{data\_direction\_register}}
+{\footnotesize\ttfamily volatile uint8\+\_\+t$\ast$ S\+P\+I\+Slave\+::data\+\_\+direction\+\_\+register}
+
+this has to match the port the slave select line is connected to \mbox{\Hypertarget{structSPISlave_ae7de4403de0e6393e4f2a8a34b98c845}\label{structSPISlave_ae7de4403de0e6393e4f2a8a34b98c845}} 
+\index{S\+P\+I\+Slave@{S\+P\+I\+Slave}!data\+\_\+order@{data\+\_\+order}}
+\index{data\+\_\+order@{data\+\_\+order}!S\+P\+I\+Slave@{S\+P\+I\+Slave}}
+\subsubsection{\texorpdfstring{data\+\_\+order}{data\_order}}
+{\footnotesize\ttfamily uint8\+\_\+t S\+P\+I\+Slave\+::data\+\_\+order}
+
+whether to transmit each byte with the most or least significant bit leading \mbox{\Hypertarget{structSPISlave_abbc4e8f0ccaa89da51ca0e4ff24ad7e9}\label{structSPISlave_abbc4e8f0ccaa89da51ca0e4ff24ad7e9}} 
+\index{S\+P\+I\+Slave@{S\+P\+I\+Slave}!data\+\_\+register@{data\+\_\+register}}
+\index{data\+\_\+register@{data\+\_\+register}!S\+P\+I\+Slave@{S\+P\+I\+Slave}}
+\subsubsection{\texorpdfstring{data\+\_\+register}{data\_register}}
+{\footnotesize\ttfamily volatile uint8\+\_\+t$\ast$ S\+P\+I\+Slave\+::data\+\_\+register}
+
+data register for controlling the slave select line \mbox{\Hypertarget{structSPISlave_a8dd52992c7350335723d6d7dfbca5bab}\label{structSPISlave_a8dd52992c7350335723d6d7dfbca5bab}} 
+\index{S\+P\+I\+Slave@{S\+P\+I\+Slave}!idle\+\_\+signal@{idle\+\_\+signal}}
+\index{idle\+\_\+signal@{idle\+\_\+signal}!S\+P\+I\+Slave@{S\+P\+I\+Slave}}
+\subsubsection{\texorpdfstring{idle\+\_\+signal}{idle\_signal}}
+{\footnotesize\ttfamily uint8\+\_\+t S\+P\+I\+Slave\+::idle\+\_\+signal}
+
+configure whether the idle signal for your slave is supposed to be low or high \mbox{\Hypertarget{structSPISlave_a7cf55825192923f25fa0d288e9c29491}\label{structSPISlave_a7cf55825192923f25fa0d288e9c29491}} 
+\index{S\+P\+I\+Slave@{S\+P\+I\+Slave}!slave\+\_\+select\+\_\+pin\+\_\+number@{slave\+\_\+select\+\_\+pin\+\_\+number}}
+\index{slave\+\_\+select\+\_\+pin\+\_\+number@{slave\+\_\+select\+\_\+pin\+\_\+number}!S\+P\+I\+Slave@{S\+P\+I\+Slave}}
+\subsubsection{\texorpdfstring{slave\+\_\+select\+\_\+pin\+\_\+number}{slave\_select\_pin\_number}}
+{\footnotesize\ttfamily uint8\+\_\+t S\+P\+I\+Slave\+::slave\+\_\+select\+\_\+pin\+\_\+number}
+
+set this to match the pin number your slave select line is connected to \mbox{\Hypertarget{structSPISlave_a0099538d21ea9158d57f8e825ffa8e22}\label{structSPISlave_a0099538d21ea9158d57f8e825ffa8e22}} 
+\index{S\+P\+I\+Slave@{S\+P\+I\+Slave}!spi\+\_\+mode@{spi\+\_\+mode}}
+\index{spi\+\_\+mode@{spi\+\_\+mode}!S\+P\+I\+Slave@{S\+P\+I\+Slave}}
+\subsubsection{\texorpdfstring{spi\+\_\+mode}{spi\_mode}}
+{\footnotesize\ttfamily uint8\+\_\+t S\+P\+I\+Slave\+::spi\+\_\+mode}
+
+the spi mode to use with your slave (this information should be included in its datasheet 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/luk/\+Work/\+Communication\+Module/include/\mbox{\hyperlink{PeripheralSPIImpl_8h}{Peripheral\+S\+P\+I\+Impl.\+h}}\end{DoxyCompactItemize}

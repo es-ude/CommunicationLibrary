@@ -1,0 +1,94 @@
+\hypertarget{Peripheral_8h}{}\section{/home/luk/\+Work/\+Communication\+Module/include/\+Peripheral.h File Reference}
+\label{Peripheral_8h}\index{/home/luk/\+Work/\+Communication\+Module/include/\+Peripheral.\+h@{/home/luk/\+Work/\+Communication\+Module/include/\+Peripheral.\+h}}
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include $<$stddef.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}include/\+Callback.\+h\char`\"{}}\newline
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structPeripheralInterface__NonBlockingWriteContext}{Peripheral\+Interface\+\_\+\+Non\+Blocking\+Write\+Context}}
+\item 
+struct \mbox{\hyperlink{structPeripheralInterface__NonBlockingReadContext}{Peripheral\+Interface\+\_\+\+Non\+Blocking\+Read\+Context}}
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{Peripheral_8h_aba6ae712484bcf7245a5930d48f3d8ac}\label{Peripheral_8h_aba6ae712484bcf7245a5930d48f3d8ac}} 
+typedef void {\bfseries Peripheral}
+\item 
+\mbox{\Hypertarget{Peripheral_8h_adff5bcdbb5a8192e386b3f1ab7b78966}\label{Peripheral_8h_adff5bcdbb5a8192e386b3f1ab7b78966}} 
+typedef struct Peripheral\+Interface $\ast$ {\bfseries Peripheral\+Interface}
+\item 
+\mbox{\Hypertarget{Peripheral_8h_ae66ec6d7e39eed19a8351ca424c478ef}\label{Peripheral_8h_ae66ec6d7e39eed19a8351ca424c478ef}} 
+typedef \mbox{\hyperlink{structCommunicationModule__Callback}{Communication\+Module\+\_\+\+Callback}} {\bfseries Peripheral\+Interface\+\_\+\+Callback}
+\item 
+\mbox{\Hypertarget{Peripheral_8h_a66ff1b23b5749568c2a2d4e3ef608569}\label{Peripheral_8h_a66ff1b23b5749568c2a2d4e3ef608569}} 
+typedef struct \mbox{\hyperlink{structPeripheralInterface__NonBlockingWriteContext}{Peripheral\+Interface\+\_\+\+Non\+Blocking\+Write\+Context}} {\bfseries Peripheral\+Interface\+\_\+\+Non\+Blocking\+Write\+Context}
+\item 
+\mbox{\Hypertarget{Peripheral_8h_a815c6e1b7dff2b9a835c67094c9ff4f3}\label{Peripheral_8h_a815c6e1b7dff2b9a835c67094c9ff4f3}} 
+typedef struct \mbox{\hyperlink{structPeripheralInterface__NonBlockingReadContext}{Peripheral\+Interface\+\_\+\+Non\+Blocking\+Read\+Context}} {\bfseries Peripheral\+Interface\+\_\+\+Non\+Blocking\+Read\+Context}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{Peripheral_8h_a1f3fee7083b2ff6750c2dfdea5d783bd}\label{Peripheral_8h_a1f3fee7083b2ff6750c2dfdea5d783bd}} 
+void {\bfseries Peripheral\+Interface\+\_\+write\+Blocking} (Peripheral\+Interface self, const uint8\+\_\+t $\ast$buffer, size\+\_\+t size)
+\item 
+\mbox{\Hypertarget{Peripheral_8h_ae6c720a11f3a9148eafd58ed2eb01341}\label{Peripheral_8h_ae6c720a11f3a9148eafd58ed2eb01341}} 
+void {\bfseries Peripheral\+Interface\+\_\+write\+Non\+Blocking} (Peripheral\+Interface self, \mbox{\hyperlink{structPeripheralInterface__NonBlockingWriteContext}{Peripheral\+Interface\+\_\+\+Non\+Blocking\+Write\+Context}} context)
+\item 
+\mbox{\Hypertarget{Peripheral_8h_a9bdbd9939f409fecd997ba2af3434228}\label{Peripheral_8h_a9bdbd9939f409fecd997ba2af3434228}} 
+void {\bfseries Peripheral\+Interface\+\_\+read\+Blocking} (Peripheral\+Interface self, uint8\+\_\+t $\ast$buffer, size\+\_\+t length)
+\item 
+\mbox{\Hypertarget{Peripheral_8h_a715a0f78cb8e87af9b3f25b6076b2733}\label{Peripheral_8h_a715a0f78cb8e87af9b3f25b6076b2733}} 
+void {\bfseries Peripheral\+Interface\+\_\+read\+Non\+Blocking} (Peripheral\+Interface self, uint8\+\_\+t $\ast$buffer, uint16\+\_\+t size)
+\item 
+void \mbox{\hyperlink{Peripheral_8h_a1453c3ba3bbbde20994903debacbd921}{Peripheral\+Interface\+\_\+select\+Peripheral}} (Peripheral\+Interface self, Peripheral $\ast$device)
+\item 
+void \mbox{\hyperlink{Peripheral_8h_a22fdb8b9d9f6706fc6349259817b7fd2}{Peripheral\+Interface\+\_\+deselect\+Peripheral}} (Peripheral\+Interface self, Peripheral $\ast$device)
+\item 
+void \mbox{\hyperlink{Peripheral_8h_a02c3b4d571aa58dfd5c56f8c1a8fcc8f}{Peripheral\+Interface\+\_\+handle\+Write\+Interrupt}} (Peripheral\+Interface self)
+\item 
+void \mbox{\hyperlink{Peripheral_8h_a599d7d3e9e7a59a148a47d3e3a95ebdb}{Peripheral\+Interface\+\_\+handle\+Read\+Interrupt}} (Peripheral\+Interface self)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The Peripheral\+Interface provides a software interface for different peripheral interface drivers (U\+S\+A\+RT, S\+PI). The following example illustrates writing a string to a peripheral device, the initialization of the Peripheral struct (software representation of the peripheral device you want to interact with) and the Peripheral\+Interface itself are documented in the header file corresponding to their implementation\+: 
+\begin{DoxyCode}
+uint8\_t \textcolor{keywordtype}{string}[] = \textcolor{stringliteral}{"hello, world!"};
+\mbox{\hyperlink{Peripheral_8h_a1453c3ba3bbbde20994903debacbd921}{PeripheralInterface\_selectPeripheral}}(interface, peripheral);
+PeripheralInterface\_writeBlocking(interface, \textcolor{keywordtype}{string}, strlen(\textcolor{keywordtype}{string}));
+\mbox{\hyperlink{Peripheral_8h_a22fdb8b9d9f6706fc6349259817b7fd2}{PeripheralInterface\_deselectPeripheral}}(interface, peripheral);
+\end{DoxyCode}
+
+
+For now the support for non blocking io is not fully implemented. 
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{Peripheral_8h_a22fdb8b9d9f6706fc6349259817b7fd2}\label{Peripheral_8h_a22fdb8b9d9f6706fc6349259817b7fd2}} 
+\index{Peripheral.\+h@{Peripheral.\+h}!Peripheral\+Interface\+\_\+deselect\+Peripheral@{Peripheral\+Interface\+\_\+deselect\+Peripheral}}
+\index{Peripheral\+Interface\+\_\+deselect\+Peripheral@{Peripheral\+Interface\+\_\+deselect\+Peripheral}!Peripheral.\+h@{Peripheral.\+h}}
+\subsubsection{\texorpdfstring{Peripheral\+Interface\+\_\+deselect\+Peripheral()}{PeripheralInterface\_deselectPeripheral()}}
+{\footnotesize\ttfamily void Peripheral\+Interface\+\_\+deselect\+Peripheral (\begin{DoxyParamCaption}\item[{Peripheral\+Interface}]{self,  }\item[{Peripheral $\ast$}]{device }\end{DoxyParamCaption})}
+
+Unlocks the Peripheral\+Interface A\+DT and performs clean up steps where necessary, e.\+g. disabling slave select lines for S\+PI. \mbox{\Hypertarget{Peripheral_8h_a599d7d3e9e7a59a148a47d3e3a95ebdb}\label{Peripheral_8h_a599d7d3e9e7a59a148a47d3e3a95ebdb}} 
+\index{Peripheral.\+h@{Peripheral.\+h}!Peripheral\+Interface\+\_\+handle\+Read\+Interrupt@{Peripheral\+Interface\+\_\+handle\+Read\+Interrupt}}
+\index{Peripheral\+Interface\+\_\+handle\+Read\+Interrupt@{Peripheral\+Interface\+\_\+handle\+Read\+Interrupt}!Peripheral.\+h@{Peripheral.\+h}}
+\subsubsection{\texorpdfstring{Peripheral\+Interface\+\_\+handle\+Read\+Interrupt()}{PeripheralInterface\_handleReadInterrupt()}}
+{\footnotesize\ttfamily void Peripheral\+Interface\+\_\+handle\+Read\+Interrupt (\begin{DoxyParamCaption}\item[{Peripheral\+Interface}]{self }\end{DoxyParamCaption})}
+
+Use this function inside the interrupt service routine, triggering when a read operation was completed, to allow for non blocking read operations. \mbox{\Hypertarget{Peripheral_8h_a02c3b4d571aa58dfd5c56f8c1a8fcc8f}\label{Peripheral_8h_a02c3b4d571aa58dfd5c56f8c1a8fcc8f}} 
+\index{Peripheral.\+h@{Peripheral.\+h}!Peripheral\+Interface\+\_\+handle\+Write\+Interrupt@{Peripheral\+Interface\+\_\+handle\+Write\+Interrupt}}
+\index{Peripheral\+Interface\+\_\+handle\+Write\+Interrupt@{Peripheral\+Interface\+\_\+handle\+Write\+Interrupt}!Peripheral.\+h@{Peripheral.\+h}}
+\subsubsection{\texorpdfstring{Peripheral\+Interface\+\_\+handle\+Write\+Interrupt()}{PeripheralInterface\_handleWriteInterrupt()}}
+{\footnotesize\ttfamily void Peripheral\+Interface\+\_\+handle\+Write\+Interrupt (\begin{DoxyParamCaption}\item[{Peripheral\+Interface}]{self }\end{DoxyParamCaption})}
+
+Use this function inside the interrupt service routine, triggering when a write operation was completed, to allow for non blocking write operations. \mbox{\Hypertarget{Peripheral_8h_a1453c3ba3bbbde20994903debacbd921}\label{Peripheral_8h_a1453c3ba3bbbde20994903debacbd921}} 
+\index{Peripheral.\+h@{Peripheral.\+h}!Peripheral\+Interface\+\_\+select\+Peripheral@{Peripheral\+Interface\+\_\+select\+Peripheral}}
+\index{Peripheral\+Interface\+\_\+select\+Peripheral@{Peripheral\+Interface\+\_\+select\+Peripheral}!Peripheral.\+h@{Peripheral.\+h}}
+\subsubsection{\texorpdfstring{Peripheral\+Interface\+\_\+select\+Peripheral()}{PeripheralInterface\_selectPeripheral()}}
+{\footnotesize\ttfamily void Peripheral\+Interface\+\_\+select\+Peripheral (\begin{DoxyParamCaption}\item[{Peripheral\+Interface}]{self,  }\item[{Peripheral $\ast$}]{device }\end{DoxyParamCaption})}
+
+Runs the necessary setup steps to allow data transfers to the specified peripheral device. Make sure the specified peripheral matches the implementation used, otherwise behaviour is undefined. Additionally this locks the Peripheral\+Interface A\+DT for exclusive access. 

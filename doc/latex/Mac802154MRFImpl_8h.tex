@@ -1,0 +1,22 @@
+\hypertarget{Mac802154MRFImpl_8h}{}\section{/home/luk/\+Work/\+Communication\+Module/include/\+Mac802154\+M\+R\+F\+Impl.h File Reference}
+\label{Mac802154MRFImpl_8h}\index{/home/luk/\+Work/\+Communication\+Module/include/\+Mac802154\+M\+R\+F\+Impl.\+h@{/home/luk/\+Work/\+Communication\+Module/include/\+Mac802154\+M\+R\+F\+Impl.\+h}}
+{\ttfamily \#include \char`\"{}include/\+Mac802154.\+h\char`\"{}}\newline
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{Mac802154MRFImpl_8h_ae2a7a187f01b316f8179b0557683899b}\label{Mac802154MRFImpl_8h_ae2a7a187f01b316f8179b0557683899b}} 
+typedef void($\ast$ {\bfseries Delay\+Function}) (uint16\+\_\+t amount)
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{Mac802154MRFImpl_8h_ae3085315d79176598d39dd646ea5f6c0}\label{Mac802154MRFImpl_8h_ae3085315d79176598d39dd646ea5f6c0}} 
+size\+\_\+t {\bfseries Mac802154\+M\+R\+F\+\_\+get\+A\+D\+T\+Size} (void)
+\item 
+\mbox{\Hypertarget{Mac802154MRFImpl_8h_ae2609e1f20242bd15e419a0e5b82521f}\label{Mac802154MRFImpl_8h_ae2609e1f20242bd15e419a0e5b82521f}} 
+void {\bfseries Mac802154\+M\+R\+F\+\_\+create} (uint8\+\_\+t $\ast$memory, Delay\+Function delay\+\_\+microseconds)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This header is used to provide the function for initializing an A\+DT implementing the Mac802154 interface for the \mbox{[}M\+R\+F24\+J40\+MA\mbox{]}( The only relevant thing that needs to be mentioned here is the Delay\+Function. There are cases where the interaction with the M\+RF Chip has to be paused for some microseconds. The delay function handed to the Mac802154\+\_\+create function should therefore block for at least the specified amount of microseconds. 
