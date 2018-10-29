@@ -73,8 +73,11 @@ cc_library(
         "-funsigned-char",
         "-ffunction-sections",
         "-fdata-sections",
-        "-Xlinker --gc-sections",
         "-fshort-enums",
+        "-ffast-math",
+    ],
+    linkopts = [
+        "-Xlinker --gc-sections",
     ],
     visibility = [
         "//visibility:public",
@@ -99,6 +102,7 @@ cc_library(
             "-ffunction-sections",
             "-fdata-sections",
             "-Xlinker --gc-sections",
+            "-ffast-math",
         ],
         "//conditions:default": [],
     }) + [
@@ -106,6 +110,9 @@ cc_library(
         "-include stdint.h",
         "-DCEXCEPTION_T=uint8_t",
         "-DCEXCEPTION_NONE=0x00",
+    ],
+    linkopts = [
+        "-Wl,-z,norelro",
     ],
     visibility = [
         "//integration_tests:__pkg__",

@@ -31,6 +31,7 @@ void FrameHeader802154_setSequenceNumber(FrameHeader802154 *self, uint8_t number
 
 
 // calculates the header size based on what address formats are used and if sequence numbers are enabled
+// all sizes measured in bytes
 uint8_t FrameHeader802154_getHeaderSize(FrameHeader802154 *self);
 uint8_t FrameHeader802154_getSourceAddressSize(const FrameHeader802154 *self);
 uint8_t FrameHeader802154_getDestinationAddressSize(const FrameHeader802154 *self);

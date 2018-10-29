@@ -2,7 +2,6 @@ load("@AVR_Toolchain//:hex.bzl", "avr_minimal_copts", "generate_hex")
 
 LUFA_COPTS = [
     "-Iexternal/LUFA/Demos/Device/ClassDriver/VirtualSerial/Config",
-    #    "-I./LUFA/Drivers/USB/Core/AVR8",
     "-pipe",
     "-gdwarf-2",
     "-g2",
@@ -173,9 +172,14 @@ cc_binary(
         "src/EchoMessageBlocking.c",
         "src/config.c",
         "src/config.h",
+        ":LufaSetup",
     ],
     copts = avr_minimal_copts() + LUFA_COPTS + [
         "-Os",
+        "-s",
+        "-fno-asynchronous-unwind-tables",
+        "-ffast-math",
+        "-fmerge-all-constants",
         "-include stdint.h",
         "-fdata-sections",
         "-ffunction-sections",
@@ -189,7 +193,7 @@ cc_binary(
     deps = [
         "//:CommunicationModule",
         "@CException//:CException",
-        #        "@LUFA//:LUFA_USB",
+        "@LUFA//:LUFA_USB",
     ],
 )
 

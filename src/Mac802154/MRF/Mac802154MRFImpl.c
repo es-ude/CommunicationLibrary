@@ -150,11 +150,14 @@ void sendBlocking(Mac802154 *self) {
 
   MrfField current_field = MrfState_getFullHeaderField(&impl->state);
   MrfIo_writeBlockingToLongAddress(&impl->io, current_field.data, current_field.length, current_field.address);
+  debug("header written\n");
   current_field = MrfState_getPayloadField(&impl->state);
   MrfIo_writeBlockingToLongAddress(&impl->io, current_field.data, current_field.length, current_field.address);
   triggerSend(impl);
+  debug("send triggered\n");
   while (!(MrfIo_readControlRegister(&impl->io, mrf_register_interrupt_status) & 1))
     ;
+  debug("transmission complete\n");
 }
 
 void setExtendedDestinationAddress(Mac802154 *self, uint64_t address) {
@@ -175,6 +178,7 @@ uint8_t getReceivedMessageSize(Mac802154 *self) {
 
 bool newMessageAvailable(Mac802154 *self) {
   Mrf *impl = (Mrf *) self;
+  debug("checking for new message\n");
   uint8_t status_register_value = MrfIo_readControlRegister(&impl->io, mrf_register_interrupt_status);
   return ((status_register_value >> 3) & 1) == 1;
 }
@@ -225,11 +229,11 @@ uint8_t getPacketPayloadSize(const uint8_t *packet) {
 }
 
 bool packetAddressIsShort(const uint8_t *packet) {
-  return FrameHeader802154_getSourceAddressSize((FrameHeader802154*) (packet+1)) == 16;
+  return FrameHeader802154_getSourceAddressSize((FrameHeader802154*) (packet+1)) == 2;
 }
 
 bool packetAddressIsLong(const uint8_t *packet) {
-  return FrameHeader802154_getSourceAddressSize((FrameHeader802154*) (packet+1)) == 64;
+  return FrameHeader802154_getSourceAddressSize((FrameHeader802154*) (packet+1)) == 8;
 }
 
 uint8_t getPacketSourceAddressSize(const uint8_t *packet) {

@@ -91,10 +91,11 @@ static void setUpControlRegister(volatile uint8_t *control_register) {
 
 
 static void setUpIOLines(const SPIConfig *config) {
-  *config->io_lines_data_direction_register |= config->slave_select_pin |
-                                              config->miso_pin |
-                                              config->clock_pin;
-  *config->io_lines_data_register |= config->miso_pin;
+  BitManipulation_setBit(config->io_lines_data_direction_register, config->slave_select_pin);
+  BitManipulation_setBit(config->io_lines_data_register, config->slave_select_pin);
+  BitManipulation_setBit(config->io_lines_data_direction_register, config->mosi_pin);
+  BitManipulation_clearBit(config->io_lines_data_direction_register, config->miso_pin);
+  BitManipulation_setBit(config->io_lines_data_direction_register, config->clock_pin);
 }
 
 

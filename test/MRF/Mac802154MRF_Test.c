@@ -227,20 +227,20 @@ void test_getReceivedFramePayload(void)
 void test_packetAddressIsShort(void)
 {
   uint8_t *packet = (uint8_t *) 134;
-  FrameHeader802154_getSourceAddressSize_ExpectAndReturn((FrameHeader802154 *) (packet + 1), 16);
+  FrameHeader802154_getSourceAddressSize_ExpectAndReturn((FrameHeader802154 *) (packet + 1), 2);
   TEST_ASSERT_TRUE(Mac802154_packetAddressIsShort(mrf, packet));
 
-  FrameHeader802154_getSourceAddressSize_ExpectAndReturn((FrameHeader802154 *) (packet + 1), 16);
+  FrameHeader802154_getSourceAddressSize_ExpectAndReturn((FrameHeader802154 *) (packet + 1), 2);
   TEST_ASSERT_FALSE(Mac802154_packetAddressIsLong(mrf, packet));
 }
 
 void test_packetAddressIsExtended(void)
 {
   uint8_t *packet = (uint8_t *) 85;
-  FrameHeader802154_getSourceAddressSize_ExpectAndReturn((FrameHeader802154 *) (packet + 1), 64);
+  FrameHeader802154_getSourceAddressSize_ExpectAndReturn((FrameHeader802154 *) (packet + 1), 8);
   TEST_ASSERT_TRUE(Mac802154_packetAddressIsLong(mrf, packet));
 
-  FrameHeader802154_getSourceAddressSize_ExpectAndReturn((FrameHeader802154 *) (packet + 1), 64);
+  FrameHeader802154_getSourceAddressSize_ExpectAndReturn((FrameHeader802154 *) (packet + 1), 8);
   TEST_ASSERT_FALSE(Mac802154_packetAddressIsShort(mrf, packet));
 }
 
@@ -266,7 +266,7 @@ void test_getPacketExtendedSourceAddress(void)
   uint8_t *packet = (uint8_t *) &address - 1;
   FrameHeader802154 *frame_header_ptr = (FrameHeader802154 *) &address;
   FrameHeader802154_getSourceAddressPtr_ExpectAndReturn(frame_header_ptr, packet + 1);
-  FrameHeader802154_getSourceAddressSize_ExpectAndReturn(frame_header_ptr, 64);
+  FrameHeader802154_getSourceAddressSize_ExpectAndReturn(frame_header_ptr, 8);
   TEST_ASSERT_EQUAL_HEX64(address, Mac802154_getPacketExtendedSourceAddress(mrf, packet));
 }
 
@@ -277,7 +277,7 @@ test_getPacketShortSourceAddress(void)
   uint8_t *packet = (uint8_t *) &address - 1;
   FrameHeader802154 *frame_header_ptr = (FrameHeader802154 *) &address;
   FrameHeader802154_getSourceAddressPtr_ExpectAndReturn(frame_header_ptr, (uint8_t *)&address);
-  FrameHeader802154_getSourceAddressSize_ExpectAndReturn(frame_header_ptr, 16);
+  FrameHeader802154_getSourceAddressSize_ExpectAndReturn(frame_header_ptr, 2);
   TEST_ASSERT_EQUAL_HEX16(address, Mac802154_getPacketShortSourceAddress(mrf, packet));
 }
 
