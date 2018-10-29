@@ -36,7 +36,7 @@ struct Mac802154Config {
  * in the config are expected to be set up already. The Mac802154Config
  * struct can be safely removed after the function returned.
  */
-void Mac802154_reconfigure(Mac802154 *hardware, const Mac802154Config *config);
+void Mac802154_configure(Mac802154 *hardware, const Mac802154Config *config);
 
 void Mac802154_sendBlocking(Mac802154 *hardware);
 

@@ -60,7 +60,7 @@ void test_initPerformsSetupLikeShownInDatasheet(void)
   uint64_t coordinators_address = 0;
   MrfState_setExtendedDestinationAddress_Expect(&impl->state, coordinators_address);
 
-  Mac802154_reconfigure(mrf, &mrf_config);
+  Mac802154_configure(mrf, &mrf_config);
   TEST_ASSERT_EQUAL_PTR(impl->io.device, device);
   TEST_ASSERT_EQUAL_PTR(impl->io.interface, interface);
 }
@@ -80,7 +80,7 @@ void test_initWithDifferentConfig(void)
   uint64_t coordinators_address = 0;
   MrfState_setExtendedDestinationAddress_Expect(&impl->state, coordinators_address);
 
-  Mac802154_reconfigure(mrf, &mrf_config);
+  Mac802154_configure(mrf, &mrf_config);
 }
 
 void setUpInitializationValues(MrfIo *impl, const Mac802154Config *config)
@@ -321,7 +321,7 @@ test_useExtendedSourceAddress(void)
   MrfState_setPanId_Ignore();
   MrfState_setShortSourceAddress_Ignore();
   MrfState_setExtendedDestinationAddress_Ignore();
-  Mac802154_reconfigure(mrf, &mrf_config);
+  Mac802154_configure(mrf, &mrf_config);
   MrfState_setExtendedSourceAddress_Expect(&impl->state, mrf_config.extended_source_address);
   Mac802154_useExtendedSourceAddress(mrf);
 }
@@ -338,7 +338,7 @@ test_useShortSourceAddress(void)
   MrfState_setExtendedDestinationAddress_Ignore();
   MrfState_setPanId_Ignore();
   MrfState_setShortSourceAddress_Expect(&impl->state, mrf_config.short_source_address);
-  Mac802154_reconfigure(mrf, &mrf_config);
+  Mac802154_configure(mrf, &mrf_config);
   MrfState_setShortSourceAddress_Expect(&impl->state, mrf_config.short_source_address);
   Mac802154_useShortSourceAddress(mrf);
 }

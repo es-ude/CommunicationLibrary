@@ -172,7 +172,6 @@ cc_binary(
         "src/EchoMessageBlocking.c",
         "src/config.c",
         "src/config.h",
-        ":LufaSetup",
     ],
     copts = avr_minimal_copts() + LUFA_COPTS + [
         "-Os",
@@ -180,11 +179,13 @@ cc_binary(
         "-fno-asynchronous-unwind-tables",
         "-ffast-math",
         "-fmerge-all-constants",
+        "-fmerge-all-constants",
         "-include stdint.h",
         "-fdata-sections",
         "-ffunction-sections",
         "-DCEXCEPTION_T=uint8_t",
         "-DCEXCEPTION_NONE=0x00",
+        "-fshort-enums",
     ],
     linkopts = avr_minimal_copts() + LUFA_COPTS + [
         "-Os",
@@ -193,7 +194,7 @@ cc_binary(
     deps = [
         "//:CommunicationModule",
         "@CException//:CException",
-        "@LUFA//:LUFA_USB",
+        #        "@LUFA//:LUFA_USB",
     ],
 )
 

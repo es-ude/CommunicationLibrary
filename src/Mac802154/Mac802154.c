@@ -2,7 +2,7 @@
 
 extern void debug(uint8_t *string);
 
-void Mac802154_reconfigure(Mac802154 *self, const Mac802154Config *config) {
+void Mac802154_configure(Mac802154 *self, const Mac802154Config *config) {
   self->reconfigure(self, config);
 }
 

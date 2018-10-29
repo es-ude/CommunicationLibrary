@@ -33,3 +33,7 @@ or take a look at their header files.
 ### Exceptions
 Instead of passing and handling error codes in long if-else statements, we use
 the CException library. However currently it is only partially used.
+
+## Known Issues
+* non blocking functions are in development
+* enabling promiscuous mode seems to prevent back to back reception of packages
