@@ -62,6 +62,9 @@ void Mac802154_useShortSourceAddress(Mac802154 *self);
  * In promiscuous mode all 802.15.4 frames with a
  * correct crc will be received, no matter how their
  * address fields are set.
+ * WARNING: Remember to disable promiscuous mode before sending
+ * any packages. Otherwise your device might stop receiving any packages.
+ * (This has been observed for the MRF24J40.)
  */
 void Mac802154_enablePromiscuousMode(Mac802154 *self);
 
