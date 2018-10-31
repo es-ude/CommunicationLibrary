@@ -28,6 +28,21 @@ LUFA_COPTS = [
     "-MP",
 ]
 
+CODE_SIZE_OPTIMIZATION_COPTS = [
+    "-Os",
+    "-s",
+    "-fno-asynchronous-unwind-tables",
+    "-ffast-math",
+    "-fmerge-all-constants",
+    "-fmerge-all-constants",
+    "-include stdint.h",
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-DCEXCEPTION_T=uint8_t",
+    "-DCEXCEPTION_NONE=0x00",
+    "-fshort-enums",
+]
+
 filegroup(
     name = "LufaSetup",
     srcs = glob([
@@ -172,21 +187,9 @@ cc_binary(
         "src/EchoMessageBlocking.c",
         "src/config.c",
         "src/config.h",
+        ":LufaSetup",
     ],
-    copts = avr_minimal_copts() + LUFA_COPTS + [
-        "-Os",
-        "-s",
-        "-fno-asynchronous-unwind-tables",
-        "-ffast-math",
-        "-fmerge-all-constants",
-        "-fmerge-all-constants",
-        "-include stdint.h",
-        "-fdata-sections",
-        "-ffunction-sections",
-        "-DCEXCEPTION_T=uint8_t",
-        "-DCEXCEPTION_NONE=0x00",
-        "-fshort-enums",
-    ],
+    copts = avr_minimal_copts() + LUFA_COPTS + CODE_SIZE_OPTIMIZATION_COPTS,
     linkopts = avr_minimal_copts() + LUFA_COPTS + [
         "-Os",
         "-Xlinker --gc-sections",
@@ -194,8 +197,34 @@ cc_binary(
     deps = [
         "//:CommunicationModule",
         "@CException//:CException",
-        #        "@LUFA//:LUFA_USB",
+        "@LUFA//:LUFA_USB",
     ],
+)
+
+cc_binary(
+    name = "PrintReceivedDataToVirtualSerial",
+    srcs = [
+        "src/PrintReceivedDataToVirtualSerial.c",
+        "src/config.c",
+        "src/config.h",
+        ":LufaSetup",
+    ],
+    copts = avr_minimal_copts() + LUFA_COPTS + CODE_SIZE_OPTIMIZATION_COPTS,
+    linkopts = avr_minimal_copts() + LUFA_COPTS + [
+        "-Xlinker --gc-sections",
+        "-Os",
+    ],
+    deps = [
+        "//:CommunicationModule",
+        "@CException//:CException",
+        "@LUFA//:LUFA_USB",
+    ],
+)
+
+generate_hex(
+    name = "PrintReceivedDataToVirtualSerialHex",
+    input = ":PrintReceivedDataToVirtualSerial",
+    mcu = "atmega32u4",
 )
 
 cc_binary(

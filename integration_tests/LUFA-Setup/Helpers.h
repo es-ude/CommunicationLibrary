@@ -15,6 +15,7 @@ void setUpUsbSerial(void);
 void usbWriteString(const uint8_t *data);
 
 void debug(const uint8_t *data);
+void debugSized(const uint8_t *data, uint16_t size);
 
 // needs to be called periodically in short intervals from the main method
 void periodicUsbTask(void);

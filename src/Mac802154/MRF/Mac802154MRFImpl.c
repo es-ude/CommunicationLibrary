@@ -1,3 +1,4 @@
+
 #include "src/Mac802154/MRF/Mac802154MRFImplIntern.h"
 #include "src/BitManipulation.h"
 
@@ -192,7 +193,7 @@ void
 enablePromiscuousMode(Mac802154 *self)
 {
   Mrf *impl = (Mrf *)self;
-  MrfIo_setControlRegister(&impl->io, mrf_register_receive_mac_control, 1);
+  MrfIo_setControlRegister(&impl->io, (uint8_t)mrf_register_receive_mac_control, 1);
 }
 
 void

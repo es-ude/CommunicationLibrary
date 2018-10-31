@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdio.h>
 #include "Helpers.h"
 
 /*
@@ -57,6 +58,17 @@ void usbWriteString(const uint8_t *data) {
 
 void debug(const uint8_t *data) {
   usbWriteString(data);
+}
+
+void debugSized(const uint8_t *data, uint16_t size)
+{
+  for(;size > 0; size--)
+    {
+      putc(*(char *)data, &USBSerialStream);
+      data++;
+    }
+  fflush(&USBSerialStream);
+  periodicUsbTask();
 }
 
 void periodicUsbTask(void) {
