@@ -78,7 +78,7 @@ struct Mrf {
   MrfIo io;
   void (*delay_microseconds)(uint16_t);
   MrfState state;
-  const Mac802154Config *config;
+  Mac802154Config config;
 };
 
 static void reconfigure(Mac802154 self, const Mac802154Config *config);

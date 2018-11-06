@@ -15,7 +15,6 @@ void Mac802154MRF_create(Mac802154 memory,
   Mrf *impl = (Mrf *) memory;
   impl->delay_microseconds = delay_microseconds;
   setUpInterface(&impl->mac);
-  impl->config = NULL;
   impl->io.interface = interface;
   impl->io.device = peripheral;
 }
@@ -44,7 +43,7 @@ void setUpInterface(Mac802154 interface) {
 
 void reconfigure(Mac802154 self, const Mac802154Config *config) {
   Mrf *impl = (Mrf *) self;
-  impl->config = config;
+  impl->config = *config;
   reset(impl);
   setInitializationValuesFromDatasheet(&impl->io);
   enableRXInterrupt(impl);
@@ -266,12 +265,12 @@ void
 useExtendedSourceAddress(Mac802154 self)
 {
   Mrf *impl = (Mrf *)self;
-  MrfState_setExtendedSourceAddress(&impl->state, impl->config->extended_source_address);
+  MrfState_setExtendedSourceAddress(&impl->state, impl->config.extended_source_address);
 }
 
 void
 useShortSourceAddress(Mac802154 self)
 {
   Mrf *impl = (Mrf *) self;
-  MrfState_setShortSourceAddress(&impl->state, impl->config->short_source_address);
+  MrfState_setShortSourceAddress(&impl->state, impl->config.short_source_address);
 }
