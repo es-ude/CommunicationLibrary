@@ -7,7 +7,6 @@
 uint8_t* setup(void);
 uint8_t readByteFromShortAddressRegister(uint8_t register_address);
 void convertByteToString(uint8_t byte, uint8_t *string);
-void debug(const uint8_t *string);
 
 static SPIConfig spi_config = {
         .data_register = &SPDR,
@@ -95,11 +94,6 @@ void convertByteToString(uint8_t byte, uint8_t *string) {
   uint8_t lower_half = (uint8_t) (byte & 0x0F);
   string[2] = convertNumberToASCII(upper_half);
   string[3] = convertNumberToASCII(lower_half);
-}
-
-void debug(const uint8_t *string) {
-  usbWriteString(string);
-  periodicUsbTask();
 }
 
 void debugPrintHex(uint8_t byte) {

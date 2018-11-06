@@ -7,15 +7,20 @@ size_t Mac802154MRF_getADTSize (void) {
 
 }
 
-void Mac802154MRF_create(uint8_t *memory, DelayFunction delay_microseconds)
+void Mac802154MRF_create(Mac802154 memory,
+                         DelayFunction delay_microseconds,
+                         PeripheralInterface interface,
+                         Peripheral *peripheral)
 {
   Mrf *impl = (Mrf *) memory;
   impl->delay_microseconds = delay_microseconds;
   setUpInterface(&impl->mac);
   impl->config = NULL;
+  impl->io.interface = interface;
+  impl->io.device = peripheral;
 }
 
-void setUpInterface(Mac802154 *interface) {
+void setUpInterface(Mac802154 interface) {
   interface->reconfigure = reconfigure;
   interface->setShortDestinationAddress = setShortDestinationAddress;
   interface->setPayload = setPayload;
@@ -37,10 +42,9 @@ void setUpInterface(Mac802154 *interface) {
   interface->useShortSourceAddress = useShortSourceAddress;
 }
 
-void reconfigure(Mac802154 *self, const Mac802154Config *config) {
+void reconfigure(Mac802154 self, const Mac802154Config *config) {
   Mrf *impl = (Mrf *) self;
   impl->config = config;
-  setPrivateVariables(impl, config);
   reset(impl);
   setInitializationValuesFromDatasheet(&impl->io);
   enableRXInterrupt(impl);
@@ -81,11 +85,6 @@ void setPanId(Mrf *impl, const uint16_t *pan_id) {
 void enableRXInterrupt(Mrf *impl) {
   // clearing a bit in the register enables the corresponding interrupt
   MrfIo_setControlRegister(&impl->io, mrf_register_interrupt_control, (uint8_t) ~(1 << 3));
-}
-
-void setPrivateVariables(Mrf *impl, const Mac802154Config *config) {
-  impl->io.interface = config->interface;
-  impl->io.device = config->device;
 }
 
 void reset(Mrf *impl) {
@@ -136,17 +135,17 @@ void resetInternalRFStateMachine(Mrf *impl) {
   impl->delay_microseconds(mrf_value_delay_interval_after_state_machine_reset);
 }
 
-void setShortDestinationAddress(Mac802154 *self, uint16_t address) {
+void setShortDestinationAddress(Mac802154 self, uint16_t address) {
   Mrf *impl = (Mrf *) self;
   MrfState_setShortDestinationAddress(&impl->state, address);
 }
 
-void setPayload(Mac802154 *self, const char *payload, size_t payload_length) {
+void setPayload(Mac802154 self, const char *payload, size_t payload_length) {
   Mrf *impl = (Mrf *) self;
   MrfState_setPayload(&impl->state, payload, (uint8_t) payload_length);
 }
 
-void sendBlocking(Mac802154 *self) {
+void sendBlocking(Mac802154 self) {
   Mrf *impl = (Mrf *) self;
 
   MrfField current_field = MrfState_getFullHeaderField(&impl->state);
@@ -158,7 +157,7 @@ void sendBlocking(Mac802154 *self) {
     ;
 }
 
-void setExtendedDestinationAddress(Mac802154 *self, uint64_t address) {
+void setExtendedDestinationAddress(Mac802154 self, uint64_t address) {
   Mrf *impl = (Mrf *) self;
   MrfState_setExtendedDestinationAddress(&impl->state, address);
 }
@@ -167,20 +166,20 @@ void triggerSend(Mrf *impl) {
   MrfIo_setControlRegister(&impl->io, mrf_register_tx_normal_fifo_control, 1);
 }
 
-uint8_t getReceivedMessageSize(Mac802154 *self) {
+uint8_t getReceivedMessageSize(Mac802154 self) {
   Mrf *impl = (Mrf *) self;
   uint8_t size = 0;
   MrfIo_readBlockingFromLongAddress(&impl->io, mrf_rx_fifo_start, &size, 1);
   return size+frame_length_field_size;
 }
 
-bool newMessageAvailable(Mac802154 *self) {
+bool newMessageAvailable(Mac802154 self) {
   Mrf *impl = (Mrf *) self;
   uint8_t status_register_value = MrfIo_readControlRegister(&impl->io, mrf_register_interrupt_status);
   return ((status_register_value >> 3) & 1) == 1;
 }
 
-void fetchMessageBlocking(Mac802154 *self, uint8_t *buffer, uint8_t size) {
+void fetchMessageBlocking(Mac802154 self, uint8_t *buffer, uint8_t size) {
   Mrf *impl = (Mrf *) self;
   MrfIo_readBlockingFromLongAddress(&impl->io, mrf_rx_fifo_start, buffer, size);
 }
@@ -190,14 +189,14 @@ void fetchMessageBlocking(Mac802154 *self, uint8_t *buffer, uint8_t size) {
  *
  */
 void
-enablePromiscuousMode(Mac802154 *self)
+enablePromiscuousMode(Mac802154 self)
 {
   Mrf *impl = (Mrf *)self;
   MrfIo_setControlRegister(&impl->io, (uint8_t)mrf_register_receive_mac_control, 1);
 }
 
 void
-disablePromiscuousMode(Mac802154 *self)
+disablePromiscuousMode(Mac802154 self)
 {
   Mrf *impl = (Mrf *) self;
   MrfIo_setControlRegister(&impl->io, mrf_register_receive_mac_control, 0);
@@ -264,14 +263,14 @@ getPacketShortSourceAddress(const uint8_t *packet)
 }
 
 void
-useExtendedSourceAddress(Mac802154 *self)
+useExtendedSourceAddress(Mac802154 self)
 {
   Mrf *impl = (Mrf *)self;
   MrfState_setExtendedSourceAddress(&impl->state, impl->config->extended_source_address);
 }
 
 void
-useShortSourceAddress(Mac802154 *self)
+useShortSourceAddress(Mac802154 self)
 {
   Mrf *impl = (Mrf *) self;
   MrfState_setShortSourceAddress(&impl->state, impl->config->short_source_address);

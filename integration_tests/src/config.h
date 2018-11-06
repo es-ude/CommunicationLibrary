@@ -4,7 +4,7 @@
 #include "include/Mac802154.h"
 #include "include/PeripheralSPIImpl.h"
 
-Mac802154 *mac802154;
+Mac802154 mac802154;
 SPISlave mrf_spi_client;
 PeripheralInterface peripheral_interface;
 
