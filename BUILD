@@ -102,6 +102,7 @@ cc_library(
         ":avr-config": [
             "-mmcu=$(MCU)",
             "-Os",
+            "-std=gnu99",
         ],
         "//conditions:default": [],
     }) + CommunicationModuleCompilerFlags,
@@ -128,6 +129,7 @@ cc_library(
             "-fdata-sections",
             "-Xlinker --gc-sections",
             "-ffast-math",
+            "-std=gnu99",
         ],
         "//conditions:default": [],
     }) + [
