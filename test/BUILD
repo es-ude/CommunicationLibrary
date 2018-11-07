@@ -56,4 +56,11 @@ A: Well... if you have you're test depending on a file you'd
 
 test_suite(
     name = "ALL",
+    tests = [
+        ":BitManipulation_Test",
+        ":Mac802154Header_Test",
+        ":PeripheralSPIImpl_Test",
+        "//test/MRF:MRFState_Test",
+        "//test/MRF:Mac802154MRF_Test",
+    ]
 )
