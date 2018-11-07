@@ -45,8 +45,8 @@ new_http_archive(
 
 http_archive(
     name = "AVR_Toolchain",
-    urls = ["https://github.com/glencoe/Bazel-AVR-Toolchain-Linux/archive/master.tar.gz"],
-    strip_prefix = "Bazel-AVR-Toolchain-Linux-master"
+  urls = ["http://bitbucket.es.uni-due.de:7990/rest/api/latest/projects/FKS/repos/bazel-avr-toolchain-linux/archive?format=tgz"],
+  type = "tar.gz",
 )
 
 new_http_archive(
