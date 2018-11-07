@@ -32,6 +32,7 @@ generate_a_unity_test_for_every_file(
     copts = [
         "-DCEXCEPTION_NONE=0x00",
         "-DCEXCEPTION_T=uint8_t",
+        "-std=gnu99",
     ]
 )
 
