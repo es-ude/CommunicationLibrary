@@ -51,21 +51,22 @@ This adds the command line flag -mmcu=$(MCU) as soon as the user calls Bazel lik
     bazel <command> --cpu=avr --define MCU=<mcu-name>
 and $(MCU) is replaced by <mcu-name>
 """
+
 CommunicationModuleCompilerFlags = [
-            "-Winline",
-            "-include stdint.h",
-            "-DCEXCEPTION_T=uint8_t",
-            "-DCEXCEPTION_NONE=0x00",
-            "-funsigned-char",
-            "-ffunction-sections",
-            "-fdata-sections",
-            "-fshort-enums",
-            "-ffast-math",
-            "-Os",
+    "-Winline",
+    "-include stdint.h",
+    "-DCEXCEPTION_T=uint8_t",
+    "-DCEXCEPTION_NONE=0x00",
+    "-funsigned-char",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-fshort-enums",
+    "-ffast-math",
+    "-Os",
 ]
 
 CommunicationModuleLinkerFlags = [
-     "-Xlinker --gc-sections",
+    "-Xlinker --gc-sections",
 ]
 
 CommunicationModuleVisibility = [
@@ -102,7 +103,7 @@ cc_library(
         ":avr-config": [
             "-mmcu=$(MCU)",
             "-Os",
-            "-std=gnu99",
+            "-std=c99",
         ],
         "//conditions:default": [],
     }) + CommunicationModuleCompilerFlags,
@@ -129,7 +130,7 @@ cc_library(
             "-fdata-sections",
             "-Xlinker --gc-sections",
             "-ffast-math",
-            "-std=gnu99",
+            "-std=c99",
         ],
         "//conditions:default": [],
     }) + [
