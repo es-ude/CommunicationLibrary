@@ -34,6 +34,8 @@ unity_test(
         "-Werror=discarded-qualifiers",
         "-Wno-error=incompatible-pointer-types",
         "-funsigned-char",
+        "-DCEXCEPTION_NONE=0x00",
+        "-DCEXCEPTION_T=uint8_t",
     ],
     file_name = "Mac802154MRF_Test.c",
     mocks = [

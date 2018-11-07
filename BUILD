@@ -51,6 +51,45 @@ This adds the command line flag -mmcu=$(MCU) as soon as the user calls Bazel lik
     bazel <command> --cpu=avr --define MCU=<mcu-name>
 and $(MCU) is replaced by <mcu-name>
 """
+CommunicationModuleCompilerFlags = [
+            "-Winline",
+            "-include stdint.h",
+            "-DCEXCEPTION_T=uint8_t",
+            "-DCEXCEPTION_NONE=0x00",
+            "-funsigned-char",
+            "-ffunction-sections",
+            "-fdata-sections",
+            "-fshort-enums",
+            "-ffast-math",
+            "-Os",
+]
+
+CommunicationModuleLinkerFlags = [
+     "-Xlinker --gc-sections",
+]
+
+CommunicationModuleVisibility = [
+    "//visibility:public",
+]
+
+CommunicationModuleDeps = [
+    "@CException//:CException",
+]
+
+cc_library(
+    name = "CommunicationModuleAtmega32u4",
+    srcs = [
+        ":CommunicationModuleSrc",
+        ":PrivateHdrFiles",
+    ],
+    hdrs = [":CommunicationModuleIncl"],
+    copts = [
+        "-mmcu=atmega32u4",
+    ] + CommunicationModuleCompilerFlags,
+    linkopts = CommunicationModuleLinkerFlags,
+    visibility = CommunicationModuleVisibility,
+    deps = CommunicationModuleDeps,
+)
 
 cc_library(
     name = "CommunicationModule",
@@ -65,24 +104,10 @@ cc_library(
             "-Os",
         ],
         "//conditions:default": [],
-    }) + [
-        "-Winline",
-        "-include stdint.h",
-        "-DCEXCEPTION_T=uint8_t",
-        "-DCEXCEPTION_NONE=0x00",
-        "-funsigned-char",
-        "-ffunction-sections",
-        "-fdata-sections",
-        "-fshort-enums",
-        "-ffast-math",
-    ],
-    linkopts = [
-        "-Xlinker --gc-sections",
-    ],
-    visibility = [
-        "//visibility:public",
-    ],
-    deps = ["@CException//:CException"],
+    }) + CommunicationModuleCompilerFlags,
+    linkopts = CommunicationModuleLinkerFlags,
+    visibility = CommunicationModuleVisibility,
+    deps = CommunicationModuleDeps,
 )
 
 cc_library(
