@@ -65,6 +65,6 @@ test_suite(
         ":Mac802154Header_Test",
         ":PeripheralSPIImpl_Test",
 #        "//test/MRF:MRFState_Test",
-        "//test/MRF:Mac802154MRF_Test",
+#        "//test/MRF:Mac802154MRF_Test",
     ]
 )
