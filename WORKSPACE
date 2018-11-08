@@ -30,15 +30,11 @@ new_http_archive(
   strip_prefix = "CException-master",
   )
 
-local_repository(
+http_archive(
     name = "UnityPlugin",
-    path = "../UnityPlugin",
+    urls = ["https://github.com/glencoe/BazelUnityPlugin/archive/master.tar.gz"],
+    strip_prefix = "BazelUnityPlugin-master",
 )
-#http_archive(
-#    name = "UnityPlugin",
-#    urls = ["https://github.com/glencoe/BazelUnityPlugin/archive/master.tar.gz"],
-#    strip_prefix = "BazelUnityPlugin-master",
-#)
 
 new_http_archive(
   name = "CMock",
