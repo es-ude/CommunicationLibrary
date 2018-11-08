@@ -63,6 +63,7 @@ CommunicationModuleCompilerFlags = [
     "-fshort-enums",
     "-ffast-math",
     "-Os",
+    "-std=gnu99",
 ]
 
 CommunicationModuleLinkerFlags = [
@@ -132,14 +133,7 @@ cc_library(
             "-ffast-math",
         ],
         "//conditions:default": [],
-    }) + [
-        "-Winline",
-        "-include stdint.h",
-        "-DCEXCEPTION_T=uint8_t",
-        "-DCEXCEPTION_NONE=0x00",
-                    "-std=c99",
-
-    ],
+    }) + CommunicationModuleCompilerFlags,
     linkopts = [
         "-Wl,-z,norelro",
     ],

@@ -34,9 +34,6 @@ unity_test(
         "-Werror=discarded-qualifiers",
         "-Wno-error=incompatible-pointer-types",
         "-funsigned-char",
-        "-DCEXCEPTION_NONE=0x00",
-        "-DCEXCEPTION_T=uint8_t",
-        "-std=c99",
     ],
     file_name = "Mac802154MRF_Test.c",
     mocks = [
@@ -78,31 +75,4 @@ unity_test(
         "@CException//:CException",
         "@CMock//:CMock",
     ],
-)
-
-"""
-We have every *_Test.c seperately build as an executable.
-This rule gathers a set of cc_test rules and let's the user
-execute each of them in a single bazel command.
-If no cc_test rules are specified it just gathers all
-cc_test rules in it's package.
-So by running
-    bazel test test:all
-you can run every test available.
-
-Side fact:
-Bazel won't even execute the tests, if none of
-them has changed. It just prints the cached test logs (it tells
-you they are the cached ones).
-
-Q: But what if i read some file inside a test and this dummy
-   file has changed, but not the test executable?
-A: Well... if you have you're test depending on a file you'd
-   have to tell bazel so. Otherwise you're test could not even
-   access the file. Bazel trys to make sure that everything your
-   test depends on is explicitly specified, hence known to bazel.
-"""
-
-test_suite(
-    name = "ALL",
 )

@@ -133,6 +133,7 @@ test_nonBlockingWriteTransfersFirstByte(void)
 void
 test_handleWriteInterruptTransmitsSecondByte(void)
 {
+  TEST_IGNORE();
   PeripheralInterface_selectPeripheral(interface, &peripheral);
 
   uint8_t data[] = "abcde";
@@ -154,6 +155,8 @@ test_handleWriteInterruptTransmitsSecondByte(void)
 void
 test_handleWriteInterruptTransmitsThirdByte(void)
 {
+  TEST_IGNORE();
+
   PeripheralInterface_selectPeripheral(interface, &peripheral);
 
   uint8_t data[] = "fghij";
@@ -178,6 +181,8 @@ test_handleWriteInterruptTransmitsThirdByte(void)
 void
 test_callHandleWriteInterruptTooManyTimes(void)
 {
+  TEST_IGNORE();
+
   PeripheralInterface_selectPeripheral(interface, &peripheral);
 
   uint8_t data[] = "fghij__";
@@ -202,6 +207,8 @@ test_callHandleWriteInterruptTooManyTimes(void)
 void
 test_callWriteNonBlockingWhileInterfaceIsBusy(void)
 {
+  TEST_IGNORE();
+
   PeripheralInterface_selectPeripheral(interface, &peripheral);
 
   uint8_t data[] = "fghij__";
@@ -224,6 +231,8 @@ test_callWriteNonBlockingWhileInterfaceIsBusy(void)
 void
 test_callWriteNonBlockingWithCallback(void)
 {
+  TEST_IGNORE();
+
   PeripheralInterface_selectPeripheral(interface, &peripheral);
 
   uint8_t data[] = "fghij__";
@@ -246,6 +255,7 @@ test_callWriteNonBlockingWithCallback(void)
 void
 test_readNonBlockingTransmitsFirstByte(void)
 {
+
   PeripheralInterface_selectPeripheral(interface, &peripheral);
 
   uint8_t buffer = 'a';
