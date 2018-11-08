@@ -31,8 +31,8 @@ unity_test(
     copts = [
         "-Wno-unused-function",
         "-Werror=return-type",
-        "-Werror=discarded-qualifiers",
-        "-Wno-error=incompatible-pointer-types",
+#        "-Werror=discarded-qualifiers",
+#        "-Wno-error=incompatible-pointer-types",
         "-funsigned-char",
     ],
     file_name = "Mac802154MRF_Test.c",

@@ -99,7 +99,7 @@ void test_get16BitIntegerFromBigEndianArray(void) {
 
 void test_get64BitIntegerFromBigEndianArray(void) {
   uint64_t expected = 0x1122334455667788;
-  uint8_t array[8] = {
+  uint8_t array[9] = {
       0x88, 0x77, 0x66,
       0x55, 0x44, 0x33,
       0x22, 0x11, 0x00,
