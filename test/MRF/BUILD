@@ -31,9 +31,10 @@ unity_test(
     copts = [
         "-Wno-unused-function",
         "-Werror=return-type",
-#        "-Werror=discarded-qualifiers",
-#        "-Wno-error=incompatible-pointer-types",
+        #        "-Werror=discarded-qualifiers",
+        #        "-Wno-error=incompatible-pointer-types",
         "-funsigned-char",
+        "-std=gnu99",
     ],
     file_name = "Mac802154MRF_Test.c",
     mocks = [
@@ -57,6 +58,9 @@ unity_test(
         "//test/MRF:Mac802154MRF_TestHelper.h",
         "//:include/Peripheral.h",
     ],
+    copts = [
+        "-std=gnu99",
+    ],
     deps = [
         "//:CommunicationModuleLibForTest",
         "@CException//:CException",
@@ -69,6 +73,9 @@ unity_test(
     mocks = [
         "//:src/Mac802154/FrameHeader802154.h",
         "//:include/Peripheral.h",
+    ],
+    copts = [
+        "-std=gnu99"
     ],
     deps = [
         "//:CommunicationModuleLibForTest",
