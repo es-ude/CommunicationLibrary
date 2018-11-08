@@ -130,7 +130,6 @@ cc_library(
             "-fdata-sections",
             "-Xlinker --gc-sections",
             "-ffast-math",
-            "-std=c99",
         ],
         "//conditions:default": [],
     }) + [
@@ -138,6 +137,8 @@ cc_library(
         "-include stdint.h",
         "-DCEXCEPTION_T=uint8_t",
         "-DCEXCEPTION_NONE=0x00",
+                    "-std=c99",
+
     ],
     linkopts = [
         "-Wl,-z,norelro",
