@@ -13,7 +13,7 @@
 
 Peripheral *device;
 PeripheralInterface interface;
-Mac802154 *mrf;
+Mac802154 mrf;
 Mac802154Config mrf_config;
 
 void
@@ -24,13 +24,11 @@ void
 setUp(void)
 {
   mrf = malloc(Mac802154MRF_getADTSize());
-  mrf_config.interface = interface;
-  mrf_config.device = device;
   mrf_config.pan_id = 0;
   mrf_config.extended_source_address = 0;
   mrf_config.short_source_address = 0;
   mrf_config.channel = 11;
-  Mac802154MRF_create((uint8_t *) mrf, fakeDelay);
+  Mac802154MRF_create(mrf, fakeDelay, interface, device);
 }
 
 void
