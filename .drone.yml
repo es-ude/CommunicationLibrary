@@ -56,6 +56,29 @@ pipeline:
     volumes:
       - /build/:/build/
 
+  doxygen:
+    pull: true
+    image: build.es.uni-due.de/doxygen
+    group: deploy
+    secrets:
+      - confluence_password
+      - confluence_doc_key
+    commands:
+      - doxygen doc/doxy.conf
+      - mkdir -p build/reports/
+      - zip -r build/reports/javadoc.jar html
+      - python /usr/share/pushJavadoc.py
+    secrets:
+      - docker_username
+      - docker_password
+    when:
+      event: [push, pull_request, tag]
+      branch: [develop]
+    volumes:
+      #- /:/doxy
+      - /html:/html
+      - /latex:/latex
+
   notify:
     image: drillster/drone-email
     host: mailout.uni-due.de
