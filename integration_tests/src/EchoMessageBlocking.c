@@ -19,7 +19,7 @@ int main(void) {
   _delay_ms(1000);
   uint8_t raw_memory[Mac802154MRF_getADTSize ()];
   Mac802154MRF_create(raw_memory, delay_microseconds, peripheral_interface, &mrf_spi_client);
-  Mac802154 mac = (Mac802154*) raw_memory;
+  Mac802154 mac = (Mac802154) raw_memory;
   Mac802154_configure(mac, &config);
   debug("Start\n");
   _delay_ms(500);
