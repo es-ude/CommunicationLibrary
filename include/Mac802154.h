@@ -15,7 +15,7 @@
  *  the destination address or the payload seperately.
  *  Once you are happy with your message setup, you can
  *  send the frame using the Mac802154_sendBlocking() function.
- *
+ *  IMPORTANT: All addresses are assumed to be in network byte order. This includes the pan id.
  */
 
 typedef struct Mac802154* Mac802154;
@@ -37,6 +37,11 @@ void Mac802154_configure(Mac802154 hardware, const Mac802154Config *config);
 
 void Mac802154_sendBlocking(Mac802154 hardware);
 
+/**
+ * A copy of the address is kept internally so you are free to delete
+ * it after function return. Be aware that all addresses have to be
+ * provided in network byte order
+ */
 void Mac802154_setShortDestinationAddress(Mac802154 self, const uint8_t *address);
 
 /**
@@ -90,8 +95,6 @@ bool Mac802154_newPacketAvailable(Mac802154 self);
 
 /**
  * Place all received data available from the hardware into the buffer.
- * @param self
- * @param buffer
  * @param size This should be the value you got prior from Mac802154_getReceivedPacketSize(), generally
  *             you're free to use a different one but the result will almost certainly lead to problems with the
  *             inspection functions, that expect a complete frame.
