@@ -317,8 +317,8 @@ void disableDoubleSpeed(volatile uint8_t *status_register) {
 }
 
 void setSPIMode(volatile uint8_t *control_register, uint8_t spi_mode) {
-  void (*set_clock_polarity) (volatile uint8_t *, uint8_t);
-  void (*set_clock_phase) (volatile uint8_t *, uint8_t);
+  void (*set_clock_polarity) (volatile uint8_t *, uint8_t) = BitManipulation_clearBit;
+  void (*set_clock_phase) (volatile uint8_t *, uint8_t) = BitManipulation_clearBit;
 
   switch(spi_mode) {
 

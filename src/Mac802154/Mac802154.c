@@ -10,15 +10,15 @@ void Mac802154_sendBlocking(Mac802154 self) {
   self->sendBlocking(self);
 }
 
-void Mac802154_setShortDestinationAddress(Mac802154 self, uint16_t address) {
+void Mac802154_setShortDestinationAddress(Mac802154 self, const uint8_t *address) {
   self->setShortDestinationAddress(self, address);
 }
 
-void Mac802154_setPayload(Mac802154 self, const char *payload, size_t payload_length) {
+void Mac802154_setPayload(Mac802154 self, const uint8_t *payload, size_t payload_length) {
   self->setPayload(self, payload, payload_length);
 }
 
-void Mac802154_setExtendedDestinationAddress(Mac802154 self, uint64_t address) {
+void Mac802154_setExtendedDestinationAddress(Mac802154 self, const uint8_t *address) {
   self->setExtendedDestinationAddress(self, address);
 }
 
@@ -34,7 +34,7 @@ void Mac802154_fetchPacketBlocking(Mac802154 self, uint8_t *buffer, uint8_t size
   self->fetchPacketBlocking(self, buffer, size);
 }
 
-const char * Mac802154_getPacketPayload(Mac802154 self, const uint8_t *packet) {
+const uint8_t * Mac802154_getPacketPayload(Mac802154 self, const uint8_t *packet) {
   return self->getPacketPayload(packet);
 }
 
@@ -50,18 +50,20 @@ uint8_t Mac802154_getPacketSourceAddressSize(Mac802154 self, const uint8_t *pack
   return self->getPacketSourceAddressSize(packet);
 }
 
-uint64_t Mac802154_getPacketExtendedSourceAddress(const Mac802154 self, const uint8_t *packet) {
+const uint8_t *
+Mac802154_getPacketExtendedSourceAddress(const Mac802154 self, const uint8_t *packet) {
   return self->getPacketExtendedSourceAddress(packet);
 }
 
-uint16_t
+const uint8_t *
 Mac802154_getPacketShortSourceAddress(const Mac802154 self, const uint8_t *packet)
 {
   return self->getPacketShortSourceAddress(packet);
 }
 
 
-uint8_t Mac802154_getPacketPayloadSize(Mac802154 self, const uint8_t *packet) {
+uint8_t
+Mac802154_getPacketPayloadSize(Mac802154 self, const uint8_t *packet) {
   return self->getPacketPayloadSize(packet);
 }
 

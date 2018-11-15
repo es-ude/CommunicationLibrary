@@ -12,9 +12,14 @@ int main(void) {
 
   Mac802154Config config = {
           .channel = 12,
-          .pan_id = 0x3332,
-          .short_source_address = 0xAABB,
-          .extended_source_address = 0x1122334455667788,
+          .pan_id = {0x33, 0x32},
+          .short_source_address = {0xAA, 0xBB},
+          .extended_source_address = {
+              0x11, 0x22,
+              0x33, 0x44,
+              0x55, 0x66,
+              0x77, 0x88,
+          },
   };
   _delay_ms(1000);
   uint8_t raw_memory[Mac802154MRF_getADTSize ()];

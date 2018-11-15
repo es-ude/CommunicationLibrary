@@ -82,23 +82,23 @@ struct Mrf {
 };
 
 static void reconfigure(Mac802154 self, const Mac802154Config *config);
-static void setShortDestinationAddress(Mac802154 self, uint16_t address);
-static void setPayload(Mac802154 self, const char *payload, size_t payload_length);
+static void setShortDestinationAddress(Mac802154 self, const uint8_t *address);
+static void setPayload(Mac802154 self, const uint8_t *payload, size_t payload_length);
 static void sendBlocking(Mac802154 self);
-static void setExtendedDestinationAddress(Mac802154 self, uint64_t address);
-static void setShortSourceAddress(Mrf *impl, const uint16_t* address);
-static void setExtendedSourceAddress(Mrf *impl, const uint64_t *address);
-static void setPanId(Mrf *impl, const uint16_t *pan_id);
+static void setExtendedDestinationAddress(Mac802154 self, const uint8_t *address);
+static void setShortSourceAddress(Mrf *impl, const uint8_t* address);
+static void setExtendedSourceAddress(Mrf *impl, const uint8_t *address);
+static void setPanId(Mrf *impl, const uint8_t *pan_id);
 static uint8_t getReceivedMessageSize(Mac802154 self);
 static bool newMessageAvailable(Mac802154 self);
 static void fetchMessageBlocking(Mac802154 self, uint8_t *buffer, uint8_t size);
-static const char * getPacketPayload(const uint8_t *packet);
+static const uint8_t * getPacketPayload(const uint8_t *packet);
 static uint8_t getPacketPayloadSize(const uint8_t *packet);
 static bool packetAddressIsShort(const uint8_t *packet);
 static bool packetAddressIsLong(const uint8_t *packet);
 static uint8_t getPacketSourceAddressSize(const uint8_t *packet);
-static uint64_t getPacketExtendedSourceAddress(const uint8_t *packet);
-static uint16_t getPacketShortSourceAddress(const uint8_t *packet);
+static const uint8_t * getPacketExtendedSourceAddress(const uint8_t *packet);
+static const uint8_t * getPacketShortSourceAddress(const uint8_t *packet);
 static void useExtendedSourceAddress(Mac802154 self);
 static void useShortSourceAddress(Mac802154 self);
 

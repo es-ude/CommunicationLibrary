@@ -15,16 +15,16 @@
  *  the destination address or the payload seperately.
  *  Once you are happy with your message setup, you can
  *  send the frame using the Mac802154_sendBlocking() function.
- *
+ *  IMPORTANT: All addresses are assumed to be in network byte order. This includes the pan id.
  */
 
 typedef struct Mac802154* Mac802154;
 typedef struct Mac802154Config Mac802154Config;
 
 struct Mac802154Config {
-  uint16_t short_source_address;
-  uint64_t extended_source_address;
-  uint16_t pan_id;
+  uint8_t short_source_address[2];
+  uint8_t extended_source_address[8];
+  uint8_t pan_id[2];
   uint8_t channel;
 };
 
@@ -37,7 +37,12 @@ void Mac802154_configure(Mac802154 hardware, const Mac802154Config *config);
 
 void Mac802154_sendBlocking(Mac802154 hardware);
 
-void Mac802154_setShortDestinationAddress(Mac802154 self, uint16_t address);
+/**
+ * A copy of the address is kept internally so you are free to delete
+ * it after function return. Be aware that all addresses have to be
+ * provided in network byte order
+ */
+void Mac802154_setShortDestinationAddress(Mac802154 self, const uint8_t *address);
 
 /**
  * Call this to configure the module to include the extended
@@ -70,12 +75,12 @@ void Mac802154_disablePromiscuousMode(Mac802154 self);
 /**
  * sets address in big endian representation suitable for network transmission
 */
-void Mac802154_setExtendedDestinationAddress(Mac802154 self, uint64_t address);
+void Mac802154_setExtendedDestinationAddress(Mac802154 self, const uint8_t *address);
 
 /**
  * the payload needs to be alive in memory while transmission is running
 */
-void Mac802154_setPayload(Mac802154 self, const char *payload, size_t payload_length);
+void Mac802154_setPayload(Mac802154 self, const uint8_t *payload, size_t payload_length);
 
 /**
  *
@@ -90,8 +95,6 @@ bool Mac802154_newPacketAvailable(Mac802154 self);
 
 /**
  * Place all received data available from the hardware into the buffer.
- * @param self
- * @param buffer
  * @param size This should be the value you got prior from Mac802154_getReceivedPacketSize(), generally
  *             you're free to use a different one but the result will almost certainly lead to problems with the
  *             inspection functions, that expect a complete frame.
@@ -101,7 +104,7 @@ void Mac802154_fetchPacketBlocking(Mac802154 self, uint8_t *buffer, uint8_t size
 /**
  * @return A pointer to the start of the payload field
  */
-const char * Mac802154_getPacketPayload(Mac802154 self, const uint8_t *packet);
+const uint8_t * Mac802154_getPacketPayload(Mac802154 self, const uint8_t *packet);
 uint8_t Mac802154_getPacketPayloadSize(Mac802154 self, const uint8_t *packet);
 
 bool Mac802154_packetAddressIsShort(Mac802154 self, const uint8_t *packet);
@@ -110,8 +113,8 @@ bool Mac802154_packetAddressIsLong(Mac802154 self, const uint8_t *packet);
 
 uint8_t Mac802154_getPacketSourceAddressSize(Mac802154 self, const uint8_t *packet);
 
-uint64_t Mac802154_getPacketExtendedSourceAddress(const Mac802154 self, const uint8_t *packet);
-uint16_t Mac802154_getPacketShortSourceAddress(const Mac802154 self, const uint8_t *packet);
+const uint8_t * Mac802154_getPacketExtendedSourceAddress(const Mac802154 self, const uint8_t *packet);
+const uint8_t * Mac802154_getPacketShortSourceAddress(const Mac802154 self, const uint8_t *packet);
 
 enum {
   FRAME_TYPE_BEACON = 0,
