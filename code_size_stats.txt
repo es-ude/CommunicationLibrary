@@ -1,0 +1,34 @@
+old version using uints as input and output parameters dealing with addresses
+
+Library:
+   text	   data	    bss	    dec	    hex	filename
+   1328	      0	      0	   1328	    530	FrameHeader802154.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+    504	      0	      0	    504	    1f8	MRFState.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+   1438	      0	      0	   1438	    59e	Mac802154MRFImpl.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+    976	      0	      0	    976	    3d0	MrfIo.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+    212	      0	      0	    212	     d4	Mac802154.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+    126	      0	      0	    126	     7e	Peripheral.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+   1524	      0	      0	   1524	    5f4	PeripheralSPIImpl.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+   6108	      0	      0	   6108	   17dc	(TOTALS)
+
+Example Application:
+   text	   data	    bss	    dec	    hex	filename
+  10024	     92	     36	  10152	   27a8	bazel-out/avr-fastbuild/bin/integration_tests/EchoMessageBlocking
+
+
+using arrays instead of uint16/uint64 for addresses - no network/local byte order conversion stuff
+
+Library:
+   text	   data	    bss	    dec	    hex	filename
+   1194	      0	      0	   1194	    4aa	FrameHeader802154.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+    484	      0	      0	    484	    1e4	MRFState.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+   1022	      0	      0	   1022	    3fe	Mac802154MRFImpl.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+    976	      0	      0	    976	    3d0	MrfIo.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+    202	      0	      0	    202	     ca	Mac802154.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+    126	      0	      0	    126	     7e	Peripheral.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+   1514	      0	      0	   1514	    5ea	PeripheralSPIImpl.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+   5518	      0	      0	   5518	   158e	(TOTALS)
+
+Example Application:
+   text	   data	    bss	    dec	    hex	filename
+   9368	     92	     36	   9496	   2518	bazel-out/avr-fastbuild/bin/integration_tests/EchoMessageBlocking
