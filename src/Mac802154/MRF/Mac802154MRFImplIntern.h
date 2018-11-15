@@ -82,13 +82,13 @@ struct Mrf {
 };
 
 static void reconfigure(Mac802154 self, const Mac802154Config *config);
-static void setShortDestinationAddress(Mac802154 self, uint16_t address);
+static void setShortDestinationAddress(Mac802154 self, const uint8_t *address);
 static void setPayload(Mac802154 self, const uint8_t *payload, size_t payload_length);
 static void sendBlocking(Mac802154 self);
-static void setExtendedDestinationAddress(Mac802154 self, uint64_t address);
-static void setShortSourceAddress(Mrf *impl, const uint16_t* address);
-static void setExtendedSourceAddress(Mrf *impl, const uint64_t *address);
-static void setPanId(Mrf *impl, const uint16_t *pan_id);
+static void setExtendedDestinationAddress(Mac802154 self, const uint8_t *address);
+static void setShortSourceAddress(Mrf *impl, const uint8_t* address);
+static void setExtendedSourceAddress(Mrf *impl, const uint8_t *address);
+static void setPanId(Mrf *impl, const uint8_t *pan_id);
 static uint8_t getReceivedMessageSize(Mac802154 self);
 static bool newMessageAvailable(Mac802154 self);
 static void fetchMessageBlocking(Mac802154 self, uint8_t *buffer, uint8_t size);

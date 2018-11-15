@@ -64,6 +64,10 @@ CommunicationModuleCompilerFlags = [
     "-ffast-math",
     "-Os",
     "-std=gnu99",
+    "-Wno-unused-function",
+    "-Wno-unused-const-variable",
+    "-Werror=int-conversion",
+    "-Werror=incompatible-pointer-types"
 ]
 
 CommunicationModuleLinkerFlags = [

@@ -10,6 +10,7 @@
 #include "src/Mac802154/MRF/MockMrfIo.h"
 #include "src/Mac802154/MockFrameHeader802154.h"
 #include "src/Mac802154/MRF/Mac802154MRFImplIntern.h"
+#include "src/BitManipulation.h"
 
 Peripheral *device;
 PeripheralInterface interface;
@@ -24,9 +25,11 @@ void
 setUp(void)
 {
   mrf = malloc(Mac802154MRF_getADTSize());
-  mrf_config.pan_id = 0;
-  mrf_config.extended_source_address = 0;
-  mrf_config.short_source_address = 0;
+  mrf_config.pan_id[0] = 0;
+  mrf_config.pan_id[1] = 0;
+  BitManipulation_fillArray(mrf_config.extended_source_address, 0, 8);
+  mrf_config.short_source_address[0] = 0;
+  mrf_config.short_source_address[1] = 0;
   mrf_config.channel = 11;
   Mac802154MRF_create(mrf, fakeDelay, interface, device);
 }
@@ -55,7 +58,10 @@ void test_initPerformsSetupLikeShownInDatasheet(void)
   MrfState_init_Expect(&impl->state);
   MrfState_setPanId_Expect(&impl->state, mrf_config.pan_id);
   MrfState_setShortSourceAddress_Expect(&impl->state, mrf_config.short_source_address);
-  uint64_t coordinators_address = 0;
+  uint8_t coordinators_address[8] = {
+      0, 0, 0, 0,
+      0, 0, 0, 0,
+  };
   MrfState_setExtendedDestinationAddress_Expect(&impl->state, coordinators_address);
 
   Mac802154_configure(mrf, &mrf_config);
@@ -65,17 +71,27 @@ void test_initPerformsSetupLikeShownInDatasheet(void)
 
 void test_initWithDifferentConfig(void)
 {
-  mrf_config.extended_source_address = 0xFFFFABABCDCD1234;
-  mrf_config.short_source_address = 0xFFAB;
+  uint8_t extended_address_byte = 0x11;
+  for (uint8_t i = 0; i < 8; i++)
+    {
+      mrf_config.extended_source_address[i] = extended_address_byte;
+      extended_address_byte += 0x11;
+    }
+  mrf_config.short_source_address[0] = 0xFF;
+  mrf_config.short_source_address[1] = 0xAB;
   mrf_config.channel = 22;
-  mrf_config.pan_id = 0xABCD;
+  mrf_config.pan_id[0] = 0xAB;
+  mrf_config.pan_id[1] = 0xCD;
   struct Mrf *impl = (struct Mrf *) mrf;
 
   setUpInitializationValues(&impl->io, &mrf_config);
   MrfState_init_Expect(&impl->state);
   MrfState_setPanId_Expect(&impl->state, mrf_config.pan_id);
   MrfState_setShortSourceAddress_Expect(&impl->state, mrf_config.short_source_address);
-  uint64_t coordinators_address = 0;
+  uint8_t coordinators_address[8] = {
+      0,0,0,0,
+      0,0,0,0,
+  };
   MrfState_setExtendedDestinationAddress_Expect(&impl->state, coordinators_address);
 
   Mac802154_configure(mrf, &mrf_config);
@@ -121,13 +137,13 @@ void setUpInitializationValues(MrfIo *impl, const Mac802154Config *config)
 void test_sendBlocking(void)
 {
   struct Mrf *impl = (struct Mrf *) mrf;
-  char payload[] = "hello, world!";
-  uint8_t payload_length = (uint8_t) strlen((const char *) payload);
+  uint8_t payload[] = "hello, world!";
+  uint8_t payload_length = (uint8_t) strlen((char *)payload);
 
   MrfState_setPayload_Expect(NULL, payload, payload_length);
   MrfState_setPayload_IgnoreArg_mrf();
 
-  Mac802154_setPayload(mrf, payload, payload_length);
+  Mac802154_setPayload(mrf, (uint8_t*)payload, payload_length);
 
   uint8_t fake_header_data[] = "123456789";
   uint8_t fake_header_length = 9;
@@ -211,7 +227,7 @@ void test_fetchMessageBlocking(void)
 
 void test_getReceivedFramePayload(void)
 {
-  const char *payload;
+  const uint8_t *payload;
   uint8_t header_size = 14;
   uint8_t frame_length_field_size = 1;
   uint8_t bigger_than_maximum_header_size = 2 * MAXIMUM_HEADER_SIZE;

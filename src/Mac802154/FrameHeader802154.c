@@ -146,9 +146,9 @@ uint8_t FrameHeader802154_getHeaderSize(FrameHeader802154 *self) {
   return base_size;
 }
 
-void FrameHeader802154_setExtendedSourceAddress(FrameHeader802154 *self, uint64_t address) {
+void FrameHeader802154_setExtendedSourceAddress(FrameHeader802154 *self, const uint8_t *address) {
   uint8_t *source_address = self->data + FrameHeader802154_getSourceAddressOffset(self);
-  BitManipulation_fillByteArrayWith64BitBigEndian(source_address, address);
+  BitManipulation_copyBytes(address, source_address, 8);
   if (getDestinationAddressingMode(self) == ADDRESSING_MODE_EXTENDED_ADDRESS)
   {
     disablePanIdCompression(self);
@@ -156,9 +156,9 @@ void FrameHeader802154_setExtendedSourceAddress(FrameHeader802154 *self, uint64_
   setSourceAddressingMode(self, ADDRESSING_MODE_EXTENDED_ADDRESS);
 }
 
-void FrameHeader802154_setShortSourceAddress(FrameHeader802154 *self, uint16_t address) {
+void FrameHeader802154_setShortSourceAddress(FrameHeader802154 *self, const uint8_t *address) {
   uint8_t *source_address = self->data + FrameHeader802154_getSourceAddressOffset(self);
-  BitManipulation_fillByteArrayWith16BitBigEndian(source_address, address);
+  BitManipulation_copyBytes(address, source_address, 2);
   enablePanIdCompression(self);
   setSourceAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
 }

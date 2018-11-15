@@ -49,36 +49,32 @@ void reconfigure(Mac802154 self, const Mac802154Config *config) {
   enableRXInterrupt(impl);
   setChannel(impl, config->channel);
   setUpTransmitterPower(impl);
-  setShortSourceAddress(impl, &config->short_source_address);
-  setExtendedSourceAddress(impl, &config->extended_source_address);
-  setPanId(impl, &config->pan_id);
+  setShortSourceAddress(impl, config->short_source_address);
+  setExtendedSourceAddress(impl, config->extended_source_address);
+  setPanId(impl, config->pan_id);
 
   MrfState_init(&impl->state);
 
   MrfState_setPanId(&impl->state, config->pan_id);
   MrfState_setShortSourceAddress(&impl->state, config->short_source_address);
-  uint64_t coordinators_address = 0;
+  uint8_t coordinators_address[8] = {
+      0, 0, 0, 0,
+      0, 0, 0, 0,
+  };
   MrfState_setExtendedDestinationAddress(&impl->state, coordinators_address);
 }
 
-void setShortSourceAddress(Mrf *impl, const uint16_t *address) {
-  uint8_t buffer[2] = {(uint8_t) (*address), (uint8_t) ((*address) >> 8)};
-  MrfIo_writeBlockingToShortAddress(&impl->io, buffer,
+void setShortSourceAddress(Mrf *impl, const uint8_t *address) {
+  MrfIo_writeBlockingToShortAddress(&impl->io, address,
                                     2, mrf_register_short_address_low_byte);
 }
 
-void setExtendedSourceAddress(Mrf *impl, const uint64_t *address) {
-  uint8_t big_endian_address[8];
-  for (uint8_t i = 0; i < 8; i++) {
-
-    big_endian_address[i] = (uint8_t)((*address) >> (8*i));
-  }
-  MrfIo_writeBlockingToShortAddress(&impl->io, big_endian_address, 8, mrf_register_extended_address0);
+void setExtendedSourceAddress(Mrf *impl, const uint8_t *address) {
+  MrfIo_writeBlockingToShortAddress(&impl->io, address, sizeof(uint64_t), mrf_register_extended_address0);
 }
 
-void setPanId(Mrf *impl, const uint16_t *pan_id) {
-  uint8_t pan_id_array[] = {(uint8_t) (*pan_id), (uint8_t)((*pan_id) >> 8)};
-  MrfIo_writeBlockingToShortAddress(&impl->io, pan_id_array, 2, mrf_register_pan_id_low_byte);
+void setPanId(Mrf *impl, const uint8_t *pan_id) {
+  MrfIo_writeBlockingToShortAddress(&impl->io, pan_id, 2, mrf_register_pan_id_low_byte);
 }
 
 void enableRXInterrupt(Mrf *impl) {
@@ -134,7 +130,7 @@ void resetInternalRFStateMachine(Mrf *impl) {
   impl->delay_microseconds(mrf_value_delay_interval_after_state_machine_reset);
 }
 
-void setShortDestinationAddress(Mac802154 self, uint16_t address) {
+void setShortDestinationAddress(Mac802154 self, const uint8_t *address) {
   Mrf *impl = (Mrf *) self;
   MrfState_setShortDestinationAddress(&impl->state, address);
 }
@@ -156,7 +152,7 @@ void sendBlocking(Mac802154 self) {
     ;
 }
 
-void setExtendedDestinationAddress(Mac802154 self, uint64_t address) {
+void setExtendedDestinationAddress(Mac802154 self, const uint8_t *address) {
   Mrf *impl = (Mrf *) self;
   MrfState_setExtendedDestinationAddress(&impl->state, address);
 }

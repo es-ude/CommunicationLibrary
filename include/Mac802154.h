@@ -22,9 +22,9 @@ typedef struct Mac802154* Mac802154;
 typedef struct Mac802154Config Mac802154Config;
 
 struct Mac802154Config {
-  uint16_t short_source_address;
-  uint64_t extended_source_address;
-  uint16_t pan_id;
+  uint8_t short_source_address[2];
+  uint8_t extended_source_address[8];
+  uint8_t pan_id[2];
   uint8_t channel;
 };
 
@@ -37,7 +37,7 @@ void Mac802154_configure(Mac802154 hardware, const Mac802154Config *config);
 
 void Mac802154_sendBlocking(Mac802154 hardware);
 
-void Mac802154_setShortDestinationAddress(Mac802154 self, uint16_t address);
+void Mac802154_setShortDestinationAddress(Mac802154 self, const uint8_t *address);
 
 /**
  * Call this to configure the module to include the extended
@@ -70,7 +70,7 @@ void Mac802154_disablePromiscuousMode(Mac802154 self);
 /**
  * sets address in big endian representation suitable for network transmission
 */
-void Mac802154_setExtendedDestinationAddress(Mac802154 self, uint64_t address);
+void Mac802154_setExtendedDestinationAddress(Mac802154 self, const uint8_t *address);
 
 /**
  * the payload needs to be alive in memory while transmission is running

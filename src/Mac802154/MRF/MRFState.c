@@ -9,31 +9,31 @@ void MrfState_init(MrfState *mrf) {
   mrf->state = 0;
 }
 
-void MrfState_setShortDestinationAddress(MrfState *mrf, uint16_t address) {
+void MrfState_setShortDestinationAddress(MrfState *mrf, const uint8_t *address) {
   FrameHeader802154_setShortDestinationAddress(&mrf->header.frame_header, address);
   mrf->header.frame_header_length = FrameHeader802154_getHeaderSize(&mrf->header.frame_header);
   mrf->state |= MRF_STATE_DESTINATION_ADDRESS_CHANGED;
 }
 
-void MrfState_setExtendedDestinationAddress(MrfState *mrf, uint64_t address) {
+void MrfState_setExtendedDestinationAddress(MrfState *mrf, const uint8_t *address) {
   FrameHeader802154_setExtendedDestinationAddress(&mrf->header.frame_header, address);
   mrf->header.frame_header_length = FrameHeader802154_getHeaderSize(&mrf->header.frame_header);
 }
 
-void MrfState_setShortSourceAddress(MrfState *mrf, uint16_t address) {
+void MrfState_setShortSourceAddress(MrfState *mrf, const uint8_t *address) {
   FrameHeader802154_setShortSourceAddress(&mrf->header.frame_header, address);
   mrf->header.frame_header_length = FrameHeader802154_getHeaderSize(&mrf->header.frame_header);
 }
 
 void
-MrfState_setExtendedSourceAddress(MrfState *mrf, uint64_t address)
+MrfState_setExtendedSourceAddress(MrfState *mrf, const uint8_t *address)
 {
   FrameHeader802154_setExtendedSourceAddress(&mrf->header.frame_header, address);
   mrf->header.frame_header_length = FrameHeader802154_getHeaderSize(&mrf->header.frame_header);
 
 }
 
-void MrfState_setPayload(MrfState *mrf, const char *payload, uint8_t payload_length){
+void MrfState_setPayload(MrfState *mrf, const uint8_t *payload, uint8_t payload_length){
   mrf->header.frame_length = payload_length + mrf->header.frame_header_length;
   mrf->payload = (uint8_t *) payload;
   mrf->state |= MRF_STATE_FRAME_LENGTH_CHANGED | MRF_STATE_PAYLOAD_CHANGED;
@@ -44,7 +44,7 @@ uint8_t MrfState_getPayloadLength(MrfState *mrf) {
 }
 
 void
-MrfState_setPanId(MrfState *mrf, uint16_t pan_id)
+MrfState_setPanId(MrfState *mrf, const uint8_t *pan_id)
 {
   FrameHeader802154_setPanId(&mrf->header.frame_header, pan_id);
 }

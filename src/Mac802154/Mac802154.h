@@ -4,8 +4,8 @@
 #include "include/Mac802154.h"
 
 struct Mac802154 {
-  void (*setShortDestinationAddress) (Mac802154 self, uint16_t address);
-  void (*setExtendedDestinationAddress) (Mac802154 self, uint64_t address);
+  void (*setShortDestinationAddress)(Mac802154 self, const uint8_t *address);
+  void (*setExtendedDestinationAddress)(Mac802154 self, const uint8_t *address);
   void (*setPayload)(Mac802154 self, const uint8_t *buffer, size_t size);
   void (*useExtendedSourceAddress) (Mac802154 self);
   void (*useShortSourceAddress) (Mac802154 self);

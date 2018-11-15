@@ -76,6 +76,17 @@ BitManipulation_copyBytes(volatile const uint8_t *source, volatile uint8_t *dest
 }
 
 static void
+BitManipulation_fillArray(uint8_t *array, uint8_t value, uint8_t length)
+{
+  while(length > 0)
+    {
+      *array = value;
+      array++;
+      length--;
+    }
+}
+
+static void
 BitManipulation_fillByteArrayWith64BitBigEndian(volatile uint8_t *array, uint64_t value)
 {
   uint8_t *value_ptr = (uint8_t *) &value;
