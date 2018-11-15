@@ -123,7 +123,7 @@ void test_getSizeWithSequenceNumber(void) {
 void test_setShortAddressesAndPanId(void) {
   uint8_t pan_id[2] = {0, 0};
   FrameHeader802154_setPanId(header, pan_id);
-  FrameHeader802154_setShortDestinationAddress(header, 0);
+  FrameHeader802154_setShortDestinationAddress(header, pan_id);
   FrameHeader802154_setShortSourceAddress(header, 0);
   TEST_ASSERT_BIT_HIGH(pan_id_compression_bit, header_data[0]);
 }
@@ -143,13 +143,14 @@ void test_getSizeOfDestinationAddress(void) {
 }
 
 void test_getSizeOfShortDestinationAddress(void) {
-  FrameHeader802154_setShortDestinationAddress(header, 0);
+  uint8_t address[2] = {0x00, 0x00};
+  FrameHeader802154_setShortDestinationAddress(header, address);
   TEST_ASSERT_EQUAL(2, FrameHeader802154_getDestinationAddressSize(header));
 }
 
 void test_getShortDestinationAddress(void) {
-  uint16_t address = 0xABCD;
   uint8_t address_in_network_byte_order[2] = {0xCD, 0xAB};
+  uint8_t *address = address_in_network_byte_order;
   FrameHeader802154_setShortDestinationAddress(header, address);
   TEST_ASSERT_EQUAL_HEX8_ARRAY(address_in_network_byte_order,
                                FrameHeader802154_getDestinationAddressPtr(header),
@@ -157,8 +158,8 @@ void test_getShortDestinationAddress(void) {
 }
 
 void test_getPanIdAndShortDestinationAddress(void) {
-  uint16_t address = 0xEF12;
   uint8_t expected[] = {0xCD, 0xAB, 0x12, 0xEF};
+  uint8_t *address = expected+2;
   FrameHeader802154_setPanId(header, expected);
   FrameHeader802154_setShortDestinationAddress(header, address);
   TEST_ASSERT_EQUAL_HEX8_ARRAY(expected,
@@ -167,8 +168,8 @@ void test_getPanIdAndShortDestinationAddress(void) {
 }
 
 void test_getPanIdAndShortDestinationAddress2(void) {
-  uint16_t address = 0x1234;
   uint8_t expected[] = {0xEF, 0xCD, 0x34, 0x12};
+  uint8_t *address = expected + 2;
   FrameHeader802154_setShortDestinationAddress(header, address);
   FrameHeader802154_setPanId(header, expected);
   TEST_ASSERT_EQUAL_HEX8_ARRAY(expected,
@@ -222,16 +223,16 @@ void test_changeDestinationAddressFromLongToShort(void) {
       0x77, 0x88,
       0xAA, 0xBB,
       0xCC, 0xDD,
-  };;
+  };
   uint16_t source_address = 0x1122;
-  uint16_t new_destination_address = 0x3344;
   uint8_t expected[] = {
           0x44, 0x33,
           0x22, 0x11,
   };
+  uint8_t *new_destination_address = expected+1;
   FrameHeader802154_setExtendedDestinationAddress(header, destination_address);
   FrameHeader802154_setShortSourceAddress(header, source_address);
-  FrameHeader802154_setShortDestinationAddress(header, new_destination_address);
+  FrameHeader802154_setShortDestinationAddress(header, expected);
 
   TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, FrameHeader802154_getDestinationAddressPtr(header), 4);
 }
@@ -433,7 +434,7 @@ void test_panIdCompressionGetsEnabledWhenNecessary2(void) {
       0x00, 0x00,
   };
   FrameHeader802154_setExtendedDestinationAddress(header, expected_destination_address);
-  FrameHeader802154_setShortDestinationAddress(header, 0);
+  FrameHeader802154_setShortDestinationAddress(header, expected_destination_address);
   TEST_ASSERT_BIT_HIGH(pan_id_compression_bit, *FrameHeader802154_getHeaderPtr(header));
 }
 

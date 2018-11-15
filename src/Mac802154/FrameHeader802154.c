@@ -175,21 +175,18 @@ void FrameHeader802154_setExtendedDestinationAddress(FrameHeader802154 *self, co
   {
     disablePanIdCompression(self);
   }
-  for (uint8_t i = 0; i<8; i++)
-    {
-      destination_address_ptr[i] = address[i];
-    }
+  BitManipulation_copyBytes(address, destination_address_ptr, sizeof(uint64_t));
   setDestinationAddressingMode(self, ADDRESSING_MODE_EXTENDED_ADDRESS);
 }
 
-void FrameHeader802154_setShortDestinationAddress(FrameHeader802154 *self, uint16_t address) {
+void FrameHeader802154_setShortDestinationAddress(FrameHeader802154 *self, const uint8_t *address) {
   if (getDestinationAddressingMode(self) == ADDRESSING_MODE_EXTENDED_ADDRESS)
   {
     moveSourceAddress(self, getAddressSize(ADDRESSING_MODE_SHORT_ADDRESS) - getAddressSize(ADDRESSING_MODE_EXTENDED_ADDRESS));
   }
   uint8_t *destination_address_ptr = self->data + FrameHeader802154_getDestinationAddressOffset(self);
   enablePanIdCompression(self);
-  BitManipulation_fillByteArrayWith16BitBigEndian(destination_address_ptr, address);
+  BitManipulation_copyBytes(address, destination_address_ptr, 2);
   setDestinationAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
 }
 
