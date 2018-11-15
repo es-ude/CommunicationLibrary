@@ -75,7 +75,7 @@ void Mac802154_setExtendedDestinationAddress(Mac802154 self, uint64_t address);
 /**
  * the payload needs to be alive in memory while transmission is running
 */
-void Mac802154_setPayload(Mac802154 self, const char *payload, size_t payload_length);
+void Mac802154_setPayload(Mac802154 self, const uint8_t *payload, size_t payload_length);
 
 /**
  *
@@ -101,7 +101,7 @@ void Mac802154_fetchPacketBlocking(Mac802154 self, uint8_t *buffer, uint8_t size
 /**
  * @return A pointer to the start of the payload field
  */
-const char * Mac802154_getPacketPayload(Mac802154 self, const uint8_t *packet);
+const uint8_t * Mac802154_getPacketPayload(Mac802154 self, const uint8_t *packet);
 uint8_t Mac802154_getPacketPayloadSize(Mac802154 self, const uint8_t *packet);
 
 bool Mac802154_packetAddressIsShort(Mac802154 self, const uint8_t *packet);
@@ -110,8 +110,8 @@ bool Mac802154_packetAddressIsLong(Mac802154 self, const uint8_t *packet);
 
 uint8_t Mac802154_getPacketSourceAddressSize(Mac802154 self, const uint8_t *packet);
 
-uint64_t Mac802154_getPacketExtendedSourceAddress(const Mac802154 self, const uint8_t *packet);
-uint16_t Mac802154_getPacketShortSourceAddress(const Mac802154 self, const uint8_t *packet);
+const uint8_t * Mac802154_getPacketExtendedSourceAddress(const Mac802154 self, const uint8_t *packet);
+const uint8_t * Mac802154_getPacketShortSourceAddress(const Mac802154 self, const uint8_t *packet);
 
 enum {
   FRAME_TYPE_BEACON = 0,

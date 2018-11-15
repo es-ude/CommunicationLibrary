@@ -15,7 +15,7 @@ void FrameHeader802154_disableSequenceNumberSuppression(FrameHeader802154 *self)
 void FrameHeader802154_enableAcknowledgementRequest(FrameHeader802154 *self);
 void FrameHeader802154_disableAcknowledgementRequest(FrameHeader802154 *self);
 void FrameHeader802154_setShortDestinationAddress(FrameHeader802154 *self, uint16_t address);
-void FrameHeader802154_setExtendedDestinationAddress(FrameHeader802154 *self, uint64_t address);
+void FrameHeader802154_setExtendedDestinationAddress(FrameHeader802154 *self, const uint8_t *address);
 void FrameHeader802154_setShortSourceAddress(FrameHeader802154 *self, uint16_t address);
 void FrameHeader802154_setExtendedSourceAddress(FrameHeader802154 *self, uint64_t address);
 
@@ -26,7 +26,7 @@ void FrameHeader802154_setExtendedSourceAddress(FrameHeader802154 *self, uint64_
  * and pan id without setting a destination address. Also refer to Table 7-2 (Pan id compression
  * field value) in the 802.15.4-2015 specification.
  * */
-void FrameHeader802154_setPanId(FrameHeader802154 *self, uint16_t pan_id);
+void FrameHeader802154_setPanId(FrameHeader802154 *self, const uint8_t *pan_id);
 void FrameHeader802154_setSequenceNumber(FrameHeader802154 *self, uint8_t number);
 
 

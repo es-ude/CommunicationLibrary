@@ -260,12 +260,12 @@ void test_getPacketSourceAddressSize(void)
 
 void test_getPacketExtendedSourceAddress(void)
 {
-  uint64_t address = 0xAABBCC;
+  uint8_t address = 0xAABBCC;
   uint8_t *packet = (uint8_t *) &address - 1;
   FrameHeader802154 *frame_header_ptr = (FrameHeader802154 *) &address;
   FrameHeader802154_getSourceAddressPtr_ExpectAndReturn(frame_header_ptr, packet + 1);
   FrameHeader802154_getSourceAddressSize_ExpectAndReturn(frame_header_ptr, 8);
-  TEST_ASSERT_EQUAL_HEX64(address, Mac802154_getPacketExtendedSourceAddress(mrf, packet));
+  TEST_ASSERT_EQUAL_HEX64(address, *Mac802154_getPacketExtendedSourceAddress(mrf, packet));
 }
 
 void

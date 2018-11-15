@@ -139,7 +139,7 @@ void setShortDestinationAddress(Mac802154 self, uint16_t address) {
   MrfState_setShortDestinationAddress(&impl->state, address);
 }
 
-void setPayload(Mac802154 self, const char *payload, size_t payload_length) {
+void setPayload(Mac802154 self, const uint8_t *payload, size_t payload_length) {
   Mrf *impl = (Mrf *) self;
   MrfState_setPayload(&impl->state, payload, (uint8_t) payload_length);
 }
@@ -209,9 +209,9 @@ void setErrorMode(Mrf *impl) {
   MrfIo_setControlRegister(&impl->io, 0x00, 2);
 }
 
-const char * getPacketPayload(const uint8_t *packet) {
+const uint8_t * getPacketPayload(const uint8_t *packet) {
   packet += frame_length_field_size;
-  return (char *)packet + FrameHeader802154_getHeaderSize((FrameHeader802154 *)packet);
+  return packet + FrameHeader802154_getHeaderSize((FrameHeader802154 *)packet);
 }
 
 uint8_t getPacketPayloadSize(const uint8_t *packet) {
@@ -235,30 +235,16 @@ uint8_t getPacketSourceAddressSize(const uint8_t *packet) {
   return FrameHeader802154_getSourceAddressSize((FrameHeader802154 *)(packet+1));
 }
 
-uint64_t getPacketExtendedSourceAddress(const uint8_t *packet) {
-  uint64_t address = 0;
-  const uint8_t *address_ptr = FrameHeader802154_getSourceAddressPtr((FrameHeader802154 *)(packet + 1));
-  if (packetAddressIsLong(packet))
-    {
-      address = BitManipulation_get64BitFromBigEndianByteArray(address_ptr);
-    }
-  else
-    {
-      address = BitManipulation_get16BitFromBigEndianByteArray(address_ptr);
-    }
-  return address;
+const uint8_t*
+getPacketExtendedSourceAddress(const uint8_t *packet)
+{
+  return FrameHeader802154_getSourceAddressPtr((FrameHeader802154 *) (packet + 1));
 }
 
-uint16_t
+const uint8_t *
 getPacketShortSourceAddress(const uint8_t *packet)
 {
-  uint16_t address = 0;
-  const uint8_t *address_ptr = FrameHeader802154_getSourceAddressPtr((FrameHeader802154 *) (packet + 1));
-  if (packetAddressIsShort(packet))
-    {
-      address = BitManipulation_get16BitFromBigEndianByteArray(address_ptr);
-    }
-  return address;
+  return FrameHeader802154_getSourceAddressPtr((FrameHeader802154 *) (packet + 1));
 }
 
 void
