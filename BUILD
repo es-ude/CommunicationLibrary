@@ -79,21 +79,6 @@ CommunicationModuleDeps = [
 ]
 
 cc_library(
-    name = "CommunicationModuleAtmega32u4",
-    srcs = [
-        ":CommunicationModuleSrc",
-        ":PrivateHdrFiles",
-    ],
-    hdrs = [":CommunicationModuleIncl"],
-    copts = [
-        "-mmcu=atmega32u4",
-    ] + CommunicationModuleCompilerFlags,
-    linkopts = CommunicationModuleLinkerFlags,
-    visibility = CommunicationModuleVisibility,
-    deps = CommunicationModuleDeps,
-)
-
-cc_library(
     name = "CommunicationModule",
     srcs = [
         ":CommunicationModuleSrc",
@@ -109,6 +94,7 @@ cc_library(
         "//conditions:default": [],
     }) + CommunicationModuleCompilerFlags,
     linkopts = CommunicationModuleLinkerFlags,
+    linkstatic = True,
     visibility = CommunicationModuleVisibility,
     deps = CommunicationModuleDeps,
 )
@@ -142,4 +128,18 @@ cc_library(
         "//test:__subpackages__",
     ],
     deps = ["@CException//:CException"],
+)
+
+#########################################
+### Generate zip file for publishing  ###
+#########################################
+
+genrule(
+    name = "CommunicationModule_atmega32u4_zip",
+    srcs = [
+        ":CommunicationModule",
+        ":CommunicationModuleIncl",
+    ],
+    outs = ["CommunicationModule_atmega32u4.zip"],
+    cmd = "zip -j $(OUTS) $(location :CommunicationModule); zip $(OUTS) $(locations :CommunicationModuleIncl)",
 )
