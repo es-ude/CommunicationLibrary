@@ -143,3 +143,13 @@ genrule(
     outs = ["CommunicationModule_atmega32u4.zip"],
     cmd = "zip -j $(OUTS) $(location :CommunicationModule); zip $(OUTS) $(locations :CommunicationModuleIncl)",
 )
+
+genrule(
+    name = "CommunicationModule_atmega328p_zip",
+    srcs = [
+        ":CommunicationModule",
+        ":CommunicationModuleIncl",
+    ],
+    outs = ["CommunicationModule_atmega328p.zip"],
+    cmd = "zip -j $(OUTS) $(location :CommunicationModule); zip $(OUTS) $(locations :CommunicationModuleIncl)",
+)
