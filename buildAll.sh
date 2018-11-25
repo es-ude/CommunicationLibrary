@@ -10,3 +10,4 @@ function build_and_zip {
 
 build_and_zip atmega32u4
 build_and_zip atmega328p
+build_and_zip atmega64

@@ -134,22 +134,38 @@ cc_library(
 ### Generate zip file for publishing  ###
 #########################################
 
-genrule(
-    name = "CommunicationModule_atmega32u4_zip",
+genzip_cmd = "zip -j $(OUTS) $(location :CommunicationModule); zip $(OUTS) $(locations :CommunicationModuleIncl)"
+filegroup(
+    name = "LibAndHeaderForPublishing",
     srcs = [
         ":CommunicationModule",
         ":CommunicationModuleIncl",
+    ]
+)
+
+genrule(
+    name = "CommunicationModule_atmega32u4_zip",
+    srcs = [
+        ":LibAndHeaderForPublishing",
     ],
     outs = ["CommunicationModule_atmega32u4.zip"],
-    cmd = "zip -j $(OUTS) $(location :CommunicationModule); zip $(OUTS) $(locations :CommunicationModuleIncl)",
+    cmd = genzip_cmd,
 )
 
 genrule(
     name = "CommunicationModule_atmega328p_zip",
     srcs = [
-        ":CommunicationModule",
-        ":CommunicationModuleIncl",
+        ":LibAndHeaderForPublishing",
     ],
     outs = ["CommunicationModule_atmega328p.zip"],
-    cmd = "zip -j $(OUTS) $(location :CommunicationModule); zip $(OUTS) $(locations :CommunicationModuleIncl)",
+    cmd = genzip_cmd,
+)
+
+genrule(
+    name = "CommunicationModule_atmega64_zip",
+    srcs = [
+        ":LibAndHeaderForPublishing",
+    ],
+    outs = ["CommunicationModule_atmega64.zip"],
+    cmd = genzip_cmd,
 )

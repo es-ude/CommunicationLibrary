@@ -25,3 +25,12 @@ build:atmega32u4 --copt -DF_CPU=8000000UL
 build:atmega32u4 --copt -DF_USB=8000000UL
 build:atmega32u4 --copt -DBAUD=9600
 build:atmega32u4 --copt -DARCH=ARCH_AVR8
+
+build:atmega64 --crosstool_top=@AVR_Toolchain//:toolchain
+build:atmega64 --cpu=avr
+build:atmega64 --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
+build:atmega64 --define MCU=atmega64
+build:atmega64 --copt -DF_CPU=8000000UL
+build:atmega64 --copt -DF_USB=8000000UL
+build:atmega64 --copt -DBAUD=9600
+build:atmega64 --copt -DARCH=ARCH_AVR8
