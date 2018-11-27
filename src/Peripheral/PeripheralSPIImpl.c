@@ -4,7 +4,7 @@
 
 
 size_t PeripheralInterfaceSPI_getADTSize(void) {
-  return sizeof(struct PeripheralInterfaceImpl);
+  return sizeof(struct PeripheralInterfaceSPIImpl);
 }
 
 static void emptyFunction(void *a) {}
@@ -85,23 +85,20 @@ resetWriteCallback(PeripheralInterface self)
 }
 
 static void setUpControlRegister(volatile uint8_t *control_register) {
-  BitManipulation_setBit(control_register, spi_enable_bit);
-  BitManipulation_setBit(control_register, master_slave_select_bit);
+  *control_register |= (1 << spi_enable_bit) | (1 << master_slave_select_bit);
 }
 
 
 static void setUpIOLines(const SPIConfig *config) {
-  BitManipulation_setBit(config->io_lines_data_direction_register, config->slave_select_pin);
-  BitManipulation_setBit(config->io_lines_data_register, config->slave_select_pin);
-  BitManipulation_setBit(config->io_lines_data_direction_register, config->mosi_pin);
-  BitManipulation_clearBit(config->io_lines_data_direction_register, config->miso_pin);
-  BitManipulation_setBit(config->io_lines_data_direction_register, config->clock_pin);
+  *config->io_lines_data_direction_register |= (1 << config->slave_select_pin | 1 << config->mosi_pin | 1 << config->clock_pin);
+  *config->io_lines_data_direction_register &= (1 << config->miso_pin);
+  *config->io_lines_data_register |= (1 << config->slave_select_pin);
 }
 
 
 static void configurePeripheral (Peripheral *device) {
   SPISlave *spi_chip = (SPISlave *) device;
-  BitManipulation_setBit(spi_chip->data_direction_register, spi_chip->slave_select_pin_number);
+  *spi_chip->data_direction_register |= (1 << spi_chip->slave_select_pin_number);
   deactivateSlaveSelectLine(spi_chip);
 }
 

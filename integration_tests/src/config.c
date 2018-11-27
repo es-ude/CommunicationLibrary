@@ -15,10 +15,10 @@ static SPIConfig spi_config = {
         .control_register = &SPCR,
 };
 
-PeripheralInterface peripheral_interface = NULL;
+struct PeripheralInterface peripheral_interface_struct;
+PeripheralInterface peripheral_interface = &peripheral_interface_struct;
 
 void setUpPeripheral(void) {
-  peripheral_interface = malloc(PeripheralInterfaceSPI_getADTSize());
   PeripheralInterfaceSPI_createNew((uint8_t *)peripheral_interface, &spi_config);
 }
 

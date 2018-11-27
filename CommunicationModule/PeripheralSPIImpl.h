@@ -122,4 +122,41 @@ size_t PeripheralInterfaceSPI_getADTSize(void);
  */
 PeripheralInterface PeripheralInterfaceSPI_createNew(uint8_t * const memory, const SPIConfig * const spiConfig);
 
+/**
+ * Do not use this definition in production code. The structures below
+ * are meant to be only used to create new variables of the corresponding type.
+ * Everywhere else use the functions to access the data structures.
+ *
+ * Assumptions:
+ * - MOSI, MISO, SCK, SS(slave select input) lines all reside on the same port.
+ * - we have three registers controlling the hardware spi implementation as described
+ *   in the datasheet of e.g. the atmega328p
+ *   - these registers behave the same across all our platforms
+ */
+typedef struct InterruptData InterruptData;
+
+/**
+ * Do not use this struct directly ever. Use the functions above.
+ * It is just defined here to allow for fine grained control of the memory
+ */
+struct InterruptData {
+  const uint8_t *output_buffer;
+  uint8_t *input_buffer;
+  size_t output_buffer_length;
+  size_t input_buffer_length;
+  PeripheralInterface_Callback write_callback;
+  PeripheralInterface_Callback read_callback;
+};
+
+/**
+ * Do not use this struct directly ever. Use the functions above.
+ * It is just defined here to allow for fine grained control of the memory
+ */
+struct PeripheralInterfaceSPIImpl {
+  struct PeripheralInterface interface;
+  SPIConfig config;
+  SPISlave *current_peripheral;
+  InterruptData interrupt_data;
+};
+
 #endif //COMMUNICATIONMODULE_PERIPHERALINTERFACEIMPL_H

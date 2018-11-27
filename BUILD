@@ -147,7 +147,7 @@ cc_library(
         "//conditions:default": [],
     }) + CommunicationModuleCompilerFlags,
     linkopts = [
-        "-Wl,-z,norelro",
+        "-Wl,-z,norelro,--inline",
     ],
     visibility = [
         "//integration_tests:__pkg__",
