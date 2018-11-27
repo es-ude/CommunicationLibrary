@@ -154,7 +154,7 @@ struct InterruptData {
  */
 struct PeripheralInterfaceSPIImpl {
   struct PeripheralInterface interface;
-  SPIConfig config;
+  SPIConfig *config;
   SPISlave *current_peripheral;
   InterruptData interrupt_data;
 };

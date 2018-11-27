@@ -68,6 +68,11 @@ tearDown(void)
   free(interface);
 }
 
+void test_debugging(void)
+{
+  PeripheralInterface_selectPeripheral(interface, &peripheral);
+}
+
 void test_selectSetsSPIEnableBit(void) {
   CEXCEPTION_T e;
   Try {
