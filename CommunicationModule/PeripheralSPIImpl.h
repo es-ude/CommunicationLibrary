@@ -87,7 +87,7 @@ enum SPIControlRegisterParameters {
 typedef struct SPISlave {
   volatile uint8_t *data_direction_register; /*!< this has to match the port the slave select line is connected to */
   volatile uint8_t *data_register; /*!< data register for controlling the slave select line */
-  uint8_t slave_select_pin_number; /*!< set this to match the pin number your slave select line is connected to */
+  uint8_t slave_select_pin; /*!< set this to match the pin number your slave select line is connected to */
   uint8_t clock_rate_divider; /*!< use this to divide the microcontrollers clock rate to match the spi clock rate supported by the slave */
   uint8_t data_order; /*!< whether to transmit each byte with the most or least significant bit leading */
   uint8_t idle_signal; /*!< configure whether the idle signal for your slave is supposed to be low or high */
@@ -154,7 +154,7 @@ struct InterruptData {
  */
 struct PeripheralInterfaceSPIImpl {
   struct PeripheralInterface interface;
-  SPIConfig config;
+  SPIConfig *config;
   SPISlave *current_peripheral;
   InterruptData interrupt_data;
 };

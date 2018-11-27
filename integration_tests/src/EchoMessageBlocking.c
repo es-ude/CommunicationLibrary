@@ -1,7 +1,6 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
-#include <stdio.h>
 #include "integration_tests/src/config.h"
 #include "CommunicationModule/Mac802154MRFImpl.h"
 

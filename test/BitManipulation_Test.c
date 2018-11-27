@@ -96,14 +96,3 @@ void test_get16BitIntegerFromBigEndianArray(void) {
   actual = BitManipulation_get16BitFromBigEndianByteArray(array);
   TEST_ASSERT_EQUAL_HEX16(expected, actual);
 }
-
-void test_get64BitIntegerFromBigEndianArray(void) {
-  uint64_t expected = 0x1122334455667788;
-  uint8_t array[9] = {
-      0x88, 0x77, 0x66,
-      0x55, 0x44, 0x33,
-      0x22, 0x11, 0x00,
-  };
-  uint64_t actual = BitManipulation_get64BitFromBigEndianByteArray(array);
-  TEST_ASSERT_EQUAL_HEX64(expected, actual);
-}

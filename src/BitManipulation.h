@@ -18,7 +18,8 @@ static bool BitManipulation_platformIsBigEndian(void) {
  * @param value
  */
 
-static void BitManipulation_setByteOnArray(volatile uint8_t *field, uint8_t bitmask, uint8_t offset, uint8_t value) {
+static inline void
+BitManipulation_setByteOnArray(volatile uint8_t *field, uint8_t bitmask, uint8_t offset, uint8_t value) {
   uint8_t byte_index = (uint8_t) (offset / 8);
   uint8_t local_offset = (uint8_t) (offset % 8);
   uint8_t lower_bitmask = bitmask << local_offset;
@@ -33,7 +34,8 @@ static void BitManipulation_setByteOnArray(volatile uint8_t *field, uint8_t bitm
   field[byte_index] &= (~lower_bitmask |lower_value);
 }
 
-static uint8_t BitManipulation_getByteOnArray(volatile const uint8_t *field, uint8_t bitmask, uint8_t offset) {
+static uint8_t
+BitManipulation_getByteOnArray(volatile const uint8_t *field, uint8_t bitmask, uint8_t offset) {
   uint8_t byte_index = (uint8_t) (offset / 8);
   uint8_t local_offset = (uint8_t) (offset % 8);
   uint8_t lower_bitmask = bitmask << local_offset;
@@ -126,7 +128,8 @@ BitManipulation_fillByteArrayWith16BitBigEndian(volatile uint8_t *array, uint16_
     }
 }
 
-static uint16_t BitManipulation_get16BitFromBigEndianByteArray(volatile const uint8_t *array) {
+static uint16_t
+BitManipulation_get16BitFromBigEndianByteArray(volatile const uint8_t *array) {
   uint16_t value;
   uint8_t *value_ptr = (uint8_t *) &value;
   if (BitManipulation_platformIsBigEndian())
@@ -138,26 +141,6 @@ static uint16_t BitManipulation_get16BitFromBigEndianByteArray(volatile const ui
     {
       value_ptr[0] = array[1];
       value_ptr[1] = array[0];
-    }
-  return value;
-}
-
-static uint64_t BitManipulation_get64BitFromBigEndianByteArray(volatile const uint8_t *array) {
-  uint64_t value;
-  uint8_t *value_ptr = (uint8_t *) &value;
-  if (BitManipulation_platformIsBigEndian())
-    {
-      for (uint8_t i = 8; i > 0; i--)
-        {
-          value_ptr[i - 1] = array[i - 1];
-        }
-    }
-  else
-    {
-      for (uint8_t i = 8; i > 0; i--)
-        {
-          value_ptr[i - 1] = array[8 - (i - 1)];
-        }
     }
   return value;
 }

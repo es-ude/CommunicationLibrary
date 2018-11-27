@@ -141,6 +141,7 @@ cc_library(
             "-funsigned-char",
             "-ffunction-sections",
             "-fdata-sections",
+            "-Winline",
             "-Xlinker --gc-sections",
             "-ffast-math",
         ],
