@@ -65,6 +65,10 @@ This enables application to save the PeripheralSPIImpl struct in BSS instead of 
    text	   data	    bss	    dec	    hex	filename
    4990	     54	     25	   5069	   13cd	bazel-out/avr-fastbuild/bin/integration_tests/EchoMessageBlocking
 
+same as above but with lufa so lufa takes up 3878Bytes :
+   text	   data	    bss	    dec	    hex	filename
+   8712	     88	     52	   8852	   2294	bazel-out/avr-fastbuild/bin/integration_tests/EchoMessageBlocking
+
 made config field in peripheral spi impl a pointer instead of SPIConfig value
    text	   data	    bss	    dec	    hex	filename
    4990	     54	     25	   5069	   13cd	bazel-out/avr-fastbuild/bin/integration_tests/EchoMessageBlocking
@@ -78,3 +82,7 @@ made config field in peripheral spi impl a pointer instead of SPIConfig value
     126	      0	      0	    126	     7e	Peripheral.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
    1506	      0	      0	   1506	    5e2	PeripheralSPIImpl.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
    5510	      0	      0	   5510	   1586	(TOTALS)
+
+with PeripheralInterfaceImpl struct definition being visible and still using malloc for allocation
+   text	   data	    bss	    dec	    hex	filename
+   5598	     58	      9	   5665	   1621	bazel-out/avr-fastbuild/bin/integration_tests/EchoMessageBlocking
