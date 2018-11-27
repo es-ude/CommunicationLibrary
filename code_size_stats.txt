@@ -32,3 +32,17 @@ Library:
 Example Application:
    text	   data	    bss	    dec	    hex	filename
    9368	     92	     36	   9496	   2518	bazel-out/avr-fastbuild/bin/integration_tests/EchoMessageBlocking
+
+Lib size after making Bitmanipulation implementations non static and moving them to a .c file:
+   text	   data	    bss	    dec	    hex	filename
+    730	      0	      0	    730	    2da	BitManipulation.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+    996	      0	      0	    996	    3e4	FrameHeader802154.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+    484	      0	      0	    484	    1e4	MRFState.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+   1022	      0	      0	   1022	    3fe	Mac802154MRFImpl.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+    976	      0	      0	    976	    3d0	MrfIo.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+    202	      0	      0	    202	     ca	Mac802154.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+    126	      0	      0	    126	     7e	Peripheral.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+   1340	      0	      0	   1340	    53c	PeripheralSPIImpl.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+   5876	      0	      0	   5876	   16f4	(TOTALS)
+   text	   data	    bss	    dec	    hex	filename
+   9446	     92	     36	   9574	   2566	bazel-out/avr-fastbuild/bin/integration_tests/EchoMessageBlocking
