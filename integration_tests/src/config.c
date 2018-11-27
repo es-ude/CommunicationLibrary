@@ -33,7 +33,7 @@ void delay_microseconds(uint16_t microseconds) {
 SPISlave mrf_spi_client = {
         .data_register = &PORTB,
         .data_direction_register = &DDRB,
-        .slave_select_pin_number = 4,
+        .slave_select_pin = 4,
         .data_order = SPI_DATA_ORDER_MSB_FIRST,
         .spi_mode = SPI_MODE_0,
         .idle_signal = SPI_IDLE_SIGNAL_HIGH,

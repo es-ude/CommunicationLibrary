@@ -34,7 +34,7 @@ static void setDataOrder(volatile uint8_t *control_register, uint8_t data_order)
 static void enableDoubleSpeed(volatile uint8_t *status_register);
 static void disableDoubleSpeed(volatile uint8_t *status_register);
 
-static void setupMaster(PeripheralInterfaceImpl impl);
+static void becomeSPIMaster(PeripheralInterfaceImpl impl);
 static void tearDownMaster(PeripheralInterfaceImpl impl);
 
 static void selectPeripheral(PeripheralInterface self, Peripheral *device);
