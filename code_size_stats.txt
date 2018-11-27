@@ -61,6 +61,20 @@ This enables application to save the PeripheralSPIImpl struct in BSS instead of 
     126	      0	      0	    126	     7e	Peripheral.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
    1500	      0	      0	   1500	    5dc	PeripheralSPIImpl.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
    5504	      0	      0	   5504	   1580	(TOTALS)
-   text	   data	    bss	    dec	    hex	filename
 
+   text	   data	    bss	    dec	    hex	filename
    4990	     54	     25	   5069	   13cd	bazel-out/avr-fastbuild/bin/integration_tests/EchoMessageBlocking
+
+made config field in peripheral spi impl a pointer instead of SPIConfig value
+   text	   data	    bss	    dec	    hex	filename
+   4990	     54	     25	   5069	   13cd	bazel-out/avr-fastbuild/bin/integration_tests/EchoMessageBlocking
+
+   text	   data	    bss	    dec	    hex	filename
+   1194	      0	      0	   1194	    4aa	FrameHeader802154.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+    484	      0	      0	    484	    1e4	MRFState.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+   1022	      0	      0	   1022	    3fe	Mac802154MRFImpl.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+    976	      0	      0	    976	    3d0	MrfIo.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+    202	      0	      0	    202	     ca	Mac802154.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+    126	      0	      0	    126	     7e	Peripheral.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+   1506	      0	      0	   1506	    5e2	PeripheralSPIImpl.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
+   5510	      0	      0	   5510	   1586	(TOTALS)
