@@ -86,3 +86,7 @@ made config field in peripheral spi impl a pointer instead of SPIConfig value
 with PeripheralInterfaceImpl struct definition being visible and still using malloc for allocation
    text	   data	    bss	    dec	    hex	filename
    5598	     58	      9	   5665	   1621	bazel-out/avr-fastbuild/bin/integration_tests/EchoMessageBlocking
+
+with PeripheralInterfaceImpl struct defintition not visible and using malloc
+   text	   data	    bss	    dec	    hex	filename
+   5646	     58	      9	   5713	   1651	bazel-out/avr-fastbuild/bin/integration_tests/EchoMessageBlocking
