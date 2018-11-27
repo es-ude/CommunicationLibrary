@@ -2,7 +2,7 @@
 #define COMMUNICATIONMODULE_MRFIO_H_H
 
 #include <stdint.h>
-#include "include/Peripheral.h"
+#include "CommunicationModule/Peripheral.h"
 
 /**
  * IO Module for the MRF Network Chip

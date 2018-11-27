@@ -1,6 +1,6 @@
 #include "unity.h"
 #include "src/Mac802154/MRF/MrfIo.h"
-#include "include/MockPeripheral.h"
+#include "CommunicationModule/MockPeripheral.h"
 #include "src/Mac802154/MRF/MRFHelperFunctions.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 

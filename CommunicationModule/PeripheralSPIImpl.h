@@ -2,7 +2,7 @@
 #define COMMUNICATIONMODULE_PERIPHERALINTERFACEIMPL_H
 
 
-#include "include/Peripheral.h"
+#include "CommunicationModule/Peripheral.h"
 #include <stddef.h>
 
 /*!

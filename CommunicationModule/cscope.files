@@ -1,0 +1,7 @@
+CommunicationModule/Callback.h
+CommunicationModule/CommunicationModule.h
+CommunicationModule/Exception.h
+CommunicationModule/Mac802154.h
+CommunicationModule/Mac802154MRFImpl.h
+CommunicationModule/Peripheral.h
+CommunicationModule/PeripheralSPIImpl.h

@@ -2,6 +2,7 @@
 doc/html
 doc/latex
 
+*.zip
 # Prerequisites
 *.d
 
@@ -56,8 +57,12 @@ Mkfile.old
 dkms.conf
 
 # private helper tools and bazel folders
-bazel-*/
+bazel-*
 Session.vim
+.clwb
+.undodir
+.idea
+cscope.files
 
 # compilation database
 compile_commands.json

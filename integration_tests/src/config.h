@@ -1,8 +1,8 @@
 #ifndef COMMUNICATIONMODULE_CONFIG_H
 #define COMMUNICATIONMODULE_CONFIG_H
 
-#include "include/Mac802154.h"
-#include "include/PeripheralSPIImpl.h"
+#include "CommunicationModule/Mac802154.h"
+#include "CommunicationModule/PeripheralSPIImpl.h"
 
 Mac802154 mac802154;
 SPISlave mrf_spi_client;

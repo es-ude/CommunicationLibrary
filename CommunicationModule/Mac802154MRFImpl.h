@@ -1,7 +1,7 @@
 #ifndef NETWORK_HARDWARE_PERIPHERAL_IMPL_H
 #define NETWORK_HARDWARE_PERIPHERAL_IMPL_H
 
-#include "include/Mac802154.h"
+#include "CommunicationModule/Mac802154.h"
 
 /*!
  * \file Mac802154MRFImpl.h
@@ -26,4 +26,4 @@ void Mac802154MRF_create(Mac802154 memory,
                          DelayFunction delay_microseconds,
                          PeripheralInterface interface,
                          Peripheral *device);
-#endif /* end of include guard */
+#endif /* end of CommunicationModule guard */

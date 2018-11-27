@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "include/Callback.h"
+#include "CommunicationModule/Callback.h"
 
 /*!
  * \file Peripheral.h
@@ -98,6 +98,29 @@ PeripheralInterface_handleWriteInterrupt(PeripheralInterface self);
  */
 void
 PeripheralInterface_handleReadInterrupt(PeripheralInterface self);
+
+/**
+ * New implementations can be offered by setting up the struct below
+ * and using it as first member of the struct holding the new implementation.
+ */
+struct PeripheralInterface {
+  void (*init)(PeripheralInterface self);
+
+  void (*writeBlocking)(PeripheralInterface self, const uint8_t *buffer, uint16_t length);
+  void (*writeNonBlocking)(PeripheralInterface self, PeripheralInterface_NonBlockingWriteContext context);
+
+  void (*readBlocking)(PeripheralInterface self, uint8_t *buffer, uint16_t length);
+  void (*readNonBlocking) (PeripheralInterface self, uint8_t *buffer, uint16_t length);
+  void (*setReadCallback) (PeripheralInterface self, PeripheralInterface_Callback callback);
+  void (*resetReadCallback) (PeripheralInterface self);
+
+  void (*selectPeripheral)(PeripheralInterface self, Peripheral *device);
+  void (*deselectPeripheral)(PeripheralInterface self, Peripheral *device);
+
+  void (*handleWriteInterrupt)(PeripheralInterface self);
+  void (*handleReadInterrupt) (PeripheralInterface self);
+
+};
 
 
 #endif /* PERIPHERALINTERFACE_H */

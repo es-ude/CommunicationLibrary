@@ -28,12 +28,24 @@ filegroup(
 
 filegroup(
     name = "CommunicationModuleIncl",
-    srcs = glob(["include/**/*.h"]),
+    srcs = glob(["CommunicationModule/**/*.h"]),
+)
+
+filegroup(
+    name = "PeripheralInterfaceHdrs",
+    srcs = ["CommunicationModule/Peripheral.h",
+            "CommunicationModule/Callback.h"],
+)
+
+filegroup(
+    name = "PeripheralInterfaceSrcs",
+    srcs = ["src/Peripheral.c",
+            "src/PeripheralIntern.h"],
 )
 
 exports_files(
     glob([
-        "include/**/*.h",
+        "CommunicationModule/**/*.h",
         "src/**/*.h",
     ]),
     visibility = [
@@ -143,3 +155,21 @@ cc_library(
     ],
     deps = ["@CException//:CException"],
 )
+
+cc_library(
+    name = "PeripheralInterface",
+    srcs = [":PeripheralInterfaceSrcs"],
+    hdrs = [":PeripheralInterfaceHdrs"],
+    copts = select({
+        ":avr-config": [
+            "-mmcu=$(MCU)",
+            "-Os",
+            "-std=c99",
+        ],
+        "//conditions:default": [],
+    }) + CommunicationModuleCompilerFlags,
+    linkopts = CommunicationModuleLinkerFlags,
+    visibility = CommunicationModuleVisibility,
+)
+
+

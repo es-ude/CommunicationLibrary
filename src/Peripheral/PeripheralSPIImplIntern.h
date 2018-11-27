@@ -3,9 +3,9 @@
 
 #include <stdbool.h>
 #include "src/PeripheralIntern.h"
-#include "include/PeripheralSPIImpl.h"
+#include "CommunicationModule/PeripheralSPIImpl.h"
 #include "CException.h"
-#include "include/Exception.h"
+#include "CommunicationModule/Exception.h"
 #include "src/Peripheral/SpiPinNumbers.h"
 
 /**

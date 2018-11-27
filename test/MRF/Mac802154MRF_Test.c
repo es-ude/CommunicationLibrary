@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
-#include "include/Mac802154MRFImpl.h"
+#include "CommunicationModule/Mac802154MRFImpl.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 
 #include "unity.h"

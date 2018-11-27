@@ -1,9 +1,9 @@
 #include "unity.h"
-#include "include/PeripheralSPIImpl.h"
+#include "CommunicationModule/PeripheralSPIImpl.h"
 #include <memory.h>
 #include <stdlib.h>
 #include "src/Peripheral/SpiPinNumbers.h"
-#include "include/Exception.h"
+#include "CommunicationModule/Exception.h"
 
 #define NUMBER_OF_MASTER_REGISTERS 5
 #define NUMBER_OF_SLAVE_REGISTERS 2

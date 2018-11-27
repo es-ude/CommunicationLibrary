@@ -3,7 +3,7 @@
 #include <avr/interrupt.h>
 #include <string.h>
 #include "integration_tests/src/config.h"
-#include "include/Mac802154MRFImpl.h"
+#include "CommunicationModule/Mac802154MRFImpl.h"
 #include <stdio.h>
 
 int main(void) {

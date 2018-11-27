@@ -1,7 +1,7 @@
 #include <memory.h>
 #include "unity.h"
 #include "src/BitManipulation.h"
-#include "include/Mac802154.h"
+#include "CommunicationModule/Mac802154.h"
 
 void debug(const uint8_t *msg){}
 

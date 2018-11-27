@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include "src/Mac802154/Mac802154.h"
-#include "include/Mac802154MRFImpl.h"
+#include "CommunicationModule/Mac802154MRFImpl.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 #include "src/Mac802154/MRF/MRFHelperFunctions.h"
 #include "src/Mac802154/MRF/MRFState.h"

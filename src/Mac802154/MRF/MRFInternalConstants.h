@@ -2,7 +2,7 @@
 #ifndef COMMUNICATIONMODULE_NETWORKHARDWAREMRFIMPL_H
 #define COMMUNICATIONMODULE_NETWORKHARDWAREMRFIMPL_H
 
-#include "include/Peripheral.h"
+#include "CommunicationModule/Peripheral.h"
 
 static const uint8_t mrf_register_receive_mac_control = 0x00;
 static const uint8_t mrf_register_power_amplifier_control2 = 0x18;

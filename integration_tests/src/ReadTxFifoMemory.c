@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <util/delay.h>
 #include <string.h>
-#include "include/PeripheralSPIImpl.h"
+#include "CommunicationModule/PeripheralSPIImpl.h"
 #include "integration_tests/src/config.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 #include "integration_tests/LUFA-Setup/Helpers.h"
