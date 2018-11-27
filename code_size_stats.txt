@@ -48,6 +48,10 @@ Lib size after making Bitmanipulation implementations non static and moving them
    text	   data	    bss	    dec	    hex	filename
    9446	     92	     36	   9574	   2566	bazel-out/avr-fastbuild/bin/integration_tests/EchoMessageBlocking
 
+
+made BitManipulation static again and moved PeripheralSPIImpl struct definition to user api header and set and clear
+bits via assignement instead of BitManipulation functions (that's the 14 Bytes reduction in PeripheralSPIImpl.o):
+This enables application to save the PeripheralSPIImpl struct in BSS instead of stack.
    text	   data	    bss	    dec	    hex	filename
    1194	      0	      0	   1194	    4aa	FrameHeader802154.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
     484	      0	      0	    484	    1e4	MRFState.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
@@ -58,4 +62,5 @@ Lib size after making Bitmanipulation implementations non static and moving them
    1500	      0	      0	   1500	    5dc	PeripheralSPIImpl.o (ex bazel-out/avr-fastbuild/bin/libCommunicationModule.a)
    5504	      0	      0	   5504	   1580	(TOTALS)
    text	   data	    bss	    dec	    hex	filename
+
    4990	     54	     25	   5069	   13cd	bazel-out/avr-fastbuild/bin/integration_tests/EchoMessageBlocking
