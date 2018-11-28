@@ -106,10 +106,10 @@ PeripheralInterface_handleReadInterrupt(PeripheralInterface self);
 struct PeripheralInterface {
   void (*init)(PeripheralInterface self);
 
-  void (*writeBlocking)(PeripheralInterface self, const uint8_t *buffer, uint16_t length);
+  void (*writeByteBlocking)(PeripheralInterface self, uint8_t byte);
   void (*writeNonBlocking)(PeripheralInterface self, PeripheralInterface_NonBlockingWriteContext context);
 
-  void (*readBlocking)(PeripheralInterface self, uint8_t *buffer, uint16_t length);
+  uint8_t (*readByteBlocking)(PeripheralInterface self);
   void (*readNonBlocking) (PeripheralInterface self, uint8_t *buffer, uint16_t length);
   void (*setReadCallback) (PeripheralInterface self, PeripheralInterface_Callback callback);
   void (*resetReadCallback) (PeripheralInterface self);

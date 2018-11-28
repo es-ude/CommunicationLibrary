@@ -59,4 +59,7 @@ static void setUpIOLines(const SPIConfig *config);
 static void setUpControlRegister(volatile uint8_t *control_register);
 static uint8_t transfer(PeripheralInterfaceImpl self, uint8_t byte);
 static void writeByteNonBlocking(PeripheralInterfaceImpl self, uint8_t byte);
+static void writeByteBlocking(PeripheralInterfaceImpl impl, uint8_t byte);
+static uint8_t readByteBlocking(PeripheralInterfaceImpl impl);
+
 #endif //COMMUNICATIONMODULE_PERIPHERALSPIIMPLINTERN_H

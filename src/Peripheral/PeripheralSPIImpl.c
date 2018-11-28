@@ -24,11 +24,11 @@ void setInterfaceFunctionPointers(PeripheralInterface self) {
   self->selectPeripheral = selectPeripheral;
   self->deselectPeripheral = deselectPeripheral;
 
-  self->writeBlocking = writeBlocking;
+  self->writeByteBlocking = writeByteBlocking;
+  self->readByteBlocking = readByteBlocking;
   self->writeNonBlocking = writeNonBlocking;
   self->handleWriteInterrupt = handleWriteInterrupt;
 
-  self->readBlocking = readBlocking;
   self->readNonBlocking = readNonBlocking;
   self->setReadCallback = setReadCallback;
   self->handleReadInterrupt = handleReadInterrupt;
@@ -47,6 +47,23 @@ writeNonBlocking(PeripheralInterface self,
   impl->interrupt_data.output_buffer = context.output_buffer;
   impl->interrupt_data.output_buffer_length = context.length;
   handleWriteInterrupt(self);
+}
+
+void
+writeByteBlocking(
+    PeripheralInterfaceImpl self,
+    const uint8_t byte
+    )
+{
+  transfer(self, byte);
+}
+
+uint8_t
+readByteBlocking(
+    PeripheralInterfaceImpl self
+    )
+{
+  return transfer(self, 0);
 }
 
 void
@@ -96,7 +113,6 @@ static void setUpIOLines(const SPIConfig *config) {
   /* *config->io_lines_data_direction_register |= (1 << config->slave_select_pin | 1 << config->mosi_pin | 1 << config->clock_pin); */
   /* *config->io_lines_data_direction_register &= (1 << config->miso_pin); */
   /* *config->io_lines_data_register |= (1 << config->slave_select_pin); */
-BitManipulation_setByte
 BitManipulation_setBit(config->io_lines_data_direction_register,config->slave_select_pin);
 BitManipulation_setBit(config->io_lines_data_direction_register, config->mosi_pin);
 BitManipulation_setBit(config->io_lines_data_direction_register, config->clock_pin);

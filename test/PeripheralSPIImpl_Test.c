@@ -11,7 +11,7 @@ static uint8_t registers_master[NUMBER_OF_MASTER_REGISTERS];
 static uint8_t registers_slave[NUMBER_OF_SLAVE_REGISTERS];
 static SPIConfig config;
 static SPISlave peripheral = {
-        .slave_select_pin_number = 1,
+        .slave_select_pin = 1,
         .data_register = registers_slave,
         .data_direction_register = registers_slave+1,
         .spi_mode = SPI_MODE_0,
