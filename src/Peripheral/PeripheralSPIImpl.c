@@ -111,7 +111,7 @@ uint64_t b = 0;
 static void setUpIOLines(const SPIConfig *config) {
   a = 0xAAAAAAAAAAAAAAAA;
   /* *config->io_lines_data_direction_register |= (1 << config->slave_select_pin | 1 << config->mosi_pin | 1 << config->clock_pin); */
-  /* *config->io_lines_data_direction_register &= (1 << config->miso_pin); */
+  /* *config->io_lines_data_direction_register &= ~(1 << config->miso_pin); */
   /* *config->io_lines_data_register |= (1 << config->slave_select_pin); */
 BitManipulation_setBit(config->io_lines_data_direction_register,config->slave_select_pin);
 BitManipulation_setBit(config->io_lines_data_direction_register, config->mosi_pin);
