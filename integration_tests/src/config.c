@@ -3,7 +3,12 @@
 #include <util/delay.h>
 #include <stdlib.h>
 
-static SPIConfig spi_config = {
+
+PeripheralInterfaceSPIImpl peripheral_interface_struct;
+PeripheralInterface *peripheral_interface = &peripheral_interface_struct;
+
+void setUpPeripheral(void) {
+  static SPIConfig spi_config = {
         .data_register = &SPDR,
         .clock_pin = PORTB1,
         .miso_pin = PORTB3,
@@ -15,10 +20,6 @@ static SPIConfig spi_config = {
         .control_register = &SPCR,
 };
 
-PeripheralInterfaceSPIImpl peripheral_interface_struct;
-PeripheralInterface *peripheral_interface = &peripheral_interface_struct;
-
-void setUpPeripheral(void) {
   PeripheralInterfaceSPI_createNew((uint8_t *)peripheral_interface, &spi_config);
 }
 
