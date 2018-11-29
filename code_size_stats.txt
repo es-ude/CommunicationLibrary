@@ -109,3 +109,8 @@ with PeripheralInterfaceImpl struct definition being visible and still using mal
 with PeripheralInterfaceImpl struct defintition not visible and using malloc
    text	   data	    bss	    dec	    hex	filename
    5646	     58	      9	   5713	   1651	bazel-out/avr-fastbuild/bin/integration_tests/EchoMessageBlocking
+
+fixed a bug where we did not allocate static memory for PeripheralSPIImpl but for PeripheralInterface the size difference for that is 14Byte.
+additionally moved the implementation of writeBlocking and readBlocking to Peripheral.c:
+   text	   data	    bss	    dec	    hex	filename
+   5102	     54	     73	   5229	   146d	bazel-out/avr-fastbuild/bin/integration_tests/EchoMessageBlocking

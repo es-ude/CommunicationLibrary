@@ -9,7 +9,7 @@ static void setWriteShortCommand(MrfIo *mrf, uint8_t address);
 static void setWriteLongCommand(MrfIo *mrf, uint16_t address);
 static void setReadShortCommand(MrfIo *mrf, uint8_t address);
 static void setReadLongCommand(MrfIo *mrf, uint16_t address);
-static void clearPeripheralWriteCallback(PeripheralInterface interface);
+static void clearPeripheralWriteCallback(PeripheralInterface *interface);
 static void clearMrfIoWriteCallback(MrfIo *mrf);
 static void callbackForDeselect(void *mrf);
 static void callbackForWritingData(void *mrf);

@@ -18,12 +18,14 @@
  * The PeripheralInterface is assumed to be in an initialized state.
  *
  */
-typedef void (*DelayFunction) (uint16_t amount);
+typedef void (*DelayFunction)(uint16_t amount);
 
-size_t Mac802154MRF_getADTSize (void);
+size_t
+Mac802154MRF_getADTSize(void);
 
-void Mac802154MRF_create(Mac802154 memory,
-                         DelayFunction delay_microseconds,
-                         PeripheralInterface interface,
-                         Peripheral *device);
+void
+Mac802154MRF_create(Mac802154 memory,
+                    DelayFunction delay_microseconds,
+                    PeripheralInterface* interface,
+                    Peripheral* device);
 #endif /* end of CommunicationModule guard */

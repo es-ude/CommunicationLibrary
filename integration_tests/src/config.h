@@ -6,7 +6,7 @@
 
 Mac802154 mac802154;
 SPISlave mrf_spi_client;
-PeripheralInterface peripheral_interface;
+PeripheralInterface *peripheral_interface;
 
 void setup(void);
 void setUpPeripheral(void);

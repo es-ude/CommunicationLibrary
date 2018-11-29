@@ -9,7 +9,7 @@ size_t Mac802154MRF_getADTSize (void) {
 
 void Mac802154MRF_create(Mac802154 memory,
                          DelayFunction delay_microseconds,
-                         PeripheralInterface interface,
+                         PeripheralInterface *interface,
                          Peripheral *peripheral)
 {
   Mrf *impl = (Mrf *) memory;

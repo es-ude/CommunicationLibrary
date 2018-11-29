@@ -26,7 +26,7 @@
  */
 
 typedef void Peripheral;
-typedef struct PeripheralInterface* PeripheralInterface;
+typedef struct PeripheralInterface PeripheralInterface;
 typedef CommunicationModule_Callback PeripheralInterface_Callback;
 
 typedef struct PeripheralInterface_NonBlockingWriteContext
@@ -44,21 +44,21 @@ typedef struct PeripheralInterface_NonBlockingReadContext
 } PeripheralInterface_NonBlockingReadContext;
 
 void
-PeripheralInterface_writeBlocking (PeripheralInterface self,
+PeripheralInterface_writeBlocking (PeripheralInterface *self,
                                    const uint8_t *buffer,
                                    size_t size);
 
 void
-PeripheralInterface_writeNonBlocking(PeripheralInterface self,
+PeripheralInterface_writeNonBlocking(PeripheralInterface *self,
                                      PeripheralInterface_NonBlockingWriteContext context);
 
 void
-PeripheralInterface_readBlocking (PeripheralInterface self,
+PeripheralInterface_readBlocking (PeripheralInterface *self,
                                   uint8_t *buffer,
                                   size_t length);
 
 void
-PeripheralInterface_readNonBlocking(PeripheralInterface self,
+PeripheralInterface_readNonBlocking(PeripheralInterface *self,
                                     uint8_t *buffer,
                                     uint16_t size);
 
@@ -71,7 +71,7 @@ PeripheralInterface_readNonBlocking(PeripheralInterface self,
  * access.
  */
 void
-PeripheralInterface_selectPeripheral(PeripheralInterface self,
+PeripheralInterface_selectPeripheral(PeripheralInterface *self,
                                      Peripheral *device);
 
 /**
@@ -80,7 +80,7 @@ PeripheralInterface_selectPeripheral(PeripheralInterface self,
  * lines for SPI.
  */
 void
-PeripheralInterface_deselectPeripheral(PeripheralInterface self,
+PeripheralInterface_deselectPeripheral(PeripheralInterface *self,
                                        Peripheral *device);
 
 /**
@@ -89,7 +89,7 @@ PeripheralInterface_deselectPeripheral(PeripheralInterface self,
  * for non blocking write operations.
  */
 void
-PeripheralInterface_handleWriteInterrupt(PeripheralInterface self);
+PeripheralInterface_handleWriteInterrupt(PeripheralInterface *self);
 
 /**
  * Use this function inside the interrupt service routine,
@@ -97,30 +97,28 @@ PeripheralInterface_handleWriteInterrupt(PeripheralInterface self);
  * for non blocking read operations.
  */
 void
-PeripheralInterface_handleReadInterrupt(PeripheralInterface self);
+PeripheralInterface_handleReadInterrupt(PeripheralInterface *self);
 
 /**
  * New implementations can be offered by setting up the struct below
  * and using it as first member of the struct holding the new implementation.
  */
 struct PeripheralInterface {
-  void (*init)(PeripheralInterface self);
+  void (*init)(PeripheralInterface *self);
 
-  void (*writeByteBlocking)(PeripheralInterface self, uint8_t byte);
-  void (*writeNonBlocking)(PeripheralInterface self, PeripheralInterface_NonBlockingWriteContext context);
+  void (*writeByteBlocking)(PeripheralInterface *self, uint8_t byte);
+  void (*writeNonBlocking)(PeripheralInterface *self, PeripheralInterface_NonBlockingWriteContext context);
 
-  uint8_t (*readByteBlocking)(PeripheralInterface self);
-  void (*readNonBlocking) (PeripheralInterface self, uint8_t *buffer, uint16_t length);
-  void (*setReadCallback) (PeripheralInterface self, PeripheralInterface_Callback callback);
-  void (*resetReadCallback) (PeripheralInterface self);
+  uint8_t (*readByteBlocking)(PeripheralInterface *self);
+  void (*readNonBlocking) (PeripheralInterface *self, uint8_t *buffer, uint16_t length);
+  void (*setReadCallback) (PeripheralInterface *self, PeripheralInterface_Callback callback);
+  void (*resetReadCallback) (PeripheralInterface *self);
 
-  void (*selectPeripheral)(PeripheralInterface self, Peripheral *device);
-  void (*deselectPeripheral)(PeripheralInterface self, Peripheral *device);
+  void (*selectPeripheral)(PeripheralInterface *self, Peripheral *device);
+  void (*deselectPeripheral)(PeripheralInterface *self, Peripheral *device);
 
-  void (*handleWriteInterrupt)(PeripheralInterface self);
-  void (*handleReadInterrupt) (PeripheralInterface self);
+  void (*handleWriteInterrupt)(PeripheralInterface *self);
+  void (*handleReadInterrupt) (PeripheralInterface *self);
 
 };
-
-
 #endif /* PERIPHERALINTERFACE_H */
