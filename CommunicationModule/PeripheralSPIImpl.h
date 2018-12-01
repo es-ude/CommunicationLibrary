@@ -141,8 +141,8 @@ PeripheralInterfaceSPI_getADTSize(void);
  * to internal representation. So after the function call returns the
  * memory occupied by spiConfig can be freed again.
  */
-PeripheralInterface*
-PeripheralInterfaceSPI_createNew(uint8_t* memory,
+void
+PeripheralInterfaceSPI_createNew(PeripheralInterface* memory,
                                  const SPIConfig* spiConfig);
 
 /**

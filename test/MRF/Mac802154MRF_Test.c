@@ -13,7 +13,7 @@
 #include "src/BitManipulation.h"
 
 Peripheral *device;
-PeripheralInterface interface;
+PeripheralInterface *interface;
 Mac802154 mrf;
 Mac802154Config mrf_config;
 

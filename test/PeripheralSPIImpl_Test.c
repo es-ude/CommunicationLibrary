@@ -19,7 +19,7 @@ static SPISlave peripheral = {
         .clock_rate_divider = SPI_CLOCK_RATE_DIVIDER_64,
         .data_order = SPI_DATA_ORDER_LSB_FIRST,
 };
-static PeripheralInterface interface = NULL;
+static PeripheralInterface *interface = NULL;
 
 static bool callback_called = false;
 
@@ -66,11 +66,6 @@ void
 tearDown(void)
 {
   free(interface);
-}
-
-void test_debugging(void)
-{
-  PeripheralInterface_selectPeripheral(interface, &peripheral);
 }
 
 void test_selectSetsSPIEnableBit(void) {

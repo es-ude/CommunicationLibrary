@@ -9,17 +9,15 @@ size_t PeripheralInterfaceSPI_getADTSize(void) {
 
 static void emptyFunction(void *a) {}
 
-PeripheralInterface *
-PeripheralInterfaceSPI_createNew(uint8_t *const memory, const SPIConfig *const spiConfig) {
+void
+PeripheralInterfaceSPI_createNew(PeripheralInterface *memory, const SPIConfig *const spiConfig) {
   PeripheralInterfaceSPIImpl *impl = (PeripheralInterfaceSPIImpl *) memory;
   impl->config = *spiConfig;
   impl->current_peripheral = NULL;
   resetWriteCallback((PeripheralInterface *)impl);
   resetReadCallback((PeripheralInterface *) impl);
   setInterfaceFunctionPointers(&impl->interface);
-  return (PeripheralInterface *) impl;
 }
-
 
 void setInterfaceFunctionPointers(PeripheralInterface *self) {
   self->selectPeripheral = selectPeripheral;
@@ -109,20 +107,10 @@ static void setUpControlRegister(volatile uint8_t *control_register) {
   BitManipulation_setBit(control_register, master_slave_select_bit);
 }
 
-uint64_t a = 0;
-uint64_t b = 0;
 static void setUpIOLines(const SPIConfig *config) {
-  a = 0xAAAAAAAAAAAAAAAA;
-  /* *config->io_lines_data_direction_register |= (1 << config->slave_select_pin | 1 << config->mosi_pin | 1 << config->clock_pin); */
-  /* *config->io_lines_data_direction_register &= (1 << config->miso_pin); */
-  /* *config->io_lines_data_register |= (1 << config->slave_select_pin); */
-BitManipulation_setBit(config->io_lines_data_direction_register,config->slave_select_pin);
-BitManipulation_setBit(config->io_lines_data_direction_register, config->mosi_pin);
-BitManipulation_setBit(config->io_lines_data_direction_register, config->clock_pin);
-BitManipulation_clearBit(config->io_lines_data_direction_register, config->miso_pin);
-BitManipulation_setBit(config->io_lines_data_register, config->slave_select_pin);
-
-  b = 0xBBBBBBBBBBBBBBBB;
+  *config->io_lines_data_direction_register |= (1 << config->slave_select_pin | 1 << config->mosi_pin | 1 << config->clock_pin);
+  *config->io_lines_data_direction_register &= ~(1 << config->miso_pin);
+  *config->io_lines_data_register |= (1 << config->slave_select_pin);
 }
 
 
