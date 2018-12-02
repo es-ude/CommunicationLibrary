@@ -135,37 +135,26 @@ cc_library(
 #########################################
 
 genzip_cmd = "zip -j $(OUTS) $(location :CommunicationModule); zip $(OUTS) $(locations :CommunicationModuleIncl)"
-filegroup(
-    name = "LibAndHeaderForPublishing",
-    srcs = [
-        ":CommunicationModule",
-        ":CommunicationModuleIncl",
-    ]
-)
+
+LibAndHeaderForPublishing = [":CommunicationModule", ":CommunicationModuleIncl"]
 
 genrule(
     name = "CommunicationModule_atmega32u4_zip",
-    srcs = [
-        ":LibAndHeaderForPublishing",
-    ],
+    srcs = LibAndHeaderForPublishing,
     outs = ["CommunicationModule_atmega32u4.zip"],
     cmd = genzip_cmd,
 )
 
 genrule(
     name = "CommunicationModule_atmega328p_zip",
-    srcs = [
-        ":LibAndHeaderForPublishing",
-    ],
+    srcs = LibAndHeaderForPublishing,
     outs = ["CommunicationModule_atmega328p.zip"],
     cmd = genzip_cmd,
 )
 
 genrule(
     name = "CommunicationModule_atmega64_zip",
-    srcs = [
-        ":LibAndHeaderForPublishing",
-    ],
+    srcs = LibAndHeaderForPublishing,
     outs = ["CommunicationModule_atmega64.zip"],
     cmd = genzip_cmd,
 )
