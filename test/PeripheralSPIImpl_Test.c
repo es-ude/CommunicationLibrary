@@ -1,23 +1,25 @@
 #include "unity.h"
-#include "CommunicationModule/PeripheralSPIImpl.h"
+
+#include "CommunicationModule/CommunicationModule.h"
+#include "src/Peripheral/SpiPinNumbers.h"
+
 #include <memory.h>
 #include <stdlib.h>
-#include "src/Peripheral/SpiPinNumbers.h"
-#include "CommunicationModule/Exception.h"
 
 #define NUMBER_OF_MASTER_REGISTERS 5
 #define NUMBER_OF_SLAVE_REGISTERS 2
+
 static uint8_t registers_master[NUMBER_OF_MASTER_REGISTERS];
 static uint8_t registers_slave[NUMBER_OF_SLAVE_REGISTERS];
 static SPIConfig config;
 static SPISlave peripheral = {
-        .slave_select_pin = 1,
-        .data_register = registers_slave,
-        .data_direction_register = registers_slave+1,
-        .spi_mode = SPI_MODE_0,
-        .idle_signal = SPI_IDLE_SIGNAL_HIGH,
-        .clock_rate_divider = SPI_CLOCK_RATE_DIVIDER_64,
-        .data_order = SPI_DATA_ORDER_LSB_FIRST,
+  .slave_select_pin        = 1,
+  .data_register           = registers_slave,
+  .data_direction_register = registers_slave + 1,
+  .spi_mode                = SPI_MODE_0,
+  .idle_signal             = SPI_IDLE_SIGNAL_HIGH,
+  .clock_rate_divider      = SPI_CLOCK_RATE_DIVIDER_64,
+  .data_order              = SPI_DATA_ORDER_LSB_FIRST,
 };
 static PeripheralInterface *interface = NULL;
 
@@ -41,24 +43,26 @@ static void
 stubCallback(void *arg)
 {
   if (*(uint8_t *)arg == 13)
-  {
-    callback_called = true;
-  }
+    {
+      callback_called = true;
+    }
 }
 
-void setUp(void) {
-  uint8_t *registers_local_copy = registers_master;
-  config.control_register = registers_local_copy++;
-  config.data_register = registers_local_copy++;
-  config.status_register = registers_local_copy++;
+void
+setUp(void)
+{
+  uint8_t *registers_local_copy           = registers_master;
+  config.control_register                 = registers_local_copy++;
+  config.data_register                    = registers_local_copy++;
+  config.status_register                  = registers_local_copy++;
   config.io_lines_data_direction_register = registers_local_copy++;
-  config.io_lines_data_register = registers_local_copy;
-  config.clock_pin = 0;
-  config.miso_pin = 1;
-  config.mosi_pin = 2;
+  config.io_lines_data_register           = registers_local_copy;
+  config.clock_pin                        = 0;
+  config.miso_pin                         = 1;
+  config.mosi_pin                         = 2;
   memset(registers_master, 0, NUMBER_OF_MASTER_REGISTERS);
   interface = malloc(PeripheralInterfaceSPI_getADTSize());
-  PeripheralInterfaceSPI_createNew((uint8_t *)interface, &config);
+  PeripheralInterfaceSPI_createNew(interface, &config);
   callback_called = false;
 }
 
@@ -68,39 +72,37 @@ tearDown(void)
   free(interface);
 }
 
-void test_selectSetsSPIEnableBit(void) {
+void
+test_selectSetsSPIEnableBit(void)
+{
   CEXCEPTION_T e;
-  Try {
-        PeripheralInterface_selectPeripheral(interface, &peripheral);
-      } Catch(e) {
-    TEST_FAIL();
-  }
-
+  Try { PeripheralInterface_selectPeripheral(interface, &peripheral); }
+  Catch(e) { TEST_FAIL(); }
   TEST_ASSERT_BIT_HIGH(spi_enable_bit, *config.control_register);
 }
 
-void test_deselectSetsControlRegisterToDefault(void) {
+void
+test_deselectSetsControlRegisterToDefault(void)
+{
   CEXCEPTION_T e;
-  Try {
-        PeripheralInterface_selectPeripheral(interface, &peripheral);
-        PeripheralInterface_deselectPeripheral(interface, &peripheral);
-      } Catch (e) {
-    TEST_FAIL();
+  Try
+  {
+    PeripheralInterface_selectPeripheral(interface, &peripheral);
+    PeripheralInterface_deselectPeripheral(interface, &peripheral);
   }
+  Catch(e) { TEST_FAIL(); }
 
   TEST_ASSERT_BITS_LOW(0xFF, *config.control_register);
 }
 
-void test_failedSetupEndsWithDefaultControlRegisterValues(void) {
+void
+test_failedSetupEndsWithDefaultControlRegisterValues(void)
+{
   SPISlave invalid_peripheral = peripheral;
   invalid_peripheral.spi_mode = 30;
   CEXCEPTION_T e;
-  Try {
-        PeripheralInterface_selectPeripheral(interface, &invalid_peripheral);
-      }
-      Catch(e) {
-    TEST_ASSERT_EQUAL_UINT8(PERIPHERAL_SELECT_EXCEPTION, e);
-  }
+  Try { PeripheralInterface_selectPeripheral(interface, &invalid_peripheral); }
+  Catch(e) { TEST_ASSERT_EQUAL_UINT8(PERIPHERAL_SELECT_EXCEPTION, e); }
   TEST_ASSERT_BITS_LOW(0xFF, *config.control_register);
 }
 
@@ -151,7 +153,6 @@ test_handleWriteInterruptTransmitsSecondByte(void)
   TEST_ASSERT_EQUAL_UINT8('b', *config.data_register);
 }
 
-
 void
 test_handleWriteInterruptTransmitsThirdByte(void)
 {
@@ -174,9 +175,8 @@ test_handleWriteInterruptTransmitsThirdByte(void)
   PeripheralInterface_handleWriteInterrupt(interface);
   PeripheralInterface_handleWriteInterrupt(interface);
 
-  TEST_ASSERT_EQUAL_STRING_LEN(data+2, config.data_register, 1);
+  TEST_ASSERT_EQUAL_STRING_LEN(data + 2, config.data_register, 1);
 }
-
 
 void
 test_callHandleWriteInterruptTooManyTimes(void)
@@ -197,11 +197,12 @@ test_callHandleWriteInterruptTooManyTimes(void)
   };
 
   PeripheralInterface_writeNonBlocking(interface, context);
-  for (uint8_t i = 0; i < 5; i++) {
-    PeripheralInterface_handleWriteInterrupt(interface);
-  }
+  for (uint8_t i = 0; i < 5; i++)
+    {
+      PeripheralInterface_handleWriteInterrupt(interface);
+    }
 
-  TEST_ASSERT_EQUAL_STRING_LEN(data+4, config.data_register, 1);
+  TEST_ASSERT_EQUAL_STRING_LEN(data + 4, config.data_register, 1);
 }
 
 void
@@ -212,21 +213,15 @@ test_callWriteNonBlockingWhileInterfaceIsBusy(void)
   PeripheralInterface_selectPeripheral(interface, &peripheral);
 
   uint8_t data[] = "fghij__";
-  PeripheralInterface_NonBlockingWriteContext context = createNonBlockingWriteContextWithoutCallback(data, 5);
+  PeripheralInterface_NonBlockingWriteContext context =
+    createNonBlockingWriteContextWithoutCallback(data, 5);
   PeripheralInterface_writeNonBlocking(interface, context);
 
   CEXCEPTION_T e = 0;
-  Try
-      {
-        PeripheralInterface_writeNonBlocking(interface, context);
-      }
-      Catch(e)
-  {
-    TEST_ASSERT_EQUAL_UINT8(PERIPHERAL_INTERFACE_BUSY_EXCEPTION, e);
-  }
+  Try { PeripheralInterface_writeNonBlocking(interface, context); }
+  Catch(e) { TEST_ASSERT_EQUAL_UINT8(PERIPHERAL_INTERFACE_BUSY_EXCEPTION, e); }
   TEST_ASSERT_NOT_EQUAL(0, e);
 }
-
 
 void
 test_callWriteNonBlockingWithCallback(void)
@@ -235,16 +230,14 @@ test_callWriteNonBlockingWithCallback(void)
 
   PeripheralInterface_selectPeripheral(interface, &peripheral);
 
-  uint8_t data[] = "fghij__";
-  uint8_t arg = 13;
+  uint8_t data[]                        = "fghij__";
+  uint8_t arg                           = 13;
   PeripheralInterface_Callback callback = {
-          .function = stubCallback,
-          .argument = &arg,
+    .function = stubCallback,
+    .argument = &arg,
   };
   PeripheralInterface_NonBlockingWriteContext context = {
-      .output_buffer = data,
-      .length = 1,
-      .callback = callback
+    .output_buffer = data, .length = 1, .callback = callback
   };
   PeripheralInterface_writeNonBlocking(interface, context);
   PeripheralInterface_handleWriteInterrupt(interface);
@@ -258,7 +251,7 @@ test_readNonBlockingTransmitsFirstByte(void)
 
   PeripheralInterface_selectPeripheral(interface, &peripheral);
 
-  uint8_t buffer = 'a';
+  uint8_t buffer   = 'a';
   uint8_t expected = 'm';
   PeripheralInterface_readNonBlocking(interface, &buffer, 1);
   *config.data_register = 'm';
@@ -274,12 +267,12 @@ test_readNonBlockingWithCallback(void)
   PeripheralInterface_selectPeripheral(interface, &peripheral);
 
   *config.data_register = 'l';
-  uint8_t buffer = 'a';
-  uint8_t arg = 13;
+  uint8_t buffer        = 'a';
+  uint8_t arg           = 13;
   PeripheralInterface_readNonBlocking(interface, &buffer, 1);
   PeripheralInterface_Callback callback = {
-          .function = stubCallback,
-          .argument = &arg,
+    .function = stubCallback,
+    .argument = &arg,
   };
   PeripheralInterface_handleReadInterrupt(interface);
   TEST_ASSERT_TRUE(callback_called);
@@ -294,10 +287,10 @@ test_readNonBlockingTransfersAllBytes(void)
   uint8_t buffer[5];
   PeripheralInterface_readNonBlocking(interface, buffer, 1);
   for (uint8_t i = 0; i < 5; i++)
-  {
-    *config.data_register = data[i];
-    PeripheralInterface_handleReadInterrupt(interface);
-  }
+    {
+      *config.data_register = data[i];
+      PeripheralInterface_handleReadInterrupt(interface);
+    }
 
   TEST_ASSERT_EQUAL_STRING_LEN(data, buffer, 5);
 }
@@ -309,15 +302,15 @@ test_callBackIsOnlyTriggeredOnReadCompletion(void)
   TEST_IGNORE();
 
   uint8_t buffer[8];
-  uint8_t arg = 13;
+  uint8_t arg                           = 13;
   PeripheralInterface_Callback callback = {
-          .function = stubCallback,
-          .argument = &arg,
+    .function = stubCallback,
+    .argument = &arg,
   };
   PeripheralInterface_readNonBlocking(interface, buffer, 8);
   for (uint8_t i = 0; i < 7; i++)
-  {
-    PeripheralInterface_handleReadInterrupt(interface);
-    TEST_ASSERT_FALSE(callback_called);
-  }
+    {
+      PeripheralInterface_handleReadInterrupt(interface);
+      TEST_ASSERT_FALSE(callback_called);
+    }
 }
