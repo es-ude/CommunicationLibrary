@@ -32,7 +32,7 @@ pipeline:
       - docker_username
       - docker_password
     commands:
-      - bazel --output_base=/build/ build :CommunicationModuleZip --config=atmega32u4
+      - OUTPUT_DIR=/build/ bash -c ./buildAll.sh
     when:
       event: [push, pull_request, tag]
       #branch: [drone]
