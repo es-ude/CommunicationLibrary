@@ -32,7 +32,7 @@ pipeline:
       - docker_username
       - docker_password
     commands:
-      - bazel --output_base=/build/ build :CommunicationModule --config=32u4
+      - bazel --output_base=/build/ build :CommunicationModuleZip --config=32u4
     when:
       event: [push, pull_request, tag]
       #branch: [drone]
