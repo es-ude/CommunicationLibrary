@@ -16,9 +16,18 @@ int main(void)
       .short_source_address = { 0xAA, 0xBB },
       .extended_source_address = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88},
   };
+  MRFConfig hardware_config = {
+  
+    .reset_line = {
+      .data_direction_register = NULL,
+    },
+    .delay_microseconds = delay_microseconds,
+    .interface = peripheral_interface,
+    .device = &mrf_spi_client,
+  };
   _delay_ms(1000);
   uint8_t raw_memory[Mac802154MRF_getADTSize()];
-  Mac802154MRF_create((Mac802154) raw_memory, delay_microseconds, peripheral_interface, &mrf_spi_client);
+  Mac802154MRF_create((Mac802154) raw_memory, &hardware_config);
   Mac802154 mac = (Mac802154 ) raw_memory;
   Mac802154_configure(mac, &config);
   Mac802154_enablePromiscuousMode(mac);

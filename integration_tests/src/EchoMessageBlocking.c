@@ -20,11 +20,20 @@ int main(void) {
               0x77, 0x88,
           },
   };
+
+  MRFConfig hardware_config = {
+    .reset_line = {
+      .data_direction_register = NULL,
+      .data_register = NULL,
+    },
+    .delay_microseconds = delay_microseconds,
+    .interface = peripheral_interface,
+    .device = &mrf_spi_client,
+  };
   uint8_t raw_memory[Mac802154MRF_getADTSize ()];
-  Mac802154MRF_create(raw_memory, delay_microseconds, peripheral_interface, &mrf_spi_client);
+  Mac802154MRF_create(raw_memory, &hardware_config);
   Mac802154 mac = (Mac802154) raw_memory;
   Mac802154_configure(mac, &config);
-  Mac802154_enablePromiscuousMode(mac);
   char string[7];
   uint16_t counter = 0;
   while(true) {
@@ -32,11 +41,9 @@ int main(void) {
       {
       }
       counter++;
-      if (counter % 100 == 0){
       
         sprintf(string, "%i\n", counter);
         debug(string);
-      }
       uint8_t size = Mac802154_getReceivedPacketSize(mac);
       uint8_t packet[size];
       Mac802154_fetchPacketBlocking(mac, packet, size);

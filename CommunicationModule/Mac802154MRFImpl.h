@@ -28,9 +28,16 @@ void
 Mac802154MRF_create(Mac802154 memory,
                     MRFConfig *config);
 
+typedef struct GPIOPin {
+                    volatile uint8_t *data_direction_register;
+                    volatile uint8_t *data_register;
+                    uint8_t pin_number;
+} GPIOPin;
+
 struct MRFConfig
 {
                     uint8_t transmitter_power;
+                    GPIOPin reset_line;
                     DelayFunction delay_microseconds;
                     PeripheralInterface *interface;
                     Peripheral *device;

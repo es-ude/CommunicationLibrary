@@ -13,6 +13,13 @@
 #include "src/Mac802154/MockFrameHeader802154.h"
 #include "test/MRF/MockMac802154MRF_TestHelper.h"
 
+uint8_t reset_line_ddr;
+uint8_t reset_line_data;
+static const GPIOPin reset_line = {
+  .data_direction_register = &reset_line_ddr,
+  .data_register = &reset_line_data,
+  .pin_number = 4,
+};
 Peripheral          *device;
 PeripheralInterface *interface;
 Mac802154 mrf;
@@ -31,6 +38,7 @@ setUp(void)
   hardware_config.interface = interface;
   hardware_config.delay_microseconds = fakeDelay;
   hardware_config.transmitter_power = 0;
+  hardware_config.reset_line = reset_line;
   mrf = malloc(Mac802154MRF_getADTSize());
   mac_config.pan_id[0] = 0;
   mac_config.pan_id[1] = 0;
@@ -57,6 +65,13 @@ test_channelSelectionRegisterValueIsCalculatedCorrectly(void)
   TEST_ASSERT_EQUAL_UINT8(0x23, MRF_getRegisterValueForChannelNumber(13));
   TEST_ASSERT_EQUAL_UINT8(0x43, MRF_getRegisterValueForChannelNumber(15));
   TEST_ASSERT_EQUAL_UINT8(0xF3, MRF_getRegisterValueForChannelNumber(26));
+}
+
+void
+test_resetLineIsHigh(void)
+{
+  TEST_ASSERT_BIT_HIGH(hardware_config.reset_line.pin_number, *hardware_config.reset_line.data_direction_register);
+  TEST_ASSERT_BIT_HIGH(hardware_config.reset_line.pin_number, *hardware_config.reset_line.data_register);
 }
 
 void

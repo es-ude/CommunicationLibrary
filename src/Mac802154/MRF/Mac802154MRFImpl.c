@@ -9,6 +9,16 @@ Mac802154MRF_getADTSize (void)
 
 }
 
+static void
+setResetLineToDefinedState(MRFConfig *config)
+{
+  if (config->reset_line.data_direction_register != NULL && config->reset_line.data_register != NULL)
+  {
+    *config->reset_line.data_direction_register |= (1 << config->reset_line.pin_number);
+    *config->reset_line.data_register |= (1 << config->reset_line.pin_number);
+  }
+}
+
 void
 Mac802154MRF_create(Mac802154            memory,
     MRFConfig *config)
@@ -18,6 +28,7 @@ Mac802154MRF_create(Mac802154            memory,
   setUpInterface(&impl->mac);
   impl->io.interface = config->interface;
   impl->io.device    = config->device;
+  setResetLineToDefinedState(config);
 }
 
 void
