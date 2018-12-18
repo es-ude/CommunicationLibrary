@@ -187,6 +187,7 @@ cc_binary(
         "src/EchoMessageBlocking.c",
         "src/config.c",
         "src/config.h",
+        ":LufaSetup",
     ],
     copts = avr_minimal_copts() + LUFA_COPTS + CODE_SIZE_OPTIMIZATION_COPTS,
     linkopts = avr_minimal_copts() + LUFA_COPTS + [
@@ -197,6 +198,7 @@ cc_binary(
     deps = [
         "//:CommunicationModule",
         "@CException//:CException",
+        "@LUFA//:LUFA_USB",
     ],
 )
 

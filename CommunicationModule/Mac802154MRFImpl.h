@@ -19,13 +19,20 @@
  *
  */
 typedef void (*DelayFunction)(uint16_t amount);
+typedef struct MRFConfig MRFConfig;
 
 size_t
 Mac802154MRF_getADTSize(void);
 
 void
 Mac802154MRF_create(Mac802154 memory,
-                    DelayFunction delay_microseconds,
-                    PeripheralInterface* interface,
-                    Peripheral* device);
+                    MRFConfig *config);
+
+struct MRFConfig
+{
+                    uint8_t transmitter_power;
+                    DelayFunction delay_microseconds;
+                    PeripheralInterface *interface;
+                    Peripheral *device;
+};
 #endif /* end of CommunicationModule guard */

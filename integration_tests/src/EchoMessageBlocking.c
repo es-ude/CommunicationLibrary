@@ -3,8 +3,10 @@
 #include <avr/interrupt.h>
 #include "integration_tests/src/config.h"
 #include "CommunicationModule/Mac802154MRFImpl.h"
+#include "integration_tests/LUFA-Setup/Helpers.h"
 
 int main(void) {
+  setUpUsbSerial();
   setUpPeripheral();
 
   Mac802154Config config = {
@@ -22,18 +24,33 @@ int main(void) {
   Mac802154MRF_create(raw_memory, delay_microseconds, peripheral_interface, &mrf_spi_client);
   Mac802154 mac = (Mac802154) raw_memory;
   Mac802154_configure(mac, &config);
+  Mac802154_enablePromiscuousMode(mac);
+  char string[7];
+  uint16_t counter = 0;
   while(true) {
-      while(!Mac802154_newPacketAvailable(mac)) {}
+      while(!Mac802154_newPacketAvailable(mac)) 
+      {
+      }
+      counter++;
+      if (counter % 100 == 0){
+      
+        sprintf(string, "%i\n", counter);
+        debug(string);
+      }
       uint8_t size = Mac802154_getReceivedPacketSize(mac);
       uint8_t packet[size];
       Mac802154_fetchPacketBlocking(mac, packet, size);
-      uint16_t short_source_address = Mac802154_getPacketShortSourceAddress(mac, packet);
-      Mac802154_setShortDestinationAddress(mac, short_source_address);
-    Mac802154_setPayload(mac, (char *)packet, size);
-    Mac802154_sendBlocking(mac);
-    Mac802154_setPayload(mac, &short_source_address, Mac802154_getPacketSourceAddressSize(mac, packet));
-    Mac802154_sendBlocking(mac);
-    Mac802154_setPayload(mac, Mac802154_getPacketPayload(mac, packet), Mac802154_getPacketPayloadSize(mac, packet));
-    Mac802154_sendBlocking(mac);
+    /* Mac802154_setPayload(mac, (char *)packet, size); */
+    /* Mac802154_sendBlocking(mac); */
+    /* Mac802154_setPayload(mac, &short_source_address, Mac802154_getPacketSourceAddressSize(mac, packet)); */
+    /* Mac802154_sendBlocking(mac); */
+      uint8_t *payload = Mac802154_getPacketPayload(mac, packet);
+      if (*payload == 'e')
+      {
+        uint8_t *short_source_address = Mac802154_getPacketShortSourceAddress(mac, packet);
+        Mac802154_setShortDestinationAddress(mac, short_source_address);
+        Mac802154_setPayload(mac, Mac802154_getPacketPayload(mac, packet), Mac802154_getPacketPayloadSize(mac, packet));
+        Mac802154_sendBlocking(mac);
+      }
   }
 }

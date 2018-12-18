@@ -11,6 +11,7 @@ static const uint8_t mrf_register_tx_stabilization = 0x2E;
 static const uint8_t mrf_register_interrupt_status = 0x31;
 static const uint8_t mrf_register_interrupt_control = 0x32;
 static const uint8_t mrf_register_rf_mode_control = 0x36;
+static const uint8_t mrf_register_base_band1 = 0x39;
 static const uint8_t mrf_register_base_band2 = 0x3A;
 static const uint8_t mrf_register_base_band6 = 0x3E;
 static const uint8_t mrf_register_energy_detection_threshold_for_clear_channel_assessment = 0x3F;
@@ -33,6 +34,7 @@ static const uint8_t mrf_register_short_address_low_byte = 0x03;
 static const uint8_t mrf_register_short_address_high_byte = 0x04;
 static const uint8_t mrf_register_extended_address0 = 0x05;
 static const uint8_t mrf_register_tx_normal_fifo_control = 0x1B;
+static const uint8_t mrf_register_rx_flush = 0x0D;
 
 static const uint8_t mrf_fifo_enable = 0x08;
 static const uint8_t mrf_tx_normal_fifo_length = 0x80;
@@ -48,6 +50,9 @@ static const uint8_t mrf_value_recommended_rf_optimize_control1 = 0x01;
 static const uint8_t mrf_value_recommended_rf_control8 = 0x10;
 static const uint8_t mrf_value_phase_locked_loop_enabled = 0x80;
 static const uint8_t mrf_value_transmitter_power_minus30dB = 0x03 << 6;
+static const uint8_t mrf_value_transmitter_power_minus20dB = 0x02 << 6;
+static const uint8_t mrf_value_transmitter_power_minus10dB = 0x01 << 6;
+static const uint8_t mrf_value_transmitter_power_0dB = 0;
 static const uint8_t mrf_value_enable_tx_filter = 0x01 << 7;
 static const uint8_t mrf_value_20MHz_clock_recovery_less_than_1ms = 0x01 << 4;
 static const uint8_t mrf_value_use_internal_100kHz_oscillator = 0x80;
@@ -60,5 +65,6 @@ static const uint8_t mrf_value_rf_state_machine_reset_state = 0x04;
 static const uint8_t mrf_value_rf_state_machine_operating_state = 0x00;
 static const uint8_t mrf_value_delay_interval_after_state_machine_reset = 200;
 static const uint8_t mrf_value_rx_interrupt_enabled = (uint8_t) ~(1 << 3);
+static const uint8_t mrf_value_rx_decode_inversion = (uint8_t) (1 << 2);
 
 #endif //COMMUNICATIONMODULE_NETWORKHARDWAREMRFIMPL_H
