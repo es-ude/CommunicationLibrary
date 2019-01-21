@@ -312,15 +312,6 @@ test_newMessageAvailable(void)
       MrfIo_readControlRegister_ExpectAndReturn(
 	io, mrf_register_interrupt_status, interrupt_register_value);
 
-      if (gotNewMessage(interrupt_register_value))
-      {
-        expectDisableReception(io);
-      }
-      else
-      {
-        expectRXFlush(io);
-      }
-
       bool result = Mac802154_newPacketAvailable(mrf);
 
       sprintf(error_message, "failed for value %d", interrupt_register_value);
@@ -349,7 +340,6 @@ test_fetchMessageBlocking(void)
   MrfIo_readBlockingFromLongAddress_ReturnArrayThruPtr_buffer(
     expected_message, strlen((char *) expected_message));
   MrfIo *io = &((Mrf *)mrf)->io;
-  expectEnableReception(io);
 
   uint8_t message_buffer[16];
   memset(message_buffer, 0, 16);

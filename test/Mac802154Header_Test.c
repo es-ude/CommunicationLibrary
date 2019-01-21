@@ -36,7 +36,7 @@ void test_controlFieldIsCorrectlyInitialized(void) {
    * Frame Type => Data Frame
    * Security => disabled
    * Frame Pending => false
-   * Ack Request => true
+   * Ack Request => false
    * PAN ID Compression => true
    * Sequence Number suppression => false
    * Information Element Present => false
@@ -50,7 +50,7 @@ void test_controlFieldIsCorrectlyInitialized(void) {
    * with the lsb.
    */
   uint8_t default_control_field[] = {
-          0b01100001,
+          0b01000001,
           0b10101000
   };
 
@@ -428,10 +428,4 @@ void test_getSourceAddressPtr(void) {
   FrameHeader802154_setShortSourceAddress(header, expected);
   const uint8_t *source_address = FrameHeader802154_getSourceAddressPtr(header);
   TEST_ASSERT_EQUAL_HEX8_ARRAY(expected, source_address, 2);
-}
-
-void
-test_enableAcknowledgement(void)
-{
-
 }
