@@ -11,8 +11,8 @@ int main(void) {
 
   Mac802154Config config = {
           .channel = 12,
-          .pan_id = {0x33, 0x32},
-          .short_source_address = {0xAA, 0xBB},
+          .pan_id = {0xcc, 0xdd},
+          .short_source_address = {0xAA, 0xAA},
           .extended_source_address = {
               0x11, 0x22,
               0x33, 0x44,
@@ -34,6 +34,7 @@ int main(void) {
   Mac802154MRF_create(raw_memory, &hardware_config);
   Mac802154 mac = (Mac802154) raw_memory;
   Mac802154_configure(mac, &config);
+  Mac802154_disablePromiscuousMode(mac);
   char string[7];
   uint16_t counter = 0;
   while(true) {

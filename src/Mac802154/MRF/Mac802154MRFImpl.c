@@ -296,14 +296,6 @@ newMessageAvailable(Mac802154 self)
   uint8_t status_register_value = MrfIo_readControlRegister(&impl->io,
                                                             mrf_register_interrupt_status);
   bool    new_message = ((status_register_value >> 3) & 1);
-  if (new_message)
-    {
-      disableReception(impl);
-    }
-  else
-    {
-      flushRXBuffer(impl);
-    }
   return new_message;
 }
 
@@ -314,7 +306,6 @@ fetchMessageBlocking(Mac802154 self,
 {
   Mrf *impl = (Mrf *) self;
   MrfIo_readBlockingFromLongAddress(&impl->io, mrf_rx_fifo_start, buffer, size);
-  enableReception(impl);
 }
 
 /**

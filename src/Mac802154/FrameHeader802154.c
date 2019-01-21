@@ -98,7 +98,6 @@ void FrameHeader802154_init(FrameHeader802154 *self) {
   setSourceAddressingMode(self, ADDRESSING_MODE_SHORT_ADDRESS);
   setFrameType(self, FRAME_TYPE_DATA);
   setFrameVersion(self, FRAME_VERSION_2015);
-  FrameHeader802154_enableAcknowledgementRequest(self);
 
 }
 
