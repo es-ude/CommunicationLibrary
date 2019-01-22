@@ -12,7 +12,7 @@ filegroup(
         [
             "src/**/*.c",
         ],
-        exclude = ["src/platform/dummy/io.c"],
+        exclude = ["src/Debug/Debug.c"],
     ),
 )
 
@@ -33,14 +33,18 @@ filegroup(
 
 filegroup(
     name = "PeripheralInterfaceHdrs",
-    srcs = ["CommunicationModule/Peripheral.h",
-            "CommunicationModule/Callback.h"],
+    srcs = [
+        "CommunicationModule/Callback.h",
+        "CommunicationModule/PeripheralInterface.h",
+    ],
 )
 
 filegroup(
     name = "PeripheralInterfaceSrcs",
-    srcs = ["src/Peripheral.c",
-            "src/PeripheralIntern.h"],
+    srcs = [
+        "src/Peripheral.c",
+        "src/PeripheralIntern.h",
+    ],
 )
 
 exports_files(
@@ -140,7 +144,7 @@ cc_library(
         "//integration_tests:__pkg__",
         "//test:__subpackages__",
     ],
-    deps = ["@CException//:CException"],
+    deps = ["@CException"],
 )
 
 cc_library(
@@ -159,14 +163,16 @@ cc_library(
     visibility = CommunicationModuleVisibility,
 )
 
-
 #########################################
 ### Generate zip file for publishing  ###
 #########################################
 
 genzip_cmd = "zip -j $(OUTS) $(location :CommunicationModule); zip $(OUTS) $(locations :CommunicationModuleIncl)"
 
-LibAndHeaderForPublishing = [":CommunicationModule", ":CommunicationModuleIncl"]
+LibAndHeaderForPublishing = [
+    ":CommunicationModule",
+    ":CommunicationModuleIncl",
+]
 
 genrule(
     name = "CommunicationModuleZip",

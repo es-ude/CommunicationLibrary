@@ -73,7 +73,7 @@ handleWriteInterrupt(PeripheralInterface *self)
   PeripheralInterfaceSPIImpl *impl = (PeripheralInterfaceSPIImpl *) self;
   if (impl->interrupt_data.output_buffer_length > 0)
   {
-    writeByteNonBlocking(self, *impl->interrupt_data.output_buffer);
+    writeByteNonBlocking(impl, *impl->interrupt_data.output_buffer);
     impl->interrupt_data.output_buffer++;
     impl->interrupt_data.output_buffer_length--;
   }
@@ -180,18 +180,6 @@ uint8_t readByteNonBlocking(PeripheralInterfaceSPIImpl *self)
 
 void writeByteNonBlocking(PeripheralInterfaceSPIImpl *self, uint8_t data) {
   *self->config.data_register = data;
-}
-
-void writeBlocking(PeripheralInterface *self, const uint8_t *buffer, uint16_t length) {
-  for(uint16_t i = 0; i < length; ++i) {
-    transfer((PeripheralInterfaceSPIImpl *)self, buffer[i]);
-  }
-}
-
-void readBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length) {
-  for(uint16_t i=0; i < length; i++) {
-    buffer[i] = transfer((PeripheralInterfaceSPIImpl *) self, 0);
-  }
 }
 
 void

@@ -203,6 +203,21 @@ cc_binary(
 )
 
 cc_binary(
+    name = "ElasticNodeEchoMessageBlocking",
+    srcs = [
+        "src/EchoMessageBlocking.c",
+        "src/ElasticNodePeripheralSetup.c",
+        "src/MrfPeripheralSetup.h",
+    ],
+    copts = avr_minimal_copts(),
+    linkopts = avr_minimal_copts(),
+    deps = [
+        "//:CommunicationModule",
+        "@CException//:CException",
+    ],
+)
+
+cc_binary(
     name = "PrintReceivedDataToVirtualSerial",
     srcs = [
         "src/PrintReceivedDataToVirtualSerial.c",

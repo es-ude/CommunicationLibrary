@@ -9,16 +9,16 @@ from the file unity_helpers.bzl in the package test available here.
 load(
     "@UnityPlugin//Unity_rules:unity.bzl",
     "generate_a_unity_test_for_every_file",
-    "unity_test",
-    "mock",
     "generate_mocks_for_every_header",
+    "mock",
+    "unity_test",
 )
 
 generate_mocks_for_every_header(
     enforce_strict_ordering = True,
     file_list = [
         "//:src/Mac802154/MRF/MRFHelperFunctions.h",
-        "//:CommunicationModule/Peripheral.h",
+        "//:CommunicationModule/PeripheralInterface.h",
         "//test/MRF:Mac802154MRF_TestHelper.h",
         "//:src/Mac802154/MRF/MRFState.h",
         "//:src/Mac802154/MRF/MrfIo.h",
@@ -42,44 +42,44 @@ unity_test(
         "//:src/Mac802154/MRF/MRFState.h",
         "//:src/Mac802154/MRF/MrfIo.h",
         "//:src/Mac802154/FrameHeader802154.h",
-        "//:CommunicationModule/Peripheral.h",
+        "//:CommunicationModule/PeripheralInterface.h",
         "//test/MRF:Mac802154MRF_TestHelper.h",
     ],
     deps = [
         "//:CommunicationModuleLibForTest",
-        "@CException//:CException",
-        "@CMock//:CMock",
+        "@CException",
+        "@CMock",
     ],
 )
 
 unity_test(
-    file_name = "MrfIo_Test.c",
-    mocks = [
-        "//test/MRF:Mac802154MRF_TestHelper.h",
-        "//:CommunicationModule/Peripheral.h",
-    ],
     copts = [
         "-std=gnu99",
     ],
+    file_name = "MrfIo_Test.c",
+    mocks = [
+        "//test/MRF:Mac802154MRF_TestHelper.h",
+        "//:CommunicationModule/PeripheralInterface.h",
+    ],
     deps = [
         "//:CommunicationModuleLibForTest",
-        "@CException//:CException",
-        "@CMock//:CMock",
+        "@CException",
+        "@CMock",
     ],
 )
 
 unity_test(
+    copts = [
+        "-std=gnu99",
+    ],
     file_name = "MRFState_Test.c",
     mocks = [
         "//:src/Mac802154/FrameHeader802154.h",
-        "//:CommunicationModule/Peripheral.h",
-    ],
-    copts = [
-        "-std=gnu99"
+        "//:CommunicationModule/PeripheralInterface.h",
     ],
     deps = [
         "//:CommunicationModuleLibForTest",
-        "@CException//:CException",
-        "@CMock//:CMock",
+        "@CException",
+        "@CMock",
     ],
 )

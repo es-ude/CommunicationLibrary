@@ -1,7 +1,7 @@
 #ifndef COMMUNICATIONMODULE_PERIPHERALINTERFACEIMPL_H
 #define COMMUNICATIONMODULE_PERIPHERALINTERFACEIMPL_H
 
-#include "CommunicationModule/Peripheral.h"
+#include "CommunicationModule/PeripheralInterface.h"
 #include <stddef.h>
 
 /*!

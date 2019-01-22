@@ -11,13 +11,11 @@
 extern void debug(const uint8_t *string);
 extern void debugPrintHex(uint8_t byte);
 
-static void writeBlocking(PeripheralInterface *self, const uint8_t *buffer, uint16_t length);
 static void writeNonBlocking(PeripheralInterface *self, PeripheralInterface_NonBlockingWriteContext context);
 static void setWriteCallback(PeripheralInterface *self, PeripheralInterface_Callback callback);
 static void resetWriteCallback(PeripheralInterface *self);
 static void handleWriteInterrupt(PeripheralInterface *self);
 
-static void readBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
 static void readNonBlocking(PeripheralInterface *self, uint8_t *buffer, uint16_t length);
 static void setReadCallback(PeripheralInterface *self, PeripheralInterface_Callback callback);
 static void resetReadCallback(PeripheralInterface *self);

@@ -101,13 +101,13 @@ PeripheralInterface_handleWriteInterrupt(PeripheralInterface *self);
 void
 PeripheralInterface_handleReadInterrupt(PeripheralInterface *self);
 
-typedef enum PeripheralInterfaceException
+enum
 {
   PERIPHERALINTERFACE_NO_EXCEPTION = 0x00,
   PERIPHERALINTERFACE_UNSUPPORTED_PERIPHERAL_SETUP_EXCEPTION,
   PERIPHERALINTERFACE_UNSUPPORTED_INTERFACE_CONFIG_EXCEPTION,
   PERIPHERALINTERFACE_BUSY_EXCEPTION,
-} PeripheralInterfaceException;
+};
 
 /**
  * New implementations can be offered by setting up the struct below
