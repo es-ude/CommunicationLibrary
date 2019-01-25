@@ -1,7 +1,7 @@
 #ifndef COMMUNICATIONMODULE_MRFSTATE_H
 #define COMMUNICATIONMODULE_MRFSTATE_H
 
-#include "src/Mac802154/FrameHeader802154.h"
+#include "src/Mac802154/MRF/FrameHeader802154.h"
 #include "src/Mac802154/MRF/MrfField.h"
 
 /**

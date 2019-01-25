@@ -4,13 +4,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "src/BitManipulation.h"
+#include "src/Util/BitManipulation.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 #include "src/Mac802154/MRF/Mac802154MRFImplIntern.h"
 #include "src/Mac802154/MRF/MockMRFHelperFunctions.h"
 #include "src/Mac802154/MRF/MockMRFState.h"
 #include "src/Mac802154/MRF/MockMrfIo.h"
-#include "src/Mac802154/MockFrameHeader802154.h"
+#include "src/Mac802154/MRF/MockFrameHeader802154.h"
 #include "test/MRF/MockMac802154MRF_TestHelper.h"
 
 uint8_t reset_line_ddr;

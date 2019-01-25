@@ -1,6 +1,6 @@
 #include <memory.h>
 #include "unity.h"
-#include "src/BitManipulation.h"
+#include "src/Util/BitManipulation.h"
 #include "CommunicationModule/Mac802154.h"
 
 void debug(const uint8_t *msg){}

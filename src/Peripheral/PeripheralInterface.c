@@ -1,4 +1,4 @@
-#include "src/PeripheralIntern.h"
+#include "src/Peripheral/PeripheralIntern.h"
 
 void
 PeripheralInterface_writeBlocking(PeripheralInterface *self, const uint8_t *buffer, size_t size)

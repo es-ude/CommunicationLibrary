@@ -2,7 +2,7 @@
 #define COMMUNICATIONMODULE_PERIPHERALSPIIMPLINTERN_H
 
 #include <stdbool.h>
-#include "src/PeripheralIntern.h"
+#include "src/Peripheral/PeripheralIntern.h"
 #include "CommunicationModule/PeripheralSPIImpl.h"
 #include "CException.h"
 #include "CommunicationModule/Exception.h"

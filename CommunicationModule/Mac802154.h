@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "CommunicationModule/PeripheralInterface.h"
+#include "Peripheral/PeripheralInterface.h"
 
 /*!
  *  The Mac802154 ADT is used to send/receive/analyze

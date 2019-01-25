@@ -2,7 +2,7 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdint.h>
-#include "integration_tests/src/config.h"
+#include "integration_tests/src/MrfHardwareSetup.h.h"
 #include "CommunicationModule/Mac802154MRFImpl.h"
 #include "integration_tests/LUFA-Setup/Helpers.h"
 

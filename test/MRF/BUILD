@@ -11,20 +11,35 @@ load(
     "generate_a_unity_test_for_every_file",
     "generate_mocks_for_every_header",
     "mock",
+    "new_mock",
     "unity_test",
+)
+
+new_mock(
+    name = "PeripheralInterfaceMock",
+    srcs = ["//:Peripheral/PeripheralInterface.h"],
+    enforce_strict_ordering = True,
+    deps = ["//:PeripheralInterface"],
+)
+
+new_mock(
+    name = "FrameHeaderMock",
+    srcs = ["//:src/Mac802154/MRF/FrameHeader802154.h"],
+    deps = ["//:CommunicationModuleLibForTest"],
 )
 
 generate_mocks_for_every_header(
     enforce_strict_ordering = True,
     file_list = [
         "//:src/Mac802154/MRF/MRFHelperFunctions.h",
-        "//:CommunicationModule/PeripheralInterface.h",
         "//test/MRF:Mac802154MRF_TestHelper.h",
         "//:src/Mac802154/MRF/MRFState.h",
         "//:src/Mac802154/MRF/MrfIo.h",
-        "//:src/Mac802154/FrameHeader802154.h",
     ],
-    deps = ["//:CommunicationModuleLibForTest"],
+    deps = [
+        ":PeripheralInterfaceMock",
+        "//:CommunicationModuleLibForTest",
+    ],
 )
 
 unity_test(
@@ -41,12 +56,12 @@ unity_test(
         "//:src/Mac802154/MRF/MRFHelperFunctions.h",
         "//:src/Mac802154/MRF/MRFState.h",
         "//:src/Mac802154/MRF/MrfIo.h",
-        "//:src/Mac802154/FrameHeader802154.h",
-        "//:CommunicationModule/PeripheralInterface.h",
         "//test/MRF:Mac802154MRF_TestHelper.h",
     ],
     deps = [
-        "//:CommunicationModuleLibForTest",
+        ":FrameHeaderMock",
+        ":PeripheralInterfaceMock",
+        "//:PeripheralInterface",
         "@CException",
         "@CMock",
     ],
@@ -59,10 +74,11 @@ unity_test(
     file_name = "MrfIo_Test.c",
     mocks = [
         "//test/MRF:Mac802154MRF_TestHelper.h",
-        "//:CommunicationModule/PeripheralInterface.h",
     ],
     deps = [
+        ":PeripheralInterfaceMock",
         "//:CommunicationModuleLibForTest",
+        "//:PeripheralInterface",
         "@CException",
         "@CMock",
     ],
@@ -73,12 +89,10 @@ unity_test(
         "-std=gnu99",
     ],
     file_name = "MRFState_Test.c",
-    mocks = [
-        "//:src/Mac802154/FrameHeader802154.h",
-        "//:CommunicationModule/PeripheralInterface.h",
-    ],
     deps = [
-        "//:CommunicationModuleLibForTest",
+        ":FrameHeaderMock",
+        ":PeripheralInterfaceMock",
+        "//:CommunicationModule",
         "@CException",
         "@CMock",
     ],

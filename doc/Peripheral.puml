@@ -1,0 +1,35 @@
+@startuml
+
+abstract class AbstractList
+abstract AbstractCollection
+interface PeripheralInterface {
+   + void readBlocking(uint8_t *buffer, size_t length)
+   + void writeBlocking(const uint8_t *buffer, size_t length)
+   + void selectPeripheral(Peripheral *device)
+   + void deselectPeripheral(Peripheral *device)
+   + void readNonBlocking(NonBlockingContext *context)
+   + void writeNonBlocking(NonBlockingContext *context)
+   + void readInterruptHandler()
+   + void writeInterruptHandler()
+}
+interface Collection
+
+List <|-- AbstractList
+Collection <|-- AbstractCollection
+
+Collection <|- List
+AbstractCollection <|- AbstractList
+AbstractList <|-- ArrayList
+
+class ArrayList {
+Object[] elementData
+size()
+}
+
+enum TimeUnit {
+DAYS
+HOURS
+MINUTES
+}
+
+@enduml

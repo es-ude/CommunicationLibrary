@@ -8,48 +8,32 @@ config_setting(
 
 filegroup(
     name = "CommunicationModuleSrc",
-    srcs = glob(
-        [
-            "src/**/*.c",
-        ],
-        exclude = ["src/Debug/Debug.c"],
-    ),
-)
-
-filegroup(
-    name = "PrivateHdrFiles",
-    srcs = glob(["src/**/*.h"]),
-)
-
-filegroup(
-    name = "CommunicationModuleSrcForLocalBuild",
-    srcs = [":CommunicationModuleSrc"] + ["src/platform/dummy/io.c"],
-)
-
-filegroup(
-    name = "CommunicationModuleIncl",
-    srcs = glob(["CommunicationModule/**/*.h"]),
-)
-
-filegroup(
-    name = "PeripheralInterfaceHdrs",
-    srcs = [
-        "CommunicationModule/Callback.h",
-        "CommunicationModule/PeripheralInterface.h",
+    srcs = glob(["src/Mac802154/**/*.c"]) + [
+        "src/Util/BitManipulation.c",
     ],
 )
 
 filegroup(
-    name = "PeripheralInterfaceSrcs",
+    name = "PrivateHdrFiles",
+    srcs = glob(["src/Mac802154/**/*.h"]) + [
+        "src/Util/BitManipulation.h",
+    ],
+)
+
+filegroup(
+    name = "CommunicationModuleIncl",
     srcs = [
-        "src/Peripheral.c",
-        "src/PeripheralIntern.h",
+        "CommunicationModule/CommunicationModule.h",
+        "CommunicationModule/Mac802154.h",
+        "CommunicationModule/Mac802154MRFImpl.h",
     ],
 )
 
 exports_files(
     glob([
-        "CommunicationModule/**/*.h",
+        "Peripheral/**/*.h",
+        "Debug/*.h",
+        "CommunicationModule/*.h",
         "src/**/*.h",
     ]),
     visibility = [
@@ -92,6 +76,7 @@ CommunicationModuleVisibility = [
 
 CommunicationModuleDeps = [
     "@CException//:CException",
+    "//:Debug",
 ]
 
 cc_library(
@@ -144,13 +129,33 @@ cc_library(
         "//integration_tests:__pkg__",
         "//test:__subpackages__",
     ],
-    deps = ["@CException"],
+    deps = [
+        "//:Debug",
+        "//:PeripheralInterface",
+        "@CException",
+    ],
 )
 
 cc_library(
     name = "PeripheralInterface",
-    srcs = [":PeripheralInterfaceSrcs"],
-    hdrs = [":PeripheralInterfaceHdrs"],
+    srcs = [
+        "src/Peripheral/PeripheralInterface.c",
+        "src/Peripheral/PeripheralIntern.h",
+        "src/Peripheral/PeripheralSPIImpl.c",
+        "src/Peripheral/PeripheralSPIImplIntern.h",
+        "src/Peripheral/SpiPinNumbers.h",
+        "src/Peripheral/Usart.c",
+        "src/Peripheral/UsartIntern.h",
+        "src/Util/BitManipulation.c",
+        "src/Util/BitManipulation.h",
+    ],
+    hdrs = [
+        "CommunicationModule/Callback.h",
+        "CommunicationModule/Exception.h",
+        "CommunicationModule/PeripheralSPIImpl.h",
+        "CommunicationModule/Usart.h",
+        "Peripheral/PeripheralInterface.h",
+    ],
     copts = select({
         ":avr-config": [
             "-mmcu=$(MCU)",
@@ -161,8 +166,22 @@ cc_library(
     }) + CommunicationModuleCompilerFlags,
     linkopts = CommunicationModuleLinkerFlags,
     visibility = CommunicationModuleVisibility,
+    deps = [
+        "@CException",
+    ],
 )
 
+cc_library(
+    name = "Debug",
+    srcs = [
+        "src/Debug/Debug.c",
+    ],
+    hdrs = ["Debug/Debug.h"],
+    visibility = CommunicationModuleVisibility,
+    deps = [
+        "//:PeripheralInterface",
+    ],
+)
 #########################################
 ### Generate zip file for publishing  ###
 #########################################

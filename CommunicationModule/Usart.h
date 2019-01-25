@@ -1,7 +1,7 @@
 #ifndef EDGEDEVICE_USART_H
 #define EDGEDEVICE_USART_H
 
-#include "CommunicationModule/PeripheralInterface.h"
+#include "Peripheral/PeripheralInterface.h"
 
 typedef struct UsartConfig UsartConfig;
 

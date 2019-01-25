@@ -1,11 +1,11 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
-#include "integration_tests/src/MrfPeripheralSetup.h"
+#include "integration_tests/src/Setup/MrfHardwareSetup.h"
 #include "CommunicationModule/Mac802154MRFImpl.h"
 
 int main(void) {
-  setUpPeripheral();
+  setUpMac();
 
   Mac802154Config config = {
           .channel = 12,
@@ -19,33 +19,21 @@ int main(void) {
           },
   };
 
-  MRFConfig hardware_config = {
-    .reset_line = {
-      .data_direction_register = NULL,
-      .data_register = NULL,
-    },
-    .delay_microseconds = delay_microseconds,
-    .interface = peripheral_interface,
-    .device = &mrf_spi_client,
-  };
-  uint8_t raw_memory[Mac802154MRF_getADTSize ()];
-  Mac802154MRF_create((Mac802154) raw_memory, &hardware_config);
-  Mac802154 mac = (Mac802154) raw_memory;
-  Mac802154_configure(mac, &config);
+  Mac802154_configure(mac802154, &config);
   while(true) {
-      while(!Mac802154_newPacketAvailable(mac)) 
+      while(!Mac802154_newPacketAvailable(mac802154))
       {}      
-      uint8_t size = Mac802154_getReceivedPacketSize(mac);
+      uint8_t size = Mac802154_getReceivedPacketSize(mac802154);
       uint8_t packet[size];
-      Mac802154_fetchPacketBlocking(mac, packet, size);
+      Mac802154_fetchPacketBlocking(mac802154, packet, size);
 
-      const uint8_t *payload = Mac802154_getPacketPayload(mac, packet);
+      const uint8_t *payload = Mac802154_getPacketPayload(mac802154, packet);
       if (*payload == 'e')
       {
-        const uint8_t *short_source_address = Mac802154_getPacketShortSourceAddress(mac, packet);
-        Mac802154_setShortDestinationAddress(mac, short_source_address);
-        Mac802154_setPayload(mac, Mac802154_getPacketPayload(mac, packet), Mac802154_getPacketPayloadSize(mac, packet));
-        Mac802154_sendBlocking(mac);
+        const uint8_t *short_source_address = Mac802154_getPacketShortSourceAddress(mac802154, packet);
+        Mac802154_setShortDestinationAddress(mac802154, short_source_address);
+        Mac802154_setPayload(mac802154, Mac802154_getPacketPayload(mac802154, packet), Mac802154_getPacketPayloadSize(mac802154, packet));
+        Mac802154_sendBlocking(mac802154);
       }
   }
 }

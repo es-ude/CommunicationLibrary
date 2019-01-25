@@ -4,7 +4,7 @@
 #include "CommunicationModule/Callback.h"
 #include "CommunicationModule/Exception.h"
 #include "CommunicationModule/Mac802154.h"
-#include "CommunicationModule/PeripheralInterface.h"
+#include "Peripheral/PeripheralInterface.h"
 #include "CommunicationModule/PeripheralSPIImpl.h"
 #include "CommunicationModule/Mac802154MRFImpl.h"
 

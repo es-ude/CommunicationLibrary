@@ -1,5 +1,5 @@
 #include "src/Peripheral/PeripheralSPIImplIntern.h"
-#include "src/BitManipulation.h"
+#include "src/Util/BitManipulation.h"
 
 
 

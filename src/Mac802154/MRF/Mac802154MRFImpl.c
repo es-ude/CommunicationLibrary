@@ -1,5 +1,5 @@
 #include "src/Mac802154/MRF/Mac802154MRFImplIntern.h"
-#include "src/BitManipulation.h"
+#include "src/Util/BitManipulation.h"
 #include <stdio.h>
 
 size_t

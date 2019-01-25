@@ -55,15 +55,15 @@ cc_binary(
     name = "SendOneFrameUsingPeripheralInterfaceOnly",
     srcs = [
         "src/SendOneFrameUsingPeripheralInterfaceOnly.c",
-        "src/config.c",
-        "src/config.h",
+        "src/Setup/MotherBoardHardwareSetup.c",
+        "src/Setup/MrfHardwareSetup.h",
         ":LufaSetup",
     ],
     copts = avr_minimal_copts() + LUFA_COPTS,
     linkopts = avr_minimal_copts() + LUFA_COPTS,
     deps = [
         "//:CommunicationModuleLibForTest",
-        "@CException//:CException",
+        "@CException",
         "@LUFA//:LUFA_USB",
     ],
 )
@@ -109,7 +109,7 @@ cc_binary(
     nocopts = "-O2",
     deps = [
         "//:CommunicationModuleLibForTest",
-        "@CException//:CException",
+        "@CException",
         "@LUFA//:LUFA_USB",
     ],
 )
@@ -118,8 +118,8 @@ cc_binary(
     name = "ReadTxFifoMemory",
     srcs = [
         "src/ReadTxFifoMemory.c",
-        "src/config.c",
-        "src/config.h",
+        "src/Setup/MotherBoardHardwareSetup.c",
+        "src/Setup/MrfHardwareSetup.h",
         ":LufaSetup",
     ],
     copts = avr_minimal_copts() + LUFA_COPTS + [
@@ -131,7 +131,7 @@ cc_binary(
     linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
     deps = [
         "//:CommunicationModuleLibForTest",
-        "@CException//:CException",
+        "@CException",
         "@LUFA//:LUFA_USB",
     ],
 )
@@ -162,8 +162,8 @@ cc_binary(
     name = "SendOneFrameBlocking",
     srcs = [
         "src/SendOneFrameBlocking.c",
-        "src/config.c",
-        "src/config.h",
+        "src/Setup/MotherBoardHardwareSetup.c",
+        "src/Setup/MrfHardwareSetup.h",
         ":LufaSetup",
     ],
     copts = avr_minimal_copts() + LUFA_COPTS + [
@@ -176,7 +176,7 @@ cc_binary(
     nocopts = "-O2",
     deps = [
         "//:CommunicationModuleLibForTest",
-        "@CException//:CException",
+        "@CException",
         "@LUFA//:LUFA_USB",
     ],
 )
@@ -185,9 +185,10 @@ cc_binary(
     name = "EchoMessageBlocking",
     srcs = [
         "src/EchoMessageBlocking.c",
-        "src/config.c",
-        "src/config.h",
-        ":LufaSetup",
+        "src/Setup/DebugSetup.h",
+        "src/Setup/Delay.c",
+        "src/Setup/MotherBoardHardwareSetup.c",
+        "src/Setup/MrfHardwareSetup.h",
     ],
     copts = avr_minimal_copts() + LUFA_COPTS + CODE_SIZE_OPTIMIZATION_COPTS,
     linkopts = avr_minimal_copts() + LUFA_COPTS + [
@@ -197,8 +198,7 @@ cc_binary(
     ],
     deps = [
         "//:CommunicationModule",
-        "@CException//:CException",
-        "@LUFA//:LUFA_USB",
+        "@CException",
     ],
 )
 
@@ -206,23 +206,56 @@ cc_binary(
     name = "ElasticNodeEchoMessageBlocking",
     srcs = [
         "src/EchoMessageBlocking.c",
-        "src/ElasticNodePeripheralSetup.c",
-        "src/MrfPeripheralSetup.h",
+        "src/Setup/DebugSetup.h",
+        "src/Setup/Delay.c",
+        "src/Setup/ElasticNodeHardwareSetup.c",
+        "src/Setup/MrfHardwareSetup.h",
     ],
     copts = avr_minimal_copts(),
     linkopts = avr_minimal_copts(),
     deps = [
         "//:CommunicationModule",
-        "@CException//:CException",
+        "//:Debug",
+        "@CException",
     ],
+)
+
+generate_hex(
+    name = "ElasticNodeEchoMessageBlockingHex",
+    input = ":ElasticNodeEchoMessageBlocking",
+    mcu = "atmega64",
+)
+
+cc_binary(
+    name = "PrintTXBuffer",
+    srcs = [
+        "src/PrintTXBuffer.c",
+        "src/Setup/DebugSetup.h",
+        "src/Setup/Delay.c",
+        "src/Setup/ElasticNodeHardwareSetup.c",
+        "src/Setup/MrfHardwareSetup.h",
+    ],
+    copts = avr_minimal_copts(),
+    linkopts = avr_minimal_copts(),
+    deps = [
+        "//:CommunicationModule",
+        "//:Debug",
+        "@CException",
+    ],
+)
+
+generate_hex(
+    name = "ElasticNodePrintTXBufferHex",
+    input = ":PrintTXBuffer",
+    mcu = "atmega64",
 )
 
 cc_binary(
     name = "PrintReceivedDataToVirtualSerial",
     srcs = [
         "src/PrintReceivedDataToVirtualSerial.c",
-        "src/config.c",
-        "src/config.h",
+        "src/Setup/MotherBoardHardwareSetup.c",
+        "src/Setup/MrfHardwareSetup.h",
         ":LufaSetup",
     ],
     copts = avr_minimal_copts() + LUFA_COPTS + CODE_SIZE_OPTIMIZATION_COPTS,
@@ -232,7 +265,7 @@ cc_binary(
     ],
     deps = [
         "//:CommunicationModule",
-        "@CException//:CException",
+        "@CException",
         "@LUFA//:LUFA_USB",
     ],
 )
@@ -246,9 +279,9 @@ generate_hex(
 cc_binary(
     name = "WriteReadSourceAddress",
     srcs = [
+        "src/Setup/MotherBoardHardwareSetup.c",
+        "src/Setup/MrfHardwareSetup.h",
         "src/WriteReadSourceAddress.c",
-        "src/config.c",
-        "src/config.h",
         ":LufaSetup",
     ],
     copts = avr_minimal_copts() + LUFA_COPTS + [
@@ -261,7 +294,7 @@ cc_binary(
     nocopts = "-O2",
     deps = [
         "//:CommunicationModuleLibForTest",
-        "@CException//:CException",
+        "@CException",
         "@LUFA//:LUFA_USB",
     ],
 )
