@@ -1,8 +1,8 @@
-#include "CommunicationModule/PeripheralSPIImpl.h"
-#include "CommunicationModule/PeripheralInterface.h"
-#include "integration_tests/src/Setup/MrfHardwareSetup.h"
-#include "CommunicationModule/Usart.h"
-#include "CommunicationModule/DebugImpl.h"
+#include "Peripheral/PeripheralSPIImpl.h"
+#include "Peripheral/PeripheralInterface.h"
+#include "integration_tests/src/Setup/HardwareSetup.h"
+#include "Peripheral/Usart.h"
+#include "Debug/Debug.h"
 #include "integration_tests/src/Setup/DebugSetup.h"
 #include "Debug/Debug.h"
 #include <avr/io.h>

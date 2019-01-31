@@ -1,6 +1,5 @@
-#include "src/Mac802154/Mac802154.h"
+#include "CommunicationModule/Mac802154.h"
 
-extern void debug(uint8_t *string);
 
 void Mac802154_configure(Mac802154 self, const Mac802154Config *config) {
   self->reconfigure(self, config);

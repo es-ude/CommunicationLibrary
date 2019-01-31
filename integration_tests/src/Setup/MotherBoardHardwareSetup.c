@@ -1,4 +1,4 @@
-#include "integration_tests/src/Setup/MrfHardwareSetup.h"
+#include "integration_tests/src/Setup/HardwareSetup.h"
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdlib.h>

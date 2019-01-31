@@ -2,7 +2,7 @@
 #define COMMUNICATIONMODULE_MAC802154MRFIMPLINTERN_H
 
 #include <stdio.h>
-#include "src/Mac802154/Mac802154.h"
+#include "CommunicationModule/Mac802154.h"
 #include "CommunicationModule/Mac802154MRFImpl.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 #include "src/Mac802154/MRF/MRFHelperFunctions.h"

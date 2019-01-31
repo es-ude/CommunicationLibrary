@@ -1,7 +1,6 @@
 #include <avr/io.h>
-#include <util/delay.h>
 #include <avr/interrupt.h>
-#include "integration_tests/src/Setup/MrfHardwareSetup.h"
+#include "integration_tests/src/Setup/HardwareSetup.h"
 #include "CommunicationModule/Mac802154MRFImpl.h"
 
 int main(void) {
@@ -28,12 +27,9 @@ int main(void) {
       Mac802154_fetchPacketBlocking(mac802154, packet, size);
 
       const uint8_t *payload = Mac802154_getPacketPayload(mac802154, packet);
-      if (*payload == 'e')
-      {
-        const uint8_t *short_source_address = Mac802154_getPacketShortSourceAddress(mac802154, packet);
-        Mac802154_setShortDestinationAddress(mac802154, short_source_address);
-        Mac802154_setPayload(mac802154, Mac802154_getPacketPayload(mac802154, packet), Mac802154_getPacketPayloadSize(mac802154, packet));
-        Mac802154_sendBlocking(mac802154);
-      }
+      const uint8_t *short_source_address = Mac802154_getPacketShortSourceAddress(mac802154, packet);
+      Mac802154_setShortDestinationAddress(mac802154, short_source_address);
+      Mac802154_setPayload(mac802154, Mac802154_getPacketPayload(mac802154, packet), Mac802154_getPacketPayloadSize(mac802154, packet));
+      Mac802154_sendBlocking(mac802154);
   }
 }

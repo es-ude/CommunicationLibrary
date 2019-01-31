@@ -3,9 +3,9 @@
 
 #include <stdbool.h>
 #include "src/Peripheral/PeripheralIntern.h"
-#include "CommunicationModule/PeripheralSPIImpl.h"
+#include "Peripheral/PeripheralSPIImpl.h"
 #include "CException.h"
-#include "CommunicationModule/Exception.h"
+#include "Peripheral/Exception.h"
 #include "src/Peripheral/SpiPinNumbers.h"
 
 extern void debug(const uint8_t *string);

@@ -1,4 +1,4 @@
-load("@AVR_Toolchain//:hex.bzl", "avr_minimal_copts", "generate_hex")
+load("@AVR_Toolchain//:helpers.bzl", "default_embedded_binary")
 
 LUFA_COPTS = [
     "-Iexternal/LUFA/Demos/Device/ClassDriver/VirtualSerial/Config",
@@ -28,21 +28,6 @@ LUFA_COPTS = [
     "-MP",
 ]
 
-CODE_SIZE_OPTIMIZATION_COPTS = [
-    "-Os",
-    "-s",
-    "-fno-asynchronous-unwind-tables",
-    "-ffast-math",
-    "-fmerge-all-constants",
-    "-fmerge-all-constants",
-    "-include stdint.h",
-    "-fdata-sections",
-    "-ffunction-sections",
-    "-DCEXCEPTION_T=uint8_t",
-    "-DCEXCEPTION_NONE=0x00",
-    "-fshort-enums",
-]
-
 filegroup(
     name = "LufaSetup",
     srcs = glob([
@@ -51,305 +36,188 @@ filegroup(
     ]),
 )
 
-cc_binary(
+default_embedded_binary(
     name = "SendOneFrameUsingPeripheralInterfaceOnly",
     srcs = [
         "src/SendOneFrameUsingPeripheralInterfaceOnly.c",
+        "src/Setup/HardwareSetup.h",
         "src/Setup/MotherBoardHardwareSetup.c",
-        "src/Setup/MrfHardwareSetup.h",
         ":LufaSetup",
     ],
-    copts = avr_minimal_copts() + LUFA_COPTS,
-    linkopts = avr_minimal_copts() + LUFA_COPTS,
+    copts = LUFA_COPTS,
+    linkopts = LUFA_COPTS,
     deps = [
-        "//:CommunicationModuleLibForTest",
-        "@CException",
+        "//:CommunicationModule",
         "@LUFA//:LUFA_USB",
     ],
 )
 
-generate_hex(
-    name = "SendOneFrameUsingPeripheralInterfaceOnlyHex",
-    input = ":SendOneFrameUsingPeripheralInterfaceOnly",
-    mcu = "atmega328p",
-)
-
-cc_binary(
+default_embedded_binary(
     name = "WriteStringToVirtualSerial",
     srcs = [
         "src/WriteStringToVirtualSerial.c",
         ":LufaSetup",
     ],
-    copts = avr_minimal_copts() + LUFA_COPTS,
-    linkopts = avr_minimal_copts() + LUFA_COPTS,
+    copts = LUFA_COPTS,
+    linkopts = LUFA_COPTS,
     deps = [
         "@LUFA//:LUFA_USB",
     ],
 )
 
-generate_hex(
-    name = "WriteStringToVirtualSerialHex",
-    input = ":WriteStringToVirtualSerial",
-    mcu = "atmega32u4",
-)
-
-cc_binary(
+default_embedded_binary(
     name = "ReadMrfTxStabilizationRegister",
     srcs = [
         "src/ReadMrfTxStabilizationRegister.c",
         ":LufaSetup",
     ],
-    copts = avr_minimal_copts() + LUFA_COPTS + [
-        "-Os",
-        "-include stdint.h",
-        "-DCEXCEPTION_T=uint8_t",
-        "-DCEXCEPTION_NONE=0x00",
-    ],
-    linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
-    nocopts = "-O2",
+    copts = LUFA_COPTS,
+    linkopts = LUFA_COPTS,
     deps = [
-        "//:CommunicationModuleLibForTest",
-        "@CException",
+        "//:CommunicationModule",
         "@LUFA//:LUFA_USB",
     ],
 )
 
-cc_binary(
+default_embedded_binary(
     name = "ReadTxFifoMemory",
     srcs = [
         "src/ReadTxFifoMemory.c",
+        "src/Setup/HardwareSetup.h",
         "src/Setup/MotherBoardHardwareSetup.c",
-        "src/Setup/MrfHardwareSetup.h",
         ":LufaSetup",
     ],
-    copts = avr_minimal_copts() + LUFA_COPTS + [
-        "-Os",
-        "-include stdint.h",
-        "-DCEXCEPTION_T=uint8_t",
-        "-DCEXCEPTION_NONE=0x00",
-    ],
-    linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
+    copts = LUFA_COPTS,
+    linkopts = LUFA_COPTS,
     deps = [
-        "//:CommunicationModuleLibForTest",
-        "@CException",
+        "//:CommunicationModule",
         "@LUFA//:LUFA_USB",
     ],
 )
 
-cc_binary(
+default_embedded_binary(
     name = "SPITestWithoutCommunicationModuleAndLufa",
     srcs = [
         "src/SPITestWithoutCommunicationModuleAndLufa.c",
     ],
-    copts = avr_minimal_copts(),
-    linkopts = avr_minimal_copts(),
 )
 
-cc_binary(
+default_embedded_binary(
     name = "SPITestWithLufaOnly",
     srcs = [
         "src/SPITestWithLufaOnly.c",
         ":LufaSetup",
     ],
-    copts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
-    linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
+    copts = LUFA_COPTS,
+    linkopts = LUFA_COPTS,
     deps = [
         "@LUFA//:LUFA_USB",
     ],
 )
 
-cc_binary(
+default_embedded_binary(
     name = "SendOneFrameBlocking",
     srcs = [
         "src/SendOneFrameBlocking.c",
+        "src/Setup/HardwareSetup.h",
         "src/Setup/MotherBoardHardwareSetup.c",
-        "src/Setup/MrfHardwareSetup.h",
         ":LufaSetup",
     ],
-    copts = avr_minimal_copts() + LUFA_COPTS + [
-        "-Os",
-        "-include stdint.h",
-        "-DCEXCEPTION_T=uint8_t",
-        "-DCEXCEPTION_NONE=0x00",
-    ],
-    linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
-    nocopts = "-O2",
+    copts = LUFA_COPTS,
+    linkopts = LUFA_COPTS,
     deps = [
-        "//:CommunicationModuleLibForTest",
-        "@CException",
+        "//:CommunicationModule",
         "@LUFA//:LUFA_USB",
     ],
 )
 
-cc_binary(
+default_embedded_binary(
     name = "EchoMessageBlocking",
     srcs = [
         "src/EchoMessageBlocking.c",
         "src/Setup/DebugSetup.h",
         "src/Setup/Delay.c",
+        "src/Setup/HardwareSetup.h",
         "src/Setup/MotherBoardHardwareSetup.c",
-        "src/Setup/MrfHardwareSetup.h",
-    ],
-    copts = avr_minimal_copts() + LUFA_COPTS + CODE_SIZE_OPTIMIZATION_COPTS,
-    linkopts = avr_minimal_copts() + LUFA_COPTS + [
-        "-Os",
-        "-Xlinker --gc-sections",
-        "-Xlinker --relax",
     ],
     deps = [
         "//:CommunicationModule",
-        "@CException",
     ],
 )
 
-cc_binary(
-    name = "ElasticNodeEchoMessageBlocking",
-    srcs = [
-        "src/EchoMessageBlocking.c",
-        "src/Setup/DebugSetup.h",
-        "src/Setup/Delay.c",
-        "src/Setup/ElasticNodeHardwareSetup.c",
-        "src/Setup/MrfHardwareSetup.h",
-    ],
-    copts = avr_minimal_copts(),
-    linkopts = avr_minimal_copts(),
-    deps = [
-        "//:CommunicationModule",
-        "//:Debug",
-        "@CException",
-    ],
-)
+#cc_binary(
+#    name = "ElasticNodeEchoMessageBlocking",
+#    srcs = [
+#        "src/EchoMessageBlocking.c",
+#        "src/Setup/DebugSetup.h",
+#        "src/Setup/Delay.c",
+#        "src/Setup/ElasticNodeHardwareSetup.c",
+#        "src/Setup/MrfHardwareSetup.h",
+#    ],
+#    copts = avr_minimal_copts(),
+#    linkopts = avr_minimal_copts(),
+#    deps = [
+#        "//:CommunicationModule",
+#        "//:Debug",
+#        "@CException",
+#    ],
+#)
+#
+#cc_binary(
+#    name = "PrintTXBuffer",
+#    srcs = [
+#        "src/PrintTXBuffer.c",
+#        "src/Setup/DebugSetup.h",
+#        "src/Setup/Delay.c",
+#        "src/Setup/ElasticNodeHardwareSetup.c",
+#        "src/Setup/MrfHardwareSetup.h",
+#    ],
+#    copts = avr_minimal_copts(),
+#    linkopts = avr_minimal_copts(),
+#    deps = [
+#        "//:CommunicationModule",
+#        "//:Debug",
+#        "@CException",
+#    ],
+#)
 
-generate_hex(
-    name = "ElasticNodeEchoMessageBlockingHex",
-    input = ":ElasticNodeEchoMessageBlocking",
-    mcu = "atmega64",
-)
+#cc_binary(
+#    name = "PrintReceivedDataToVirtualSerial",
+#    srcs = [
+#        "src/PrintReceivedDataToVirtualSerial.c",
+#        "src/Setup/MotherBoardHardwareSetup.c",
+#        "src/Setup/MrfHardwareSetup.h",
+#        ":LufaSetup",
+#    ],
+#    copts = avr_minimal_copts() + LUFA_COPTS + CODE_SIZE_OPTIMIZATION_COPTS,
+#    linkopts = avr_minimal_copts() + LUFA_COPTS + [
+#        "-Xlinker --gc-sections",
+#        "-Os",
+#    ],
+#    deps = [
+#        "//:CommunicationModule",
+#        "@CException",
+#        "@LUFA//:LUFA_USB",
+#    ],
+#)
 
-cc_binary(
-    name = "PrintTXBuffer",
-    srcs = [
-        "src/PrintTXBuffer.c",
-        "src/Setup/DebugSetup.h",
-        "src/Setup/Delay.c",
-        "src/Setup/ElasticNodeHardwareSetup.c",
-        "src/Setup/MrfHardwareSetup.h",
-    ],
-    copts = avr_minimal_copts(),
-    linkopts = avr_minimal_copts(),
-    deps = [
-        "//:CommunicationModule",
-        "//:Debug",
-        "@CException",
-    ],
-)
-
-generate_hex(
-    name = "ElasticNodePrintTXBufferHex",
-    input = ":PrintTXBuffer",
-    mcu = "atmega64",
-)
-
-cc_binary(
-    name = "PrintReceivedDataToVirtualSerial",
-    srcs = [
-        "src/PrintReceivedDataToVirtualSerial.c",
-        "src/Setup/MotherBoardHardwareSetup.c",
-        "src/Setup/MrfHardwareSetup.h",
-        ":LufaSetup",
-    ],
-    copts = avr_minimal_copts() + LUFA_COPTS + CODE_SIZE_OPTIMIZATION_COPTS,
-    linkopts = avr_minimal_copts() + LUFA_COPTS + [
-        "-Xlinker --gc-sections",
-        "-Os",
-    ],
-    deps = [
-        "//:CommunicationModule",
-        "@CException",
-        "@LUFA//:LUFA_USB",
-    ],
-)
-
-generate_hex(
-    name = "PrintReceivedDataToVirtualSerialHex",
-    input = ":PrintReceivedDataToVirtualSerial",
-    mcu = "atmega32u4",
-)
-
-cc_binary(
+default_embedded_binary(
     name = "WriteReadSourceAddress",
     srcs = [
+        "src/Setup/HardwareSetup.h",
         "src/Setup/MotherBoardHardwareSetup.c",
-        "src/Setup/MrfHardwareSetup.h",
         "src/WriteReadSourceAddress.c",
         ":LufaSetup",
     ],
-    copts = avr_minimal_copts() + LUFA_COPTS + [
-        "-Os",
-        "-include stdint.h",
-        "-DCEXCEPTION_T=uint8_t",
-        "-DCEXCEPTION_NONE=0x00",
-    ],
-    linkopts = avr_minimal_copts() + LUFA_COPTS + ["-Os"],
-    nocopts = "-O2",
+    copts = LUFA_COPTS,
+    linkopts = LUFA_COPTS,
     deps = [
-        "//:CommunicationModuleLibForTest",
-        "@CException",
+        "//:CommunicationModule",
         "@LUFA//:LUFA_USB",
     ],
 )
 
-generate_hex(
-    name = "SendOneFrameBlockingHex",
-    input = ":SendOneFrameBlocking",
-    mcu = "atmega32u4",
-)
-
-generate_hex(
-    name = "EchoMessageBlockingHex",
-    input = ":EchoMessageBlocking",
-    mcu = "atmega32u4",
-)
-
-generate_hex(
-    name = "WriteReadSourceAddressHex",
-    input = ":WriteReadSourceAddress",
-    mcu = "atmega32u4",
-)
-
-generate_hex(
-    name = "ReadMrfTxStabilizationRegisterHex",
-    input = ":ReadMrfTxStabilizationRegister",
-    mcu = "atmega32u4",
-)
-
-generate_hex(
-    name = "ReadTxFifoMemoryHex",
-    input = ":ReadTxFifoMemory",
-    mcu = "atmega32u4",
-)
-
-generate_hex(
-    name = "SPITestWithoutCommunicationModuleAndLufaHex",
-    input = ":SPITestWithoutCommunicationModuleAndLufa",
-    mcu = "atmega32u4",
-)
-
-generate_hex(
-    name = "SPITestWithLufaOnlyHex",
-    input = ":SPITestWithLufaOnly",
-    mcu = "atmega32u4",
-)
-
-cc_binary(
+default_embedded_binary(
     name = "BlinkLED",
     srcs = ["src/blink_led.c"],
-    copts = avr_minimal_copts(),
-    linkopts = avr_minimal_copts(),
-)
-
-generate_hex(
-    name = "BlinkLEDHex",
-    input = "BlinkLED",
-    mcu = "atmega32u4",
 )

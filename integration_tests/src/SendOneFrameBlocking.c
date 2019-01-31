@@ -2,7 +2,7 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <string.h>
-#include "integration_tests/src/Setup/MrfHardwareSetup.h"
+#include "integration_tests/src/Setup/HardwareSetup.h"
 #include "CommunicationModule/Mac802154MRFImpl.h"
 #include <stdio.h>
 
