@@ -5,7 +5,11 @@
 
 typedef struct UsartConfig UsartConfig;
 
-/*
+/*!
+ * \file Usart.h
+ *
+ * \brief Usart Implementation of the PeripheralInterface
+ *
  * Setup the UsartConfig struct to match the corresponding
  * values of your avr platform. Hand it over to the
  * PeripheralInterfaceUsartImpl_createNew()

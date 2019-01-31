@@ -1,13 +1,13 @@
 #ifndef PERIPHERALINTERFACE_H
 #define PERIPHERALINTERFACE_H
 
-#include "CommunicationModule/Callback.h"
+#include "Peripheral/Callback.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
 /*!
- * \file Peripheral.h
+ * \file PeripheralInterface.h
  * The PeripheralInterface provides a software interface
  * for different peripheral interface drivers (USART, SPI).
  * The following example illustrates writing a string

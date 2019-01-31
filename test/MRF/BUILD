@@ -25,7 +25,7 @@ new_mock(
 new_mock(
     name = "FrameHeaderMock",
     srcs = ["//:src/Mac802154/MRF/FrameHeader802154.h"],
-    deps = ["//:CommunicationModuleLibForTest"],
+    deps = ["//:CommunicationModule"],
 )
 
 generate_mocks_for_every_header(
@@ -37,8 +37,8 @@ generate_mocks_for_every_header(
         "//:src/Mac802154/MRF/MrfIo.h",
     ],
     deps = [
-        ":PeripheralInterfaceMock",
-        "//:CommunicationModuleLibForTest",
+        "//:CommunicationModule",
+        "//:PeripheralInterface",
     ],
 )
 
@@ -77,7 +77,7 @@ unity_test(
     ],
     deps = [
         ":PeripheralInterfaceMock",
-        "//:CommunicationModuleLibForTest",
+        "//:CommunicationModule",
         "//:PeripheralInterface",
         "@CException",
         "@CMock",

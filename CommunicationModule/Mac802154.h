@@ -1,12 +1,15 @@
 #ifndef COMMUNICATIONMODULE_NETWORKHARDWARE_H
 #define COMMUNICATIONMODULE_NETWORKHARDWARE_H
 
-#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include "Peripheral/PeripheralInterface.h"
 
 /*!
+ * \file Mac802154.h
+ *
+ * \brief Driver Interface for 802.15.4 compliant hardware
+ *
  *  The Mac802154 ADT is used to send/receive/analyze
  *  802.15.4 packages. For performance and interoperability
  *  reasons the way message sending works is a little bit
@@ -15,7 +18,11 @@
  *  the destination address or the payload seperately.
  *  Once you are happy with your message setup, you can
  *  send the frame using the Mac802154_sendBlocking() function.
- *  IMPORTANT: All addresses are assumed to be in network byte order. This includes the pan id.
+ *  IMPORTANT: To be unambiguous about the byte order, all addresses
+ *  (including the pan id) are specified in the exact same order they are
+ *  transferred with. This however might be different than how the address
+ *  is presented in other software. E.g. in XCTU the address is presented
+ *  in reversed byte order.
  */
 
 typedef struct Mac802154* Mac802154;
@@ -128,5 +135,38 @@ enum {
   FRAME_VERSION_2003 = 0b00,
   FRAME_VERSION_2006 = 0b01,
 };
+
+/**
+ * This struct below is exposed to allow developers providing new
+ * implementations of the interface. As well as to ease control of
+ * memory. Do not access the function pointers directly.
+ */
+struct Mac802154 {
+  void (*setShortDestinationAddress)(Mac802154 self, const uint8_t *address);
+  void (*setExtendedDestinationAddress)(Mac802154 self, const uint8_t *address);
+  void (*setPayload)(Mac802154 self, const uint8_t *buffer, size_t size);
+  void (*useExtendedSourceAddress) (Mac802154 self);
+  void (*useShortSourceAddress) (Mac802154 self);
+
+  void (*sendBlocking) (Mac802154 self);
+  void (*sendNonBlocking) (Mac802154 self);
+  void (*reconfigure) (Mac802154 self, const Mac802154Config *config);
+
+  uint8_t (*getReceivedPacketSize) (Mac802154 self);
+  bool (*newPacketAvailable) (Mac802154 self);
+  void (*fetchPacketBlocking) (Mac802154 self, uint8_t *buffer, uint8_t size);
+  const uint8_t *(*getPacketPayload) (const uint8_t *packet);
+  uint8_t (*getPacketPayloadSize) (const uint8_t *packet);
+  bool (*packetAddressIsShort) (const uint8_t *packet);
+  bool (*packetAddressIsExtended) (const uint8_t *packet);
+  uint8_t (*getPacketSourceAddressSize) (const uint8_t *packet);
+  const uint8_t *(*getPacketExtendedSourceAddress) (const uint8_t *packet);
+  const uint8_t *(*getPacketShortSourceAddress) (const uint8_t *packet);
+
+  void (*enablePromiscuousMode) (Mac802154 self);
+  void (*disablePromiscuousMode) (Mac802154 self);
+
+};
+
 
 #endif //COMMUNICATIONMODULE_NETWORKHARDWARE_H

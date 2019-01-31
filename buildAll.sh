@@ -8,4 +8,4 @@ function build_and_zip {
     fi
 }
 
-build_and_zip atmega32u4
+build_and_zip

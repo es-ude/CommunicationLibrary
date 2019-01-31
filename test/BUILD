@@ -5,12 +5,12 @@ The load function is used to make the function generate_a_unity_test_for_every_f
 from the file unity_helpers.bzl in the package test available here.
 """
 
-#load("//:unity_helpers.bzl", "generate_a_unity_test_for_every_file")
 load(
     "@UnityPlugin//Unity_rules:unity.bzl",
     "generate_a_unity_test_for_every_file",
-    "unity_test",
     "mock",
+    "new_mock",
+    "unity_test",
 )
 
 """
@@ -28,11 +28,12 @@ generate_a_unity_test_for_every_file(
     ],
     file_list = glob(
         ["*_Test.c"],
+        exclude = ["PeripheralInterface_Test.c"],
     ),
     deps = [
-        "//:CommunicationModuleLibForTest",
-        "@CException//:CException",
-        "@CMock//:CMock",
+        "//:CommunicationModule",
+        "@CException",
+        "@CMock",
     ],
 )
 
@@ -68,4 +69,19 @@ test_suite(
         "//test/MRF:MRFState_Test",
         "//test/MRF:Mac802154MRF_Test",
     ],
+)
+
+unity_test(
+    file_name = "PeripheralInterface_Test.c",
+    deps = [
+        ":MutexMock",
+        "//:PeripheralInterface",
+    ],
+)
+
+new_mock(
+    name = "MutexMock",
+    srcs = ["//:src/Util/Mutex.h"],
+    enforce_strict_ordering = True,
+    deps = ["//:EmbeddedUtil"],
 )
