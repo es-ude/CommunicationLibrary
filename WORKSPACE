@@ -36,7 +36,7 @@ http_archive(
 
 http_archive(
     name = "UnityPlugin",
-    strip_prefix = "BazelUnityPlugin-master",
+    strip_prefix = "BazelUnityPlugin-develop",
     urls = ["https://github.com/glencoe/BazelUnityPlugin/archive/develop.tar.gz"],
 )
 
