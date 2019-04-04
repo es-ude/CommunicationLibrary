@@ -16,7 +16,7 @@ pipeline:
       - docker_username
       - docker_password
     commands:
-      - bazel test test:all
+      - bazel test test:all --remote_http_cache=http://build.es.uni-due.de:9090
     when:
       event: [push, pull_request, tag]
       #branch: [drone]
