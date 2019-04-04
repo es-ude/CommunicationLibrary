@@ -49,6 +49,12 @@ stubCallback(void *arg)
 }
 
 void
+executeAtomically(GenericCallback callback)
+{
+  callback.function(callback.argument);
+}
+
+void
 setUp(void)
 {
   uint8_t *registers_local_copy           = registers_master;
@@ -76,7 +82,7 @@ void
 test_selectSetsSPIEnableBit(void)
 {
   CEXCEPTION_T e;
-  Try { PeripheralInterface_selectPeripheral(interface, &peripheral); }
+  Try { interface->selectPeripheral(interface, &peripheral); }
   Catch(e) { TEST_FAIL(); }
   TEST_ASSERT_BIT_HIGH(spi_enable_bit, *config.control_register);
 }
@@ -87,8 +93,8 @@ test_deselectSetsControlRegisterToDefault(void)
   CEXCEPTION_T e;
   Try
   {
-    PeripheralInterface_selectPeripheral(interface, &peripheral);
-    PeripheralInterface_deselectPeripheral(interface, &peripheral);
+    interface->selectPeripheral(interface, &peripheral);
+    interface->deselectPeripheral(interface, &peripheral);
   }
   Catch(e) { TEST_FAIL(); }
 
@@ -101,7 +107,7 @@ test_failedSetupEndsWithDefaultControlRegisterValues(void)
   SPISlave invalid_peripheral = peripheral;
   invalid_peripheral.spi_mode = 30;
   CEXCEPTION_T e;
-  Try { PeripheralInterface_selectPeripheral(interface, &invalid_peripheral); }
+  Try { interface->selectPeripheral(interface, &invalid_peripheral); }
   Catch(e) { TEST_ASSERT_EQUAL_UINT8(PERIPHERAL_SELECT_EXCEPTION, e); }
   TEST_ASSERT_BITS_LOW(0xFF, *config.control_register);
 }
@@ -109,15 +115,25 @@ test_failedSetupEndsWithDefaultControlRegisterValues(void)
 void
 test_selectConfiguresInterfaceAsMaster(void)
 {
-  PeripheralInterface_selectPeripheral(interface, &peripheral);
+  interface->selectPeripheral(interface, &peripheral);
 
   TEST_ASSERT_BIT_HIGH(master_slave_select_bit, *config.control_register);
 }
 
+
+/*
+ * While the following tests are partly ignored
+ * they stay here for future reference on how to implement
+ * non blocking io for the PeripheralInterface.
+ * However most of the tests should go to another abstraction
+ * layer, i.e. not the PeripheralSPIImpl but the PeripheralInterface,
+ * since most of their functionality is completely independent from
+ * SPI.
+ */
 void
 test_nonBlockingWriteTransfersFirstByte(void)
 {
-  PeripheralInterface_selectPeripheral(interface, &peripheral);
+  interface->selectPeripheral(interface, &peripheral);
 
   uint8_t data[] = "hello";
   PeripheralInterface_NonBlockingWriteContext context = {
@@ -128,7 +144,7 @@ test_nonBlockingWriteTransfersFirstByte(void)
       },
       .output_buffer = data,
   };
-  PeripheralInterface_writeNonBlocking(interface, context);
+  interface->writeNonBlocking(interface, context);
   TEST_ASSERT_EQUAL_UINT8('h', *config.data_register);
 }
 
@@ -136,7 +152,7 @@ void
 test_handleWriteInterruptTransmitsSecondByte(void)
 {
   TEST_IGNORE();
-  PeripheralInterface_selectPeripheral(interface, &peripheral);
+  interface->selectPeripheral(interface, &peripheral);
 
   uint8_t data[] = "abcde";
   PeripheralInterface_NonBlockingWriteContext context = {
@@ -147,8 +163,8 @@ test_handleWriteInterruptTransmitsSecondByte(void)
           .function = NULL,
       },
   };
-  PeripheralInterface_writeNonBlocking(interface, context);
-  PeripheralInterface_handleWriteInterrupt(interface);
+  interface->writeNonBlocking(interface, context);
+  interface->handleWriteInterrupt(interface);
 
   TEST_ASSERT_EQUAL_UINT8('b', *config.data_register);
 }
@@ -158,7 +174,7 @@ test_handleWriteInterruptTransmitsThirdByte(void)
 {
   TEST_IGNORE();
 
-  PeripheralInterface_selectPeripheral(interface, &peripheral);
+  interface->selectPeripheral(interface, &peripheral);
 
   uint8_t data[] = "fghij";
 
@@ -171,9 +187,9 @@ test_handleWriteInterruptTransmitsThirdByte(void)
       },
   };
 
-  PeripheralInterface_writeNonBlocking(interface, context);
-  PeripheralInterface_handleWriteInterrupt(interface);
-  PeripheralInterface_handleWriteInterrupt(interface);
+  interface->writeNonBlocking(interface, context);
+  interface->handleWriteInterrupt(interface);
+  interface->handleWriteInterrupt(interface);
 
   TEST_ASSERT_EQUAL_STRING_LEN(data + 2, config.data_register, 1);
 }
@@ -183,7 +199,7 @@ test_callHandleWriteInterruptTooManyTimes(void)
 {
   TEST_IGNORE();
 
-  PeripheralInterface_selectPeripheral(interface, &peripheral);
+  interface->selectPeripheral(interface, &peripheral);
 
   uint8_t data[] = "fghij__";
 
@@ -196,10 +212,10 @@ test_callHandleWriteInterruptTooManyTimes(void)
       },
   };
 
-  PeripheralInterface_writeNonBlocking(interface, context);
+  interface->writeNonBlocking(interface, context);
   for (uint8_t i = 0; i < 5; i++)
     {
-      PeripheralInterface_handleWriteInterrupt(interface);
+      interface->handleWriteInterrupt(interface);
     }
 
   TEST_ASSERT_EQUAL_STRING_LEN(data + 4, config.data_register, 1);
@@ -210,15 +226,15 @@ test_callWriteNonBlockingWhileInterfaceIsBusy(void)
 {
   TEST_IGNORE();
 
-  PeripheralInterface_selectPeripheral(interface, &peripheral);
+  interface->selectPeripheral(interface, &peripheral);
 
   uint8_t data[] = "fghij__";
   PeripheralInterface_NonBlockingWriteContext context =
     createNonBlockingWriteContextWithoutCallback(data, 5);
-  PeripheralInterface_writeNonBlocking(interface, context);
+  interface->writeNonBlocking(interface, context);
 
   CEXCEPTION_T e = 0;
-  Try { PeripheralInterface_writeNonBlocking(interface, context); }
+  Try { interface->writeNonBlocking(interface, context); }
   Catch(e) { TEST_ASSERT_EQUAL_UINT8(PERIPHERAL_INTERFACE_BUSY_EXCEPTION, e); }
   TEST_ASSERT_NOT_EQUAL(0, e);
 }
@@ -228,7 +244,7 @@ test_callWriteNonBlockingWithCallback(void)
 {
   TEST_IGNORE();
 
-  PeripheralInterface_selectPeripheral(interface, &peripheral);
+  interface->selectPeripheral(interface, &peripheral);
 
   uint8_t data[]                        = "fghij__";
   uint8_t arg                           = 13;
@@ -239,8 +255,8 @@ test_callWriteNonBlockingWithCallback(void)
   PeripheralInterface_NonBlockingWriteContext context = {
     .output_buffer = data, .length = 1, .callback = callback
   };
-  PeripheralInterface_writeNonBlocking(interface, context);
-  PeripheralInterface_handleWriteInterrupt(interface);
+  interface->writeNonBlocking(interface, context);
+  interface->handleWriteInterrupt(interface);
   TEST_ASSERT_TRUE(callback_called);
 }
 
@@ -249,13 +265,13 @@ void
 test_readNonBlockingTransmitsFirstByte(void)
 {
 
-  PeripheralInterface_selectPeripheral(interface, &peripheral);
+  interface->selectPeripheral(interface, &peripheral);
 
   uint8_t buffer   = 'a';
   uint8_t expected = 'm';
-  PeripheralInterface_readNonBlocking(interface, &buffer, 1);
+  interface->readNonBlocking(interface, &buffer, 1);
   *config.data_register = 'm';
-  PeripheralInterface_handleReadInterrupt(interface);
+  interface->handleReadInterrupt(interface);
 
   TEST_ASSERT_EQUAL_STRING_LEN(&expected, &buffer, 1);
 }
@@ -264,32 +280,32 @@ void
 test_readNonBlockingWithCallback(void)
 {
   TEST_IGNORE();
-  PeripheralInterface_selectPeripheral(interface, &peripheral);
+  interface->selectPeripheral(interface, &peripheral);
 
   *config.data_register = 'l';
   uint8_t buffer        = 'a';
   uint8_t arg           = 13;
-  PeripheralInterface_readNonBlocking(interface, &buffer, 1);
+  interface->readNonBlocking(interface, &buffer, 1);
   PeripheralInterface_Callback callback = {
     .function = stubCallback,
     .argument = &arg,
   };
-  PeripheralInterface_handleReadInterrupt(interface);
+  interface->handleReadInterrupt(interface);
   TEST_ASSERT_TRUE(callback_called);
 }
 
 void
 test_readNonBlockingTransfersAllBytes(void)
 {
-  PeripheralInterface_selectPeripheral(interface, &peripheral);
+  interface->selectPeripheral(interface, &peripheral);
 
   uint8_t data[] = "hello";
   uint8_t buffer[5];
-  PeripheralInterface_readNonBlocking(interface, buffer, 1);
+  interface->readNonBlocking(interface, buffer, 1);
   for (uint8_t i = 0; i < 5; i++)
     {
       *config.data_register = data[i];
-      PeripheralInterface_handleReadInterrupt(interface);
+      interface->handleReadInterrupt(interface);
     }
 
   TEST_ASSERT_EQUAL_STRING_LEN(data, buffer, 5);
@@ -298,7 +314,7 @@ test_readNonBlockingTransfersAllBytes(void)
 void
 test_callBackIsOnlyTriggeredOnReadCompletion(void)
 {
-  PeripheralInterface_selectPeripheral(interface, &peripheral);
+  interface->selectPeripheral(interface, &peripheral);
   TEST_IGNORE();
 
   uint8_t buffer[8];
@@ -307,10 +323,10 @@ test_callBackIsOnlyTriggeredOnReadCompletion(void)
     .function = stubCallback,
     .argument = &arg,
   };
-  PeripheralInterface_readNonBlocking(interface, buffer, 8);
+  interface->readNonBlocking(interface, buffer, 8);
   for (uint8_t i = 0; i < 7; i++)
     {
-      PeripheralInterface_handleReadInterrupt(interface);
+      interface->handleReadInterrupt(interface);
       TEST_ASSERT_FALSE(callback_called);
     }
 }

@@ -1,41 +1,79 @@
-#include "Mutex.h"
-#include <util/atomic.h>
+#include "Util/Mutex.h"
+#include "Util/Atomic.h"
 #include "CException.h"
 #include <stdbool.h>
 #include <stddef.h>
 
-void
-lockMutex(Mutex *self, void *lock)
+typedef struct CallbackArgs {
+    bool success;
+    void *lock;
+    Mutex *mutex;
+} CallbackArgs;
+
+static void
+doLockMutex(void *args)
 {
-  bool locked = false;
-  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-  {
+    CallbackArgs *callback_args = (CallbackArgs*) args;
+    Mutex *self = callback_args->mutex;
     if (self->lock == NULL)
     {
-      self->lock = lock;
-      locked = true;
+      self->lock = callback_args->lock;
+      callback_args->success = true;
     }
-  }
-  if (!locked)
-  {
-    Throw(MUTEX_ALREADY_LOCKED_EXCEPTION);
-  }
+
+}
+
+static void
+doUnlockMutex(void *args)
+{
+    CallbackArgs *callback_args = (CallbackArgs*)args;
+    Mutex *self = callback_args->mutex;
+    if (self->lock == callback_args->lock)
+    {
+      self->lock = NULL;
+      callback_args->success = true;
+    }
+
 }
 
 void
 unlockMutex(Mutex *self, void *lock)
 {
-  bool locked = true;
-  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-  {
-    if (self->lock == lock)
+    CallbackArgs args = {
+            .lock = lock,
+            .success = false,
+            .mutex = self
+    };
+    executeAtomically((GenericCallback){
+        .argument=&args,
+        .function=doUnlockMutex
+    });
+    if (!args.success)
     {
-      self->lock = NULL;
-      locked = false;
+        Throw(MUTEX_WAS_NOT_UNLOCKED);
     }
-  }
-  if (locked)
-  {
-    Throw(WRONG_MUTEX_LOCK_EXCEPTION);
-  }
+}
+
+void
+lockMutex(Mutex *self, void *lock)
+{
+    CallbackArgs args = {
+            .lock = lock,
+            .success = false,
+            .mutex = self
+    };
+    executeAtomically((GenericCallback){
+        .function=doLockMutex,
+        .argument=&args
+    });
+    if (!args.success)
+    {
+        Throw(MUTEX_WAS_NOT_LOCKED);
+    }
+}
+
+void
+initMutex(Mutex *self)
+{
+    self->lock = NULL;
 }

@@ -8,27 +8,26 @@ from the file unity_helpers.bzl in the package test available here.
 #load("//:unity_helpers.bzl", "generate_a_unity_test_for_every_file")
 load(
     "@UnityPlugin//Unity_rules:unity.bzl",
+    "generate_a_mock_for_every_file",
     "generate_a_unity_test_for_every_file",
-    "generate_mocks_for_every_header",
     "mock",
-    "new_mock",
     "unity_test",
 )
 
-new_mock(
+mock(
     name = "PeripheralInterfaceMock",
     srcs = ["//:Peripheral/PeripheralInterface.h"],
     enforce_strict_ordering = True,
     deps = ["//:PeripheralInterface"],
 )
 
-new_mock(
+mock(
     name = "FrameHeaderMock",
     srcs = ["//:src/Mac802154/MRF/FrameHeader802154.h"],
     deps = ["//:CommunicationModule"],
 )
 
-generate_mocks_for_every_header(
+generate_a_mock_for_every_file(
     enforce_strict_ordering = True,
     file_list = [
         "//:src/Mac802154/MRF/MRFHelperFunctions.h",

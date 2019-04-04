@@ -1,5 +1,6 @@
 #include "unity.h"
 #include "src/Mac802154/MRF/FrameHeader802154.h"
+#include "CommunicationModule/FrameHeader802154Struct.h"
 #include "src/Util/BitManipulation.h"
 
 /**

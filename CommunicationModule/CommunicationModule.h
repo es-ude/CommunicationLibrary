@@ -1,7 +1,7 @@
 #ifndef COMMUNICATIONMODULE_COMMUNICATIONMODULE_H
 #define COMMUNICATIONMODULE_COMMUNICATIONMODULE_H
 
-#include "Peripheral/Callback.h"
+#include "Util/Callback.h"
 #include "Peripheral/Exception.h"
 #include "CommunicationModule/Mac802154.h"
 #include "Peripheral/PeripheralInterface.h"

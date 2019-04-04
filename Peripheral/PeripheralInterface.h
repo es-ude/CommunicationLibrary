@@ -1,7 +1,8 @@
 #ifndef PERIPHERALINTERFACE_H
 #define PERIPHERALINTERFACE_H
 
-#include "Peripheral/Callback.h"
+#include "Util/Callback.h"
+#include "Util/Mutex.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -27,7 +28,7 @@
 
 typedef void Peripheral;
 typedef struct PeripheralInterface PeripheralInterface;
-typedef CommunicationModule_Callback PeripheralInterface_Callback;
+typedef GenericCallback PeripheralInterface_Callback;
 
 typedef struct PeripheralInterface_NonBlockingWriteContext
 {
@@ -106,8 +107,9 @@ enum
   PERIPHERALINTERFACE_NO_EXCEPTION = 0x00,
   PERIPHERALINTERFACE_UNSUPPORTED_PERIPHERAL_SETUP_EXCEPTION,
   PERIPHERALINTERFACE_UNSUPPORTED_INTERFACE_CONFIG_EXCEPTION,
-  PERIPHERALINTERFACE_BUSY_EXCEPTION,
 };
+
+static const uint8_t PERIPHERALINTERFACE_BUSY_EXCEPTION = 3;
 
 /**
  * New implementations can be offered by setting up the struct below
@@ -115,6 +117,7 @@ enum
  */
 struct PeripheralInterface
 {
+  Mutex mutex;
   void (*init)(PeripheralInterface *self);
 
   void (*writeByteBlocking)(PeripheralInterface *self, uint8_t byte);

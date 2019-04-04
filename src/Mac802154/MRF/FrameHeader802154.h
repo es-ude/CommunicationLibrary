@@ -4,9 +4,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#define MAXIMUM_HEADER_SIZE 21
-
-typedef struct FrameHeader802154 FrameHeader802154;
+#include "CommunicationModule/FrameHeader802154Struct.h"
 
 void FrameHeader802154_init(FrameHeader802154 *self);
 
@@ -49,7 +47,4 @@ const uint8_t *FrameHeader802154_getSourceAddressPtr(const FrameHeader802154 *se
 const uint8_t *FrameHeader802154_getHeaderPtr(const FrameHeader802154 *self);
 
 
-struct FrameHeader802154 {
-  uint8_t data[MAXIMUM_HEADER_SIZE];
-};
 #endif //COMMUNICATIONMODULE_MAC802154FRAMEHEADER_H

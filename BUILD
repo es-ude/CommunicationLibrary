@@ -27,6 +27,7 @@ filegroup(
         "CommunicationModule/CommunicationModule.h",
         "CommunicationModule/Mac802154.h",
         "CommunicationModule/Mac802154MRFImpl.h",
+        "CommunicationModule/FrameHeader802154Struct.h",
     ] + glob([
         "Peripheral/*.h",
         "Debug/*.h",
@@ -39,6 +40,8 @@ exports_files(
         "Debug/*.h",
         "CommunicationModule/*.h",
         "src/**/*.h",
+        "src/**/*.c",
+        "Util/**/*.h",
     ]),
     visibility = [
         "//test:__pkg__",
@@ -55,6 +58,9 @@ default_embedded_lib(
     }),
     hdrs = [":CommunicationModuleIncl"],
     visibility = ["//visibility:public"],
+    deps = [
+        ":EmbeddedUtil",
+    ],
 )
 
 filegroup(
@@ -72,15 +78,12 @@ filegroup(
 
 default_embedded_lib(
     name = "EmbeddedUtil",
-    srcs = select(
-        {
-            "@AVR_Toolchain//:avr-config": ["src/Util/Mutex.c"],
-            "//conditions:default": [],
-        },
-    ),
+    srcs = ["src/Util/Mutex.c"],
     hdrs = [
+        "Util/Atomic.h",
+        "Util/Callback.h",
+        "Util/Mutex.h",
         "src/Util/BitManipulation.h",
-        "src/Util/Mutex.h",
     ],
     visibility = ["//visibility:public"],
 )

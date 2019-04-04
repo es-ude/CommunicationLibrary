@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 #include "Peripheral/PeripheralInterface.h"
+#include "CommunicationModule/Mac802154MRFImpl.h"
+
 
 /**
  * IO Module for the MRF Network Chip
@@ -32,27 +34,7 @@ void MrfIo_readNonBlockingFromLongAddress(MrfIo *mrf, const uint8_t *payload, ui
 void MrfIo_readBlockingFromShortAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size);
 void MrfIo_readNonBlockingFromShortAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size);
 
-struct MrfIoCallback {
-  void (*function) (void *arg);
-  void *argument;
-};
 
-struct MrfIo_NonBlockingWriteContext
-{
-  MrfIoCallback callback;
-  const uint8_t *output_buffer;
-  uint8_t length;
-  uint16_t address;
-};
 
-struct MrfIo {
-  Peripheral *device;
-  PeripheralInterface *interface;
-  uint8_t command[2];
-  uint8_t command_size;
-  uint8_t length;
-  const uint8_t *output_buffer;
-  MrfIoCallback callback;
-};
 
 #endif //COMMUNICATIONMODULE_MRFIO_H_H

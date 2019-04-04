@@ -5,9 +5,9 @@
  *
  * This struct is used throughout the library for representing callbacks.
  */
-typedef struct CommunicationModule_Callback {
+typedef struct GenericCallback {
   void (*function) (void *);
   void *argument;
-} CommunicationModule_Callback;
+} GenericCallback;
 
 #endif //COMMUNICATIONMODULE_CALLBACK_H

@@ -22,7 +22,7 @@ static const GPIOPin reset_line = {
 };
 Peripheral          *device;
 PeripheralInterface *interface;
-Mac802154 mrf;
+Mac802154 *mrf;
 Mac802154Config      mac_config;
 MRFConfig hardware_config;
 
