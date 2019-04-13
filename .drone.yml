@@ -32,7 +32,7 @@ pipeline:
       - docker_username
       - docker_password
     commands:
-      - OUTPUT_DIR=/build/ bash -c ./buildAll.sh ${DRONE_REPO_NAME}
+      - OUTPUT_DIR=/build/ bash buildAll.sh ${DRONE_REPO_NAME}
     environment:
       - DRONE_REPO_NAME=${DRONE_REPO_NAME}
     when:
