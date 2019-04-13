@@ -169,8 +169,8 @@ genzip_cmd = "zip -j $(OUTS) $(location :CommunicationModule); zip $(OUTS) $(loc
 LibAndHeaderForPublishing = [":CommunicationModule", ":CommunicationModuleIncl"]
 
 genrule(
-    name = "CommunicationModuleZip",
+    name = "communicationmoduleZip",
     srcs = LibAndHeaderForPublishing,
-    outs = ["CommunicationModule.zip"],
+    outs = ["communicationmodule.zip"],
     cmd = genzip_cmd,
 )
