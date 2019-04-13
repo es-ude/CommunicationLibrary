@@ -33,6 +33,8 @@ pipeline:
       - docker_password
     commands:
       - OUTPUT_DIR=/build/ bash -c ./buildAll.sh
+    environment:
+      - DRONE_REPO_NAME=${DRONE_REPO_NAME}
     when:
       event: [push, pull_request, tag]
       #branch: [drone]

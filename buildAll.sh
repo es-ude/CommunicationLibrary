@@ -1,11 +1,13 @@
 #!/bin/bash
 
 function build_and_zip {
-    bazel build :CommunicationModuleZip --config=$1
+    bazel build :"$1"Zip --config=$2
     if [ ! -z "$OUTPUT_DIR" ]; then
-        mkdir -p "$OUTPUT_DIR"
-        cp -f bazel-genfiles/CommunicationModule.zip "$OUTPUT_DIR"/communicationmodule.zip
+        mkdir -p "$OUTPUT_DIR"/"$1"/
+        cp -f bazel-genfiles/"$1".zip "$OUTPUT_DIR"/"$1"/"$1"-"$2".zip
     fi
 }
 
-build_and_zip atmega32u4
+build_and_zip $1 atmega64
+build_and_zip $1 atmega32u4
+# build_and_zip $1 native
