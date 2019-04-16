@@ -11,7 +11,7 @@
 
 PeripheralInterfaceSPIImpl peripheral_interface_struct;
 PeripheralInterface *peripheral_interface = (PeripheralInterface*) &peripheral_interface_struct;
-Mac802154 mac802154 = NULL;
+Mac802154 *mac802154 = NULL;
 
 SPISlave mrf_spi_client = {
   .data_register           = &PORTF,

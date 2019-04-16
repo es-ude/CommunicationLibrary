@@ -3,7 +3,7 @@
 
 #include "CommunicationModule/CommunicationModule.h"
 
-extern Mac802154 mac802154;
+extern Mac802154 *mac802154;
 
 extern SPISlave mrf_spi_client;
 extern PeripheralInterface *peripheral_interface;

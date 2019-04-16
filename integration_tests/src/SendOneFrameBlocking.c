@@ -8,29 +8,34 @@
 
 int main(void) {
 
-  setUpPeripheral();
+  setUpMac();
   Mac802154Config config = {
-          .interface = peripheral_interface,
-          .channel = 0xC,
-          .pan_id = 0x3332,
-          .short_source_address = 0x1122,
-          .extended_source_address = 0x1122334455667788,
-          .device = &mrf_spi_client,
+          .channel = 12,
+          .pan_id = {0xcc, 0xdd},
+          .short_source_address = {0xAA, 0xAA},
+          .extended_source_address = {
+                  0x11, 0x22,
+                  0x33, 0x44,
+                  0x55, 0x66,
+                  0x77, 0x88,
+          },
   };
   _delay_ms(1000);
-  uint8_t raw_memory[Mac802154MRF_getADTSize ()];
-  Mac802154MRF_create(raw_memory, delay_microseconds, peripheral_interface, &mrf_spi_client);
-  Mac802154 mac = (Mac802154*) raw_memory;
-  Mac802154_configure(mac, &config);
+  Mac802154_configure(mac802154, &config);
   char payload[32];
-  Mac802154_setExtendedDestinationAddress(mac, 0x0013A2004175A89D);
+  Mac802154_setExtendedDestinationAddress(mac802154, (uint8_t []){
+    0x00, 0x13,
+    0xA2, 0x00,
+    0x41, 0x75,
+    0xA8, 0x9D
+  });
   uint16_t number = 0;
   while(true) {
     number++;
-    memset(payload, 32, 0);
+    memset(payload, 0, 32);
     sprintf(payload, "%d\n", number);
     uint8_t payload_length = (uint8_t) strlen(payload);
-    Mac802154_setPayload(mac, payload, payload_length);
-    Mac802154_sendBlocking(mac);
+    Mac802154_setPayload(mac802154, (uint8_t *) payload, payload_length);
+    Mac802154_sendBlocking(mac802154);
   }
 }

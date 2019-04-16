@@ -36,6 +36,45 @@ filegroup(
     ]),
 )
 
+filegroup(
+    name = "Setup",
+    srcs = [
+        "src/Setup/DebugSetup.h",
+        "src/Setup/Delay.c",
+        "src/Setup/HardwareSetup.h",
+        "src/Setup/Atomic.c",
+    ] + select({
+        ":Motherboard": [
+            "src/Setup/MotherBoardHardwareSetup.c",
+            ":LufaSetup",
+        ],
+        ":ElasticNode": ["src/Setup/ElasticNodeHardwareSetup.c"],
+    }),
+)
+
+STD_DEPS = ["//:CommunicationModule"] + select({
+    ":Motherboard": [
+        "@LUFA//:LUFA_USB",
+    ],
+    ":ElasticNode": [],
+})
+
+config_setting(
+    name = "Motherboard",
+    values = {
+        "cpu": "avr",
+        "define": "MCU=atmega32u4",
+    },
+)
+
+config_setting(
+    name = "ElasticNode",
+    values = {
+        "cpu": "avr",
+        "define": "MCU=atmega64",
+    },
+)
+
 default_embedded_binary(
     name = "SendOneFrameUsingPeripheralInterfaceOnly",
     srcs = [
@@ -119,16 +158,11 @@ default_embedded_binary(
     name = "SendOneFrameBlocking",
     srcs = [
         "src/SendOneFrameBlocking.c",
-        "src/Setup/HardwareSetup.h",
-        "src/Setup/MotherBoardHardwareSetup.c",
-        ":LufaSetup",
+        ":Setup",
     ],
     copts = LUFA_COPTS,
     linkopts = LUFA_COPTS,
-    deps = [
-        "//:CommunicationModule",
-        "@LUFA//:LUFA_USB",
-    ],
+    deps = STD_DEPS,
 )
 
 default_embedded_binary(

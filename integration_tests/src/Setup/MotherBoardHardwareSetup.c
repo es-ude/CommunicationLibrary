@@ -6,7 +6,7 @@
 
 PeripheralInterfaceSPIImpl peripheral_interface_struct;
 PeripheralInterface *peripheral_interface = (PeripheralInterface*) &peripheral_interface_struct;
-Mac802154 mac802154 = NULL;
+Mac802154 *mac802154 = NULL;
 
 void setUpPeripheral(void) {
   static SPIConfig spi_config = {

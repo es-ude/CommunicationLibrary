@@ -60,6 +60,16 @@ http_archive(
     urls = ["http://fourwalledcubicle.com/files/LUFA/LUFA-170418.zip"],
 )
 
+local_repository(
+    name = "Util",
+    path = "../EmbeddedUtil/"
+)
+
+local_repository(
+    name = "PeripheralInterface",
+    path = "../peripheralinterface"
+)
+
 #local_repository(
 #    name = "LUFA",
 #    path = "../lufa-LUFA-170418",

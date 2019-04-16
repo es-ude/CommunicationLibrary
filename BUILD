@@ -59,7 +59,8 @@ default_embedded_lib(
     hdrs = [":CommunicationModuleIncl"],
     visibility = ["//visibility:public"],
     deps = [
-        ":EmbeddedUtil",
+        "@Util//:BitManipulation",
+        "@PeripheralInterface"
     ],
 )
 
