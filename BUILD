@@ -1,4 +1,4 @@
-load("@AVR_Toolchain//:helpers.bzl", "default_embedded_lib")
+load("@AvrToolchain//:helpers.bzl", "default_embedded_lib")
 
 filegroup(
     name = "CommunicationModuleSrcLocal",
@@ -53,7 +53,7 @@ exports_files(
 default_embedded_lib(
     name = "CommunicationModule",
     srcs = select({
-        "@AVR_Toolchain//:avr-config": [":CommunicationModuleSrc"],
+        "@AvrToolchain//:avr-config": [":CommunicationModuleSrc"],
         "//conditions:default": [":CommunicationModuleSrcLocal"],
     }),
     hdrs = [":CommunicationModuleIncl"],

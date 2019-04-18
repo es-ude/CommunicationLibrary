@@ -21,16 +21,22 @@ We use the prefix new because unity isn't a bazel project, so we need to provide
 More info under https://docs.bazel.build/versions/master/be/workspace.html#new_http_archive
 """
 
+git_repository(
+    name = "EmbeddedSystemsBuildScripts",
+    branch = "develop",
+    remote = "ssh://git@bitbucket.es.uni-due.de:7999/fks/bazel-avr-toolchain-linux.git",
+)
+
 http_archive(
     name = "Unity",
-    build_file = "@//:BUILD.Unity",
+    build_file = "@EmbeddedSystemsBuildScripts//:BUILD.Unity",
     strip_prefix = "Unity-master",
     urls = ["https://github.com/ThrowTheSwitch/Unity/archive/master.tar.gz"],
 )
 
 http_archive(
     name = "CException",
-    build_file = "@//:BUILD.CException",
+    build_file = "@EmbeddedSystemsBuildScripts//:BUILD.CException",
     strip_prefix = "CException-master",
     urls = ["https://github.com/ThrowTheSwitch/CException/archive/master.tar.gz"],
 )
@@ -43,18 +49,14 @@ http_archive(
 
 http_archive(
     name = "CMock",
-    build_file = "@//:BUILD.CMock",
+    build_file = "@EmbeddedSystemsBuildScripts//:BUILD.CMock",
     strip_prefix = "CMock-master",
     urls = ["https://github.com/ThrowTheSwitch/CMock/archive/master.tar.gz"],
 )
 
-http_archive(
-    name = "AVR_Toolchain",
-    type = "tar.gz",
-    urls = ["http://bitbucket.es.uni-due.de:7990/rest/api/latest/projects/FKS/repos/bazel-avr-toolchain-linux/archive?format=tgz"],
-)
 
-load("@AVR_Toolchain//:department.bzl", "create_avr_toolchain")
+
+load("@EmbeddedSystemsBuildScripts//:avr.bzl", "create_avr_toolchain")
 
 create_avr_toolchain(
     name = "AvrToolchain"
@@ -63,56 +65,21 @@ create_avr_toolchain(
 
 http_archive(
     name = "LUFA",
-    build_file = "@//:BUILD.LUFA",
+    build_file = "@EmbeddedSystemsBuildScripts//:BUILD.LUFA",
     strip_prefix = "lufa-LUFA-170418",
     urls = ["http://fourwalledcubicle.com/files/LUFA/LUFA-170418.zip"],
 )
 
 git_repository(
     name = "EmbeddedUtilities",
-    commit = "5bfd18c56dc90041662bb532e6c06371a9a4f2d2",
+    branch = "master",
     remote = "ssh://git@bitbucket.es.uni-due.de:7999/im/embedded-utilities.git",
 )
 
 git_repository(
     name = "PeripheralInterface",
     remote = "ssh://git@bitbucket.es.uni-due.de:7999/im/peripheralinterface.git",
-    commit = "1e0e60cacdbb9a8dd6871d826951c76cd305f030",
-    shallow_since = "1555567164 +0200"
+    branch = "master",
 )
 
 
-#local_repository(
-#    name = "LUFA",
-#    path = "../lufa-LUFA-170418",
-#)
-
-"""
-From the Bazel documentation at https://docs.bazel.build/versions/master/build-ref.html#packages_targets :
- The primary unit of code organization in a workspace is the package.
-A package is collection of related files and a specification of the dependencies among them.
-
-A package is defined as a directory containing a file named BUILD,
-residing beneath the top-level directory in the workspace.
-A package includes all files in its directory, plus all subdirectories beneath it,
-except those which themselves contain a BUILD file.
-"""
-
-"""
-This project has the following structure:
-
-/
-|- WORKSPACE
-|- BUILD.unity
-|- .bazelr
-|- lib/
-    |- BUILD
-|- test/
-    |- BUILD
-    |- unity-helpers.bzl
-    |- /Mocks/
-        |- BUILD
-|- toolchain/
-    |- CROSSTOOL
-    |- BUILD
-"""
