@@ -1,4 +1,4 @@
-load("@AVR_Toolchain//:helpers.bzl", "default_embedded_binary")
+load("@AvrToolchain//:helpers.bzl", "default_embedded_binary")
 
 LUFA_COPTS = [
     "-Iexternal/LUFA/Demos/Device/ClassDriver/VirtualSerial/Config",
