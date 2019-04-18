@@ -10,14 +10,14 @@ test --test_output=errors
 # executing the command:
 # bazel build lib:CommunicationModule --config=atmega328p
 # would lead to appending all of the options below on command line
-build:atmega328p --crosstool_top=@AVR_Toolchain//:toolchain
+build:atmega328p --crosstool_top=@AvrToolchain//:avr-gcc
 build:atmega328p --cpu=avr
 build:atmega328p --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
 build:atmega328p --define MCU=atmega328p
 build:atmega328p --copt -DF_CPU=16000000
 build:atmega328p --copt -DBAUD=9600
 
-build:atmega32u4 --crosstool_top=@AVR_Toolchain//:toolchain
+build:atmega32u4 --crosstool_top=@AvrToolchain//:avr-gcc
 build:atmega32u4 --cpu=avr
 build:atmega32u4 --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
 build:atmega32u4 --define MCU=atmega32u4
@@ -26,7 +26,7 @@ build:atmega32u4 --copt -DF_USB=8000000UL
 build:atmega32u4 --copt -DBAUD=9600
 build:atmega32u4 --copt -DARCH=ARCH_AVR8
 
-build:atmega64 --crosstool_top=@AVR_Toolchain//:toolchain
+build:atmega64 --crosstool_top=@AvrToolchain//:avr-gcc
 build:atmega64 --cpu=avr
 build:atmega64 --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
 build:atmega64 --define MCU=atmega64

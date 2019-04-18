@@ -79,9 +79,7 @@ default_embedded_binary(
     name = "SendOneFrameUsingPeripheralInterfaceOnly",
     srcs = [
         "src/SendOneFrameUsingPeripheralInterfaceOnly.c",
-        "src/Setup/HardwareSetup.h",
-        "src/Setup/MotherBoardHardwareSetup.c",
-        ":LufaSetup",
+        ":Setup",
     ],
     copts = LUFA_COPTS,
     linkopts = LUFA_COPTS,

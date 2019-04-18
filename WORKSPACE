@@ -13,6 +13,7 @@ workspace(
 )
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 """
 Fetch unity and use the file BUILD.unity (residing in this folder) for the build.
@@ -53,6 +54,13 @@ http_archive(
     urls = ["http://bitbucket.es.uni-due.de:7990/rest/api/latest/projects/FKS/repos/bazel-avr-toolchain-linux/archive?format=tgz"],
 )
 
+load("@AVR_Toolchain//:department.bzl", "create_avr_toolchain")
+
+create_avr_toolchain(
+    name = "AvrToolchain"
+)
+
+
 http_archive(
     name = "LUFA",
     build_file = "@//:BUILD.LUFA",
@@ -60,15 +68,19 @@ http_archive(
     urls = ["http://fourwalledcubicle.com/files/LUFA/LUFA-170418.zip"],
 )
 
-local_repository(
-    name = "Util",
-    path = "../EmbeddedUtil/"
+git_repository(
+    name = "EmbeddedUtilities",
+    commit = "5bfd18c56dc90041662bb532e6c06371a9a4f2d2",
+    remote = "ssh://git@bitbucket.es.uni-due.de:7999/im/embedded-utilities.git",
 )
 
-local_repository(
+git_repository(
     name = "PeripheralInterface",
-    path = "../peripheralinterface"
+    remote = "ssh://git@bitbucket.es.uni-due.de:7999/im/peripheralinterface.git",
+    commit = "1e0e60cacdbb9a8dd6871d826951c76cd305f030",
+    shallow_since = "1555567164 +0200"
 )
+
 
 #local_repository(
 #    name = "LUFA",

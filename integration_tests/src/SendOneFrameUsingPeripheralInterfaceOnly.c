@@ -154,7 +154,7 @@ void sendToCoordinator(void) {
           // frame header length, frame length
           0x0F, 0x11,
           // frame header control section
-          0b01100001, 0b10101110,
+          0b01000001, 0b10101110,
           // sequence number
           0x00,
           // 16 bit source address
@@ -165,7 +165,7 @@ void sendToCoordinator(void) {
           0x00, 0xA2,
           0x13, 0x00,
           // destination pan id
-          0xAA, 0xBB,
+          0xAA, 0xAA,
           // payload; just the string 'aa'
           0x61, 0x61,
   };
@@ -188,14 +188,14 @@ int main(void) {
   initMrf();
 
   _delay_ms(1000);
-  printTxMemory(18);
+  printTxMemory(19);
 
   while(1) {
     _delay_ms(1000);
     sendToCoordinator();
 
     _delay_ms(50);
-    printTxMemory(18);
+    printTxMemory(19);
   }
 }
 
