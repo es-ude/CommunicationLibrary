@@ -1,0 +1,102 @@
+platform: linux/amd64
+
+clone:
+  default:
+    image: plugins/git
+    # when:
+    #   branch: droneTesting
+
+pipeline:
+
+  bazelTest:
+    group: test
+    pull: true
+    image: build.es.uni-due.de/bazel
+    secrets:
+      - docker_username
+      - docker_password
+    commands:
+      - bazel test test:all
+    when:
+      event: [push, pull_request, tag]
+      #branch: [drone]
+    privileged: true
+    # volumes:
+    #   - /build/:/build/
+
+  bazelBuild:
+    group: build
+    pull: true
+    image: build.es.uni-due.de/bazel
+    secrets:
+      - docker_username
+      - docker_password
+    commands:
+      - OUTPUT_DIR=/build/ bash -c ./buildAll.sh
+    when:
+      event: [push, pull_request, tag]
+      #branch: [drone]
+    privileged: true
+    volumes:
+      - /build/:/build/
+
+  bazelPublish:
+    pull: true
+    group: deploy
+    image: build.es.uni-due.de/bazel-artifactory-push:latest
+    secrets:
+      - docker_username
+      - docker_password
+      - artifactory
+      - artifactory_password
+    when:
+      event: [push, pull_request, tag]
+      branch: develop
+    privileged: true
+    volumes:
+      - /build/:/build/
+
+  doxygen:
+    pull: true
+    image: build.es.uni-due.de/doxygen
+    group: deploy
+    secrets:
+      - confluence_password
+      - confluence_doc_key
+    commands:
+      - doxygen doc/doxy.conf
+      - mkdir -p build/reports/
+      - zip -r build/reports/javadoc.jar html
+      - python /usr/share/pushJavadoc.py
+    secrets:
+      - docker_username
+      - docker_password
+    when:
+      event: [push, pull_request, tag]
+      branch: [develop]
+    volumes:
+      #- /:/doxy
+      - /html:/html
+      - /latex:/latex
+
+  notify:
+    image: drillster/drone-email
+    host: mailout.uni-due.de
+    port: 465
+    username: adf694g
+    secrets:
+      - email_password
+    from: es-admin@uni-due.de
+    when:
+      status: [ changed, failure ]
+
+
+  hipchat:
+    image: jmccann/drone-hipchat
+    room: ${DRONE_REPO_NAME}
+    url: https://hipchat.es.uni-due.de
+    notify: false
+    secrets: [ hipchat_auth_token ]
+    when:
+      status:  [ failure, success ]
+      # branch: droneTesting

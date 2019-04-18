@@ -1,0 +1,48 @@
+# Description: Build rules for unity testing frameworkgut
+
+
+filegroup(
+  name = "TestRunnerGenerator",
+  srcs = ["auto/generate_test_runner.rb"],
+  visibility = ["//visibility:public"],
+  )
+
+filegroup(
+  name = "HelperScripts",
+  srcs = glob(["auto/*.rb"]),
+  visibility = ["//visibility:public"],
+  )
+
+filegroup(
+    name = "TypeSanitizer",
+    srcs = ["auto/type_sanitizer.rb"],
+    visibility = ["//visibility:public"],
+)
+
+
+filegroup(
+    name = "UnityDir",
+    srcs = ["."],
+        visibility = ["//visibility:public"],
+
+)
+
+cc_library (
+        name = "Unity",
+        srcs = ["src/unity.c",  "src/unity_internals.h"],
+        hdrs = ["src/unity.h", "src/unity_internals.h"], # exported headers
+        copts = ["-DUNITY_INCLUDE_DOUBLE",
+                 "-funsigned-char",
+            ],
+        strip_include_prefix = "src",
+        visibility = ["//visibility:public"],
+        )
+
+cc_library(
+    name = "UnityFixtures",
+    srcs = glob(["extras/fixture/src/*.c"]),
+    hdrs = glob(["extras/fixture/src/*.h"]),
+    strip_include_prefix = "extras/fixture/src",
+    visibility = ["//visibility:public"],
+    deps = ["Unity"],
+)
