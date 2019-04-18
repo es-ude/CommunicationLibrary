@@ -23,8 +23,9 @@ More info under https://docs.bazel.build/versions/master/be/workspace.html#new_h
 
 git_repository(
     name = "EmbeddedSystemsBuildScripts",
-    branch = "develop",
+    commit = "a823da0983f5a40bebe03d73f683a6352fd8094b",
     remote = "ssh://git@bitbucket.es.uni-due.de:7999/fks/bazel-avr-toolchain-linux.git",
+    shallow_since = "1555576968 +0200",
 )
 
 http_archive(
@@ -54,14 +55,11 @@ http_archive(
     urls = ["https://github.com/ThrowTheSwitch/CMock/archive/master.tar.gz"],
 )
 
-
-
 load("@EmbeddedSystemsBuildScripts//:avr.bzl", "create_avr_toolchain")
 
 create_avr_toolchain(
-    name = "AvrToolchain"
+    name = "AvrToolchain",
 )
-
 
 http_archive(
     name = "LUFA",
@@ -72,14 +70,14 @@ http_archive(
 
 git_repository(
     name = "EmbeddedUtilities",
-    branch = "master",
+    commit = "dba93023d12c4db6f9698a3a553340c4b8a5a256",
     remote = "ssh://git@bitbucket.es.uni-due.de:7999/im/embedded-utilities.git",
+    shallow_since = "1555577581 +0200",
 )
 
 git_repository(
     name = "PeripheralInterface",
+    commit = "721a0a9cca6223c1cf7e622d2793507f2598105e",
     remote = "ssh://git@bitbucket.es.uni-due.de:7999/im/peripheralinterface.git",
-    branch = "master",
+    shallow_since = "1555590628 +0200",
 )
-
-
