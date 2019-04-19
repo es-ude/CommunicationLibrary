@@ -76,131 +76,28 @@ config_setting(
 )
 
 default_embedded_binary(
-    name = "SendOneFrameUsingPeripheralInterfaceOnly",
-    srcs = [
-        "src/SendOneFrameUsingPeripheralInterfaceOnly.c",
-        ":Setup",
-    ],
-    copts = LUFA_COPTS,
-    linkopts = LUFA_COPTS,
-    deps = STD_DEPS,
-)
-
-default_embedded_binary(
-    name = "WriteStringToVirtualSerial",
-    srcs = [
-        "src/WriteStringToVirtualSerial.c",
-        ":Setup",
-    ],
-    copts = LUFA_COPTS,
-    linkopts = LUFA_COPTS,
-    deps = STD_DEPS,
-)
-
-default_embedded_binary(
-    name = "ReadMrfTxStabilizationRegister",
-    srcs = [
-        "src/ReadMrfTxStabilizationRegister.c",
-        ":Setup",
-    ],
-    copts = LUFA_COPTS,
-    linkopts = LUFA_COPTS,
-    deps = STD_DEPS,
-)
-
-default_embedded_binary(
-    name = "ReadTxFifoMemory",
-    srcs = [
-        "src/ReadTxFifoMemory.c",
-        ":Setup",
-    ],
-    copts = LUFA_COPTS,
-    linkopts = LUFA_COPTS,
-    deps = STD_DEPS,
-)
-
-default_embedded_binary(
     name = "SPITestWithoutCommunicationModuleAndLufa",
     srcs = [
         "src/SPITestWithoutCommunicationModuleAndLufa.c",
     ],
 )
 
-default_embedded_binary(
-    name = "SPITestWithLufaOnly",
-    srcs = [
-        "src/SPITestWithLufaOnly.c",
-        ":Setup",
-    ],
-    copts = LUFA_COPTS,
-    linkopts = LUFA_COPTS,
-    deps = STD_DEPS,
-)
-
-#default_embedded_binary(
-#    name = "SendOneFrameBlocking",
-#    srcs = [
-#        "src/SendOneFrameBlocking.c",
-#        ":Setup",
-#    ],
-#    copts = LUFA_COPTS,
-#    linkopts = LUFA_COPTS,
-#    deps = STD_DEPS,
-#)
-#
-#default_embedded_binary(
-#    name = "EchoMessageBlocking",
-#    srcs = [
-#        "src/EchoMessageBlocking.c",
-#        ":Setup",
-#    ],
-#    copts = LUFA_COPTS,
-#    linkopts = LUFA_COPTS,
-#    deps = STD_DEPS,
-#)
-
 default_embedded_binaries(
     copts = LUFA_COPTS,
     linkopts = LUFA_COPTS,
     main_files = [
+        "src/ReadMrfTxStabilizationRegister.c",
+        "src/WriteStringToVirtualSerial.c",
+        "src/SendOneFrameUsingPeripheralInterfaceOnly.c",
         "src/EchoMessageBlocking.c",
         "src/SendOneFrameBlocking.c",
+        "src/PrintTXBuffer.c",
+        "src/ReadTxFifoMemory.c",
+        "src/PrintReceivedDataToVirtualSerial.c",
+        "src/WriteReadSourceAddress.c",
+        "src/SPITestWithLufaOnly.c",
     ],
     other_srcs = [":Setup"],
-    deps = STD_DEPS,
-)
-
-default_embedded_binary(
-    name = "PrintTXBuffer",
-    srcs = [
-        "src/PrintTXBuffer.c",
-        ":Setup",
-    ],
-    copts = LUFA_COPTS,
-    linkopts = LUFA_COPTS,
-    deps = STD_DEPS,
-)
-
-default_embedded_binary(
-    name = "PrintReceivedDataToVirtualSerial",
-    srcs = [
-        "src/PrintReceivedDataToVirtualSerial.c",
-        ":Setup",
-    ],
-        copts = LUFA_COPTS,
-        linkopts = LUFA_COPTS,
-
-    deps = STD_DEPS,
-)
-
-default_embedded_binary(
-    name = "WriteReadSourceAddress",
-    srcs = [
-        "src/WriteReadSourceAddress.c",
-        ":Setup",
-    ],
-    copts = LUFA_COPTS,
-    linkopts = LUFA_COPTS,
     deps = STD_DEPS,
 )
 

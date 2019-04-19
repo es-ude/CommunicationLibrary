@@ -8,6 +8,7 @@
 #include <util/delay.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 PeripheralInterfaceSPIImpl peripheral_interface_struct;
 PeripheralInterface *peripheral_interface = (PeripheralInterface*) &peripheral_interface_struct;
@@ -101,4 +102,18 @@ printString(const char *string)
   uint8_t length = strlen(string);
   PeripheralInterface_writeBlocking(debug_interface, string, length);
   PeripheralInterface_deselectPeripheral(debug_interface, &terminal);
+}
+
+void
+printNewLine(void)
+{
+  printString("\n");
+}
+
+void
+printDec16(uint16_t number)
+{
+  char text[10];
+  sprintf(text, "%u", number);
+  printString(text);
 }

@@ -218,7 +218,7 @@ void convertByteToString(uint8_t byte, uint8_t *string) {
 }
 
 void debugPrintHex(uint8_t byte) {
-  uint8_t string[] = "0x00 ";
+  char string[] = "0x00 ";
   convertByteToString(byte, string);
   debug(String, string);
 }
