@@ -1,6 +1,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "Helpers.h"
+#include "Descriptors.h"
+#include "LUFA/Drivers/Peripheral/Serial.h"
+#include "LUFAConfig.h"
 
 /*
  * We use the LUFA library to send debugging messages

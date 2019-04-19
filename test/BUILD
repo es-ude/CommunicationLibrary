@@ -27,14 +27,9 @@ generate_a_unity_test_for_every_file(
     ],
     file_list = glob(
         ["*_Test.c"],
-        exclude = [
-            "PeripheralInterface_Test.c",
-            "Mutex_Test.c",
-        ],
     ),
     deps = [
         "//:CommunicationModule",
-        "@CException",
         "@CMock",
     ],
 )
@@ -65,11 +60,7 @@ A: Well... if you have you're test depending on a file you'd
 test_suite(
     name = "ALL",
     tests = [
-        ":BitManipulation_Test",
         ":Mac802154Header_Test",
-        ":Mutex_Test",
-        ":PeripheralInterface_Test",
-        ":PeripheralSPIImpl_Test",
         "//test/MRF:MRFState_Test",
         "//test/MRF:Mac802154MRF_Test",
     ],
@@ -79,28 +70,3 @@ cexception_copts = [
     "-DCEXCEPTION_T=uint8_t",
     "-DCEXCEPTION_NONE=0x00",
 ]
-
-unity_test(
-    copts = cexception_copts,
-    file_name = "PeripheralInterface_Test.c",
-    deps = [
-        ":MutexMock",
-    ],
-)
-
-unity_test(
-    copts = cexception_copts,
-    file_name = "Mutex_Test.c",
-    deps = [
-        "//:EmbeddedUtil",
-    ],
-)
-
-mock(
-    name = "MutexMock",
-    srcs = ["//:Util/Mutex.h"],
-    enforce_strict_ordering = True,
-    deps = [
-        "//:PeripheralInterface",
-    ],
-)

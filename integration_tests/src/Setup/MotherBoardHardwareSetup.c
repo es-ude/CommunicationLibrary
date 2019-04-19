@@ -1,4 +1,5 @@
 #include "integration_tests/src/Setup/HardwareSetup.h"
+#include "integration_tests/LUFA-Setup/Helpers.h"
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdlib.h>
@@ -51,4 +52,10 @@ setUpMac(void)
     mac802154 = malloc(Mac802154MRF_getADTSize());
     Mac802154MRF_create(mac802154, &mrf_hardware_config);
   }
+}
+
+void
+setUpDebugging(void)
+{
+  setUpUsbSerial();
 }

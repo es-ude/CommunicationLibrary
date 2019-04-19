@@ -1,4 +1,4 @@
-#include "Debug/Debug.h"
+#include "Util/Debug.h"
 #include "integration_tests/src/Setup/HardwareSetup.h"
 #include "integration_tests/src/Setup/DebugSetup.h"
 #include <util/delay.h>
@@ -19,7 +19,7 @@ main(void)
       .pan_id = {0xCC, 0xDD},
       };
   Mac802154_configure(mac802154, &config);
-  debugLine("Start");
+  debugString("Start");
   while (true)
   {
     _delay_ms(1000);
@@ -29,9 +29,7 @@ main(void)
     debugDec16(packet_size);
     debugNewLine();
     Mac802154_fetchPacketBlocking(mac802154, packet, packet_size);
-    debugSizedString((const char*)Mac802154_getPacketPayload(mac802154,packet),
-            Mac802154_getPacketPayloadSize(mac802154,
-                packet));
+    debugString((const char*)Mac802154_getPacketPayload(mac802154,packet));
     debugNewLine();
     if (*Mac802154_getPacketPayload(mac802154, packet) == 'e')
     {

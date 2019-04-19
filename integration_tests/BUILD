@@ -1,4 +1,4 @@
-load("@AvrToolchain//:helpers.bzl", "default_embedded_binary")
+load("@AvrToolchain//:helpers.bzl", "default_embedded_binaries", "default_embedded_binary")
 
 LUFA_COPTS = [
     "-Iexternal/LUFA/Demos/Device/ClassDriver/VirtualSerial/Config",
@@ -48,15 +48,15 @@ filegroup(
             "src/Setup/MotherBoardHardwareSetup.c",
             ":LufaSetup",
         ],
-        ":ElasticNode": ["src/Setup/ElasticNodeHardwareSetup.c"],
+        ":ElasticNode": ["src/Setup/ElasticNodeHardwareSetup.c", "LUFA-Setup/Helpers.h"],
     }),
 )
 
-STD_DEPS = ["//:CommunicationModule"] + select({
+STD_DEPS = ["//:CommunicationModule", "@EmbeddedUtilities//:Debug"] + select({
     ":Motherboard": [
         "@LUFA//:LUFA_USB",
     ],
-    ":ElasticNode": [],
+    "//conditions:default": [],
 })
 
 config_setting(
@@ -83,53 +83,40 @@ default_embedded_binary(
     ],
     copts = LUFA_COPTS,
     linkopts = LUFA_COPTS,
-    deps = [
-        "//:CommunicationModule",
-        "@LUFA//:LUFA_USB",
-    ],
+    deps = STD_DEPS,
 )
 
 default_embedded_binary(
     name = "WriteStringToVirtualSerial",
     srcs = [
         "src/WriteStringToVirtualSerial.c",
-        ":LufaSetup",
+        ":Setup",
     ],
     copts = LUFA_COPTS,
     linkopts = LUFA_COPTS,
-    deps = [
-        "@LUFA//:LUFA_USB",
-    ],
+    deps = STD_DEPS,
 )
 
 default_embedded_binary(
     name = "ReadMrfTxStabilizationRegister",
     srcs = [
         "src/ReadMrfTxStabilizationRegister.c",
-        ":LufaSetup",
+        ":Setup",
     ],
     copts = LUFA_COPTS,
     linkopts = LUFA_COPTS,
-    deps = [
-        "//:CommunicationModule",
-        "@LUFA//:LUFA_USB",
-    ],
+    deps = STD_DEPS,
 )
 
 default_embedded_binary(
     name = "ReadTxFifoMemory",
     srcs = [
         "src/ReadTxFifoMemory.c",
-        "src/Setup/HardwareSetup.h",
-        "src/Setup/MotherBoardHardwareSetup.c",
-        ":LufaSetup",
+        ":Setup",
     ],
     copts = LUFA_COPTS,
     linkopts = LUFA_COPTS,
-    deps = [
-        "//:CommunicationModule",
-        "@LUFA//:LUFA_USB",
-    ],
+    deps = STD_DEPS,
 )
 
 default_embedded_binary(
@@ -143,19 +130,50 @@ default_embedded_binary(
     name = "SPITestWithLufaOnly",
     srcs = [
         "src/SPITestWithLufaOnly.c",
-        ":LufaSetup",
+        ":Setup",
     ],
     copts = LUFA_COPTS,
     linkopts = LUFA_COPTS,
-    deps = [
-        "@LUFA//:LUFA_USB",
+    deps = STD_DEPS,
+)
+
+#default_embedded_binary(
+#    name = "SendOneFrameBlocking",
+#    srcs = [
+#        "src/SendOneFrameBlocking.c",
+#        ":Setup",
+#    ],
+#    copts = LUFA_COPTS,
+#    linkopts = LUFA_COPTS,
+#    deps = STD_DEPS,
+#)
+#
+#default_embedded_binary(
+#    name = "EchoMessageBlocking",
+#    srcs = [
+#        "src/EchoMessageBlocking.c",
+#        ":Setup",
+#    ],
+#    copts = LUFA_COPTS,
+#    linkopts = LUFA_COPTS,
+#    deps = STD_DEPS,
+#)
+
+default_embedded_binaries(
+    copts = LUFA_COPTS,
+    linkopts = LUFA_COPTS,
+    main_files = [
+        "src/EchoMessageBlocking.c",
+        "src/SendOneFrameBlocking.c",
     ],
+    other_srcs = [":Setup"],
+    deps = STD_DEPS,
 )
 
 default_embedded_binary(
-    name = "SendOneFrameBlocking",
+    name = "PrintTXBuffer",
     srcs = [
-        "src/SendOneFrameBlocking.c",
+        "src/PrintTXBuffer.c",
         ":Setup",
     ],
     copts = LUFA_COPTS,
@@ -164,89 +182,26 @@ default_embedded_binary(
 )
 
 default_embedded_binary(
-    name = "EchoMessageBlocking",
+    name = "PrintReceivedDataToVirtualSerial",
     srcs = [
-        "src/EchoMessageBlocking.c",
-        "src/Setup/DebugSetup.h",
-        "src/Setup/Delay.c",
-        "src/Setup/HardwareSetup.h",
-        "src/Setup/MotherBoardHardwareSetup.c",
+        "src/PrintReceivedDataToVirtualSerial.c",
+        ":Setup",
     ],
-    deps = [
-        "//:CommunicationModule",
-    ],
+        copts = LUFA_COPTS,
+        linkopts = LUFA_COPTS,
+
+    deps = STD_DEPS,
 )
-
-#cc_binary(
-#    name = "ElasticNodeEchoMessageBlocking",
-#    srcs = [
-#        "src/EchoMessageBlocking.c",
-#        "src/Setup/DebugSetup.h",
-#        "src/Setup/Delay.c",
-#        "src/Setup/ElasticNodeHardwareSetup.c",
-#        "src/Setup/MrfHardwareSetup.h",
-#    ],
-#    copts = avr_minimal_copts(),
-#    linkopts = avr_minimal_copts(),
-#    deps = [
-#        "//:CommunicationModule",
-#        "//:Debug",
-#        "@CException",
-#    ],
-#)
-#
-#cc_binary(
-#    name = "PrintTXBuffer",
-#    srcs = [
-#        "src/PrintTXBuffer.c",
-#        "src/Setup/DebugSetup.h",
-#        "src/Setup/Delay.c",
-#        "src/Setup/ElasticNodeHardwareSetup.c",
-#        "src/Setup/MrfHardwareSetup.h",
-#    ],
-#    copts = avr_minimal_copts(),
-#    linkopts = avr_minimal_copts(),
-#    deps = [
-#        "//:CommunicationModule",
-#        "//:Debug",
-#        "@CException",
-#    ],
-#)
-
-#cc_binary(
-#    name = "PrintReceivedDataToVirtualSerial",
-#    srcs = [
-#        "src/PrintReceivedDataToVirtualSerial.c",
-#        "src/Setup/MotherBoardHardwareSetup.c",
-#        "src/Setup/MrfHardwareSetup.h",
-#        ":LufaSetup",
-#    ],
-#    copts = avr_minimal_copts() + LUFA_COPTS + CODE_SIZE_OPTIMIZATION_COPTS,
-#    linkopts = avr_minimal_copts() + LUFA_COPTS + [
-#        "-Xlinker --gc-sections",
-#        "-Os",
-#    ],
-#    deps = [
-#        "//:CommunicationModule",
-#        "@CException",
-#        "@LUFA//:LUFA_USB",
-#    ],
-#)
 
 default_embedded_binary(
     name = "WriteReadSourceAddress",
     srcs = [
-        "src/Setup/HardwareSetup.h",
-        "src/Setup/MotherBoardHardwareSetup.c",
         "src/WriteReadSourceAddress.c",
-        ":LufaSetup",
+        ":Setup",
     ],
     copts = LUFA_COPTS,
     linkopts = LUFA_COPTS,
-    deps = [
-        "//:CommunicationModule",
-        "@LUFA//:LUFA_USB",
-    ],
+    deps = STD_DEPS,
 )
 
 default_embedded_binary(

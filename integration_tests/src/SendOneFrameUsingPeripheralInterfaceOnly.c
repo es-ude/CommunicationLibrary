@@ -4,6 +4,8 @@
 #include "integration_tests/src/Setup/HardwareSetup.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 #include "integration_tests/LUFA-Setup/Helpers.h"
+#include "integration_tests/src/Setup/DebugSetup.h"
+#include "Util/Debug.h"
 
 /*
  * This test sends one frame containing the payload 'aa'
@@ -60,11 +62,11 @@ void printTxMemory(uint8_t length) {
   uint8_t buffer[length];
   PeripheralInterface_readBlocking(peripheral_interface, buffer, length);
   PeripheralInterface_deselectPeripheral(peripheral_interface, &mrf_spi_client);
-  debug("content: ");
+  debug(String, "content: ");
   for (uint8_t i = 0; i < length; i++) {
     debugPrintHex(buffer[i]);
   }
-  debug("\n");
+  debug(String, "\n");
 }
 
 void setShortRegister(uint8_t address, uint8_t value) {
@@ -144,9 +146,9 @@ void printRegister(uint16_t address) {
   }
   PeripheralInterface_readBlocking(peripheral_interface, &value, 1);
   PeripheralInterface_deselectPeripheral(peripheral_interface, &mrf_spi_client);
-  debug("Config-Werte:");
+  debug(String, "Config-Werte:");
   debugPrintHex(value);
-  debug("\n");
+  debug(String, "\n");
 }
 
 void sendToCoordinator(void) {
@@ -184,7 +186,7 @@ void sendToCoordinator(void) {
 }
 int main(void) {
   setUpPeripheral();
-  setUpUsbSerial();
+  setUpDebugging();
   initMrf();
 
   _delay_ms(1000);
@@ -218,5 +220,5 @@ void convertByteToString(uint8_t byte, uint8_t *string) {
 void debugPrintHex(uint8_t byte) {
   uint8_t string[] = "0x00 ";
   convertByteToString(byte, string);
-  debug(string);
+  debug(String, string);
 }

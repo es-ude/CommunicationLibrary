@@ -1,10 +1,12 @@
 #include <stdlib.h>
 #include <util/delay.h>
 #include <string.h>
-#include "Peripheral/PeripheralSPIImpl.h"
+#include "PeripheralInterface/PeripheralSPIImpl.h"
 #include "integration_tests/src/Setup/HardwareSetup.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 #include "integration_tests/LUFA-Setup/Helpers.h"
+#include "Util/Debug.h"
+#include "integration_tests/src/Setup/DebugSetup.h"
 
 
 /*
@@ -26,9 +28,9 @@ void printTxMemory(void) {
   uint8_t buffer[32];
   PeripheralInterface_readBlocking(peripheral_interface, buffer, 15);
   PeripheralInterface_deselectPeripheral(peripheral_interface, &mrf_spi_client);
-  debug("content: ");
-  debug(buffer);
-  debug("\n");
+  debug(String, "content: ");
+  debug(String, buffer);
+  debug(String, "\n");
 }
 
 void writeTxMemory(void) {
@@ -47,16 +49,15 @@ void printTxStabilizationRegister(void) {
   char output[] = "0x00\n";
   uint8_t byte = readByteFromShortAddressRegister(mrf_register_tx_stabilization);
   convertByteToString(byte, output);
-  usbWriteString(output);
+  debug(String, output);
 }
 
 int main(void){
   setUpPeripheral();
-  setUpUsbSerial();
+  setUpDebugging();
   uint8_t byte = 0xAB;
-  periodicUsbTask();
   _delay_ms(2000);
-  usbWriteString("Start\n");
+  debug(String, "Start\n");
 
   writeTxMemory();
   for(;;) {
@@ -64,7 +65,6 @@ int main(void){
 //    writeTxMemory();
     printTxMemory();
 //    printTxStabilizationRegister();
-    periodicUsbTask();
   }
 }
 

@@ -1,13 +1,13 @@
-#include "Peripheral/PeripheralSPIImpl.h"
-#include "Peripheral/PeripheralInterface.h"
+#include "PeripheralInterface/PeripheralSPIImpl.h"
+#include "PeripheralInterface/PeripheralInterface.h"
 #include "integration_tests/src/Setup/HardwareSetup.h"
-#include "Peripheral/Usart.h"
-#include "Debug/Debug.h"
+#include "PeripheralInterface/Usart.h"
+#include "Util/Debug.h"
 #include "integration_tests/src/Setup/DebugSetup.h"
-#include "Debug/Debug.h"
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdlib.h>
+#include <string.h>
 
 PeripheralInterfaceSPIImpl peripheral_interface_struct;
 PeripheralInterface *peripheral_interface = (PeripheralInterface*) &peripheral_interface_struct;
@@ -92,5 +92,13 @@ setUpDebugging(void)
   };
   terminal = PeripheralInterfaceUsartImpl_getDefaultPeripheral();
   PeripheralInterfaceUsartImpl_createNew(debug_interface, &usart_config);
-  initDebug(debug_interface, &terminal);
+}
+
+void
+printString(const char *string)
+{
+  PeripheralInterface_selectPeripheral(debug_interface, &terminal);
+  uint8_t length = strlen(string);
+  PeripheralInterface_writeBlocking(debug_interface, string, length);
+  PeripheralInterface_deselectPeripheral(debug_interface, &terminal);
 }

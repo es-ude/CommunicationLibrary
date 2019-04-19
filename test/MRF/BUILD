@@ -16,9 +16,9 @@ load(
 
 mock(
     name = "PeripheralInterfaceMock",
-    srcs = ["//:Peripheral/PeripheralInterface.h"],
+    srcs = ["@PeripheralInterface//:PeripheralInterface/PeripheralInterface.h"],
     enforce_strict_ordering = True,
-    deps = ["//:PeripheralInterface"],
+    deps = ["@PeripheralInterface"],
 )
 
 mock(
@@ -60,7 +60,6 @@ unity_test(
     deps = [
         ":FrameHeaderMock",
         ":PeripheralInterfaceMock",
-        "//:PeripheralInterface",
         "@CException",
         "@CMock",
     ],

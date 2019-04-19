@@ -1,57 +1,27 @@
 #include <stdlib.h>
 #include <util/delay.h>
 #include "integration_tests/LUFA-Setup/Helpers.h"
-#include "Peripheral/PeripheralSPIImpl.h"
+#include "PeripheralInterface/PeripheralSPIImpl.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
+#include "integration_tests/src/Setup/HardwareSetup.h"
+#include "integration_tests/src/Setup/DebugSetup.h"
+#include "Util/Debug.h"
 
-uint8_t* setup(void);
 uint8_t readByteFromShortAddressRegister(uint8_t register_address);
 void convertByteToString(uint8_t byte, uint8_t *string);
 
-static SPIConfig spi_config = {
-        .data_register = &SPDR,
-        .clock_pin = PORTB1,
-        .miso_pin = PORTB3,
-        .mosi_pin = PORTB2,
-        .slave_select_pin = PORTB0,
-        .io_lines_data_direction_register = &DDRB,
-        .io_lines_data_register = &PORTB,
-        .status_register = &SPSR,
-        .control_register = &SPCR,
-};
-
-static SPISlave spi_chip = {
-        .data_register = &PORTB,
-        .data_direction_register = &DDRB,
-        .slave_select_pin_number = PORTB0,
-        .data_order = SPI_DATA_ORDER_MSB_FIRST,
-        .spi_mode = SPI_MODE_0,
-        .idle_signal = SPI_IDLE_SIGNAL_HIGH,
-        .clock_rate_divider = SPI_CLOCK_RATE_DIVIDER_16,
-};
-
-static PeripheralInterface spi_interface;
-
-//uint8_t transfer(uint8_t byte) {
-//  SPDR = byte;
-//  while (!(SPSR & (1 << SPIF)))
-//    ;
-//  return SPDR;
-//}
-
 int main(void){
-  setup();
+  setUpDebugging();
+  setUpPeripheral();
   char output[] = "0x00\n";
   uint8_t byte = 0xAB;
-  usbWriteString("Start\n");
-  periodicUsbTask();
+  debug(String, "Start\n");
   for(;;) {
     byte = readByteFromShortAddressRegister(mrf_register_tx_stabilization);
 
     convertByteToString(byte, output);
-    usbWriteString(output);
+    debug(String, output);
     _delay_ms(1000);
-    periodicUsbTask();
   }
 }
 
@@ -63,20 +33,13 @@ void deselect(void) {
   PORTB |= _BV(PORTB0);
 }
 
-uint8_t* setup(void) {
-  setUpUsbSerial();
-  _delay_ms(3000);
-  uint8_t *memory = malloc(PeripheralInterfaceSPI_getADTSize());
-  spi_interface = PeripheralInterfaceSPI_createNew(memory, &spi_config);
-}
-
 uint8_t readByteFromShortAddressRegister(uint8_t register_address) {
   uint8_t command = register_address << 1;
   uint8_t buffer = 0;
-  PeripheralInterface_selectPeripheral(spi_interface, &spi_chip);
-  PeripheralInterface_writeBlocking(spi_interface, &command, 1);
-  PeripheralInterface_readBlocking(spi_interface, &buffer, 1);
-  PeripheralInterface_deselectPeripheral(spi_interface, &spi_chip);
+  PeripheralInterface_selectPeripheral(peripheral_interface, &mrf_spi_client);
+  PeripheralInterface_writeBlocking(peripheral_interface, &command, 1);
+  PeripheralInterface_readBlocking(peripheral_interface, &buffer, 1);
+  PeripheralInterface_deselectPeripheral(peripheral_interface, &mrf_spi_client);
   return buffer;
 }
 
@@ -99,5 +62,5 @@ void convertByteToString(uint8_t byte, uint8_t *string) {
 void debugPrintHex(uint8_t byte) {
   uint8_t string[] = "0x00\n";
   convertByteToString(byte, string);
-  debug(string);
+  debug(String, string);
 }

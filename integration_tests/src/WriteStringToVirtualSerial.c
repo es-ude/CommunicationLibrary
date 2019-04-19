@@ -1,8 +1,9 @@
-#include "integration_tests/LUFA-Setup/Helpers.h"
+#include "integration_tests/src/Setup/DebugSetup.h"
+#include "Util/Debug.h"
 #include <util/delay.h>
 
 int main(void) {
-  setUpUsbSerial();
+  setUpDebugging();
 
   int a = 0;
   char hello[] = "Ahello world\n";
@@ -12,13 +13,12 @@ int main(void) {
 
     if (a ==0){
       hello[0]++;
-      usbWriteString(hello);
+      debug(String, hello);
       if (hello[0] == 'Z'){
         hello[0] = 'A'-1;
       }
 
     }
 
-    periodicUsbTask();
   }
 }

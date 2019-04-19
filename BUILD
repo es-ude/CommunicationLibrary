@@ -7,7 +7,6 @@ filegroup(
             "src/**/*.c",
             "src/**/*.h",
         ],
-        exclude = ["src/Util/Mutex.c"],
     ),
 )
 
@@ -28,20 +27,14 @@ filegroup(
         "CommunicationModule/Mac802154.h",
         "CommunicationModule/Mac802154MRFImpl.h",
         "CommunicationModule/FrameHeader802154Struct.h",
-    ] + glob([
-        "Peripheral/*.h",
-        "Debug/*.h",
-    ]),
+    ]
 )
 
 exports_files(
     glob([
-        "Peripheral/**/*.h",
-        "Debug/*.h",
         "CommunicationModule/*.h",
         "src/**/*.h",
         "src/**/*.c",
-        "Util/**/*.h",
     ]),
     visibility = [
         "//test:__pkg__",
@@ -65,51 +58,7 @@ default_embedded_lib(
     ],
 )
 
-filegroup(
-    name = "PeripheralInterfaceHdrs",
-    srcs = glob(["Peripheral/*.h"]),
-)
 
-filegroup(
-    name = "PeripheralInterfaceSrcs",
-    srcs = glob([
-        "src/Peripheral/*.h",
-        "src/Peripheral/*.c",
-    ]),
-)
-
-default_embedded_lib(
-    name = "EmbeddedUtil",
-    srcs = ["src/Util/Mutex.c"],
-    hdrs = [
-        "Util/Atomic.h",
-        "Util/Callback.h",
-        "Util/Mutex.h",
-        "src/Util/BitManipulation.h",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-default_embedded_lib(
-    name = "PeripheralInterface",
-    srcs = [":PeripheralInterfaceSrcs"],
-    hdrs = [":PeripheralInterfaceHdrs"],
-    visibility = ["//visibility:public"],
-    deps = [
-        ":EmbeddedUtil",
-    ],
-)
-
-default_embedded_lib(
-    name = "Debug",
-    srcs = [
-        "src/Debug/Debug.c",
-    ],
-    hdrs = ["Debug/Debug.h"],
-    deps = [
-        "//:PeripheralInterface",
-    ],
-)
 #########################################
 ### Generate zip file for publishing  ###
 #########################################

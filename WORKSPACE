@@ -23,9 +23,9 @@ More info under https://docs.bazel.build/versions/master/be/workspace.html#new_h
 
 git_repository(
     name = "EmbeddedSystemsBuildScripts",
-    commit = "6b1ced2b563225b2d69dcfe40d0235a12d2f6b41",
+    commit = "06c4348ea8cdbfb4e46c5df4e70229c26db5f9fb",
     remote = "ssh://git@bitbucket.es.uni-due.de:7999/fks/bazel-avr-toolchain-linux.git",
-    shallow_since = "1555625231 +0200",
+    shallow_since = "1555627941 +0200",
 )
 
 http_archive(
@@ -59,6 +59,7 @@ load("@EmbeddedSystemsBuildScripts//:avr.bzl", "create_avr_toolchain")
 
 create_avr_toolchain(
     name = "AvrToolchain",
+    avr_size = "/home/lukas/avr-toolchain/install/bin/avr-size"
 )
 
 http_archive(

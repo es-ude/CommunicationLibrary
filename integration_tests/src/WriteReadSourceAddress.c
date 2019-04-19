@@ -5,6 +5,8 @@
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 #include "src/Mac802154/MRF/MRFHelperFunctions.h"
 #include "integration_tests/LUFA-Setup/Helpers.h"
+#include "integration_tests/src/Setup/DebugSetup.h"
+#include "Util/Debug.h"
 #include <stdio.h>
 
 /**
@@ -22,11 +24,11 @@ void doEachIOByteWise(void);
 void doEachIOAsByteString(void);
 
 int main(void) {
-  setUpUsbSerial();
+  setUpDebugging();
   setUpPeripheral();
 
   _delay_ms(1000);
-  debug("Start\n");
+  debug(String, "Start\n");
   doEachIOByteWise();
   doEachIOAsByteString();
   while(true)
@@ -63,8 +65,8 @@ void doEachIOByteWise(void) {
 
   char debug_string[32];
   sprintf(debug_string, "bytewise transfer: 0x%X 0x%X\n", read_short_address[0], read_short_address[1]);
-  debug(debug_string);
-  debug("expected: 0xFF 0xFF\n");
+  debug(String, debug_string);
+  debug(String, "expected: 0xFF 0xFF\n");
 
 }
 
@@ -86,6 +88,6 @@ void doEachIOAsByteString(void) {
 
   char debug_string[32];
   sprintf(debug_string, "byte string transfer: 0x%X 0x%X\n", read_short_address[0], read_short_address[1]);
-  debug(debug_string);
-  debug("expected: 0xAA 0xAA\n");
+  debug(String, debug_string);
+  debug(String, "expected: 0xAA 0xAA\n");
 }

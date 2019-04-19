@@ -1,9 +1,7 @@
 #ifndef COMMUNICATIONMODULE_HELPERS_H
 #define COMMUNICATIONMODULE_HELPERS_H
 
-#include "Descriptors.h"
-#include "LUFAConfig.h"
-#include "LUFA/Drivers/Peripheral/Serial.h"
+
 #include <avr/power.h>
 #include <avr/io.h>
 #include <avr/wdt.h>

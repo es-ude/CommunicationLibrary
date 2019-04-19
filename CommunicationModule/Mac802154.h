@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "Peripheral/PeripheralInterface.h"
+#include "PeripheralInterface/PeripheralInterface.h"
 
 /*!
  * \file Mac802154.h

@@ -2,14 +2,16 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdint.h>
-#include "integration_tests/src/MrfHardwareSetup.h.h"
+#include <stddef.h>
+#include "integration_tests/src/Setup/HardwareSetup.h"
 #include "CommunicationModule/Mac802154MRFImpl.h"
 #include "integration_tests/LUFA-Setup/Helpers.h"
+#include "integration_tests/src/Setup/DebugSetup.h"
+#include "Util/Debug.h"
 
 int main(void)
 {
-  setUpPeripheral();
-  setUpUsbSerial();
+  setUpDebugging();
   Mac802154Config config = {
       .channel = 12,
       .pan_id = {0x33,0x32},
@@ -26,21 +28,20 @@ int main(void)
     .device = &mrf_spi_client,
   };
   _delay_ms(1000);
-  uint8_t raw_memory[Mac802154MRF_getADTSize()];
-  Mac802154MRF_create((Mac802154) raw_memory, &hardware_config);
-  Mac802154 mac = (Mac802154 ) raw_memory;
-  Mac802154_configure(mac, &config);
-  Mac802154_enablePromiscuousMode(mac);
+
+  Mac802154_configure(mac802154, &config);
+  Mac802154_enablePromiscuousMode(mac802154);
   _delay_ms(500);
-  debugSized("Start\n", 6);
+  debug(String, "Start\n");
   while(true)
     {
-      while(!Mac802154_newPacketAvailable(mac))
+      while(!Mac802154_newPacketAvailable(mac802154))
         {}
-      uint8_t size = Mac802154_getReceivedPacketSize(mac);
-      uint8_t packet[size];
-      Mac802154_fetchPacketBlocking(mac, packet, size);
-      debugSized(packet, size);
-      debug("\n");
+      uint8_t size = Mac802154_getReceivedPacketSize(mac802154);
+      uint8_t packet[size+1];
+      packet[size] = '\0';
+      Mac802154_fetchPacketBlocking(mac802154, packet, size);
+      debug(String, packet);
+      debug(String, "\n");
     }
 }

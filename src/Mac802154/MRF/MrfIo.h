@@ -2,7 +2,7 @@
 #define COMMUNICATIONMODULE_MRFIO_H_H
 
 #include <stdint.h>
-#include "Peripheral/PeripheralInterface.h"
+#include "PeripheralInterface/PeripheralInterface.h"
 #include "CommunicationModule/Mac802154MRFImpl.h"
 
 

@@ -1,7 +1,7 @@
 #include "unity.h"
 #include "src/Mac802154/MRF/FrameHeader802154.h"
 #include "CommunicationModule/FrameHeader802154Struct.h"
-#include "src/Util/BitManipulation.h"
+#include "Util/BitManipulation.h"
 
 /**
  * Currently we assume the network byte order for pan ids and addresses to be big endian.

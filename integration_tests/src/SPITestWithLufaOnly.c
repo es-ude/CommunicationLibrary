@@ -1,12 +1,13 @@
 #include <stdint.h>
 #include <util/delay.h>
-#include "integration_tests/LUFA-Setup/Helpers.h"
+#include "integration_tests/src/Setup/DebugSetup.h"
+#include "Util/Debug.h"
+#include <avr/io.h>
 
 void setup(void);
 uint8_t readByteFromShortAddressRegister(uint8_t register_address);
 void writeByteToShortRegisterAddress(uint8_t register_address, uint8_t byte);
 void convertByteToString(uint8_t byte, uint8_t *string);
-void debug(const uint8_t *string);
 void debugPrintHex(uint8_t byte);
 
 void select(void) {
@@ -36,22 +37,20 @@ int main(void){
   setup();
   uint8_t output[] = "0x00 was read, and 0x75 was expected\n";
   uint8_t byte = 0xAB;
-  usbWriteString((uint8_t*)"Start\n");
-  periodicUsbTask();
+  debug(String, (uint8_t*)"Start\n");
   writeByteToShortRegisterAddress(0x2F, 0x55);
   for(;;) {
     byte = readByteFromShortAddressRegister(0x2E);
     convertByteToString(byte, output);
-    usbWriteString(output);
+    debug(String, output);
     _delay_ms(1000);
-    periodicUsbTask();
   }
 }
 
 
 
 void setup(void) {
-  setUpUsbSerial();
+  setUpDebugging();
   _delay_ms(3000);
   DDRB = (_BV(PORTB0) | _BV(PORTB1) | _BV(PORTB2) | _BV(PORTB4));
   PORTB |= _BV(PORTB0) | _BV(PORTB4);
@@ -95,13 +94,8 @@ void convertByteToString(uint8_t byte, uint8_t *string) {
   string[3] = convertNumberToASCII(lower_half);
 }
 
-void debug(const uint8_t *string) {
-  usbWriteString(string);
-  periodicUsbTask();
-}
-
 void debugPrintHex(uint8_t byte) {
   uint8_t string[] = "0x00\n";
   convertByteToString(byte, string);
-  debug(string);
+  debug(String , string);
 }
