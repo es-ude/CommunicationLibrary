@@ -1,6 +1,7 @@
 #include "integration_tests/src/Setup/HardwareSetup.h"
 #include "integration_tests/LUFA-Setup/Helpers.h"
 #include "integration_tests/src/Setup/DebugSetup.h"
+#include <util/delay.h>
 #include <stdio.h>
 
 void
@@ -18,6 +19,7 @@ main(void)
   setUpDebugging();
 
   Mac802154_enablePromiscuousMode(mac802154);
+  _delay_ms(1000);
   while (1)
   {
     debug("waiting...\n");
