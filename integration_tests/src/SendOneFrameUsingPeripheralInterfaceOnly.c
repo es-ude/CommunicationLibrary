@@ -18,7 +18,7 @@
  * +---+-----------------------------+
  * | 1 | Pan Id Compression          |
  * +---+-----------------------------+
- * | 1 | Acknowledgement Request     | // I could notice inconsistencies without acks
+ * | 0 | Acknowledgement Request     |
  * +---+-----------------------------+
  * | 0 | Frame Pending               |
  * +---+-----------------------------+
@@ -53,7 +53,7 @@ static uint8_t frame[] = {
         // frame header length, frame length
         0x0F, 0x11,
         // frame header control section
-        0b01100001, 0b10101100,
+        0b01000001, 0b10101100,
         // sequence number
         0x00,
         // 16 bit source address

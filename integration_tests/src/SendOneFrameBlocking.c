@@ -23,11 +23,11 @@ int main(void) {
   _delay_ms(1000);
   Mac802154_configure(mac802154, &config);
   char payload[32];
-  Mac802154_setExtendedDestinationAddress(mac802154, (uint8_t []){
-    0x00, 0x13,
-    0xA2, 0x00,
-    0x41, 0x75,
-    0xA8, 0x9D
+  Mac802154_setExtendedDestinationAddress(mac802154, (uint8_t[]) {
+          0x9D, 0xA8,
+          0x75, 0x41,
+          0x00, 0xA2,
+          0x13, 0x00,
   });
   uint16_t number = 0;
   while(true) {

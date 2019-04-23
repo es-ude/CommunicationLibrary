@@ -17,6 +17,18 @@ main(void)
 {
   setUpMac();
   setUpDebugging();
+  Mac802154Config config = {
+          .channel = 12,
+          .pan_id = {0xcc, 0xdd},
+          .short_source_address = {0xAA, 0xAA},
+          .extended_source_address = {
+                  0x11, 0x22,
+                  0x33, 0x44,
+                  0x55, 0x66,
+                  0x77, 0x88,
+          },
+  };
+  Mac802154_configure(mac802154, &config);
 
   Mac802154_enablePromiscuousMode(mac802154);
   _delay_ms(1000);
@@ -32,7 +44,7 @@ main(void)
     printAddress(Mac802154_getPacketSourceAddressSize,
                  Mac802154_getPacketShortSourceAddress,
                  packet);
-    debug("\tpayload: \n\t\t");
+    debug("\n\tpayload: \n\t\t");
     uint8_t payload_size = Mac802154_getPacketPayloadSize(mac802154, packet);
     const uint8_t *payload = Mac802154_getPacketPayload(mac802154, packet);
     debugSized((char *)payload, payload_size);
@@ -58,7 +70,6 @@ printAddress(uint8_t (*getAddressSize)(Mac802154*, const uint8_t*),
   debug(size_string);
   debug("\n\tsource address: \n\t\t");
   printBytesAsHex(address, address_size);
-  debug("\n\tdestination address: \n\t\t");
 }
 
 void
