@@ -59,7 +59,6 @@ load("@EmbeddedSystemsBuildScripts//:avr.bzl", "create_avr_toolchain")
 
 create_avr_toolchain(
     name = "AvrToolchain",
-    avr_size = "/home/lukas/avr-toolchain/install/bin/avr-size",
 )
 
 http_archive(

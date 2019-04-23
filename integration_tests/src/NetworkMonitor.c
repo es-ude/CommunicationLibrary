@@ -1,5 +1,6 @@
 #include "integration_tests/src/Setup/HardwareSetup.h"
 #include "integration_tests/LUFA-Setup/Helpers.h"
+#include "integration_tests/src/Setup/DebugSetup.h"
 #include <stdio.h>
 
 void
@@ -14,11 +15,12 @@ int
 main(void)
 {
   setUpMac();
-  setUpUsbSerial();
+  setUpDebugging();
 
   Mac802154_enablePromiscuousMode(mac802154);
   while (1)
   {
+    debug("waiting...\n");
     while (!Mac802154_newPacketAvailable(mac802154))
     {}
     uint8_t packet_size = Mac802154_getReceivedPacketSize(mac802154);
@@ -71,19 +73,4 @@ printBytesAsHex(const uint8_t *bytes, uint8_t count)
     }
   }
 
-}
-
-/* Stubs for compatibility with CommunicationModule */
-
-void
-printString(const char* message)
-{
-  (void) message;
-}
-
-void
-printUInt16(uint16_t integer)
-
-{
-  (void) integer;
 }
