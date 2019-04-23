@@ -104,6 +104,7 @@ default_embedded_binaries(
         "src/PrintReceivedDataToVirtualSerial.c",
         "src/WriteReadSourceAddress.c",
         "src/SPITestWithLufaOnly.c",
+        "src/NetworkMonitor.c",
     ],
     other_srcs = [":Setup"],
     deps = STD_DEPS,
