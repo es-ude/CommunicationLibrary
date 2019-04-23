@@ -6,6 +6,7 @@
 #include "integration_tests/LUFA-Setup/Helpers.h"
 #include "integration_tests/src/Setup/DebugSetup.h"
 #include "Util/Debug.h"
+#include "PeripheralInterface/PeripheralInterface.h"
 
 /*
  * This test sends one frame containing the payload 'aa'
@@ -48,7 +49,25 @@
  * The Pan Id, Destination and Source Addresses are
  * represented in little endian.
  * */
-
+static uint8_t frame[] = {
+        // frame header length, frame length
+        0x0F, 0x11,
+        // frame header control section
+        0b01100001, 0b10101100,
+        // sequence number
+        0x00,
+        // 16 bit source address
+        0x34, 0x12,
+        // 64 bit destination address
+        0x9D, 0xA8,
+        0x75, 0x41,
+        0x00, 0xA2,
+        0x13, 0x00,
+        // destination pan id
+        0xAA, 0xAA,
+        // payload; just the string 'aa'
+        0x61, 0x61,
+};
 
 void debugPrintHex(uint8_t byte);
 
@@ -152,25 +171,7 @@ void printRegister(uint16_t address) {
 }
 
 void sendToCoordinator(void) {
-  uint8_t frame[] = {
-          // frame header length, frame length
-          0x0F, 0x11,
-          // frame header control section
-          0b01000001, 0b10101110,
-          // sequence number
-          0x00,
-          // 16 bit source address
-          0x34, 0x12,
-          // 64 bit destination address
-          0x9D, 0xA8,
-          0x75, 0x41,
-          0x00, 0xA2,
-          0x13, 0x00,
-          // destination pan id
-          0xAA, 0xAA,
-          // payload; just the string 'aa'
-          0x61, 0x61,
-  };
+
   uint8_t write_command[] = {0x80, 0x10};
   PeripheralInterface_selectPeripheral(peripheral_interface, &mrf_spi_client);
   PeripheralInterface_writeBlocking(peripheral_interface, write_command, 2);

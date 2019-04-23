@@ -37,7 +37,6 @@ generate_a_mock_for_every_file(
     ],
     deps = [
         "//:CommunicationModule",
-        "//:PeripheralInterface",
     ],
 )
 
@@ -76,7 +75,6 @@ unity_test(
     deps = [
         ":PeripheralInterfaceMock",
         "//:CommunicationModule",
-        "//:PeripheralInterface",
         "@CException",
         "@CMock",
     ],

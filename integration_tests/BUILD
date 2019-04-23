@@ -1,4 +1,5 @@
 load("@AvrToolchain//:helpers.bzl", "default_embedded_binaries", "default_embedded_binary")
+load("//:upload.bzl", "upload")
 
 LUFA_COPTS = [
     "-Iexternal/LUFA/Demos/Device/ClassDriver/VirtualSerial/Config",
@@ -48,11 +49,18 @@ filegroup(
             "src/Setup/MotherBoardHardwareSetup.c",
             ":LufaSetup",
         ],
-        ":ElasticNode": ["src/Setup/ElasticNodeHardwareSetup.c", "LUFA-Setup/Helpers.h"],
+        ":ElasticNode": [
+            "src/Setup/ElasticNodeHardwareSetup.c",
+            "LUFA-Setup/Helpers.h",
+        ],
+        "//conditions:default": [],
     }),
 )
 
-STD_DEPS = ["//:CommunicationModule", "@EmbeddedUtilities//:Debug"] + select({
+STD_DEPS = [
+    "//:CommunicationModule",
+    "@EmbeddedUtilities//:Debug",
+] + select({
     ":Motherboard": [
         "@LUFA//:LUFA_USB",
     ],
@@ -104,4 +112,9 @@ default_embedded_binaries(
 default_embedded_binary(
     name = "BlinkLED",
     srcs = ["src/blink_led.c"],
+)
+
+upload(
+    name = "uploadTest",
+    srcs = ["SendOneFrameUsingPeripheralInterfaceOnly"],
 )
