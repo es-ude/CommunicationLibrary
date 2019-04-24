@@ -23,7 +23,7 @@ More info under https://docs.bazel.build/versions/master/be/workspace.html#new_h
 
 git_repository(
     name = "EmbeddedSystemsBuildScripts",
-    commit = "0b07a536c9cf03953d78cf91c62b0bad47f781c7",
+    commit = "c8b3f402e45e08c361d078cb05b389933dc127a3",
     remote = "ssh://git@bitbucket.es.uni-due.de:7999/fks/bazel-avr-toolchain-linux.git",
 )
 
