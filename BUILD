@@ -24,10 +24,10 @@ filegroup(
     name = "CommunicationModuleIncl",
     srcs = [
         "CommunicationModule/CommunicationModule.h",
+        "CommunicationModule/FrameHeader802154Struct.h",
         "CommunicationModule/Mac802154.h",
         "CommunicationModule/Mac802154MRFImpl.h",
-        "CommunicationModule/FrameHeader802154Struct.h",
-    ]
+    ],
 )
 
 exports_files(
@@ -57,7 +57,6 @@ default_embedded_lib(
         "@PeripheralInterface",
     ],
 )
-
 
 #########################################
 ### Generate zip file for publishing  ###

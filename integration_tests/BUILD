@@ -1,5 +1,4 @@
-load("@AvrToolchain//:helpers.bzl", "default_embedded_binaries", "default_embedded_binary")
-load("//:upload.bzl", "upload")
+load("@AvrToolchain//:helpers.bzl", "default_embedded_binaries", "default_embedded_binary", "default_embedded_lib")
 
 LUFA_COPTS = [
     "-Iexternal/LUFA/Demos/Device/ClassDriver/VirtualSerial/Config",
@@ -110,12 +109,18 @@ default_embedded_binaries(
     deps = STD_DEPS,
 )
 
+default_embedded_lib(
+    name = "MrfHardwareSetup",
+    srcs = [":Setup"],
+    hdrs = [
+        "src/Setup/DebugSetup.h",
+        "src/Setup/HardwareSetup.h",
+    ],
+    visibility = ["//visibility:public"],
+    deps = STD_DEPS,
+)
+
 default_embedded_binary(
     name = "BlinkLED",
     srcs = ["src/blink_led.c"],
-)
-
-upload(
-    name = "uploadTest",
-    srcs = ["SendOneFrameUsingPeripheralInterfaceOnly"],
 )
