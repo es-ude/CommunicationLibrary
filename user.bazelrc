@@ -1,0 +1,20 @@
+# executing the command:
+# bazel build lib:CommunicationModule --config=atmega328p
+# would lead to appending all of the options below on command line
+
+build --crosstool_top=@AvrToolchain//:avr-gcc
+build --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
+build --cpu=avr
+build:motherboard --platforms @AvrToolchain//platforms:Motherboard
+
+build:avr --platforms=@AvrToolchain//platforms:AVR
+
+build:elastic --platforms @AvrToolchain//platforms:ElasticNode
+
+build:native --cpu=k8
+build:native --crosstool_top=@bazel_tools//tools/cpp:toolchain
+build:native --platforms @bazel_tools//platforms:host_platform
+
+build:elastic --define PROGPORT=/dev/ttyS5
+build:elastic --define ENPORT=/dev/ttyS8
+build:elastic --define BAUD=115200

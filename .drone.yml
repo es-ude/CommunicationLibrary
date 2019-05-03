@@ -50,8 +50,8 @@ pipeline:
       - artifactory
       - artifactory_password
     when:
-      event: [push, pull_request, tag]
-      branch: develop
+      event: [tag]
+      # branch: develop
     privileged: true
     volumes:
       - /build/:/build/
@@ -72,8 +72,8 @@ pipeline:
       - docker_username
       - docker_password
     when:
-      event: [push, pull_request, tag]
-      branch: [develop]
+      event: [tag]
+      # branch: [develop]
     volumes:
       #- /:/doxy
       - /html:/html
