@@ -75,7 +75,6 @@ pipeline:
       event: [tag]
       # branch: [develop]
     volumes:
-      #- /:/doxy
       - /html:/html
       - /latex:/latex
 
