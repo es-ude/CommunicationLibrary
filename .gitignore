@@ -59,6 +59,7 @@ dkms.conf
 
 # private helper tools and bazel folders
 bazel-*
+user.bazel
 Session.vim
 .clwb
 .undodir

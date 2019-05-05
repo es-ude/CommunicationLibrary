@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "integration_tests/src/Setup/HardwareSetup.h"
 #include "integration_tests/LUFA-Setup/Helpers.h"
 #include <avr/io.h>

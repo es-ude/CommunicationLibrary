@@ -1,5 +1,3 @@
-load("@AvrToolchain//:helpers.bzl", "default_embedded_lib")
-
 filegroup(
     name = "CommunicationModuleSrcLocal",
     srcs = glob(
@@ -43,12 +41,9 @@ exports_files(
     ],
 )
 
-default_embedded_lib(
+cc_library(
     name = "CommunicationModule",
-    srcs = select({
-        "@AvrToolchain//:avr-config": [":CommunicationModuleSrc"],
-        "//conditions:default": [":CommunicationModuleSrcLocal"],
-    }),
+    srcs = [":CommunicationModuleSrc"],
     hdrs = [":CommunicationModuleIncl"],
     visibility = ["//visibility:public"],
     deps = [

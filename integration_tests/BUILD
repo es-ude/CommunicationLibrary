@@ -1,4 +1,8 @@
-load("@AvrToolchain//:helpers.bzl", "default_embedded_binaries", "default_embedded_binary", "default_embedded_lib")
+load("@AvrToolchain//:helpers.bzl",
+ "default_embedded_binaries",
+  "default_embedded_binary",
+  "mcu_avr_gcc_flag",
+  "cpu_frequency_flag")
 
 LUFA_COPTS = [
     "-Iexternal/LUFA/Demos/Device/ClassDriver/VirtualSerial/Config",
@@ -44,11 +48,11 @@ filegroup(
         "src/Setup/HardwareSetup.h",
         "src/Setup/Atomic.c",
     ] + select({
-        ":Motherboard": [
+        "@AvrToolchain//config:Motherboard": [
             "src/Setup/MotherBoardHardwareSetup.c",
             ":LufaSetup",
         ],
-        ":ElasticNode": [
+        "@AvrToolchain//config:ElasticNode": [
             "src/Setup/ElasticNodeHardwareSetup.c",
             "LUFA-Setup/Helpers.h",
         ],
@@ -60,38 +64,25 @@ STD_DEPS = [
     "//:CommunicationModule",
     "@EmbeddedUtilities//:Debug",
 ] + select({
-    ":Motherboard": [
+    "@AvrToolchain//config:Motherboard": [
         "@LUFA//:LUFA_USB",
     ],
     "//conditions:default": [],
 })
 
-config_setting(
-    name = "Motherboard",
-    values = {
-        "cpu": "avr",
-        "define": "MCU=atmega32u4",
-    },
-)
-
-config_setting(
-    name = "ElasticNode",
-    values = {
-        "cpu": "avr",
-        "define": "MCU=atmega64",
-    },
-)
 
 default_embedded_binary(
     name = "SPITestWithoutCommunicationModuleAndLufa",
+        copts = mcu_avr_gcc_flag() + cpu_frequency_flag(),
+        linkopts = mcu_avr_gcc_flag(),
     srcs = [
         "src/SPITestWithoutCommunicationModuleAndLufa.c",
     ],
 )
 
 default_embedded_binaries(
-    copts = LUFA_COPTS,
-    linkopts = LUFA_COPTS,
+    copts = LUFA_COPTS + mcu_avr_gcc_flag() + cpu_frequency_flag(),
+    linkopts = LUFA_COPTS + mcu_avr_gcc_flag(),
     main_files = [
         "src/ReadMrfTxStabilizationRegister.c",
         "src/WriteStringToVirtualSerial.c",
@@ -109,8 +100,9 @@ default_embedded_binaries(
     deps = STD_DEPS,
 )
 
-default_embedded_lib(
+cc_library(
     name = "MrfHardwareSetup",
+    copts =LUFA_COPTS + mcu_avr_gcc_flag() + cpu_frequency_flag(),
     srcs = [":Setup"],
     hdrs = [
         "src/Setup/DebugSetup.h",
@@ -118,9 +110,4 @@ default_embedded_lib(
     ],
     visibility = ["//visibility:public"],
     deps = STD_DEPS,
-)
-
-default_embedded_binary(
-    name = "BlinkLED",
-    srcs = ["src/blink_led.c"],
 )

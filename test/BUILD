@@ -6,7 +6,7 @@ from the file unity_helpers.bzl in the package test available here.
 """
 
 load(
-    "@UnityPlugin//Unity_rules:unity.bzl",
+    "@EmbeddedSystemsBuildScripts//:unity.bzl",
     "generate_a_unity_test_for_every_file",
     "mock",
     "unity_test",
@@ -20,11 +20,6 @@ for every file specified and  a cc_test (the bazel test entity for c/c++).
 """
 
 generate_a_unity_test_for_every_file(
-    copts = [
-        "-DCEXCEPTION_NONE=0x00",
-        "-DCEXCEPTION_T=uint8_t",
-        "-std=c99",
-    ],
     file_list = glob(
         ["*_Test.c"],
     ),
@@ -65,8 +60,3 @@ test_suite(
         "//test/MRF:Mac802154MRF_Test",
     ],
 )
-
-cexception_copts = [
-    "-DCEXCEPTION_T=uint8_t",
-    "-DCEXCEPTION_NONE=0x00",
-]

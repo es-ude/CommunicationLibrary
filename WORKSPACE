@@ -21,17 +21,14 @@ We use the prefix new because unity isn't a bazel project, so we need to provide
 More info under https://docs.bazel.build/versions/master/be/workspace.html#new_http_archive
 """
 
-# git_repository(
-#     name = "EmbeddedSystemsBuildScripts",
-#     commit = "c8b3f402e45e08c361d078cb05b389933dc127a3",
-#     remote = "ssh://git@bitbucket.es.uni-due.de:7999/fks/bazel-avr-toolchain-linux.git",
-# )
-
-http_archive(
+git_repository(
     name = "EmbeddedSystemsBuildScripts",
-    type = "zip",
-    urls = ["http://artifactory.es.uni-due.de:8081/artifactory/libs-release-local/im/EmbeddedSystemsBuildScripts.zip"],
+    commit = "69f06616dbf1b7042ac8d5b56b25bf436a9b3ab7",
+    remote = "ssh://git@bitbucket.es.uni-due.de:7999/fks/bazel-avr-toolchain-linux.git",
 )
+
+load("@EmbeddedSystemsBuildScripts//:avr.bzl", "avr_toolchain")
+avr_toolchain()
 
 http_archive(
     name = "Unity",
@@ -48,41 +45,27 @@ http_archive(
 )
 
 http_archive(
-    name = "UnityPlugin",
-    strip_prefix = "BazelUnityPlugin-develop",
-    urls = ["https://github.com/glencoe/BazelUnityPlugin/archive/develop.tar.gz"],
-)
-
-http_archive(
     name = "CMock",
     build_file = "@EmbeddedSystemsBuildScripts//:BUILD.CMock",
     strip_prefix = "CMock-master",
     urls = ["https://github.com/ThrowTheSwitch/CMock/archive/master.tar.gz"],
 )
 
-load("@EmbeddedSystemsBuildScripts//:avr.bzl", "create_avr_toolchain")
-
-create_avr_toolchain(
-    name = "AvrToolchain",
-)
-
 http_archive(
     name = "LUFA",
-    build_file = "@EmbeddedSystemsBuildScripts//:BUILD.LUFA",
+    build_file = "@AvrToolchain//:BUILD.LUFA",
     strip_prefix = "lufa-LUFA-170418",
     urls = ["http://fourwalledcubicle.com/files/LUFA/LUFA-170418.zip"],
 )
 
 git_repository(
     name = "EmbeddedUtilities",
-    commit = "dba93023d12c4db6f9698a3a553340c4b8a5a256",
+    commit = "69f06616dbf1b7042ac8d5b56b25bf436a9b3ab7",
     remote = "ssh://git@bitbucket.es.uni-due.de:7999/im/embedded-utilities.git",
-    shallow_since = "1555577581 +0200",
 )
 
 git_repository(
     name = "PeripheralInterface",
-    commit = "721a0a9cca6223c1cf7e622d2793507f2598105e",
+    commit = "85c507ab66d556b5b447a6f453bcaac4e7ead64b",
     remote = "ssh://git@bitbucket.es.uni-due.de:7999/im/peripheralinterface.git",
-    shallow_since = "1555590628 +0200",
 )

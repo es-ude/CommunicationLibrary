@@ -5,9 +5,8 @@ The load function is used to make the function generate_a_unity_test_for_every_f
 from the file unity_helpers.bzl in the package test available here.
 """
 
-#load("//:unity_helpers.bzl", "generate_a_unity_test_for_every_file")
 load(
-    "@UnityPlugin//Unity_rules:unity.bzl",
+    "@EmbeddedSystemsBuildScripts//:unity.bzl",
     "generate_a_mock_for_every_file",
     "generate_a_unity_test_for_every_file",
     "mock",
@@ -50,13 +49,11 @@ unity_test(
         "-std=gnu99",
     ],
     file_name = "Mac802154MRF_Test.c",
-    mocks = [
-        "//:src/Mac802154/MRF/MRFHelperFunctions.h",
-        "//:src/Mac802154/MRF/MRFState.h",
-        "//:src/Mac802154/MRF/MrfIo.h",
-        "//test/MRF:Mac802154MRF_TestHelper.h",
-    ],
     deps = [
+        ":MockMRFHelperFunctions",
+        ":MockMRFState",
+        ":MockMrfIo",
+        ":MockMac802154MRF_TestHelper",
         ":FrameHeaderMock",
         ":PeripheralInterfaceMock",
         "@CException",
@@ -69,10 +66,9 @@ unity_test(
         "-std=gnu99",
     ],
     file_name = "MrfIo_Test.c",
-    mocks = [
-        "//test/MRF:Mac802154MRF_TestHelper.h",
-    ],
     deps = [
+                ":MockMac802154MRF_TestHelper",
+
         ":PeripheralInterfaceMock",
         "//:CommunicationModule",
         "@CException",

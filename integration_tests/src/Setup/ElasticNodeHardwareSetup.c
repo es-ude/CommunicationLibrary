@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "PeripheralInterface/PeripheralSPIImpl.h"
 #include "PeripheralInterface/PeripheralInterface.h"
 #include "integration_tests/src/Setup/HardwareSetup.h"
