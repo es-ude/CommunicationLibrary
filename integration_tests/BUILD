@@ -1,8 +1,10 @@
-load("@AvrToolchain//:helpers.bzl",
- "default_embedded_binaries",
-  "default_embedded_binary",
-  "mcu_avr_gcc_flag",
-  "cpu_frequency_flag")
+load(
+    "@AvrToolchain//:helpers.bzl",
+    "cpu_frequency_flag",
+    "default_embedded_binaries",
+    "default_embedded_binary",
+    "mcu_avr_gcc_flag",
+)
 
 LUFA_COPTS = [
     "-Iexternal/LUFA/Demos/Device/ClassDriver/VirtualSerial/Config",
@@ -41,43 +43,34 @@ filegroup(
 )
 
 filegroup(
-    name = "Setup",
+    name = "SetupHdrs",
     srcs = [
-        "src/Setup/DebugSetup.h",
-        "src/Setup/Delay.c",
         "src/Setup/HardwareSetup.h",
-        "src/Setup/Atomic.c",
-    ] + select({
-        "@AvrToolchain//config:Motherboard": [
-            "src/Setup/MotherBoardHardwareSetup.c",
-            ":LufaSetup",
-        ],
-        "@AvrToolchain//config:ElasticNode": [
-            "src/Setup/ElasticNodeHardwareSetup.c",
-            "LUFA-Setup/Helpers.h",
-        ],
-        "//conditions:default": [],
-    }),
+        "src/Setup/DebugSetup.h"
+    ],
+    visibility = ["//visibility:public"]
 )
 
 STD_DEPS = [
-    "//:CommunicationModule",
     "@EmbeddedUtilities//:Debug",
 ] + select({
     "@AvrToolchain//config:Motherboard": [
+        ":MotherboardSetup",
         "@LUFA//:LUFA_USB",
+    ],
+    "@AvrToolchain//config:ElasticNode": [
+        ":ElasticNodeSetup"
     ],
     "//conditions:default": [],
 })
 
-
 default_embedded_binary(
     name = "SPITestWithoutCommunicationModuleAndLufa",
-        copts = mcu_avr_gcc_flag() + cpu_frequency_flag(),
-        linkopts = mcu_avr_gcc_flag(),
     srcs = [
         "src/SPITestWithoutCommunicationModuleAndLufa.c",
     ],
+    copts = mcu_avr_gcc_flag() + cpu_frequency_flag(),
+    linkopts = mcu_avr_gcc_flag(),
 )
 
 default_embedded_binaries(
@@ -96,18 +89,49 @@ default_embedded_binaries(
         "src/SPITestWithLufaOnly.c",
         "src/NetworkMonitor.c",
     ],
-    other_srcs = [":Setup"],
-    deps = STD_DEPS,
+    deps = select({
+    "@AvrToolchain//config:Motherboard": [":MotherboardSetup"],
+    "@AvrToolchain//config:ElasticNode": [":ElasticNodeSetup"],
+    })
 )
 
 cc_library(
-    name = "MrfHardwareSetup",
-    copts =LUFA_COPTS + mcu_avr_gcc_flag() + cpu_frequency_flag(),
-    srcs = [":Setup"],
+    name = "MotherboardSetup",
+    srcs = [
+        "src/Setup/Atomic.c",
+        "src/Setup/Delay.c",
+        "src/Setup/MotherBoardHardwareSetup.c",
+        ":LufaSetup",
+    ],
+    alwayslink = True,
     hdrs = [
         "src/Setup/DebugSetup.h",
         "src/Setup/HardwareSetup.h",
     ],
+    copts = LUFA_COPTS + mcu_avr_gcc_flag() + cpu_frequency_flag(),
     visibility = ["//visibility:public"],
-    deps = STD_DEPS,
+    deps = [
+        "//:CommunicationModule",
+        "@LUFA//:LUFA_USB",
+    ],
+)
+
+cc_library(
+    name = "ElasticNodeSetup",
+    srcs = [
+        "src/Setup/Atomic.c",
+        "src/Setup/Delay.c",
+        "src/Setup/ElasticNodeHardwareSetup.c",
+    ],
+    alwayslink = True,
+    hdrs = [
+        "src/Setup/DebugSetup.h",
+        "src/Setup/HardwareSetup.h",
+    ],
+    copts = LUFA_COPTS + mcu_avr_gcc_flag() + cpu_frequency_flag(),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//:CommunicationModule",
+        "@EmbeddedUtilities//:Debug",
+    ],
 )
