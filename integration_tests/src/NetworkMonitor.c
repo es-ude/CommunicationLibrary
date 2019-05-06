@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include "integration_tests/src/Setup/HardwareSetup.h"
-#include "integration_tests/LUFA-Setup/Helpers.h"
 #include "integration_tests/src/Setup/DebugSetup.h"
+#include "Util/Debug.h"
 #include <util/delay.h>
 #include <stdio.h>
 
@@ -16,8 +16,10 @@ printBytesAsHex(const uint8_t *bytes, uint8_t count);
 int
 main(void)
 {
-  setUpMac();
   setUpDebugging();
+
+  setUpMac();
+
   Mac802154Config config = {
           .channel = 12,
           .pan_id = {0xcc, 0xdd},
@@ -32,29 +34,34 @@ main(void)
   Mac802154_configure(mac802154, &config);
 
   Mac802154_enablePromiscuousMode(mac802154);
-  _delay_ms(1000);
+  _delay_ms(2000);
+  printString("Startup\n");
+  uint16_t counter = 0;
   while (1)
   {
-    debug("waiting...\n");
+    printString("waiting...\n");
+
     while (!Mac802154_newPacketAvailable(mac802154))
-    {}
+    {
+    }
     uint8_t packet_size = Mac802154_getReceivedPacketSize(mac802154);
     uint8_t packet[packet_size];
     Mac802154_fetchPacketBlocking(mac802154, packet, packet_size);
-    debug("New Message:");
+    debug(String, "New Message:\n\tnumber:");
+    debug(Uint16, counter);
+    counter++;
     printAddress(Mac802154_getPacketSourceAddressSize,
                  Mac802154_getPacketShortSourceAddress,
                  packet);
-    debug("\n\tpayload: \n\t\t");
+    debug(String, "\n\tpayload: \n\t\t");
     uint8_t payload_size = Mac802154_getPacketPayloadSize(mac802154, packet);
     const uint8_t *payload = Mac802154_getPacketPayload(mac802154, packet);
-    debugSized((char *)payload, payload_size);
-    debug("\n\tpayload in hex: \n\t\t");
+    debug(String, (char *)payload);
+    debug(String, "\n\tpayload in hex: \n\t\t");
     printBytesAsHex(payload, payload_size);
-    debug("\n\twhole packet in hex: \n\t\t");
+    debug(String, "\n\twhole packet in hex: \n\t\t");
     printBytesAsHex(packet, packet_size);
-    debug("\n\n");
-    periodicUsbTask();
+    debug(String,"\n\n");
   }
 }
 
@@ -65,11 +72,11 @@ printAddress(uint8_t (*getAddressSize)(Mac802154*, const uint8_t*),
 {
   uint8_t         address_size = getAddressSize(mac802154, packet);
   const uint8_t * address      = getAddress(mac802154, packet);
-  debug("\n\tsource address size in byte:\n\t\t");
+  debug(String, "\n\tsource address size in byte:\n\t\t");
   char size_string[16];
   sprintf(size_string, "%i", address_size);
-  debug(size_string);
-  debug("\n\tsource address: \n\t\t");
+  debug(String, size_string);
+  debug(String, "\n\tsource address: \n\t\t");
   printBytesAsHex(address, address_size);
 }
 
@@ -80,10 +87,10 @@ printBytesAsHex(const uint8_t *bytes, uint8_t count)
   {
     char hex[6];
     sprintf(hex, "0x%02x ", bytes[i]);
-    debug(hex);
+    debug(String, hex);
     if ((i+1)%8==0 && i < count-1)
     {
-      debug("\n\t\t");
+      debug(String, "\n\t\t");
     }
   }
 

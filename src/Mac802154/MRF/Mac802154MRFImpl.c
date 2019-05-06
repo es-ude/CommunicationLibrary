@@ -1,5 +1,6 @@
 #include "src/Mac802154/MRF/Mac802154MRFImplIntern.h"
 #include "Util/BitManipulation.h"
+#include "Util/Debug.h"
 #include <stdio.h>
 
 size_t
@@ -61,7 +62,9 @@ reconfigure(Mac802154 *self,
 {
   Mrf *impl = (Mrf *) self;
   impl->config = *config;
+  debug(String, "resetting mrf...\n");
   reset(impl);
+  debug(String, "initializing mrf...\n");
   setInitializationValuesFromDatasheet(&impl->io);
   enableRXInterrupt(impl);
   setChannel(impl, config->channel);

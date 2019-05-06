@@ -64,7 +64,9 @@ git_repository(
 )
 
 git_repository(
+#local_repository(
     name = "PeripheralInterface",
-    commit = "bbd72735ed33009cf6acdb1eb9fd0a49c77d1981",
+#    path = "../peripheralinterface",
+    commit = "5c8c9b8c5d827e44da09b35647878c9cc63f184f",
     remote = "https://bitbucket.es.uni-due.de/scm/im/peripheralinterface.git",
 )

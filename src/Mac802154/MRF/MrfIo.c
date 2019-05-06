@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include "src/Mac802154/MRF/MrfIo.h"
 #include "src/Mac802154/MRF/MRFHelperFunctions.h"
+#include "Util/Debug.h"
 
 static void setWriteLongCommand(MrfIo *mrf, uint16_t address);
 static void writeBlockingWithCommand(MrfIo *mrf, const uint8_t *payload, uint8_t size);
@@ -13,7 +14,6 @@ static void clearPeripheralWriteCallback(PeripheralInterface *interface);
 static void clearMrfIoWriteCallback(MrfIo *mrf);
 static void callbackForDeselect(void *mrf);
 static void callbackForWritingData(void *mrf);
-extern void debug(const uint8_t *text);
 
 static bool isLongAddress(uint16_t address);
 
@@ -124,11 +124,16 @@ void MrfIo_writeNonBlockingToLongAddress(MrfIo *mrf, MrfIo_NonBlockingWriteConte
 }
 
 
-void writeBlockingWithCommand(MrfIo *mrf, const uint8_t *payload, uint8_t size) {
+void writeBlockingWithCommand(MrfIo *mrf, const uint8_t *payload, uint8_t size){
+  debug(String, "selecting peripheral...\n");
   PeripheralInterface_selectPeripheral(mrf->interface, mrf->device);
+  debug(String, "done.\n writeBlocking...\n");
   PeripheralInterface_writeBlocking(mrf->interface, mrf->command, mrf->command_size);
+  debug(String, "done.\n writeBlocking...\n");
   PeripheralInterface_writeBlocking(mrf->interface, payload, size);
+  debug(String, "done.\n deselecting peripheral...\n");
   PeripheralInterface_deselectPeripheral(mrf->interface, mrf->device);
+  debug(String, "done.\n");
 }
 
 void readBlockingWithCommand(MrfIo *mrf, uint8_t *payload, uint8_t size) {
@@ -140,11 +145,14 @@ void readBlockingWithCommand(MrfIo *mrf, uint8_t *payload, uint8_t size) {
 
 void MrfIo_setControlRegister(MrfIo *mrf, uint16_t address, uint8_t value) {
   if (isLongAddress(address)) {
+    debug(String, "write command long address...");
     setWriteLongCommand(mrf, address);
   }
   else {
+    debug(String, "write command short address...");
     setWriteShortCommand(mrf, address);
   }
+  debug(String, "start writing...\n");
   writeBlockingWithCommand(mrf, &value, 1);
 }
 

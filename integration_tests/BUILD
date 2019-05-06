@@ -73,6 +73,20 @@ default_embedded_binary(
     linkopts = mcu_avr_gcc_flag(),
 )
 
+default_embedded_binary(
+    name = "LufaTest",
+    srcs = [
+        "src/LufaTest.c",
+    ],
+    deps = [
+        "@LUFA//:LUFA_USB",
+        "@EmbeddedUtilities//:Debug",
+        ":MotherboardSetup",
+    ],
+    copts = mcu_avr_gcc_flag() + cpu_frequency_flag() + LUFA_COPTS,
+    linkopts = LUFA_COPTS + mcu_avr_gcc_flag(),
+)
+
 default_embedded_binaries(
     copts = LUFA_COPTS + mcu_avr_gcc_flag() + cpu_frequency_flag(),
     linkopts = LUFA_COPTS + mcu_avr_gcc_flag(),
@@ -87,12 +101,24 @@ default_embedded_binaries(
         "src/PrintReceivedDataToVirtualSerial.c",
         "src/WriteReadSourceAddress.c",
         "src/SPITestWithLufaOnly.c",
-        "src/NetworkMonitor.c",
+#        "src/NetworkMonitor.c",
     ],
     deps = select({
     "@AvrToolchain//config:Motherboard": [":MotherboardSetup"],
     "@AvrToolchain//config:ElasticNode": [":ElasticNodeSetup"],
     })
+)
+
+default_embedded_binary(
+        copts = LUFA_COPTS + mcu_avr_gcc_flag() + cpu_frequency_flag(),
+        linkopts = LUFA_COPTS + mcu_avr_gcc_flag(),
+        deps = [
+            ":MotherboardSetup",
+            "@LUFA//:LUFA_USB",
+            "@EmbeddedUtilities//:Debug",
+        ],
+        srcs = ["src/NetworkMonitor.c"],
+        name = "NetworkMonitor",
 )
 
 cc_library(

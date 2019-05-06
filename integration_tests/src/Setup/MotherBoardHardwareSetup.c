@@ -4,11 +4,13 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 
 PeripheralInterfaceSPIImpl peripheral_interface_struct;
 PeripheralInterface *peripheral_interface = (PeripheralInterface*) &peripheral_interface_struct;
 Mac802154 *mac802154 = NULL;
+Mrf mac;
 
 void setUpPeripheral(void) {
   static SPIConfig spi_config = {
@@ -50,7 +52,7 @@ setUpMac(void)
             },
             .transmitter_power = 0,
     };
-    mac802154 = malloc(Mac802154MRF_getADTSize());
+    mac802154 = (Mac802154*)&mac;
     Mac802154MRF_create(mac802154, &mrf_hardware_config);
   }
 }
@@ -59,4 +61,18 @@ void
 setUpDebugging(void)
 {
   setUpUsbSerial();
+}
+
+void
+printString(const char *string)
+{
+  usbWriteString((const uint8_t*)string);
+}
+
+void
+printUint16(uint16_t number)
+{
+  char text[10];
+  sprintf(text, "%i", number);
+  printString(text);
 }
