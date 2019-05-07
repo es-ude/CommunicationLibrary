@@ -22,7 +22,7 @@ main(void)
 
   Mac802154Config config = {
           .channel = 12,
-          .pan_id = {0xcc, 0xdd},
+          .pan_id = {0x34, 0x12},
           .short_source_address = {0xAA, 0xAA},
           .extended_source_address = {
                   0x11, 0x22,
@@ -35,12 +35,10 @@ main(void)
 
   Mac802154_enablePromiscuousMode(mac802154);
   _delay_ms(2000);
-  printString("Startup\n");
+  debug(String, "Startup\n");
   uint16_t counter = 0;
   while (1)
   {
-    printString("waiting...\n");
-
     while (!Mac802154_newPacketAvailable(mac802154))
     {
     }
@@ -48,20 +46,27 @@ main(void)
     uint8_t packet[packet_size];
     Mac802154_fetchPacketBlocking(mac802154, packet, packet_size);
     debug(String, "New Message:\n\tnumber:");
-    debug(Uint16, counter);
+    debug(UInt16, counter);
     counter++;
     printAddress(Mac802154_getPacketSourceAddressSize,
                  Mac802154_getPacketShortSourceAddress,
                  packet);
-    debug(String, "\n\tpayload: \n\t\t");
+
+    // we cast const away here, this is save because the referenced memory is packet
+    uint8_t *payload = (uint8_t *)Mac802154_getPacketPayload(mac802154, packet);
     uint8_t payload_size = Mac802154_getPacketPayloadSize(mac802154, packet);
-    const uint8_t *payload = Mac802154_getPacketPayload(mac802154, packet);
-    debug(String, (char *)payload);
+
     debug(String, "\n\tpayload in hex: \n\t\t");
     printBytesAsHex(payload, payload_size);
     debug(String, "\n\twhole packet in hex: \n\t\t");
     printBytesAsHex(packet, packet_size);
     debug(String,"\n\n");
+    debug(String, "\n\tpayload size: \n\t\t");
+    debug(UInt16, payload_size);
+    debug(String, "\n\tpayload: \n\t\t");
+
+    payload[payload_size] = '\0';
+    debug(String, payload);
   }
 }
 
