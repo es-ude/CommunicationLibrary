@@ -20,15 +20,17 @@ Fetch unity and use the file BUILD.unity (residing in this folder) for the build
 We use the prefix new because unity isn't a bazel project, so we need to provide a BUILD file.
 More info under https://docs.bazel.build/versions/master/be/workspace.html#new_http_archive
 """
+
 #git_repository(
 local_repository(
     name = "EmbeddedSystemsBuildScripts",
     path = "../bazel-avr-toolchain-linux",
-#    commit = "ec8379742aa0859ac157943c0d60b6ad55c3713d",
-#    remote = "https://bitbucket.es.uni-due.de/scm/fks/bazel-avr-toolchain-linux.git",
+    #    commit = "ec8379742aa0859ac157943c0d60b6ad55c3713d",
+    #    remote = "https://bitbucket.es.uni-due.de/scm/fks/bazel-avr-toolchain-linux.git",
 )
 
 load("@EmbeddedSystemsBuildScripts//:avr.bzl", "avr_toolchain")
+
 avr_toolchain()
 
 http_archive(
@@ -65,10 +67,10 @@ git_repository(
     remote = "https://bitbucket.es.uni-due.de/scm/im/embedded-utilities.git",
 )
 
-#git_repository(
-local_repository(
+git_repository(
+    #local_repository(
     name = "PeripheralInterface",
+    commit = "8e90f180c526be463f84283736535bb3726d3581",
     path = "../peripheralinterface",
-#    commit = "9b8725195e9bbd50cc4c215c17f49bc705c049e6",
-#    remote = "https://bitbucket.es.uni-due.de/scm/im/peripheralinterface.git",
+    remote = "https://bitbucket.es.uni-due.de/scm/im/peripheralinterface.git",
 )
