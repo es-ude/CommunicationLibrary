@@ -45,7 +45,8 @@ main(void)
     uint8_t packet_size = Mac802154_getReceivedPacketSize(mac802154);
     uint8_t packet[packet_size];
     Mac802154_fetchPacketBlocking(mac802154, packet, packet_size);
-    debug(String, "New Message:\n\tnumber:");
+    debug(String, "New Message:\n\t");
+    debug(String, "tnumber:\n\t");
     debug(UInt16, counter);
     counter++;
     printAddress(Mac802154_getPacketSourceAddressSize,
@@ -67,6 +68,7 @@ main(void)
 
     payload[payload_size] = '\0';
     debug(String, payload);
+    debug(String, "\n");
   }
 }
 

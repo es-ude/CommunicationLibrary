@@ -13,7 +13,7 @@ int main(void) {
   setUpMac();
   Mac802154Config config = {
           .channel = 0x0C,
-          .pan_id = {0xcc, 0xdd},
+          .pan_id = {0x34, 0x12},
           .short_source_address = {0xAA, 0xAA},
           .extended_source_address = {
                   0x11, 0x22,
@@ -26,15 +26,15 @@ int main(void) {
   Mac802154_configure(mac802154, &config);
   char payload[32];
   Mac802154_setExtendedDestinationAddress(mac802154, (uint8_t[]) {
-          0x9D, 0xA8,
-          0x75, 0x41,
-          0x00, 0xA2,
-          0x13, 0x00,
+          0x08, 0x07,
+          0x06, 0x05,
+          0x04, 0x03,
+          0x02, 0x01,
   });
   uint16_t number = 0;
   while(true) {
     number++;
-    _delay_ms(100);
+    _delay_ms(1000);
     sprintf(payload, "%d\n", number);
     debug(String, payload);
     uint8_t payload_length = (uint8_t) strlen(payload);

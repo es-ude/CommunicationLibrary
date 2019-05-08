@@ -6,6 +6,7 @@
 #include "src/Mac802154/MRF/MRFHelperFunctions.h"
 #include "integration_tests/LUFA-Setup/Helpers.h"
 #include "integration_tests/src/Setup/DebugSetup.h"
+#include "PeripheralInterface/PeripheralInterface.h"
 #include "Util/Debug.h"
 #include <stdio.h>
 
@@ -73,17 +74,33 @@ void doEachIOByteWise(void) {
 void doEachIOAsByteString(void) {
   _delay_ms(1000);
   PeripheralInterface_selectPeripheral(peripheral_interface, &mrf_spi_client);
-  uint8_t write_command = MRF_writeShortCommand(mrf_register_short_address_low_byte);
-  PeripheralInterface_writeBlocking(peripheral_interface, &write_command, 1);
+//  uint8_t write_command[2] = {
+//          MRF_writeLongCommandFirstByte(mrf_tx_fifo_start),
+//          MRF_writeLongCommandSecondByte(mrf_tx_fifo_start)
+//  };
+  uint8_t write_command[] = {
+          MRF_writeShortCommand(mrf_register_short_address_low_byte),
+  };
+  PeripheralInterface_writeBlocking(peripheral_interface, write_command, 1);
   uint8_t short_address[] = {0xAA, 0xAA};
   PeripheralInterface_writeBlocking(peripheral_interface, short_address, 2);
   PeripheralInterface_deselectPeripheral(peripheral_interface, &mrf_spi_client);
 
   PeripheralInterface_selectPeripheral(peripheral_interface, &mrf_spi_client);
-  uint8_t read_command = MRF_readShortCommand(mrf_register_short_address_low_byte);
-  PeripheralInterface_writeBlocking(peripheral_interface, &read_command, 1);
+  uint8_t read_command[] = {
+          MRF_readShortCommand(mrf_register_short_address_low_byte)
+  };
+//  uint8_t read_command[] = {
+//          MRF_readLongCommandFirstByte(mrf_tx_fifo_start),
+//          MRF_readLongCommandSecondByte(mrf_tx_fifo_start),
+//  };
+  PeripheralInterface_writeBlocking(peripheral_interface, read_command, 1);
   uint8_t read_short_address[2] = {0, 0};
-  PeripheralInterface_readBlocking(peripheral_interface, read_short_address, 2);
+  PeripheralInterface_readBlocking(peripheral_interface, read_short_address, 1);
+  read_command[0] = MRF_readShortCommand(mrf_register_short_address_high_byte);
+  PeripheralInterface_writeBlocking(peripheral_interface, read_command, 1);
+  PeripheralInterface_readBlocking(peripheral_interface, read_short_address+1, 1);
+
   PeripheralInterface_deselectPeripheral(peripheral_interface, &mrf_spi_client);
 
   char debug_string[32];

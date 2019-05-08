@@ -49,6 +49,7 @@ cc_library(
     deps = [
         "@EmbeddedUtilities//:BitManipulation",
         "@EmbeddedUtilities//:Mutex",
+        "@EmbeddedUtilities//:Debug",
         "@PeripheralInterface",
     ],
 )

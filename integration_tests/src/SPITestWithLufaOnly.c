@@ -33,6 +33,47 @@ uint8_t read(void) {
   return transfer(0);
 }
 
+static inline uint8_t MRF_writeShortCommand(uint8_t address) {
+  return (uint8_t)((address << 1 & ~(1 << 7)) | 1);
+}
+
+static inline uint8_t MRF_readShortCommand(uint8_t address) {
+  return (uint8_t)(address << 1);
+}
+
+void writeStringToTX(const uint8_t *data, uint8_t length)
+{
+  uint8_t command[] = {0x80, 0x10};
+//  uint8_t command[] = {MRF_writeShortCommand(1)};
+  select();
+  write(command[0]);
+  write(command[1]);
+  while(length > 0)
+  {
+    write(*data);
+    data++;
+    length--;
+  }
+  deselect();
+}
+
+void readBurst(uint8_t *data,
+               uint8_t length)
+{
+  uint8_t command[] = {0x80, 0x00};
+//  uint8_t command[] = {MRF_readShortCommand(1)};
+  select();
+  write(command[0]);
+  write(command[1]);
+  while(length > 0)
+  {
+    *data = read();
+    data++;
+    length--;
+  }
+  deselect();
+}
+
 int main(void){
   setup();
   uint8_t output[] = "0x00 was read, and 0x75 was expected\n";
@@ -43,6 +84,12 @@ int main(void){
     byte = readByteFromShortAddressRegister(0x2E);
     convertByteToString(byte, output);
     debug(String, output);
+    writeStringToTX("hello world", 11);
+    uint8_t text[11];
+    text[10] = '\0';
+    readBurst(text, 11);
+    debug(String, text);
+    debug(String, "\n");
     _delay_ms(1000);
   }
 }

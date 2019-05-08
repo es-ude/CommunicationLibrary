@@ -56,6 +56,7 @@ default_embedded_binary(
     ],
     copts = mcu_avr_gcc_flag() + cpu_frequency_flag(),
     linkopts = mcu_avr_gcc_flag(),
+    #    deps = [":DebugMotherBoard"]
 )
 
 default_embedded_binary(
@@ -91,6 +92,12 @@ default_embedded_binaries(
         "src/WriteReadSourceAddress.c",
         "src/SPITestWithLufaOnly.c",
         "src/NetworkMonitor.c",
+        "src/ReceiveFrameWithSPIOnly.c",
+        "src/CheckSetSourceAddresses.c",
+    ],
+    other_srcs = [
+        "src/Setup/HelpersForUsageWithoutCommModule.c",
+        "src/Setup/HelpersForUsageWithoutCommModule.h",
     ],
     deps = select({
         "@AvrToolchain//config:Motherboard": [":MotherboardSetup"],
@@ -131,6 +138,7 @@ cc_library(
         "@EmbeddedUtilities//:Debug",
         "@LUFA//:VirtualSerial",
     ],
+    alwayslink = True,
 )
 
 cc_library(

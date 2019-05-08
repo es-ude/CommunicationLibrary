@@ -25,6 +25,8 @@ void setUpPeripheral(void) {
         .control_register = &SPCR,
     };
   PeripheralInterfaceSPI_createNew(peripheral_interface, &spi_config);
+  PeripheralInterface_selectPeripheral(peripheral_interface, &mrf_spi_client);
+  PeripheralInterface_deselectPeripheral(peripheral_interface, &mrf_spi_client);
 }
 
 SPISlave mrf_spi_client = {
