@@ -30,7 +30,6 @@ filegroup(
 
 exports_files(
     glob([
-        "CommunicationModule/*.h",
         "src/**/*.h",
         "src/**/*.c",
     ]),
@@ -39,6 +38,15 @@ exports_files(
         "//test:__subpackages__",
         "@CMock//CMock:__pkg__",
     ],
+)
+
+exports_files(
+    glob([
+        "CommunicationModule/*.h"
+    ]),
+    visibility = [
+        "//visibility:public",
+    ]
 )
 
 cc_library(

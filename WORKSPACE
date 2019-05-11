@@ -61,10 +61,10 @@ http_archive(
     urls = ["http://fourwalledcubicle.com/files/LUFA/LUFA-170418.zip"],
 )
 
-git_repository(
+http_archive(
     name = "EmbeddedUtilities",
-    commit = "8d02f86d1921fcccd24f8a688dffcc5e3e80169d",
-    remote = "https://bitbucket.es.uni-due.de/scm/im/embedded-utilities.git",
+    type = "tar.gz",
+    urls = [ARTIFACTORY + "IM/embedded-utilities/0.1.5/embedded-utilities-avr.tar.gz"],
 )
 
 git_repository(
