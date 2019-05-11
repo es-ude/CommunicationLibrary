@@ -70,7 +70,7 @@ http_archive(
 git_repository(
     #local_repository(
     name = "PeripheralInterface",
-    commit = "91e14dbf0c77a5bdde0928246b3985f02d724694",
+    commit = "25dbac89ba14c265a205d4283f49311a0021a581",
 #    path = "../peripheralinterface",
     remote = "https://bitbucket.es.uni-due.de/scm/im/peripheralinterface.git",
 )

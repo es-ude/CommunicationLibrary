@@ -17,7 +17,7 @@ mock(
     name = "PeripheralInterfaceMock",
     srcs = ["@PeripheralInterface//:PeripheralInterface/PeripheralInterface.h"],
     enforce_strict_ordering = True,
-    deps = ["@PeripheralInterface"]
+    deps = ["@PeripheralInterface//:PeripheralInterfaceHdrsOnly"]
     )
 
 mock(

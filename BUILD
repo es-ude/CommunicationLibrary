@@ -56,12 +56,20 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "@EmbeddedUtilities//:BitManipulation",
-        "@EmbeddedUtilities//:Mutex",
         "@EmbeddedUtilities//:Debug",
         "@PeripheralInterface",
     ],
 )
 
+cc_library(
+    name = "CommunicationModuleHdrOnly",
+    hdrs = [":CommunicationModuleIncl"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@PeripheralInterface//:PeripheralInterfaceHdrsOnly",
+    ],
+    linkstatic = True,
+)
 #########################################
 ### Packaging for Artifactory         ###
 #########################################
