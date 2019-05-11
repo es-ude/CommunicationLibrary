@@ -21,12 +21,12 @@ We use the prefix new because unity isn't a bazel project, so we need to provide
 More info under https://docs.bazel.build/versions/master/be/workspace.html#new_http_archive
 """
 
-#git_repository(
-local_repository(
+ARTIFACTORY = "http://artifactory.es.uni-due.de:8081/artifactory/libs-release-local/"
+
+http_archive(
     name = "EmbeddedSystemsBuildScripts",
-    path = "../bazel-avr-toolchain-linux",
-    #    commit = "ec8379742aa0859ac157943c0d60b6ad55c3713d",
-    #    remote = "https://bitbucket.es.uni-due.de/scm/fks/bazel-avr-toolchain-linux.git",
+    type = "tar.gz",
+    urls = [ARTIFACTORY + "FKS/embedded-systems-build-scripts/0.4.1/embedded-systems-build-scripts.tar.gz"]
 )
 
 load("@EmbeddedSystemsBuildScripts//:avr.bzl", "avr_toolchain")
@@ -70,7 +70,7 @@ git_repository(
 git_repository(
     #local_repository(
     name = "PeripheralInterface",
-    commit = "8e90f180c526be463f84283736535bb3726d3581",
-    path = "../peripheralinterface",
+    commit = "91e14dbf0c77a5bdde0928246b3985f02d724694",
+#    path = "../peripheralinterface",
     remote = "https://bitbucket.es.uni-due.de/scm/im/peripheralinterface.git",
 )
