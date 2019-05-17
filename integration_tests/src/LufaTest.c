@@ -7,13 +7,12 @@
 
 int
 main(void){
-  setUpDebugging();
-  setUpMac();
+  setUpPrint();
   while (1)
   {
     _delay_ms(1000);
-    debug(String, "Test\n");
+    printString("Test\n");
     _delay_ms(500);
-    debug(String, "again\n");
+    printString("again\n");
   }
 }

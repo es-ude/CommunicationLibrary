@@ -69,7 +69,6 @@ default_embedded_binary(
     deps = [
         ":MotherboardSetup",
         "@EmbeddedUtilities//:Debug",
-        "@LUFA//:LUFA_USB",
     ],
 )
 
@@ -136,7 +135,7 @@ cc_library(
     copts = mcu_avr_gcc_flag() + cpu_frequency_flag() + LUFA_COPTS,
     deps = [
         "@EmbeddedUtilities//:Debug",
-        "@LUFA//:VirtualSerial",
+        "@LUFA//:VirtualSerial"
     ],
     alwayslink = True,
 )
