@@ -1,7 +1,8 @@
 #include "PeripheralInterface/PeripheralInterface.h"
 #include "CommunicationModule/CommunicationModule.h"
-#include "integration_tests/src/Setup/HardwareSetup.h"
-#include "integration_tests/src/Setup/DebugSetup.h"
+#include "integration_tests/HelpersForUsageWithoutCommModule.h"
+#include "Setup/HardwareSetup.h"
+#include "Setup/DebugSetup.h"
 #include "Util/Debug.h"
 #include "CException.h"
 
@@ -121,19 +122,6 @@ writeByteWise(uint8_t address,
   {
     writeByte(address++, *data++);
   }
-}
-
-void
-writeBurstToLongAddress(uint16_t address, const uint8_t *data, uint8_t length)
-{
-  uint8_t command[2] = {
-          MRF_writeLongCommandFirstByte(address),
-          MRF_writeLongCommandSecondByte(address)
-  };
-  PeripheralInterface_selectPeripheral(peripheral_interface, &mrf_spi_client);
-  PeripheralInterface_writeBlocking(peripheral_interface, command, 2);
-  PeripheralInterface_writeBlocking(peripheral_interface, data, length);
-  PeripheralInterface_deselectPeripheral(peripheral_interface, &mrf_spi_client);
 }
 
 void

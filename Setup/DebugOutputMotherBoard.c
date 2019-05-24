@@ -1,5 +1,5 @@
 #include "Util/Debug.h"
-#include "integration_tests/LUFA-Setup/Helpers.h"
+#include "Setup/LUFAHelpers.h"
 #include <stdio.h>
 
 

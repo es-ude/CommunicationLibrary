@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "integration_tests/src/Setup/HardwareSetup.h"
+#include "Setup/HardwareSetup.h"
 
 #include <avr/io.h>
 #include <util/delay.h>

@@ -1,6 +1,7 @@
 #ifndef COMMUNICATIONMODULE_HELPERSFORUSAGEWITHOUTCOMMMODULE_H
 #define COMMUNICATIONMODULE_HELPERSFORUSAGEWITHOUTCOMMMODULE_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 uint8_t
@@ -60,6 +61,16 @@ initMrf(void);
 
 bool
 gotNewMessage(void);
+
+void
+debugPrintHex(uint8_t byte);
+
+uint8_t
+convertNumberToASCII(uint8_t number);
+
+void
+convertByteToString(uint8_t byte,
+                    uint8_t *string);
 
 void
 debugPrintHex(uint8_t byte);

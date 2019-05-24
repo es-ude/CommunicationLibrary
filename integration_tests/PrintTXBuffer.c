@@ -1,6 +1,6 @@
 #include "Util/Debug.h"
-#include "integration_tests/src/Setup/HardwareSetup.h"
-#include "integration_tests/src/Setup/DebugSetup.h"
+#include "Setup/HardwareSetup.h"
+#include "Setup/DebugSetup.h"
 #include <util/delay.h>
 #include <stdbool.h>
 

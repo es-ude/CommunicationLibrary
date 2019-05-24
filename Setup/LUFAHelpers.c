@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
-#include "Helpers.h"
+#include "Setup/LUFAHelpers.h"
 #include "Demos/Device/ClassDriver/VirtualSerial/Descriptors.h"
 #include "LUFA/Drivers/Peripheral/Serial.h"
 #include "LUFAConfig.h"

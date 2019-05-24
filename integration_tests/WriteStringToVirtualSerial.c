@@ -1,4 +1,4 @@
-#include "integration_tests/src/Setup/DebugSetup.h"
+#include "Setup/DebugSetup.h"
 #include "Util/Debug.h"
 #include <util/delay.h>
 

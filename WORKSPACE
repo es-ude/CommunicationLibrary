@@ -61,16 +61,13 @@ http_archive(
     urls = ["http://fourwalledcubicle.com/files/LUFA/LUFA-170418.zip"],
 )
 
-git_repository(
+http_archive(
     name = "EmbeddedUtilities",
-    remote = "ssh://git@bitbucket.es.uni-due.de:7999/im/embedded-utilities.git",
-    tag = "0.1.11"
+    urls = [ARTIFACTORY + "IM/embedded-utilities/0.1.11/embedded-utilities-avr.tar.gz"],
 )
 
-git_repository(
-    #local_repository(
+
+http_archive(
     name = "PeripheralInterface",
-    commit = "25dbac89ba14c265a205d4283f49311a0021a581",
-#    path = "../peripheralinterface",
-    remote = "https://bitbucket.es.uni-due.de/scm/im/peripheralinterface.git",
+    urls = [ARTIFACTORY + "IM/peripheralinterface/0.5.4/peripheralinterface-avr.tar.gz"],
 )

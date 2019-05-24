@@ -1,13 +1,13 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
-#include "integration_tests/src/Setup/HardwareSetup.h"
+#include "Setup/HardwareSetup.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
-#include "integration_tests/LUFA-Setup/Helpers.h"
-#include "integration_tests/src/Setup/DebugSetup.h"
+#include "Setup/LUFAHelpers.h"
+#include "Setup/DebugSetup.h"
 #include "Util/Debug.h"
 #include "PeripheralInterface/PeripheralInterface.h"
-#include "integration_tests/src/Setup/HelpersForUsageWithoutCommModule.h"
+#include "integration_tests/HelpersForUsageWithoutCommModule.h"
 
 
 int

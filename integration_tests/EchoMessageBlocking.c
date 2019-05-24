@@ -1,6 +1,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "integration_tests/src/Setup/HardwareSetup.h"
+#include "Setup/HardwareSetup.h"
 #include "CommunicationModule/Mac802154MRFImpl.h"
 
 int main(void) {

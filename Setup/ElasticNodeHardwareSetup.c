@@ -1,10 +1,10 @@
 #include <stdint.h>
 #include "PeripheralInterface/PeripheralSPIImpl.h"
 #include "PeripheralInterface/PeripheralInterface.h"
-#include "integration_tests/src/Setup/HardwareSetup.h"
+#include "Setup/HardwareSetup.h"
 #include "PeripheralInterface/Usart.h"
 #include "Util/Debug.h"
-#include "integration_tests/src/Setup/DebugSetup.h"
+#include "Setup/DebugSetup.h"
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdlib.h>

@@ -3,10 +3,10 @@
 #include <avr/interrupt.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "integration_tests/src/Setup/HardwareSetup.h"
+#include "Setup/HardwareSetup.h"
 #include "CommunicationModule/Mac802154MRFImpl.h"
-#include "integration_tests/LUFA-Setup/Helpers.h"
-#include "integration_tests/src/Setup/DebugSetup.h"
+#include "Setup/LUFAHelpers.h"
+#include "Setup/DebugSetup.h"
 #include "Util/Debug.h"
 
 int main(void)

@@ -1,8 +1,8 @@
 #include <util/delay.h>
-#include "integration_tests/LUFA-Setup/Helpers.h"
+#include "Setup/LUFAHelpers.h"
 #include "Util/Debug.h"
-#include "integration_tests/src/Setup/DebugSetup.h"
-#include "integration_tests/src/Setup/HardwareSetup.h"
+#include "Setup/DebugSetup.h"
+#include "Setup/HardwareSetup.h"
 
 
 int
