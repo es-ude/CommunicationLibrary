@@ -2,7 +2,7 @@
 
 function build_and_zip {
     bazel build :"$1"Zip
-     [ ! -z "$OUTPUT_DIR" ]; then
+    if [ ! -z "$OUTPUT_DIR" ]; then
         mkdir -p "$OUTPUT_DIR"/"$1"/
         cp -f bazel-genfiles/pkg.tar.gz "$OUTPUT_DIR"/"$1"/"$1".tar.gz
     fi
