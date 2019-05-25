@@ -1,11 +1,14 @@
 #!/bin/bash
 
+#!/bin/bash
+
 function build_and_zip {
-    bazel build :CommunicationModule-bin --platforms @AvrToolchain//platform:AVR -c opt --remote_http_cache=http://build.es.uni-due.de:9090
+    bazel build :"$1"Zip --config=$2
     if [ ! -z "$OUTPUT_DIR" ]; then
-        mkdir -p "$OUTPUT_DIR"
-        cp -f bazel-bin/CommunicationModule.zip "$OUTPUT_DIR"/communicationmodule.zip
+        mkdir -p "$OUTPUT_DIR"/"$1"/
+        cp -f bazel-genfiles/"$1".zip "$OUTPUT_DIR"/"$1"/"$1"-"$2".zip
     fi
 }
 
-build_and_zip
+# build_and_zip $1 native
+build_and_zip $1 avr

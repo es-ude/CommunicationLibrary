@@ -81,7 +81,7 @@ static PeripheralInterface *debug_interface = (PeripheralInterface *)&debug_usar
 static UsartPeripheral terminal;
 
 void
-setUpDebugging(void)
+setUpPrint(void)
 {
   UsartConfig usart_config = {
       .control_and_status_register_a = &UCSR1A,

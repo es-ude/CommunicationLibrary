@@ -1,3 +1,5 @@
+load("@AvrToolchain//:helpers.bzl", "mcu_avr_gcc_flag")
+
 filegroup(
     name = "CommunicationModuleSrc",
     srcs = glob(
@@ -46,6 +48,7 @@ cc_library(
     srcs = [":CommunicationModuleSrc"],
     hdrs = [":CommunicationModuleIncl"],
     visibility = ["//visibility:public"],
+    copts = mcu_avr_gcc_flag(),
     deps = [
         "@EmbeddedUtilities//:BitManipulation",
         "@EmbeddedUtilities//:Debug",

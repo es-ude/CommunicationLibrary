@@ -69,5 +69,5 @@ http_archive(
 
 http_archive(
     name = "PeripheralInterface",
-    urls = [ARTIFACTORY + "IM/peripheralinterface/0.5.4/peripheralinterface-avr.tar.gz"],
+    urls = [ARTIFACTORY + "IM/peripheralinterface/0.5.6/peripheralinterface.tar.gz"],
 )
