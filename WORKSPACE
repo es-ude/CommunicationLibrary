@@ -26,7 +26,7 @@ ARTIFACTORY = "http://artifactory.es.uni-due.de:8081/artifactory/libs-release-lo
 http_archive(
     name = "EmbeddedSystemsBuildScripts",
     type = "tar.gz",
-    urls = [ARTIFACTORY + "FKS/embedded-systems-build-scripts/0.4.1/embedded-systems-build-scripts.tar.gz"]
+    urls = [ARTIFACTORY + "FKS/embedded-systems-build-scripts/0.4.7/embedded-systems-build-scripts.tar.gz"]
 )
 
 load("@EmbeddedSystemsBuildScripts//:avr.bzl", "avr_toolchain")
@@ -63,11 +63,11 @@ http_archive(
 
 http_archive(
     name = "EmbeddedUtilities",
-    urls = [ARTIFACTORY + "IM/embedded-utilities/0.1.11/embedded-utilities-avr.tar.gz"],
+    urls = [ARTIFACTORY + "IM/embedded-utilities/0.2/embedded-utilities-avr.tar.gz"],
 )
 
 
 http_archive(
     name = "PeripheralInterface",
-    urls = [ARTIFACTORY + "IM/peripheralinterface/0.5.6/peripheralinterface.tar.gz"],
+    urls = [ARTIFACTORY + "IM/peripheralinterface/0.5.7/peripheralinterface.tar.gz"],
 )
