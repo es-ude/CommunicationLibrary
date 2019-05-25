@@ -1,14 +1,12 @@
 #!/bin/bash
 
-#!/bin/bash
-
 function build_and_zip {
-    bazel build :"$1"Zip --config=$2
-    if [ ! -z "$OUTPUT_DIR" ]; then
+    bazel build :"$1"Zip
+     [ ! -z "$OUTPUT_DIR" ]; then
         mkdir -p "$OUTPUT_DIR"/"$1"/
-        cp -f bazel-genfiles/"$1".zip "$OUTPUT_DIR"/"$1"/"$1"-"$2".zip
+        cp -f bazel-genfiles/pkg.tar.gz "$OUTPUT_DIR"/"$1"/"$1".tar.gz
     fi
 }
 
 # build_and_zip $1 native
-build_and_zip $1 avr
+build_and_zip $1
