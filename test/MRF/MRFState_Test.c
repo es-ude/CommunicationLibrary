@@ -1,6 +1,6 @@
 #include <string.h>
 #include "unity.h"
-#include "src/Mac802154/MockFrameHeader802154.h"
+#include "src/Mac802154/MRF/MockFrameHeader802154.h"
 #include "src/Mac802154/MRF/MRFState.h"
 
 static const uint8_t frame802_header_length = 10;

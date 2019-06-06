@@ -1,0 +1,24 @@
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
+
+package(default_visibility = ["//visibility:public"])
+
+constraint_setting(
+    name = "debug",
+)
+
+constraint_value(
+    name = "debug_enabled",
+    constraint_setting = "debug",
+)
+
+constraint_value(
+    name = "debug_disabled",
+    constraint_setting = "debug",
+)
+
+pkg_tar(
+    name = "pkg",
+    package_dir = "constraint",
+    srcs = ["BUILD.bazel"],
+    mode = "0644",
+)

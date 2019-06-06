@@ -1,8 +1,9 @@
 #ifndef COMMUNICATIONMODULE_MRFSTATE_H
 #define COMMUNICATIONMODULE_MRFSTATE_H
 
-#include "src/Mac802154/FrameHeader802154.h"
+#include "src/Mac802154/MRF/FrameHeader802154.h"
 #include "src/Mac802154/MRF/MrfField.h"
+#include "CommunicationModule/Mac802154MRFImpl.h"
 
 /**
  * This module manages the data, that needs to be
@@ -26,17 +27,6 @@
  * the frame header are.
  */
 
-typedef struct MrfHeader {
-  uint8_t frame_header_length;
-  uint8_t frame_length;
-  FrameHeader802154 frame_header;
-} MrfHeader;
-
-typedef struct MrfState {
-  uint8_t state;
-  MrfHeader header;
-  const uint8_t *payload;
-} MrfState;
 
 enum {
   MRF_STATE_HEADER_LENGTH_CHANGED       = 1,

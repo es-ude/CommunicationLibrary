@@ -1,11 +1,5 @@
 #!/bin/bash
 
-function build_and_zip {
-    bazel build :CommunicationModuleZip --config=$1
-    if [ ! -z "$OUTPUT_DIR" ]; then
-        mkdir -p "$OUTPUT_DIR"
-        cp -f bazel-genfiles/CommunicationModule.zip "$OUTPUT_DIR"/communicationmodule.zip
-    fi
-}
-
-build_and_zip atmega32u4
+bazel build pkg
+mkdir -p "$OUTPUT_DIR"/"$1"/
+cp -f bazel-bin/pkg.tar.gz "$OUTPUT_DIR"/"$1"/"$1"-"$2".tar.gz

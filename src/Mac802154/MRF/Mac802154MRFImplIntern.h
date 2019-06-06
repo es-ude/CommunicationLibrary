@@ -2,7 +2,7 @@
 #define COMMUNICATIONMODULE_MAC802154MRFIMPLINTERN_H
 
 #include <stdio.h>
-#include "src/Mac802154/Mac802154.h"
+#include "CommunicationModule/Mac802154.h"
 #include "CommunicationModule/Mac802154MRFImpl.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 #include "src/Mac802154/MRF/MRFHelperFunctions.h"
@@ -72,26 +72,19 @@
  *
  */
 
-typedef struct Mrf Mrf;
-struct Mrf {
-  struct Mac802154 mac;
-  MrfIo io;
-  void (*delay_microseconds)(uint16_t);
-  MrfState state;
-  Mac802154Config config;
-};
 
-static void reconfigure(Mac802154 self, const Mac802154Config *config);
-static void setShortDestinationAddress(Mac802154 self, const uint8_t *address);
-static void setPayload(Mac802154 self, const uint8_t *payload, size_t payload_length);
-static void sendBlocking(Mac802154 self);
-static void setExtendedDestinationAddress(Mac802154 self, const uint8_t *address);
+
+static void reconfigure(Mac802154 *self, const Mac802154Config *config);
+static void setShortDestinationAddress(Mac802154 *self, const uint8_t *address);
+static void setPayload(Mac802154 *self, const uint8_t *payload, size_t payload_length);
+static void sendBlocking(Mac802154 *self);
+static void setExtendedDestinationAddress(Mac802154 *self, const uint8_t *address);
 static void setShortSourceAddress(Mrf *impl, const uint8_t* address);
 static void setExtendedSourceAddress(Mrf *impl, const uint8_t *address);
 static void setPanId(Mrf *impl, const uint8_t *pan_id);
-static uint8_t getReceivedMessageSize(Mac802154 self);
-static bool newMessageAvailable(Mac802154 self);
-static void fetchMessageBlocking(Mac802154 self, uint8_t *buffer, uint8_t size);
+static uint8_t getReceivedMessageSize(Mac802154 *self);
+static bool newMessageAvailable(Mac802154 *self);
+static void fetchMessageBlocking(Mac802154 *self, uint8_t *buffer, uint8_t size);
 static const uint8_t * getPacketPayload(const uint8_t *packet);
 static uint8_t getPacketPayloadSize(const uint8_t *packet);
 static bool packetAddressIsShort(const uint8_t *packet);
@@ -99,21 +92,21 @@ static bool packetAddressIsLong(const uint8_t *packet);
 static uint8_t getPacketSourceAddressSize(const uint8_t *packet);
 static const uint8_t * getPacketExtendedSourceAddress(const uint8_t *packet);
 static const uint8_t * getPacketShortSourceAddress(const uint8_t *packet);
-static void useExtendedSourceAddress(Mac802154 self);
-static void useShortSourceAddress(Mac802154 self);
+static void useExtendedSourceAddress(Mac802154 *self);
+static void useShortSourceAddress(Mac802154 *self);
 
 static void reset(Mrf *impl);
 static void setInitializationValuesFromDatasheet(MrfIo *impl);
-static void setPrivateVariables(Mrf *impl, const Mac802154Config *config);
-static void setUpInterface(Mac802154 interface);
+
+static void setUpInterface(Mac802154 *interface);
 static void enableRXInterrupt(Mrf *impl);
 static void setChannel(Mrf *impl, uint8_t channel);
 static void setUpTransmitterPower(Mrf *impl);
 static void resetInternalRFStateMachine(Mrf *impl);
 static void triggerSend(Mrf *impl);
 extern void debug(const uint8_t *string);
-static void enablePromiscuousMode(Mac802154 impl);
-static void disablePromiscuousMode(Mac802154 impl);
+static void enablePromiscuousMode(Mac802154 *impl);
+static void disablePromiscuousMode(Mac802154 *impl);
 
 static const uint8_t frame_length_field_size = 1;
 static const uint8_t rssi_field_size = 1;

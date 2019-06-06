@@ -5,26 +5,38 @@ The load function is used to make the function generate_a_unity_test_for_every_f
 from the file unity_helpers.bzl in the package test available here.
 """
 
-#load("//:unity_helpers.bzl", "generate_a_unity_test_for_every_file")
 load(
-    "@UnityPlugin//Unity_rules:unity.bzl",
+    "@EmbeddedSystemsBuildScripts//Unity:unity.bzl",
+    "generate_a_mock_for_every_file",
     "generate_a_unity_test_for_every_file",
-    "unity_test",
     "mock",
-    "generate_mocks_for_every_header",
+    "unity_test",
 )
 
-generate_mocks_for_every_header(
+mock(
+    name = "PeripheralInterfaceMock",
+    srcs = ["@PeripheralInterface//:PeripheralInterface/PeripheralInterface.h"],
+    enforce_strict_ordering = True,
+    deps = ["@PeripheralInterface//:PeripheralInterfaceHdrsOnly"],
+)
+
+mock(
+    name = "FrameHeaderMock",
+    srcs = ["//:src/Mac802154/MRF/FrameHeader802154.h"],
+    deps = ["//:CommunicationModule"],
+)
+
+generate_a_mock_for_every_file(
     enforce_strict_ordering = True,
     file_list = [
         "//:src/Mac802154/MRF/MRFHelperFunctions.h",
-        "//:CommunicationModule/Peripheral.h",
         "//test/MRF:Mac802154MRF_TestHelper.h",
         "//:src/Mac802154/MRF/MRFState.h",
         "//:src/Mac802154/MRF/MrfIo.h",
-        "//:src/Mac802154/FrameHeader802154.h",
     ],
-    deps = ["//:CommunicationModuleLibForTest"],
+    deps = [
+        "//:CommunicationModule",
+    ],
 )
 
 unity_test(
@@ -37,49 +49,42 @@ unity_test(
         "-std=gnu99",
     ],
     file_name = "Mac802154MRF_Test.c",
-    mocks = [
-        "//:src/Mac802154/MRF/MRFHelperFunctions.h",
-        "//:src/Mac802154/MRF/MRFState.h",
-        "//:src/Mac802154/MRF/MrfIo.h",
-        "//:src/Mac802154/FrameHeader802154.h",
-        "//:CommunicationModule/Peripheral.h",
-        "//test/MRF:Mac802154MRF_TestHelper.h",
-    ],
     deps = [
-        "//:CommunicationModuleLibForTest",
-        "@CException//:CException",
-        "@CMock//:CMock",
+        ":FrameHeaderMock",
+        ":MockMRFHelperFunctions",
+        ":MockMRFState",
+        ":MockMac802154MRF_TestHelper",
+        ":MockMrfIo",
+        ":PeripheralInterfaceMock",
+        "@CException",
+        "@CMock",
     ],
 )
 
 unity_test(
-    file_name = "MrfIo_Test.c",
-    mocks = [
-        "//test/MRF:Mac802154MRF_TestHelper.h",
-        "//:CommunicationModule/Peripheral.h",
-    ],
     copts = [
         "-std=gnu99",
     ],
+    file_name = "MrfIo_Test.c",
     deps = [
-        "//:CommunicationModuleLibForTest",
-        "@CException//:CException",
-        "@CMock//:CMock",
+        ":MockMac802154MRF_TestHelper",
+        ":PeripheralInterfaceMock",
+        "//:CommunicationModule",
+        "@CException",
+        "@CMock",
     ],
 )
 
 unity_test(
-    file_name = "MRFState_Test.c",
-    mocks = [
-        "//:src/Mac802154/FrameHeader802154.h",
-        "//:CommunicationModule/Peripheral.h",
-    ],
     copts = [
-        "-std=gnu99"
+        "-std=gnu99",
     ],
+    file_name = "MRFState_Test.c",
     deps = [
-        "//:CommunicationModuleLibForTest",
-        "@CException//:CException",
-        "@CMock//:CMock",
+        ":FrameHeaderMock",
+        ":PeripheralInterfaceMock",
+        "//:CommunicationModule",
+        "@CException",
+        "@CMock",
     ],
 )

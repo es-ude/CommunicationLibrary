@@ -1,7 +1,8 @@
 # Doxygen Output
 doc/html
 doc/latex
-
+.vscode/
+*.dis
 *.zip
 # Prerequisites
 *.d
@@ -58,6 +59,7 @@ dkms.conf
 
 # private helper tools and bazel folders
 bazel-*
+user.bazel
 Session.vim
 .clwb
 .undodir

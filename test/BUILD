@@ -5,12 +5,11 @@ The load function is used to make the function generate_a_unity_test_for_every_f
 from the file unity_helpers.bzl in the package test available here.
 """
 
-#load("//:unity_helpers.bzl", "generate_a_unity_test_for_every_file")
 load(
-    "@UnityPlugin//Unity_rules:unity.bzl",
+    "@EmbeddedSystemsBuildScripts//Unity:unity.bzl",
     "generate_a_unity_test_for_every_file",
-    "unity_test",
     "mock",
+    "unity_test",
 )
 
 """
@@ -21,18 +20,12 @@ for every file specified and  a cc_test (the bazel test entity for c/c++).
 """
 
 generate_a_unity_test_for_every_file(
-    copts = [
-        "-DCEXCEPTION_NONE=0x00",
-        "-DCEXCEPTION_T=uint8_t",
-        "-std=c99",
-    ],
     file_list = glob(
         ["*_Test.c"],
     ),
     deps = [
-        "//:CommunicationModuleLibForTest",
-        "@CException//:CException",
-        "@CMock//:CMock",
+        "//:CommunicationModule",
+        "@CMock",
     ],
 )
 
@@ -62,9 +55,7 @@ A: Well... if you have you're test depending on a file you'd
 test_suite(
     name = "ALL",
     tests = [
-        ":BitManipulation_Test",
         ":Mac802154Header_Test",
-        ":PeripheralSPIImpl_Test",
         "//test/MRF:MRFState_Test",
         "//test/MRF:Mac802154MRF_Test",
     ],

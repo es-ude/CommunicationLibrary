@@ -1,92 +1,58 @@
-"""
-The location of this file (even when empty) specifies the project root
-for more info see https://docs.bazel.build/versions/master/build-ref.html
-"""
-
-"""
-set the global repository name, this function can only be called from this file
-https://docs.bazel.build/versions/master/be/functions.html#workspace
-"""
-workspace (
-        name = "CommunicationModule",
-        )
-
-"""
-Fetch unity and use the file BUILD.unity (residing in this folder) for the build.
-We use the prefix new because unity isn't a bazel project, so we need to provide a BUILD file.
-More info under https://docs.bazel.build/versions/master/be/workspace.html#new_http_archive
-"""
-new_http_archive(
-  name = "Unity",
-  urls = ["https://github.com/ThrowTheSwitch/Unity/archive/master.tar.gz"],
-  build_file= "BUILD.Unity",
-  strip_prefix = "Unity-master",
-  )
-
-new_http_archive(
-  name = "CException",
-  urls = ["https://github.com/ThrowTheSwitch/CException/archive/master.tar.gz"],
-  build_file = "BUILD.CException",
-  strip_prefix = "CException-master",
-  )
-
-http_archive(
-    name = "UnityPlugin",
-    urls = ["https://github.com/glencoe/BazelUnityPlugin/archive/master.tar.gz"],
-    strip_prefix = "BazelUnityPlugin-master",
+workspace(
+    name = "CommunicationLibrary",
 )
 
-new_http_archive(
-  name = "CMock",
-  urls = ["https://github.com/ThrowTheSwitch/CMock/archive/master.tar.gz"],
-  build_file = "BUILD.CMock",
-  strip_prefix = "CMock-master",
-  )
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 http_archive(
-    name = "AVR_Toolchain",
-  urls = ["http://bitbucket.es.uni-due.de:7990/rest/api/latest/projects/FKS/repos/bazel-avr-toolchain-linux/archive?format=tgz"],
-  type = "tar.gz",
+    name = "EmbeddedSystemsBuildScripts",
+    strip_prefix = "EmbeddedSystemsBuildScripts-0.5",
+    type = "tar.gz",
+    urls = ["https://github.com/es-uni-due/EmbeddedSystemsBuildScripts/archive/v0.5.tar.gz"],
 )
 
-new_http_archive(
+load("@EmbeddedSystemsBuildScripts//AvrToolchain:avr.bzl", "avr_toolchain")
+
+avr_toolchain()
+
+http_archive(
+    name = "Unity",
+    build_file = "@EmbeddedSystemsBuildScripts//:BUILD.Unity",
+    strip_prefix = "Unity-master",
+    urls = ["https://github.com/ThrowTheSwitch/Unity/archive/master.tar.gz"],
+)
+
+http_archive(
+    name = "CException",
+    build_file = "@EmbeddedSystemsBuildScripts//:BUILD.CException",
+    strip_prefix = "CException-master",
+    urls = ["https://github.com/ThrowTheSwitch/CException/archive/master.tar.gz"],
+)
+
+http_archive(
+    name = "CMock",
+    build_file = "@EmbeddedSystemsBuildScripts//:BUILD.CMock",
+    strip_prefix = "CMock-master",
+    urls = ["https://github.com/ThrowTheSwitch/CMock/archive/master.tar.gz"],
+)
+
+http_archive(
     name = "LUFA",
-    urls = ["http://fourwalledcubicle.com/files/LUFA/LUFA-170418.zip"],
+    build_file = "@EmbeddedSystemsBuildScripts//:BUILD.LUFA",
     strip_prefix = "lufa-LUFA-170418",
-    build_file = "BUILD.LUFA",
+    urls = ["http://fourwalledcubicle.com/files/LUFA/LUFA-170418.zip"],
 )
 
-#local_repository(
-#    name = "LUFA",
-#    path = "../lufa-LUFA-170418",
-#)
+http_archive(
+    name = "EmbeddedUtilities",
+    strip_prefix = "EmbeddedUtil-0.3",
+    type = "tar.gz",
+    urls = ["https://github.com/es-uni-due/EmbeddedUtil/archive/v0.3.tar.gz"],
+)
 
-"""
-From the Bazel documentation at https://docs.bazel.build/versions/master/build-ref.html#packages_targets :
- The primary unit of code organization in a workspace is the package.
-A package is collection of related files and a specification of the dependencies among them.
-
-A package is defined as a directory containing a file named BUILD,
-residing beneath the top-level directory in the workspace.
-A package includes all files in its directory, plus all subdirectories beneath it,
-except those which themselves contain a BUILD file.
-"""
-
-"""
-This project has the following structure:
-
-/
-|- WORKSPACE
-|- BUILD.unity
-|- .bazelr
-|- lib/
-    |- BUILD
-|- test/
-    |- BUILD
-    |- unity-helpers.bzl
-    |- /Mocks/
-        |- BUILD
-|- toolchain/
-    |- CROSSTOOL
-    |- BUILD
-"""
+http_archive(
+    name = "PeripheralInterface",
+    strip_prefix = "PeripheralInterface-0.6",
+    urls = ["https://github.com/es-uni-due/PeripheralInterface/archive/v0.6.tar.gz"],
+)

@@ -4,13 +4,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "src/BitManipulation.h"
+#include "Util/BitManipulation.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 #include "src/Mac802154/MRF/Mac802154MRFImplIntern.h"
 #include "src/Mac802154/MRF/MockMRFHelperFunctions.h"
 #include "src/Mac802154/MRF/MockMRFState.h"
 #include "src/Mac802154/MRF/MockMrfIo.h"
-#include "src/Mac802154/MockFrameHeader802154.h"
+#include "src/Mac802154/MRF/MockFrameHeader802154.h"
 #include "test/MRF/MockMac802154MRF_TestHelper.h"
 
 uint8_t reset_line_ddr;
@@ -22,14 +22,9 @@ static const GPIOPin reset_line = {
 };
 Peripheral          *device;
 PeripheralInterface *interface;
-Mac802154 mrf;
+Mac802154 *mrf;
 Mac802154Config      mac_config;
 MRFConfig hardware_config;
-
-void
-debug(const uint8_t *message)
-{
-}
 
 void
 setUp(void)
@@ -339,9 +334,8 @@ test_fetchMessageBlocking(void)
   MrfIo_readBlockingFromLongAddress_IgnoreArg_buffer();
   MrfIo_readBlockingFromLongAddress_ReturnArrayThruPtr_buffer(
     expected_message, strlen((char *) expected_message));
-  MrfIo *io = &((Mrf *)mrf)->io;
 
-  uint8_t message_buffer[16];
+    uint8_t message_buffer[16];
   memset(message_buffer, 0, 16);
   Mac802154_fetchPacketBlocking(
     mrf, message_buffer, (uint8_t) strlen((char *) expected_message));
