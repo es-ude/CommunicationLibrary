@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include "Setup/HardwareSetup.h"
 #include "CommunicationModule/Mac802154MRFImpl.h"
-#include "Setup/LUFAHelpers.h"
+
 #include "Setup/DebugSetup.h"
 #include "Util/Debug.h"
 

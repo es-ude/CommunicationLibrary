@@ -1,35 +1,18 @@
-"""
-The location of this file (even when empty) specifies the project root
-for more info see https://docs.bazel.build/versions/master/build-ref.html
-"""
-
-"""
-set the global repository name, this function can only be called from this file
-https://docs.bazel.build/versions/master/be/functions.html#workspace
-"""
-
 workspace(
-    name = "CommunicationModule",
+    name = "CommunicationLibrary",
 )
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
-"""
-Fetch unity and use the file BUILD.unity (residing in this folder) for the build.
-We use the prefix new because unity isn't a bazel project, so we need to provide a BUILD file.
-More info under https://docs.bazel.build/versions/master/be/workspace.html#new_http_archive
-"""
-
-ARTIFACTORY = "http://artifactory.es.uni-due.de:8081/artifactory/libs-release-local/"
-
 http_archive(
     name = "EmbeddedSystemsBuildScripts",
+    strip_prefix = "EmbeddedSystemsBuildScripts-0.5",
     type = "tar.gz",
-    urls = [ARTIFACTORY + "FKS/embedded-systems-build-scripts/0.4.7/embedded-systems-build-scripts.tar.gz"]
+    urls = ["https://github.com/es-uni-due/EmbeddedSystemsBuildScripts/archive/v0.5.tar.gz"],
 )
 
-load("@EmbeddedSystemsBuildScripts//:avr.bzl", "avr_toolchain")
+load("@EmbeddedSystemsBuildScripts//AvrToolchain:avr.bzl", "avr_toolchain")
 
 avr_toolchain()
 
@@ -56,18 +39,20 @@ http_archive(
 
 http_archive(
     name = "LUFA",
-    build_file = "@AvrToolchain//:BUILD.LUFA",
+    build_file = "@EmbeddedSystemsBuildScripts//:BUILD.LUFA",
     strip_prefix = "lufa-LUFA-170418",
     urls = ["http://fourwalledcubicle.com/files/LUFA/LUFA-170418.zip"],
 )
 
 http_archive(
     name = "EmbeddedUtilities",
-    urls = [ARTIFACTORY + "IM/embedded-utilities/0.2/embedded-utilities-avr.tar.gz"],
+    strip_prefix = "EmbeddedUtil-0.3",
+    type = "tar.gz",
+    urls = ["https://github.com/es-uni-due/EmbeddedUtil/archive/v0.3.tar.gz"],
 )
-
 
 http_archive(
     name = "PeripheralInterface",
-    urls = [ARTIFACTORY + "IM/peripheralinterface/0.5.7/peripheralinterface.tar.gz"],
+    strip_prefix = "PeripheralInterface-0.6",
+    urls = ["https://github.com/es-uni-due/PeripheralInterface/archive/v0.6.tar.gz"],
 )

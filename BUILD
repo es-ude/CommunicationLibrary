@@ -1,5 +1,3 @@
-load("@AvrToolchain//:helpers.bzl", "mcu_avr_gcc_flag")
-
 filegroup(
     name = "CommunicationModuleSrc",
     srcs = glob(
@@ -20,8 +18,6 @@ filegroup(
     ],
 )
 
-
-
 exports_files(
     glob([
         "src/**/*.h",
@@ -36,19 +32,19 @@ exports_files(
 
 exports_files(
     glob([
-        "CommunicationModule/*.h"
+        "CommunicationModule/*.h",
     ]),
     visibility = [
         "//visibility:public",
-    ]
+    ],
 )
 
 cc_library(
     name = "CommunicationModule",
     srcs = [":CommunicationModuleSrc"],
     hdrs = [":CommunicationModuleIncl"],
+    copts = ["-DDEBUG=0"],
     visibility = ["//visibility:public"],
-    copts = mcu_avr_gcc_flag(),
     deps = [
         "@EmbeddedUtilities//:BitManipulation",
         "@EmbeddedUtilities//:Debug",
@@ -59,12 +55,13 @@ cc_library(
 cc_library(
     name = "CommunicationModuleHdrOnly",
     hdrs = [":CommunicationModuleIncl"],
+    linkstatic = True,
     visibility = ["//visibility:public"],
     deps = [
         "@PeripheralInterface//:PeripheralInterfaceHdrsOnly",
     ],
-    linkstatic = True,
 )
+
 #########################################
 ### Packaging for Artifactory         ###
 #########################################
@@ -74,17 +71,17 @@ load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 pkg_tar(
     name = "pkg",
     srcs = [
+        ":BUILD",
         ":CommunicationModuleIncl",
         ":CommunicationModuleSrc",
-        ":BUILD",
     ],
-    mode = "0644",
     extension = "tar.gz",
+    mode = "0644",
     strip_prefix = ".",
     deps = [
         "//Setup:pkg",
         "//configs:pkg",
         "//constraints:pkg",
         "//platforms:pkg",
-    ]
+    ],
 )

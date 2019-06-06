@@ -4,7 +4,7 @@
 #include "Setup/HardwareSetup.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 #include "src/Mac802154/MRF/MRFHelperFunctions.h"
-#include "Setup/LUFAHelpers.h"
+
 #include "Setup/DebugSetup.h"
 #include "PeripheralInterface/PeripheralInterface.h"
 #include "Util/Debug.h"

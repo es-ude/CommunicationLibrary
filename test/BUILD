@@ -6,7 +6,7 @@ from the file unity_helpers.bzl in the package test available here.
 """
 
 load(
-    "@EmbeddedSystemsBuildScripts//:unity.bzl",
+    "@EmbeddedSystemsBuildScripts//Unity:unity.bzl",
     "generate_a_unity_test_for_every_file",
     "mock",
     "unity_test",

@@ -7,7 +7,7 @@
 
 void
 printAddress(uint8_t (*getAddressSize)(Mac802154 *, const uint8_t*),
-             const uint8_t *(*getAddress)(Mac802154 *, const uint8_t *),
+             const uint8_t *(*getAddress)(const Mac802154 *, const uint8_t *),
              const uint8_t *packet);
 
 void
@@ -74,7 +74,7 @@ main(void)
 
 void
 printAddress(uint8_t (*getAddressSize)(Mac802154*, const uint8_t*),
-             const uint8_t *(*getAddress)(Mac802154*, const uint8_t *),
+             const uint8_t *(*getAddress)(const Mac802154*, const uint8_t *),
              const uint8_t *packet)
 {
   uint8_t         address_size = getAddressSize(mac802154, packet);

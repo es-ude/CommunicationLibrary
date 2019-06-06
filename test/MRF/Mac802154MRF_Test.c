@@ -27,11 +27,6 @@ Mac802154Config      mac_config;
 MRFConfig hardware_config;
 
 void
-debug(const uint8_t *message)
-{
-}
-
-void
 setUp(void)
 {
   hardware_config.device = device;
@@ -339,9 +334,8 @@ test_fetchMessageBlocking(void)
   MrfIo_readBlockingFromLongAddress_IgnoreArg_buffer();
   MrfIo_readBlockingFromLongAddress_ReturnArrayThruPtr_buffer(
     expected_message, strlen((char *) expected_message));
-  MrfIo *io = &((Mrf *)mrf)->io;
 
-  uint8_t message_buffer[16];
+    uint8_t message_buffer[16];
   memset(message_buffer, 0, 16);
   Mac802154_fetchPacketBlocking(
     mrf, message_buffer, (uint8_t) strlen((char *) expected_message));

@@ -4,22 +4,6 @@
 #include "src/Mac802154/MRF/MRFHelperFunctions.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 
-#define TEST_ASSERT_EQUAL_CALLBACK(expected, actual)\
-  TEST_ASSERT_EQUAL_PTR_MESSAGE(expected.function, actual.function, "Callback: function differs");\
-  TEST_ASSERT_EQUAL_PTR_MESSAGE(expected.argument, actual.argument, "Callback.argument differs");\
-
-#define TEST_ASSERT_MRFIO_WRITE_CONTEXT_EQUAL(expected, actual) \
-  TEST_ASSERT_EQUAL_UINT16_MESSAGE(expected.length, actual.length, "MrfIo_NonBlockingWriteContext length field differs");\
-  TEST_ASSERT_EQUAL_PTR_MESSAGE(expected.output_buffer, actual.output_buffer, "MrfIo_NonBlockingWriteContext output_buffer differs");\
-  TEST_ASSERT_EQUAL_UINT16_MESSAGE(expected.address, actual.address, "MrfIo_NonBlockingWriteContext address differs");\
-  TEST_ASSERT_EQUAL_CALLBACK(expected.callback, actual.callback);
-
-static void captureWriteContext(PeripheralInterface *interface,
-                                 PeripheralInterface_NonBlockingWriteContext context,
-                                 int number_of_calls);
-
-static PeripheralInterface_NonBlockingWriteContext last_write_context;
-
 void debug(const uint8_t *message) {}
 
 void test_writeBlockingToLongAddress(void) {
@@ -52,112 +36,6 @@ void test_writeBlockingToShortAddress(void) {
     PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
   }
   MrfIo_writeBlockingToShortAddress(&mrf, payload, size, address);
-}
-
-void test_writeNonBlockingToShortAddressCheckingBothCallbacks(void) {
-  MrfIo mrf;
-  mrf.callback.function = NULL;
-  uint8_t size = 20;
-  uint8_t payload[size];
-  uint8_t address;
-  uint8_t command[1] = {MRF_writeShortCommand(address)};
-  MrfIo_NonBlockingWriteContext context = {
-      .output_buffer = payload,
-      .length = size,
-      .callback = NULL,
-      .address = address,
-  };
-  PeripheralInterface_writeNonBlocking_StubWithCallback(captureWriteContext);
-  PeripheralInterface_NonBlockingWriteContext expected_peripheral_context =
-      {
-          .length = 1,
-          .output_buffer = command,
-      };
-  PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
-  MrfIo_writeNonBlockingToShortAddress(&mrf, context);
-  TEST_ASSERT_EQUAL_UINT16(expected_peripheral_context.length, last_write_context.length);
-  TEST_ASSERT_EQUAL_UINT8(expected_peripheral_context.output_buffer[0], last_write_context.output_buffer[0]);
-  //TODO: convert tests to new writeNonBlocking function signature
-//  PeripheralInterface_writeNonBlocking_Expect(mrf.interface, payload, size);
-//  last_write_context.function(last_write_context.argument);
-//
-//  PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
-//  last_write_context.function(last_write_context.argument);
-//
-//  TEST_ASSERT_NULL(last_write_context.function);
-//  TEST_ASSERT_NULL(last_write_context.argument);
-}
-
-//TODO: convert tests to new writeNonBlocking function signature
-//void test_writeNonBlockingToLongAddress(void) {
-//  MrfIo mrf;
-//  mrf.callback.function = NULL;
-//  uint8_t payload_size = 13;
-//  uint8_t payload[payload_size];
-//  uint16_t address;
-//  uint8_t command_size = 2;
-//  uint8_t command[] = {
-//          MRF_writeLongCommandFirstByte(address),
-//          MRF_writeLongCommandSecondByte(address)
-//  };
-//  PeripheralInterface_NonBlockingWriteContext context = {
-//      .callback.function = NULL,
-//      .output_buffer = payload,
-//      .length = payload_size,
-//  };
-//
-//  PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
-//  PeripheralInterface_writeNonBlocking_Expect(mrf.interface, context);
-//
-//  MrfIo_writeNonBlockingToLongAddress(&mrf, payload, payload_size, address);
-//
-//  PeripheralInterface_writeNonBlocking_Expect(mrf.interface, context);
-//  last_write_context.function(last_write_context.argument);
-//
-//  PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
-//  last_write_context.function(last_write_context.argument);
-//
-//}
-
-static void writeCallback(void *arg) {
-  *(bool *) arg = true;
-}
-
-//TODO: convert tests to new writeNonBlocking function signature
-//void test_writeNonBlockingToLongAddressTwoTimesUsingCallback(void) {
-//  MrfIo mrf;
-//  uint8_t first_payload_size = 24;
-//  uint8_t first_payload[first_payload_size];
-//  uint16_t address;
-//  uint8_t command_size = 2;
-//  uint8_t command[] = {
-//          MRF_writeLongCommandFirstByte(address),
-//          MRF_writeLongCommandSecondByte(address)
-//  };
-//  uint8_t second_payload_size = 16;
-//  uint8_t second_payload[second_payload_size];
-//  bool write_callback_called = false;
-//  MrfIoCallback callback = {
-//          .function = writeCallback,
-//          .argument = &write_callback_called,
-//  };
-//  MrfIo_setWriteCallback(&mrf, callback);
-//  PeripheralInterface_setWriteCallback_StubWithCallback (captureWriteContext);
-//
-//  PeripheralInterface_selectPeripheral_Expect(mrf.interface, mrf.device);
-//  PeripheralInterface_writeNonBlocking_Expect(mrf.interface, command, command_size);
-//
-//  MrfIo_writeNonBlockingToLongAddress(&mrf, first_payload, first_payload_size, address);
-//
-//  PeripheralInterface_writeNonBlocking_Expect(mrf.interface, first_payload, first_payload_size);
-//  last_write_context.function(last_write_context.argument);
-//
-//  TEST_ASSERT_FALSE(write_callback_called);
-//  PeripheralInterface_deselectPeripheral_Expect(mrf.interface, mrf.device);
-//}
-
-void captureWriteContext (PeripheralInterface *interface, PeripheralInterface_NonBlockingWriteContext context, int number_of_calls) {
-   last_write_context = context;
 }
 
 void check_setControlRegister(uint16_t register_address, const uint8_t *command, uint8_t command_length) {

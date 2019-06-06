@@ -17,8 +17,6 @@ typedef struct  MrfIo_NonBlockingWriteContext MrfIo_NonBlockingWriteContext;
 
 void MrfIo_writeBlockingToLongAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size, uint16_t address);
 void MrfIo_writeBlockingToShortAddress(MrfIo *mrf, const uint8_t *payload, uint8_t size, uint8_t address);
-void MrfIo_writeNonBlockingToLongAddress(MrfIo *mrf, MrfIo_NonBlockingWriteContext context);
-void MrfIo_writeNonBlockingToShortAddress(MrfIo *mrf, MrfIo_NonBlockingWriteContext context);
 
 /**
  * Evaluates the register address to determine if it belongs to the short or long address space of

@@ -3,7 +3,7 @@
 #include <avr/interrupt.h>
 #include "Setup/HardwareSetup.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
-#include "Setup/LUFAHelpers.h"
+
 #include "Setup/DebugSetup.h"
 #include "Util/Debug.h"
 #include "PeripheralInterface/PeripheralInterface.h"
@@ -34,7 +34,8 @@ main(void)
       debugPrintHex(packet[i]);
     }
     debug(String, "\n");
-    debugSized(packet+10, packet_size-12);
+    packet[packet_size-12] = '\0';
+    debug(String, packet+10);
     debug(String,"\n");
   }
 }

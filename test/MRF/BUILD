@@ -6,7 +6,7 @@ from the file unity_helpers.bzl in the package test available here.
 """
 
 load(
-    "@EmbeddedSystemsBuildScripts//:unity.bzl",
+    "@EmbeddedSystemsBuildScripts//Unity:unity.bzl",
     "generate_a_mock_for_every_file",
     "generate_a_unity_test_for_every_file",
     "mock",
@@ -17,8 +17,8 @@ mock(
     name = "PeripheralInterfaceMock",
     srcs = ["@PeripheralInterface//:PeripheralInterface/PeripheralInterface.h"],
     enforce_strict_ordering = True,
-    deps = ["@PeripheralInterface//:PeripheralInterfaceHdrsOnly"]
-    )
+    deps = ["@PeripheralInterface//:PeripheralInterfaceHdrsOnly"],
+)
 
 mock(
     name = "FrameHeaderMock",
@@ -50,11 +50,11 @@ unity_test(
     ],
     file_name = "Mac802154MRF_Test.c",
     deps = [
+        ":FrameHeaderMock",
         ":MockMRFHelperFunctions",
         ":MockMRFState",
-        ":MockMrfIo",
         ":MockMac802154MRF_TestHelper",
-        ":FrameHeaderMock",
+        ":MockMrfIo",
         ":PeripheralInterfaceMock",
         "@CException",
         "@CMock",
@@ -67,8 +67,7 @@ unity_test(
     ],
     file_name = "MrfIo_Test.c",
     deps = [
-                ":MockMac802154MRF_TestHelper",
-
+        ":MockMac802154MRF_TestHelper",
         ":PeripheralInterfaceMock",
         "//:CommunicationModule",
         "@CException",

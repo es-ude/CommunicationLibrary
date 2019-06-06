@@ -1,20 +1,19 @@
 load(
-    "@AvrToolchain//:helpers.bzl",
+    "@AvrToolchain//platforms/cpu_frequency:cpu_frequency.bzl",
     "cpu_frequency_flag",
+)
+load(
+    "@AvrToolchain//:helpers.bzl",
     "default_embedded_binaries",
     "default_embedded_binary",
-    "mcu_avr_gcc_flag",
 )
-
-load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 
 default_embedded_binary(
     name = "SPITestWithoutCommunicationModuleAndLufa",
     srcs = [
         "SPITestWithoutCommunicationModuleAndLufa.c",
     ],
-    copts = mcu_avr_gcc_flag() + cpu_frequency_flag(),
-    linkopts = mcu_avr_gcc_flag(),
+    copts = cpu_frequency_flag(),
 )
 
 default_embedded_binary(
@@ -22,8 +21,7 @@ default_embedded_binary(
     srcs = [
         "LufaTest.c",
     ],
-    copts = mcu_avr_gcc_flag() + cpu_frequency_flag(),
-    linkopts = mcu_avr_gcc_flag(),
+    copts = cpu_frequency_flag(),
     deps = [
         "//Setup:MotherboardSetup",
         "@EmbeddedUtilities//:Debug",
@@ -31,12 +29,11 @@ default_embedded_binary(
 )
 
 default_embedded_binaries(
-    copts = mcu_avr_gcc_flag() + cpu_frequency_flag() +
+    copts = cpu_frequency_flag() +
             select({
                 "//configs:debug_enabled": ["-DDEBUG=1"],
                 "//conditions:default": ["-DDEBUG=0"],
             }),
-    linkopts = mcu_avr_gcc_flag(),
     main_files = [
         "ReadMrfTxStabilizationRegister.c",
         "WriteStringToVirtualSerial.c",
@@ -57,8 +54,7 @@ default_embedded_binaries(
         "HelpersForUsageWithoutCommModule.h",
     ],
     deps = select({
-        "@AvrToolchain//config:Motherboard": ["//Setup:MotherboardSetup"],
-        "@AvrToolchain//config:ElasticNode": ["//Setup:ElasticNodeSetup"],
+        "@AvrToolchain//platforms/board_id:motherboard_config": ["//Setup:MotherboardSetup"],
+        "@AvrToolchain//platforms/board_id:elastic_node_v3_config": ["//Setup:ElasticNodeSetup"],
     }),
 )
-

@@ -272,26 +272,6 @@ getReceivedMessageSize(Mac802154 *self)
   return size + frame_length_field_size;
 }
 
-static void
-flushRXBuffer(Mrf *self)
-{
-  MrfIo_setControlRegister(&self->io, 0x0D, 1);
-}
-
-static void
-disableReception(Mrf *self)
-{
-  MrfIo_setControlRegister(&self->io,
-                           mrf_register_base_band1,
-                           mrf_value_rx_decode_inversion);
-}
-
-static void
-enableReception(Mrf *self)
-{
-  MrfIo_setControlRegister(&self->io, mrf_register_base_band1, 0);
-}
-
 bool
 newMessageAvailable(Mac802154 *self)
 {
@@ -327,15 +307,6 @@ disablePromiscuousMode(Mac802154 *self)
 {
   Mrf *impl = (Mrf *) self;
   MrfIo_setControlRegister(&impl->io, mrf_register_receive_mac_control, 0);
-}
-
-/**
- * accept packages with good or bad crc
- */
-void
-setErrorMode(Mrf *impl)
-{
-  MrfIo_setControlRegister(&impl->io, 0x00, 2);
 }
 
 const uint8_t *

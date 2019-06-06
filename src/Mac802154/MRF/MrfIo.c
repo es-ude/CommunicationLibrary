@@ -10,10 +10,6 @@ static void setWriteShortCommand(MrfIo *mrf, uint8_t address);
 static void setWriteLongCommand(MrfIo *mrf, uint16_t address);
 static void setReadShortCommand(MrfIo *mrf, uint8_t address);
 static void setReadLongCommand(MrfIo *mrf, uint16_t address);
-static void clearPeripheralWriteCallback(PeripheralInterface *interface);
-static void clearMrfIoWriteCallback(MrfIo *mrf);
-static void callbackForDeselect(void *mrf);
-static void callbackForWritingData(void *mrf);
 
 static bool isLongAddress(uint16_t address);
 
@@ -63,64 +59,6 @@ void setReadLongCommand(MrfIo *mrf, uint16_t address) {
 void setReadShortCommand(MrfIo *mrf, uint8_t address) {
   mrf->command_size = 1;
   mrf->command[0] = MRF_readShortCommand(address);
-}
-
-
-void callbackForWritingData(void *arg) {
-  MrfIo *mrf = (MrfIo *) arg;
-  PeripheralInterface_Callback callback = {
-          .function = callbackForDeselect,
-          .argument = mrf,
-  };
-  PeripheralInterface_NonBlockingWriteContext context = {
-      .callback = callback,
-      .output_buffer = mrf->output_buffer,
-      .length = mrf->length,
-  };
-  PeripheralInterface_writeNonBlocking(mrf->interface, context);
-}
-
-void callbackForDeselect(void *arg) {
-  MrfIo *mrf = (MrfIo *) arg;
-
-  PeripheralInterface_deselectPeripheral(mrf->interface, mrf->device);
-  if(mrf->callback.function != NULL)
-    mrf->callback.function(mrf->callback.argument);
-}
-
-
-void MrfIo_writeNonBlockingToShortAddress(MrfIo *mrf, MrfIo_NonBlockingWriteContext context) {
-  PeripheralInterface_selectPeripheral(mrf->interface, mrf->device);
-  setWriteShortCommand(mrf, context.address);
-  mrf->output_buffer = context.output_buffer;
-  mrf->length = context.length;
-  PeripheralInterface_Callback callback = {
-          .function = callbackForWritingData,
-          .argument = mrf,
-  };
-  PeripheralInterface_NonBlockingWriteContext command_context = {
-      .length = mrf->command_size,
-      .output_buffer = mrf->command,
-      .callback = callback,
-  };
-  PeripheralInterface_writeNonBlocking(mrf->interface, command_context);
-}
-
-void MrfIo_writeNonBlockingToLongAddress(MrfIo *mrf, MrfIo_NonBlockingWriteContext context) {
-  setWriteLongCommand(mrf, context.address);
-  mrf->output_buffer = context.output_buffer;
-  mrf->length = context.length;
-  PeripheralInterface_selectPeripheral(mrf->interface, mrf->device);
-  PeripheralInterface_Callback callback = {
-          .argument = mrf,
-          .function = callbackForWritingData,
-  };
-  PeripheralInterface_NonBlockingWriteContext command_context = {
-      .callback = callback,
-      .output_buffer = mrf->command,
-      .length = mrf->command_size,
-  };
-  PeripheralInterface_writeNonBlocking(mrf->interface, command_context);
 }
 
 

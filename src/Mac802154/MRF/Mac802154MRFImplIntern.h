@@ -97,7 +97,7 @@ static void useShortSourceAddress(Mac802154 *self);
 
 static void reset(Mrf *impl);
 static void setInitializationValuesFromDatasheet(MrfIo *impl);
-static void setPrivateVariables(Mrf *impl, const Mac802154Config *config);
+
 static void setUpInterface(Mac802154 *interface);
 static void enableRXInterrupt(Mrf *impl);
 static void setChannel(Mrf *impl, uint8_t channel);

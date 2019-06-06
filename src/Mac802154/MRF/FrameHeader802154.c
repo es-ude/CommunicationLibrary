@@ -31,8 +31,6 @@
 
 // first byte
 static const uint8_t frame_type_bitmask = 0b111;
-static const uint8_t security_enabled_offset = 3;
-static const uint8_t frame_pending_offset = 4;
 static const uint8_t acknowledgement_request_offset = 5;
 static const uint8_t pan_id_compression_offset = 6;
 
@@ -48,36 +46,17 @@ static const uint8_t source_addressing_mode_offset = 14;
 
 // other constants
 static const uint8_t control_field_size = 2;
-static const uint8_t sequence_number_size = 1;
 static const uint8_t pan_id_size = 2;
-/*
- * after the second byte follow
- *  - sequence number either zero or one byte (as stated by sequence_number_suppression)
- *  - destination pan id (we'll always omit the source pan id, and set up the frame in a way that source and
- *    destination pan_id have to be the same.
- *  - destination address either in 16 (short) or 64 bit (extended) format
- *  - source address (generally this can be short or extended format as well.
- *    However if both addresses are used in the extended form, the pan id compression has to be disabled, but the source pan id is still omitted.
- */
 
-
-
-static bool sourceAddressIsPresent(const FrameHeader802154 *self);
-static bool destinationAddressIsPresent(const FrameHeader802154 *self);
 static bool sequenceNumberIsPresent(const FrameHeader802154 *self);
 static bool panIdIsPresent(const FrameHeader802154 *self);
 static bool panIdCompressionIsEnabled(const FrameHeader802154 *self);
-static bool acknowledgmentIsEnabled(const FrameHeader802154 *self);
 
 static void setFrameType(FrameHeader802154 *self, uint8_t frame_type);
-static void setFrameVersion(FrameHeader802154 *self, uint8_t frame_type);
+static void setFrameVersion(FrameHeader802154 *self, uint8_t version);
 static void enablePanIdCompression(FrameHeader802154 *self);
 static void disablePanIdCompression(FrameHeader802154 *self);
-static void enableSecurity(FrameHeader802154 *self);
-static void disableSecurity(FrameHeader802154 *self);
-static void enableFramePending(FrameHeader802154 *self);
-static void disableFramePending(FrameHeader802154 *self);
-static void disableAcknowledgementRequest(FrameHeader802154 *self);
+
 static void setSourceAddressingMode(FrameHeader802154 *self, uint8_t mode);
 static void setDestinationAddressingMode(FrameHeader802154 *self, uint8_t mode);
 
@@ -225,14 +204,6 @@ static bool panIdIsPresent(const FrameHeader802154 *self) {
           || panIdCompressionIsEnabled(self);
 }
 
-static bool sourceAddressIsPresent(const FrameHeader802154 *self) {
-  return getSourceAddressingMode(self) != ADDRESSING_MODE_NEITHER_PAN_NOR_ADDRESS_PRESENT;
-}
-
-static bool destinationAddressIsPresent(const FrameHeader802154 *self) {
-  return getDestinationAddressingMode(self) != ADDRESSING_MODE_NEITHER_PAN_NOR_ADDRESS_PRESENT;
-}
-
 
 uint8_t getSourceAddressingMode(const FrameHeader802154 *self) {
   return BitManipulation_getByteOnArray(self->data, source_addressing_mode_bitmask, source_addressing_mode_offset);
@@ -284,22 +255,6 @@ void setSourceAddressingMode(FrameHeader802154 *self, uint8_t mode) {
   BitManipulation_setByteOnArray(self->data, source_addressing_mode_bitmask, source_addressing_mode_offset, mode);
 }
 
-
-void enableSecurity(FrameHeader802154 *self){
-  BitManipulation_setBitOnArray(self->data, security_enabled_offset);
-}
-
-void disableSecurity(FrameHeader802154 *self) {
-  BitManipulation_clearBitOnArray(self->data, security_enabled_offset);
-}
-
-void enableFramePending(FrameHeader802154 *self) {
-  BitManipulation_setBitOnArray(self->data, frame_pending_offset);
-}
-
-void disableFramePending(FrameHeader802154 *self) {
-  BitManipulation_clearBitOnArray(self->data, frame_pending_offset);
-}
 
 void FrameHeader802154_enableAcknowledgementRequest(FrameHeader802154 *self){
   BitManipulation_setBitOnArray(self->data, acknowledgement_request_offset);

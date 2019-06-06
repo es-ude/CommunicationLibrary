@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <util/delay.h>
-#include "Setup/LUFAHelpers.h"
+
 #include "integration_tests/HelpersForUsageWithoutCommModule.h"
 #include "PeripheralInterface/PeripheralSPIImpl.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
@@ -24,14 +24,6 @@ int main(void){
     debug(String, output);
     _delay_ms(1000);
   }
-}
-
-void select(void) {
-  PORTB &= ~(_BV(PORTB0));
-}
-
-void deselect(void) {
-  PORTB |= _BV(PORTB0);
 }
 
 uint8_t readByteFromShortAddressRegister(uint8_t register_address) {
