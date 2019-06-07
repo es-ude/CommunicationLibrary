@@ -9,7 +9,7 @@ http_archive(
     name = "EmbeddedSystemsBuildScripts",
     strip_prefix = "EmbeddedSystemsBuildScripts-0.5",
     type = "tar.gz",
-    urls = ["https://github.com/es-uni-due/EmbeddedSystemsBuildScripts/archive/v0.5.tar.gz"],
+    urls = ["https://github.com/es-ude/EmbeddedSystemsBuildScripts/archive/v0.5.tar.gz"],
 )
 
 load("@EmbeddedSystemsBuildScripts//AvrToolchain:avr.bzl", "avr_toolchain")
@@ -48,11 +48,11 @@ http_archive(
     name = "EmbeddedUtilities",
     strip_prefix = "EmbeddedUtil-0.3",
     type = "tar.gz",
-    urls = ["https://github.com/es-uni-due/EmbeddedUtil/archive/v0.3.tar.gz"],
+    urls = ["https://github.com/es-ude/EmbeddedUtil/archive/v0.3.tar.gz"],
 )
 
 http_archive(
     name = "PeripheralInterface",
     strip_prefix = "PeripheralInterface-0.6",
-    urls = ["https://github.com/es-uni-due/PeripheralInterface/archive/v0.6.tar.gz"],
+    urls = ["https://github.com/es-ude/PeripheralInterface/archive/v0.6.tar.gz"],
 )
