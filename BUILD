@@ -1,3 +1,21 @@
+load(":doc/docs.bzl", "doxygen_archive", "sphinx_archive")
+
+doxygen_archive(
+    name = "doxy",
+    srcs = [":CommunicationModuleIncl"],
+    doxyfile = ":doc/doxy.conf",
+)
+
+sphinx_archive(
+    name = "sphinx",
+    srcs = [
+        "CommunicationModule/Readme.rst",
+        "Readme.rst",
+    ],
+    config_file = ":doc/conf.py",
+    doxygen_xml_archive = ":doxy",
+)
+
 filegroup(
     name = "CommunicationModuleSrc",
     srcs = glob(
