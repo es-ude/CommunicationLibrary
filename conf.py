@@ -19,11 +19,11 @@ import os
 import subprocess, sys
 
 
-def run_doxygen(folder):
+def run_doxygen(file):
     """Run the doxygen make command in the designated folder"""
-
+    filedir = os.path.dirname(file)
     try:
-        retcode = subprocess.call("cd %s; make" % folder, shell=True)
+        retcode = subprocess.call("cd {}; sed -e \"s:@@OUTPUT_DIRECTORY@@:$out_dir_path/:\" <{} | doxygen -".format(filedir, file), shell=True)
         if retcode < 0:
             sys.stderr.write("doxygen terminated by signal %s" % (-retcode))
     except OSError as e:
@@ -37,7 +37,7 @@ def generate_doxygen_xml(app):
 
     if read_the_docs_build:
 
-        run_doxygen("../../")
+        run_doxygen("./doxy.conf")
 
 def setup(app):
 
@@ -187,6 +187,9 @@ texinfo_documents = [
 
 # --- Breathe ----
 
+
+breathe_projects = {"CommunicationLibrary": "xml/"}
+breathe_default_project = "CommunicationLibrary"
 
 # -- Options for Epub output -------------------------------------------------
 
