@@ -37,7 +37,7 @@ def generate_doxygen_xml(app):
 
     if read_the_docs_build:
 
-        run_doxygen("../../doxy.conf")
+        run_doxygen("../../")
 
 def setup(app):
 
