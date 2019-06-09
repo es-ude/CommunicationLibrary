@@ -3,7 +3,7 @@ load(":doc/docs.bzl", "doxygen_archive", "sphinx_archive")
 doxygen_archive(
     name = "doxy",
     srcs = [":CommunicationModuleIncl"],
-    doxyfile = ":doc/doxy.conf",
+    doxyfile = ":doxy.conf",
 )
 
 sphinx_archive(
