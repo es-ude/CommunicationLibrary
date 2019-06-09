@@ -12,8 +12,10 @@ sphinx_archive(
         "CommunicationModule/Readme.rst",
         "Readme.rst",
     ],
-    config_file = ":doc/conf.py",
+    copyright = "2019, Embedded Systems Department University Duisburg Essen",
     doxygen_xml_archive = ":doxy",
+    master_doc = "Readme",
+    version = "v0.5",
 )
 
 filegroup(
