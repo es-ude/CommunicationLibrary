@@ -14,9 +14,6 @@ To allow interaction with these chips a drivers for the respective peripheral in
 .. _MRF24J40MA: https://www.microchip.com/wwwproducts/en/MRF24J40MA
 .. _XBee: https://docs.bazel.build/versions/0.26.0/install.html
 
-.. toctree::
-	CommunicationModule/Readme.rst
-
 Dependencies
 ------------
 The library comes with very few but essential dependencies.

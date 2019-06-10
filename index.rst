@@ -3,5 +3,5 @@ CommunicationLibrary
 ====================
 
 .. toctree::
-	CommunicationModule/Readme
 	Readme
+    CommunicationModule/Readme
