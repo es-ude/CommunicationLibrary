@@ -3,8 +3,8 @@ CommunicationModule
 =====================
 
 .. image:: https://readthedocs.org/projects/communicationlibrary/badge/?version=latest
-:target: https://communicationlibrary.readthedocs.io/en/latest/?badge=latest
-:alt: Documentation Status
+    :target: https://communicationlibrary.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 The CommunicationModule is a library aimed at 8bit-avr microcontrollers.
 The intent is to offer software support for several 802.15.4 based network chips like MRF24J40MA_
