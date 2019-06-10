@@ -29,20 +29,25 @@ def run_doxygen(file):
     except OSError as e:
         sys.stderr.write("doxygen execution failed: %s" % e)
 
+# read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
 
-def generate_doxygen_xml(app):
-    """Run the doxygen make commands if we're on the ReadTheDocs server"""
+# if read_the_docs_build:
 
-    read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
+run_doxygen("./doxy.conf")
 
-    if read_the_docs_build:
+# def generate_doxygen_xml(app):
+#     """Run the doxygen make commands if we're on the ReadTheDocs server"""
+#
+#     read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
+#
+#     if read_the_docs_build:
+#
+#         run_doxygen("./doxy.conf")
 
-        run_doxygen("./doxy.conf")
-
-def setup(app):
-
-    # Add hook for building doxygen xml when needed
-    app.connect("builder-inited", generate_doxygen_xml)
+# def setup(app):
+#
+#     # Add hook for building doxygen xml when needed
+#     app.connect("builder-inited", generate_doxygen_xml)
 
 # -- Project information -----------------------------------------------------
 
