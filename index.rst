@@ -2,6 +2,6 @@
 CommunicationLibrary
 ====================
 
-.. toctree:
+.. toctree::
 	CommunicationModule/Readme
 	Readme
