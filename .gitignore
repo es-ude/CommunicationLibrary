@@ -7,6 +7,10 @@ doc/latex
 # Prerequisites
 *.d
 
+# documentation
+_build/
+xml/
+
 # Object files
 *.o
 *.ko
