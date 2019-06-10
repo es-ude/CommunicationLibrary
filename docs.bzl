@@ -130,7 +130,6 @@ def add_option(settings, setting, value):
 def _sphinx_settings(ctx):
     settings = []
     extensions = ctx.attr.extensions
-    if version
     settings = add_option(settings, "version", ctx.attr.version)
     if ctx.attr.project == "":
         settings = add_option(settings, "project", ctx.workspace_name)

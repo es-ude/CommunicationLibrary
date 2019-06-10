@@ -29,12 +29,13 @@ def run_doxygen(file):
     except OSError as e:
         sys.stderr.write("doxygen execution failed: %s" % e)
 
+
 # read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
 
 # if read_the_docs_build:
+#     run_doxygen("./doxy.conf")
 
 run_doxygen("./doxy.conf")
-
 # def generate_doxygen_xml(app):
 #     """Run the doxygen make commands if we're on the ReadTheDocs server"""
 #

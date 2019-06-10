@@ -1,4 +1,4 @@
-load(":doc/docs.bzl", "doxygen_archive", "sphinx_archive")
+load(":docs.bzl", "doxygen_archive", "sphinx_archive")
 
 doxygen_archive(
     name = "doxy",
@@ -11,10 +11,12 @@ sphinx_archive(
     srcs = [
         "CommunicationModule/Readme.rst",
         "Readme.rst",
+        "index.rst",
     ],
     copyright = "2019, Embedded Systems Department University Duisburg Essen",
     doxygen_xml_archive = ":doxy",
-    master_doc = "Readme",
+    master_doc = "index",
+    source_suffix = [".rst"],
     version = "v0.5",
 )
 
