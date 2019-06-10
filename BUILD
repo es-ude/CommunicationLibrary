@@ -17,7 +17,7 @@ sphinx_archive(
     doxygen_xml_archive = ":doxy",
     master_doc = "index",
     source_suffix = [".rst"],
-    version = "v0.5",
+    version = "v0.1.5",
 )
 
 filegroup(

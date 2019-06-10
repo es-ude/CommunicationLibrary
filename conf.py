@@ -59,7 +59,7 @@ author = 'Embedded Systems Department University Duisburg-Essen'
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = 'v0.5'
+release = 'v0.1.5'
 
 
 # -- General configuration ---------------------------------------------------
