@@ -23,7 +23,7 @@ def run_doxygen(file):
     """Run the doxygen make command in the designated folder"""
     filedir = os.path.dirname(file)
     try:
-        retcode = subprocess.call("sed -e \"s:@@OUTPUT_DIRECTORY@@:${}/:\" <{} | doxygen -".format(filedir, file), shell=True)
+        retcode = subprocess.call("sed -e \"s:@@OUTPUT_DIRECTORY@@:{}:\" <{} | doxygen -".format(filedir, file), shell=True)
         if retcode < 0:
             sys.stderr.write("doxygen terminated by signal %s" % (-retcode))
     except OSError as e:
