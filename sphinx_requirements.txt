@@ -1,1 +1,2 @@
 breathe
+Sphinx >= 2.0
