@@ -27,11 +27,12 @@ To use the precompiled library you'll need
 .. _CException: https://github.com/ThrowTheSwitch/CException
 .. _Mutex: https://github.com/es-ude/EmbeddedUtil
 .. _PeripheralInterface: https://github.com/es-ude/PeripheralInterface
+.. _BazelCProjectCreator: https://github.com/es-ude/BazelCProjectCreator
 
 To use our build scripts you will have to install the Bazel build tool.
 You can find install instructions at https://docs.bazel.build/versions/0.26.0/install.html.
 
-We recommend using the [BazelCProjectCreator](https://github.com/es-ude/BazelCProjectCreator) script
+We recommend using the `BazelCProjectCreator`_ script
 to create your project. Additionally to the dependencies already present in the ``WORKSPACE`` file
 you will need to add the following lines::
 
