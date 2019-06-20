@@ -31,6 +31,32 @@ To use the precompiled library you'll need
 To use our build scripts you will have to install the Bazel build tool.
 You can find install instructions at https://docs.bazel.build/versions/0.26.0/install.html.
 
+We recommend using the [BazelCProjectCreator](https://github.com/es-ude/BazelCProjectCreator) script
+to create your project. Additionally to the dependencies already present in the ``WORKSPACE`` file
+you will need to add the following lines::
+
+    http_archive(
+        name = "EmbeddedUtilities",
+        strip_prefix = "EmbeddedUtil-0.3",
+        type = "tar.gz",
+        urls = ["https://github.com/es-ude/EmbeddedUtil/archive/v0.3.tar.gz"],
+    )
+
+    http_archive(
+        name = "PeripheralInterface",
+        strip_prefix = "PeripheralInterface-0.6",
+        urls = ["https://github.com/es-ude/PeripheralInterface/archive/v0.6.tar.gz"],
+    )
+    
+    http_archive(
+        name = "CommunicationModule",
+        strip_prefix = "CommunicationLibrary-0.1.5",
+        urls = ["https://github.com/es-ude/CommunicationLibrary/archive/v0.1.5.tar.gz"],
+    )
+
+Alternatively you can copy the dependencies from ``WORKSPACE`` file
+in this project and add the ``CommunicationModule`` dependency (as shown above).
+
 How to use the library
 ----------------------
 The library follows a strict separation of interfaces and implementation.
