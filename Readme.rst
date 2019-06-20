@@ -39,7 +39,6 @@ you will need to add the following lines::
     http_archive(
         name = "EmbeddedUtilities",
         strip_prefix = "EmbeddedUtil-0.3",
-        type = "tar.gz",
         urls = ["https://github.com/es-ude/EmbeddedUtil/archive/v0.3.tar.gz"],
     )
 
