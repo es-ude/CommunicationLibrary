@@ -29,8 +29,7 @@ doxygen_archive = rule(
     attrs = {
         "doxyfile": attr.label(
             mandatory = True,
-            allow_files = True,
-            single_file = True,
+            allow_single_file = True,
         ),
         "srcs": attr.label_list(
             mandatory = True,
@@ -91,8 +90,7 @@ sphinx_archive = rule(
         ),
         "doxygen_xml_archive": attr.label(
             default = None,
-            allow_files = True,
-            single_file = True,
+            allow_single_file = True,
         ),
         "master_doc": attr.string(default = "contents"),
         "version": attr.string(
