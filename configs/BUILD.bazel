@@ -2,14 +2,45 @@ load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 
 package(default_visibility = ["//visibility:public"])
 
-config_setting(
-    name = "debug_enabled",
-    constraint_values = ["//constraints:debug_enabled"]
+alias(
+  name = "debug_enabled",
+  actual = select({
+      ":debug_enabled_constraint": "debug_enabled_constraint",
+      ":debug_enabled_define": "debug_enabled_define",
+      "//conditions:default": "debug_enabled_define",
+  })
 )
 
 config_setting(
+    name = "debug_enabled_define",
+    define_values = {
+        "debug_enabled": "true",
+    }
+)
+
+config_setting(
+    name = "debug_enabled_constraint",
+    constraint_values = ["//constraints:debug_enabled"]
+)
+
+alias(
     name = "debug_disabled",
+    actual = select({
+        ":debug_disabled_define": ":debug_disabled_define",
+        ":debug_disabled_constraint": ":debug_disabled_constraint",
+        "//conditions:default": ":debug_disabled_define",
+    }),
+)
+config_setting(
+    name = "debug_disabled_constraint",
     constraint_values = ["//constraints:debug_disabled"],
+)
+
+config_setting(
+    name = "debug_disabled_define",
+    define_values = {
+        "debug_enabled": "false"
+    },
 )
 
 pkg_tar(

@@ -31,8 +31,8 @@ default_embedded_binary(
 default_embedded_binaries(
     copts = cpu_frequency_flag() +
             select({
-                "//configs:debug_enabled": ["-DDEBUG=1"],
-                "//conditions:default": ["-DDEBUG=0"],
+                "//configs:debug_disabled": ["-DDEBUG=0"],
+                "//conditions:default": ["-DDEBUG=1"],
             }),
     main_files = [
         "ReadMrfTxStabilizationRegister.c",

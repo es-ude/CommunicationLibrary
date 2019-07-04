@@ -44,7 +44,6 @@ cc_library(
         "@EmbeddedUtilities//:Debug",
         "@LUFA//:VirtualSerial",
     ],
-    alwayslink = True,
 )
 
 cc_library(
