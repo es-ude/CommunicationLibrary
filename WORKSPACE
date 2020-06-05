@@ -22,7 +22,7 @@ http_archive(
     build_file = "@EmbeddedSystemsBuildScripts//:BUILD.Unity",
     strip_prefix = "Unity-master",
     urls = ["https://github.com/ThrowTheSwitch/Unity/archive/master.tar.gz"],
-    sha256 = "2757ff718ef4c507a7c294f62bfd8d63a780b9122840c9b28ca376784f3baa6e",
+    # sha256 = "2757ff718ef4c507a7c294f62bfd8d63a780b9122840c9b28ca376784f3baa6e",
 )
 
 http_archive(
@@ -30,7 +30,7 @@ http_archive(
     build_file = "@EmbeddedSystemsBuildScripts//:BUILD.CException",
     strip_prefix = "CException-master",
     urls = ["https://github.com/ThrowTheSwitch/CException/archive/master.tar.gz"],
-    sha256 = "f5af035d949445e5b74fd0505a8ef1413109fcfd31d8ee7333516daad23483f7",
+    # sha256 = "f5af035d949445e5b74fd0505a8ef1413109fcfd31d8ee7333516daad23483f7",
 )
 
 http_archive(
@@ -38,7 +38,7 @@ http_archive(
     build_file = "@EmbeddedSystemsBuildScripts//:BUILD.CMock",
     strip_prefix = "CMock-master",
     urls = ["https://github.com/ThrowTheSwitch/CMock/archive/master.tar.gz"],
-    sha256 = "89f4a546b07ff03eac42563b2228edccd1dbfc1e9600581330826e239c54a225",
+    # sha256 = "89f4a546b07ff03eac42563b2228edccd1dbfc1e9600581330826e239c54a225",
 )
 
 http_archive(
@@ -51,14 +51,14 @@ http_archive(
 
 http_archive(
     name = "EmbeddedUtilities",
-    strip_prefix = "EmbeddedUtil-0.3",
-    urls = ["https://github.com/es-ude/EmbeddedUtil/archive/v0.3.tar.gz"],
-    sha256 = "964eb7b1ab9afba6960a6d19f7733716f61ba588c82a19330d87e4f006fce941",
+    strip_prefix = "EmbeddedUtilities-0.3.1",
+    urls = ["https://github.com/es-ude/EmbeddedEmbeddedUtilities/archive/v0.3.1.tar.gz"],
+    sha256 = "234c12e024bbd247bd4247b379eeca403ac7fab23a3bbb28df917508da37b40d",
 )
 
 http_archive(
     name = "PeripheralInterface",
-    strip_prefix = "PeripheralInterface-0.7",
-    urls = ["https://github.com/es-ude/PeripheralInterface/archive/v0.7.tar.gz"],
-    sha256 = "03aa03c8897b66227ddd1ddf6793a59f6b375b41f0f2329506f49d5ca4a9130a",
+    strip_prefix = "PeripheralInterface-0.7.1",
+    urls = ["https://github.com/es-ude/PeripheralInterface/archive/v0.7.1.tar.gz"],
+    sha256 = "4f00ab56c6a7485ad813423c156cc6b895a68d3625a5c8e534a3be38aed5337d",
 )

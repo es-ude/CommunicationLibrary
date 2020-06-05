@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include "src/Mac802154/MRF/MrfIo.h"
 #include "src/Mac802154/MRF/MRFHelperFunctions.h"
-#include "Util/Debug.h"
+#include "EmbeddedUtilities/Debug.h"
 
 static void setWriteLongCommand(MrfIo *mrf, uint16_t address);
 static void writeBlockingWithCommand(MrfIo *mrf, const uint8_t *payload, uint8_t size);

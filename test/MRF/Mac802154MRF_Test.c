@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "Util/BitManipulation.h"
+#include "EmbeddedUtilities/BitManipulation.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 #include "src/Mac802154/MRF/Mac802154MRFImplIntern.h"
 #include "src/Mac802154/MRF/MockMRFHelperFunctions.h"

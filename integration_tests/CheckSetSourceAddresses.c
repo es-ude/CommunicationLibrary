@@ -3,7 +3,7 @@
 #include "integration_tests/HelpersForUsageWithoutCommModule.h"
 #include "Setup/HardwareSetup.h"
 #include "Setup/DebugSetup.h"
-#include "Util/Debug.h"
+#include "EmbeddedUtilities/Debug.h"
 #include "CException.h"
 
 #include <avr/io.h>

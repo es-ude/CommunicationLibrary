@@ -7,7 +7,7 @@
 
 #include "Setup/DebugSetup.h"
 #include "PeripheralInterface/PeripheralInterface.h"
-#include "Util/Debug.h"
+#include "EmbeddedUtilities/Debug.h"
 #include <stdio.h>
 
 /**

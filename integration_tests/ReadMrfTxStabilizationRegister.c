@@ -6,7 +6,7 @@
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 #include "Setup/HardwareSetup.h"
 #include "Setup/DebugSetup.h"
-#include "Util/Debug.h"
+#include "EmbeddedUtilities/Debug.h"
 
 uint8_t readByteFromShortAddressRegister(uint8_t register_address);
 void convertByteToString(uint8_t byte, uint8_t *string);

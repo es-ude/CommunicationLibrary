@@ -5,7 +5,7 @@
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 
 #include "Setup/DebugSetup.h"
-#include "Util/Debug.h"
+#include "EmbeddedUtilities/Debug.h"
 #include "PeripheralInterface/PeripheralInterface.h"
 #include "integration_tests/HelpersForUsageWithoutCommModule.h"
 

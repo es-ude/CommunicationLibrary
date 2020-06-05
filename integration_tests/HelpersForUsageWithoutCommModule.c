@@ -4,7 +4,7 @@
 #include "Setup/HardwareSetup.h"
 #include "src/Mac802154/MRF/MRFInternalConstants.h"
 #include "integration_tests/HelpersForUsageWithoutCommModule.h"
-#include "Util/Debug.h"
+#include "EmbeddedUtilities/Debug.h"
 
 void
 debugPrintHex(uint8_t byte);

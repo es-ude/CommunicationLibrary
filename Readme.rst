@@ -39,7 +39,7 @@ you will need to add the following lines::
     http_archive(
         name = "EmbeddedUtilities",
         strip_prefix = "EmbeddedUtil-0.3",
-        urls = ["https://github.com/es-ude/EmbeddedUtil/archive/v0.3.tar.gz"],
+        urls = ["https://github.com/es-ude/EmbeddedEmbeddedUtilities/archive/v0.3.tar.gz"],
     )
 
     http_archive(
@@ -76,7 +76,7 @@ or take a look at their header files.
 
 IMPORTANT: To use the library you will have to implement the ``executeAtomically()`` function.
 This is necessary to make the Mutex lib work. The corresponding header file
-can be found in the EmbeddedUtilities repo under ``Util/Atomic.h``.
+can be found in the EmbeddedUtilities repo under ``EmbeddedUtilities/Atomic.h``.
 
 Predefined setups for the department's platforms
 ------------------------------------------------

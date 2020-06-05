@@ -1,4 +1,4 @@
-#include "Util/Atomic.h"
+#include "EmbeddedUtilities/Atomic.h"
 #include <util/atomic.h>
 
 void

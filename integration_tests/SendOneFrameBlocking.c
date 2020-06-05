@@ -3,7 +3,7 @@
 #include <avr/interrupt.h>
 #include <string.h>
 #include "Setup/HardwareSetup.h"
-#include "Util/Debug.h"
+#include "EmbeddedUtilities/Debug.h"
 #include "Setup/DebugSetup.h"
 #include "CommunicationModule/Mac802154MRFImpl.h"
 #include <stdio.h>

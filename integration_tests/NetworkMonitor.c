@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include "Setup/HardwareSetup.h"
 #include "Setup/DebugSetup.h"
-#include "Util/Debug.h"
+#include "EmbeddedUtilities/Debug.h"
 #include <util/delay.h>
 #include <stdio.h>
 

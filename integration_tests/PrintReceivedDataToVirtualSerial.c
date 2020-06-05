@@ -7,7 +7,7 @@
 #include "CommunicationModule/Mac802154MRFImpl.h"
 
 #include "Setup/DebugSetup.h"
-#include "Util/Debug.h"
+#include "EmbeddedUtilities/Debug.h"
 
 int main(void)
 {

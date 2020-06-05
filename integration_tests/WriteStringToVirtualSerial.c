@@ -1,5 +1,5 @@
 #include "Setup/DebugSetup.h"
-#include "Util/Debug.h"
+#include "EmbeddedUtilities/Debug.h"
 #include <util/delay.h>
 
 int main(void) {

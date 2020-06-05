@@ -1,4 +1,4 @@
-#include "Util/BitManipulation.h"
+#include "EmbeddedUtilities/BitManipulation.h"
 #include "CommunicationModule/Mac802154.h"
 #include "CommunicationModule/FrameHeader802154Struct.h"
 #include "src/Mac802154/MRF/FrameHeader802154.h"

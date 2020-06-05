@@ -1,4 +1,4 @@
-#include "Util/Debug.h"
+#include "EmbeddedUtilities/Debug.h"
 #include "Setup/LUFAHelpers.h"
 #include <stdio.h>
 

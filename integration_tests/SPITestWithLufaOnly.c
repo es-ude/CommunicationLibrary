@@ -2,7 +2,7 @@
 #include <util/delay.h>
 #include "Setup/DebugSetup.h"
 #include "integration_tests/HelpersForUsageWithoutCommModule.h"
-#include "Util/Debug.h"
+#include "EmbeddedUtilities/Debug.h"
 #include <avr/io.h>
 
 void setup(void);

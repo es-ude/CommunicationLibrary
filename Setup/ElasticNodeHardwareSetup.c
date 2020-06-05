@@ -3,7 +3,7 @@
 #include "PeripheralInterface/PeripheralInterface.h"
 #include "Setup/HardwareSetup.h"
 #include "PeripheralInterface/Usart.h"
-#include "Util/Debug.h"
+#include "EmbeddedUtilities/Debug.h"
 #include "Setup/DebugSetup.h"
 #include <avr/io.h>
 #include <util/delay.h>

@@ -1,6 +1,6 @@
 #include <util/delay.h>
 
-#include "Util/Debug.h"
+#include "EmbeddedUtilities/Debug.h"
 #include "Setup/DebugSetup.h"
 #include "Setup/HardwareSetup.h"
 
