@@ -58,7 +58,7 @@ http_archive(
 
 http_archive(
     name = "PeripheralInterface",
-    strip_prefix = "PeripheralInterface-0.6",
-    urls = ["https://github.com/es-ude/PeripheralInterface/archive/v0.6.tar.gz"],
+    strip_prefix = "PeripheralInterface-0.7",
+    urls = ["https://github.com/es-ude/PeripheralInterface/archive/v0.7.tar.gz"],
     sha256 = "03aa03c8897b66227ddd1ddf6793a59f6b375b41f0f2329506f49d5ca4a9130a",
 )
