@@ -38,20 +38,20 @@ you will need to add the following lines::
 
     http_archive(
         name = "EmbeddedUtilities",
-        strip_prefix = "EmbeddedUtil-0.3",
-        urls = ["https://github.com/es-ude/EmbeddedEmbeddedUtilities/archive/v0.3.tar.gz"],
+        strip_prefix = "EmbeddedUtil-0.3.1",
+        urls = ["https://github.com/es-ude/EmbeddedEmbeddedUtilities/archive/v0.3.1.tar.gz"],
     )
 
     http_archive(
         name = "PeripheralInterface",
-        strip_prefix = "PeripheralInterface-0.6",
-        urls = ["https://github.com/es-ude/PeripheralInterface/archive/v0.6.tar.gz"],
+        strip_prefix = "PeripheralInterface-0.7.1",
+        urls = ["https://github.com/es-ude/PeripheralInterface/archive/v0.7.1.tar.gz"],
     )
     
     http_archive(
         name = "CommunicationModule",
-        strip_prefix = "CommunicationLibrary-0.1.5",
-        urls = ["https://github.com/es-ude/CommunicationLibrary/archive/v0.1.5.tar.gz"],
+        strip_prefix = "CommunicationLibrary-0.1.7",
+        urls = ["https://github.com/es-ude/CommunicationLibrary/archive/v0.1.7.tar.gz"],
     )
 
 Alternatively you can copy the dependencies from ``WORKSPACE`` file
