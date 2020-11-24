@@ -50,7 +50,7 @@ http_archive(
 
 http_archive(
     name = "EmbeddedUtilities",
-    strip_prefix = "EmbeddedUtilities-0.3.1",
+    strip_prefix = "EmbeddedUtilities-0.3.2",
     urls = ["https://github.com/es-ude/EmbeddedEmbeddedUtilities/archive/v0.3.1.tar.gz"],
     sha256 = "234c12e024bbd247bd4247b379eeca403ac7fab23a3bbb28df917508da37b40d",
 )
