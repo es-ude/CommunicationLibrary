@@ -3,7 +3,6 @@ workspace(
 )
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 http_archive(
     name = "EmbeddedSystemsBuildScripts",
@@ -43,21 +42,21 @@ http_archive(
 http_archive(
     name = "LUFA",
     build_file = "@EmbeddedSystemsBuildScripts//:BUILD.LUFA",
+    sha256 = "44294343284717ca63f07e7788680410a994a3c7f8ce27a784783bbfee09430e",
     strip_prefix = "lufa-LUFA-170418",
     urls = ["http://fourwalledcubicle.com/files/LUFA/LUFA-170418.zip"],
-    sha256 = "44294343284717ca63f07e7788680410a994a3c7f8ce27a784783bbfee09430e",
 )
 
 http_archive(
     name = "EmbeddedUtilities",
+    sha256 = "49e7d2c02bf5bcc10afe94f1d8233f2f0601c7a166d38e32409e2312abf7950e",
     strip_prefix = "EmbeddedUtilities-0.3.2",
-    urls = ["https://github.com/es-ude/EmbeddedEmbeddedUtilities/archive/v0.3.1.tar.gz"],
-    sha256 = "234c12e024bbd247bd4247b379eeca403ac7fab23a3bbb28df917508da37b40d",
+    urls = ["https://github.com/es-ude/EmbeddedUtilities/archive/v0.3.2.tar.gz"],
 )
 
 http_archive(
     name = "PeripheralInterface",
+    sha256 = "4f00ab56c6a7485ad813423c156cc6b895a68d3625a5c8e534a3be38aed5337d",
     strip_prefix = "PeripheralInterface-0.7.1",
     urls = ["https://github.com/es-ude/PeripheralInterface/archive/v0.7.1.tar.gz"],
-    sha256 = "4f00ab56c6a7485ad813423c156cc6b895a68d3625a5c8e534a3be38aed5337d",
 )
