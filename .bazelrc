@@ -1,0 +1,3 @@
+test --test_output=errors
+build --incompatible_enable_cc_toolchain_resolution=true
+try-import user.bazelrc

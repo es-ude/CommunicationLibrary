@@ -3,9 +3,11 @@ workspace(
 )
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 http_archive(
     name = "EmbeddedSystemsBuildScripts",
+    # sha256 = "b06d3fd0065e70fcad15a2e81adfcb86a8d53c4fb44c44b5e02b8fd2b73e8e5a",
     strip_prefix = "EmbeddedSystemsBuildScripts-1.0.1",
     type = "tar.gz",
     urls = ["https://github.com/es-ude/EmbeddedSystemsBuildScripts/archive/v1.0.1.tar.gz"],
@@ -49,14 +51,14 @@ http_archive(
 
 http_archive(
     name = "EmbeddedUtilities",
-    sha256 = "49e7d2c02bf5bcc10afe94f1d8233f2f0601c7a166d38e32409e2312abf7950e",
     strip_prefix = "EmbeddedUtilities-0.3.2",
-    urls = ["https://github.com/es-ude/EmbeddedUtilities/archive/v0.3.2.tar.gz"],
+    urls = ["https://github.com/es-ude/EmbeddedUtil/archive/v0.3.2.tar.gz"],
+    # sha256 = "964eb7b1ab9afba6960a6d19f7733716f61ba588c82a19330d87e4f006fce941",
 )
 
 http_archive(
     name = "PeripheralInterface",
-    sha256 = "4f00ab56c6a7485ad813423c156cc6b895a68d3625a5c8e534a3be38aed5337d",
+    # sha256 = "03aa03c8897b66227ddd1ddf6793a59f6b375b41f0f2329506f49d5ca4a9130a",
     strip_prefix = "PeripheralInterface-0.7.1",
     urls = ["https://github.com/es-ude/PeripheralInterface/archive/v0.7.1.tar.gz"],
 )

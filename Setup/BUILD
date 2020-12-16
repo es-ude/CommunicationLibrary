@@ -66,6 +66,26 @@ cc_library(
 )
 
 cc_library(
+    name = "ElasticNodeV4Setup",
+    srcs = [
+        "Delay.c",
+        "ElasticNodeV4HardwareSetup.c",
+    ],
+    hdrs = [
+        "DebugSetup.h",
+        "HardwareSetup.h",
+    ],
+    copts = cpu_frequency_flag() + ["-DDEBUG=0"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":Atomic",
+        ":DebugMotherBoard",  # for LUFA
+        "//:CommunicationModule",
+        "@EmbeddedUtilities//:Debug",
+    ],
+)
+
+cc_library(
     name = "Atomic",
     srcs = [
         "Atomic.c",

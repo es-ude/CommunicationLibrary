@@ -14,6 +14,7 @@ default_embedded_binary(
         "SPITestWithoutCommunicationModuleAndLufa.c",
     ],
     copts = cpu_frequency_flag(),
+    uploader = "@AvrToolchain//:avrdude_upload_script",
 )
 
 default_embedded_binary(
@@ -22,6 +23,7 @@ default_embedded_binary(
         "LufaTest.c",
     ],
     copts = cpu_frequency_flag(),
+    uploader = "@AvrToolchain//:avrdude_upload_script",
     deps = [
         "//Setup:MotherboardSetup",
         "@EmbeddedUtilities//:Debug",
@@ -53,8 +55,12 @@ default_embedded_binaries(
         "HelpersForUsageWithoutCommModule.c",
         "HelpersForUsageWithoutCommModule.h",
     ],
+    uploader = "@AvrToolchain//:avrdude_upload_script",
     deps = select({
         "@AvrToolchain//platforms/board_id:motherboard_config": ["//Setup:MotherboardSetup"],
         "@AvrToolchain//platforms/board_id:elastic_node_v3_config": ["//Setup:ElasticNodeSetup"],
+        "@AvrToolchain//platforms/board_id:elastic_node_v4_config": [
+            "//Setup:ElasticNodeV4Setup",
+        ],
     }),
 )

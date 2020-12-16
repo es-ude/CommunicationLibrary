@@ -11,6 +11,7 @@
 
 int main(void)
 {
+  setUpMac();
   setUpDebugging();
   Mac802154Config config = {
       .channel = 12,
