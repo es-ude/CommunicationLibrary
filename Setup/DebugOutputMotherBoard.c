@@ -22,3 +22,11 @@ printUInt16(uint16_t number)
   sprintf(text, "%i", number);
   printString(text);
 }
+
+void
+printChar(char character)
+{
+  char text[1];
+  sprintf(text, "%c", character);
+  printString(text);
+}

@@ -92,6 +92,7 @@ setShortSourceAddress(Mrf           *impl,
                                     2, mrf_register_short_address_low_byte);
 }
 
+// shouldn't this execute MrfIo_writeBlockingToLongAddress?
 void
 setExtendedSourceAddress(Mrf           *impl,
                          const uint8_t *address)
